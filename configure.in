@@ -1,0 +1,29 @@
+AC_INIT(src/Rllvm.h)
+
+if test -z "${LLVM_CONFIG}" ; then
+ 
+  AC_PATH_PROG(LLVM_CONFIG, llvm-config)
+
+  if test -z "${LLVM_CONFIG}" ; then
+    echo "cannot find llvm-config in your path. Make certain it is installed and in your path"
+    exit 1;
+  fi
+
+fi
+
+CFLAGS=`${LLVM_CONFIG} --cxxflags`
+AC_LANG(C++)
+AC_COMPILE_IFELSE([
+#include <llvm/LLVMContext.h>
+void foo() {
+}
+], [echo "Successfully include LLVMContext.h"], 
+   [AC_MSG_FAILURE("cannot include llvm/LLVMContext.h. Check that you have a suitable version of llvm installed.")])
+
+AC_SUBST(LLVM_CONFIG)
+
+echo ""
+echo "*** llvm-config ${LLVM_CONFIG}"
+echo ""
+
+AC_OUTPUT(src/Makevars)

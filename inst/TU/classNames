@@ -1,0 +1,457 @@
+llvm::BasicBlock
+llvm::Value
+llvm::ilist_node<llvm::BasicBlock>
+llvm::Module
+llvm::ilist_half_node<llvm::BasicBlock>
+llvm::IRBuilder<preserveNames,T,Inserter>
+llvm::IRBuilderBase
+llvm::IRBuilderDefaultInserter<preserveNames>
+llvm::iplist<llvm::Instruction,llvm::ilist_traits<llvm::Instruction> >
+llvm::ConstantFolder
+llvm::ilist_traits<llvm::Instruction>
+llvm::Function
+llvm::StringRef
+llvm::SymbolTableListTraits<llvm::Instruction,llvm::BasicBlock>
+llvm::GlobalValue
+llvm::ilist_node<llvm::Function>
+llvm::FunctionPass
+llvm::PATypeHolder
+llvm::ilist_default_traits<llvm::Instruction>
+llvm::ilist_half_node<llvm::Instruction>
+llvm::Constant
+llvm::ilist_half_node<llvm::Function>
+llvm::LLVMContext
+llvm::MDNode
+llvm::Pass
+llvm::ModulePass
+llvm::raw_ostream
+llvm::ilist_nextprev_traits<llvm::Instruction>
+llvm::ilist_sentinel_traits<llvm::Instruction>
+llvm::ilist_node_traits<llvm::Instruction>
+llvm::Instruction
+llvm::ilist_iterator<llvm::Instruction>
+llvm::User
+llvm::Use
+llvm::ilist_node<llvm::Instruction>
+llvm::ilist_iterator<const llvm::Instruction>
+llvm::iplist<llvm::BasicBlock,llvm::ilist_traits<llvm::BasicBlock> >
+llvm::Twine
+llvm::Type
+llvm::ilist_traits<llvm::BasicBlock>
+llvm::iplist<llvm::Argument,llvm::ilist_traits<llvm::Argument> >
+llvm::iplist<llvm::GlobalVariable,llvm::ilist_traits<llvm::GlobalVariable> >
+llvm::FoldingSetImpl
+llvm::AnalysisResolver
+llvm::AbstractTypeUser
+llvm::SymbolTableListTraits<llvm::BasicBlock,llvm::Function>
+llvm::ilist_traits<llvm::Argument>
+llvm::ilist_traits<llvm::GlobalVariable>
+llvm::iplist<llvm::Function,llvm::ilist_traits<llvm::Function> >
+llvm::ilist_default_traits<llvm::BasicBlock>
+llvm::SymbolTableListTraits<llvm::Argument,llvm::Function>
+llvm::AttrListPtr
+llvm::SymbolTableListTraits<llvm::GlobalVariable,llvm::Module>
+llvm::ilist_traits<llvm::Function>
+llvm::iplist<llvm::GlobalAlias,llvm::ilist_traits<llvm::GlobalAlias> >
+llvm::RegisterAnalysisGroup<Interface,Default>
+llvm::ilist_traits<const llvm::Instruction>
+llvm::ilist_nextprev_traits<llvm::BasicBlock>
+llvm::ilist_sentinel_traits<llvm::BasicBlock>
+llvm::ilist_node_traits<llvm::BasicBlock>
+llvm::ilist_default_traits<llvm::Argument>
+llvm::ilist_half_node<llvm::Argument>
+llvm::ilist_default_traits<llvm::GlobalVariable>
+llvm::GlobalVariable
+llvm::SymbolTableListTraits<llvm::Function,llvm::Module>
+llvm::ilist_traits<llvm::GlobalAlias>
+llvm::RegisterAGBase
+llvm::RegisterPass<passName>
+llvm::ilist_nextprev_traits<llvm::Argument>
+llvm::ilist_sentinel_traits<llvm::Argument>
+llvm::ilist_node_traits<llvm::Argument>
+llvm::Argument
+llvm::ilist_nextprev_traits<llvm::GlobalVariable>
+llvm::ilist_sentinel_traits<llvm::GlobalVariable>
+llvm::ilist_node_traits<llvm::GlobalVariable>
+llvm::ilist_node<llvm::GlobalVariable>
+llvm::ilist_default_traits<llvm::Function>
+llvm::SymbolTableListTraits<llvm::GlobalAlias,llvm::Module>
+llvm::iplist<llvm::NamedMDNode,llvm::ilist_traits<llvm::NamedMDNode> >
+llvm::PassInfo
+llvm::ilist_node<llvm::Argument>
+llvm::ilist_half_node<llvm::GlobalVariable>
+llvm::ilist_nextprev_traits<llvm::Function>
+llvm::ilist_sentinel_traits<llvm::Function>
+llvm::ilist_node_traits<llvm::Function>
+llvm::ilist_default_traits<llvm::GlobalAlias>
+llvm::GlobalAlias
+llvm::ilist_traits<llvm::NamedMDNode>
+llvm::ReturnInst
+llvm::ilist_iterator<llvm::BasicBlock>
+llvm::ilist_nextprev_traits<llvm::GlobalAlias>
+llvm::ilist_sentinel_traits<llvm::GlobalAlias>
+llvm::ilist_node_traits<llvm::GlobalAlias>
+llvm::ilist_node<llvm::GlobalAlias>
+llvm::SymbolTableListTraits<llvm::NamedMDNode,llvm::Module>
+llvm::TerminatorInst
+llvm::PATypeHandle
+llvm::PointerIntPair<llvm::Use**,2u,llvm::Use::PrevPtrTag,llvm::PointerLikeTypeTraits<llvm::Use**> >
+llvm::ilist_iterator<const llvm::BasicBlock>
+llvm::ilist_half_node<llvm::GlobalAlias>
+llvm::ilist_default_traits<llvm::NamedMDNode>
+llvm::ilist_node<llvm::NamedMDNode>
+llvm::ilist_iterator<llvm::Argument>
+llvm::FunctionType
+llvm::ilist_nextprev_traits<llvm::NamedMDNode>
+llvm::ilist_sentinel_traits<llvm::NamedMDNode>
+llvm::ilist_node_traits<llvm::NamedMDNode>
+llvm::ilist_half_node<llvm::NamedMDNode>
+llvm::NamedMDNode
+llvm::OwningPtr<llvm::GVMaterializer>
+llvm::BranchInst
+llvm::ilist_iterator<const llvm::Argument>
+llvm::DerivedType
+llvm::ilist_iterator<llvm::GlobalVariable>
+llvm::InlineAsm
+llvm::ilist_iterator<const llvm::GlobalVariable>
+llvm::SwitchInst
+llvm::value_use_iterator<UserTy>
+llvm::ilist_traits<const llvm::BasicBlock>
+llvm::ilist_iterator<llvm::Function>
+llvm::ilist_iterator<llvm::GlobalAlias>
+llvm::IndirectBrInst
+llvm::value_use_iterator<const llvm::User>
+llvm::ilist_iterator<const llvm::Function>
+llvm::ilist_iterator<const llvm::GlobalAlias>
+llvm::InvokeInst
+llvm::value_use_iterator<llvm::User>
+llvm::ilist_iterator<llvm::NamedMDNode>
+llvm::ilist_iterator<const llvm::NamedMDNode>
+llvm::FoldingSetNodeID
+llvm::isPodLike<T>
+llvm::AttributeWithIndex
+llvm::ilist_traits<const llvm::Function>
+llvm::ilist_traits<const llvm::GlobalAlias>
+llvm::UnwindInst
+llvm::PointerIntPair<PointerTy,IntBits,IntType,PtrTraits>
+llvm::isPodLike<const llvm::PassInfo*>
+llvm::SmallVector<unsigned int,32u>
+llvm::UnreachableInst
+llvm::isPodLike<unsigned int>
+llvm::SmallVectorImpl<unsigned int>
+llvm::PointerLikeTypeTraits<T>
+llvm::DenseMapInfo<llvm::PointerIntPair<PointerTy, IntBits, IntType, llvm::PointerLikeTypeTraits<PointerTy> > >
+llvm::PointerLikeTypeTraits<llvm::Use**>
+llvm::ilist_traits<const llvm::NamedMDNode>
+llvm::SmallVectorTemplateBase<unsigned int,true>
+llvm::PointerLikeTypeTraits<llvm::Instruction*>
+llvm::SmallVectorTemplateCommon<unsigned int>
+llvm::formatted_raw_ostream
+llvm::PointerLikeTypeTraits<llvm::Value*>
+llvm::isPodLike<std::pair<_T1, _T2> >
+llvm::SmallVectorBase
+llvm::isPodLike<llvm::PointerIntPair<PointerTy, IntBits, IntType, llvm::PointerLikeTypeTraits<PointerTy> > >
+llvm::PointerType
+llvm::cast_retty<To,From>
+llvm::SequentialType
+llvm::BinaryOperator
+llvm::cast_convert_val<To,From,SimpleFrom>
+llvm::PointerLikeTypeTraits<llvm::PointerIntPair<PointerTy, IntBits, IntType, PtrTraits> >
+llvm::ExtractElementInst
+llvm::CompositeType
+llvm::cast_retty_wrap<To,From,SimpleFrom>
+llvm::cast_convert_val<llvm::Function,llvm::Value*,llvm::Value*>
+llvm::VectorType
+llvm::PointerLikeTypeTraits<long unsigned int>
+llvm::cast_retty_impl<To,From>
+llvm::cast_retty_wrap<llvm::ConstantInt,llvm::Constant*,llvm::Constant*>
+llvm::cast_convert_val<llvm::Function,llvm::Use,llvm::Value*>
+llvm::PointerLikeTypeTraits<T*>
+llvm::SelectInst
+llvm::APInt
+llvm::AnalysisUsage
+llvm::cast_retty_impl<llvm::ConstantInt,llvm::Constant*>
+llvm::ConstantInt
+llvm::cast_retty_wrap<llvm::BasicBlock,llvm::Value*,llvm::Value*>
+llvm::cast_convert_val<llvm::Constant,llvm::Value*,llvm::Value*>
+llvm::ConstantExpr
+llvm::PointerLikeTypeTraits<const T*>
+llvm::cast_retty<llvm::Function,llvm::Value*>
+llvm::cast_retty_impl<llvm::BasicBlock,llvm::Value*>
+llvm::cast_retty_wrap<llvm::FunctionType,const llvm::Type*,const llvm::Type*>
+llvm::cast_convert_val<llvm::Constant,const llvm::Use*,llvm::Value*>
+llvm::UndefValue
+llvm::ImmutablePass
+llvm::SmallVector<const llvm::PassInfo*,32u>
+llvm::isa_impl_wrap<To,From,SimpleType>
+llvm::cast_retty<llvm::Function,llvm::Use>
+llvm::cast_retty_impl<llvm::FunctionType,const llvm::Type*>
+llvm::cast_retty_wrap<llvm::Function,llvm::Use,llvm::Value*>
+llvm::cast_convert_val<const llvm::VectorType,const llvm::Type*,const llvm::Type*>
+llvm::CallInst
+llvm::SmallVectorImpl<const llvm::PassInfo*>
+llvm::isa_impl_wrap<llvm::ConstantInt,const llvm::Value,const llvm::Value>
+llvm::cast_retty<const llvm::VectorType,const llvm::Type*>
+llvm::cast_retty_impl<llvm::Function,llvm::Value*>
+llvm::cast_retty_wrap<llvm::Function,llvm::Value*,llvm::Value*>
+llvm::cast_convert_val<llvm::Instruction,const llvm::Operator*,const llvm::Operator*>
+llvm::Operator
+llvm::CmpInst
+llvm::ConstantPointerNull
+llvm::SmallVectorTemplateBase<const llvm::PassInfo*,true>
+llvm::isa_impl_cl<FromCl>
+llvm::isa_impl_wrap<llvm::Value,const llvm::Value,const llvm::Value>
+llvm::cast_retty<llvm::Constant,const llvm::Use*>
+llvm::cast_retty_impl<llvm::PointerType,const llvm::PointerType*>
+llvm::cast_retty_wrap<llvm::PointerType,const llvm::PointerType*,const llvm::PointerType*>
+llvm::cast_convert_val<llvm::Value,llvm::Value*,llvm::Value*>
+llvm::ConstantVector
+llvm::SmallVectorTemplateCommon<const llvm::PassInfo*>
+llvm::simplify_type<T>
+llvm::isa_impl_cl<llvm::Value>
+llvm::isa_impl_wrap<llvm::PointerType,const llvm::PointerType,const llvm::PointerType>
+llvm::cast_retty<llvm::Instruction,const llvm::Operator*>
+llvm::cast_retty_impl<llvm::PointerType,const llvm::Type*>
+llvm::cast_retty_wrap<llvm::PointerType,const llvm::Type*,const llvm::Type*>
+llvm::cast_convert_val<llvm::Value,llvm::Use,llvm::Value*>
+llvm::UnaryInstruction
+llvm::ConstantUnion
+llvm::UnionType
+llvm::simplify_type<const llvm::Value>
+llvm::isa_impl_cl<llvm::Value*>
+llvm::isa_impl_wrap<llvm::PointerType,const llvm::Type,const llvm::Type>
+llvm::cast_retty<llvm::Value,llvm::Value*>
+llvm::cast_retty_impl<const llvm::VectorType,const llvm::Type*>
+llvm::cast_retty_wrap<const llvm::VectorType,const llvm::Type*,const llvm::Type*>
+llvm::cast_convert_val<llvm::Constant,llvm::Use,llvm::Value*>
+llvm::BlockAddress
+llvm::ConstantStruct
+llvm::StructType
+llvm::SmallVectorImpl<T>
+llvm::simplify_type<const llvm::PointerType>
+llvm::isa_impl_cl<llvm::Value* const>
+llvm::isa_impl_wrap<const llvm::VectorType,const llvm::Type,const llvm::Type>
+llvm::cast_retty<llvm::Constant,llvm::Value*>
+llvm::cast_retty_impl<llvm::ConstantExpr,const llvm::Value*>
+llvm::cast_retty_wrap<llvm::Constant,const llvm::Use*,llvm::Value*>
+llvm::cast_convert_val<llvm::BasicBlock,llvm::Value*,llvm::Value*>
+llvm::ConstantArray
+llvm::ArrayType
+llvm::simplify_type<const llvm::Type>
+llvm::isa_impl_cl<llvm::PointerType>
+llvm::isa_impl_wrap<llvm::ConstantInt,const llvm::Use,llvm::Value*>
+llvm::cast_retty<llvm::BasicBlock,llvm::Value*>
+llvm::cast_retty_impl<llvm::Instruction,const llvm::Value*>
+llvm::cast_retty_wrap<llvm::ConstantExpr,const llvm::Value*,const llvm::Value*>
+llvm::cast_convert_val<llvm::PointerType,const llvm::PointerType*,const llvm::PointerType*>
+llvm::ConstantAggregateZero
+llvm::simplify_type<const llvm::Use>
+llvm::isa_impl_cl<llvm::Type>
+llvm::isa_impl_wrap<llvm::ConstantExpr,const llvm::Operator,const llvm::Operator>
+llvm::cast_retty<llvm::PointerType,const llvm::PointerType*>
+llvm::cast_retty_impl<llvm::ConstantExpr,const llvm::Operator*>
+llvm::IntegerType
+llvm::cast_retty_wrap<llvm::Instruction,const llvm::Value*,const llvm::Value*>
+llvm::cast_convert_val<llvm::PointerType,const llvm::Type*,const llvm::Type*>
+llvm::simplify_type<const llvm::Operator>
+llvm::isa_impl_cl<llvm::Use>
+llvm::isa_impl_wrap<llvm::Instruction,const llvm::Operator,const llvm::Operator>
+llvm::cast_retty<llvm::PointerType,const llvm::Type*>
+llvm::cast_retty_impl<llvm::Instruction,const llvm::Operator*>
+llvm::cast_retty_wrap<llvm::ConstantExpr,const llvm::Operator*,const llvm::Operator*>
+llvm::cast_convert_val<llvm::ConstantExpr,const llvm::Value*,const llvm::Value*>
+llvm::simplify_type<const llvm::User>
+llvm::isa_impl_cl<llvm::Operator>
+llvm::isa_impl_wrap<llvm::BasicBlock,const llvm::Value,const llvm::Value>
+llvm::cast_retty<llvm::ConstantExpr,const llvm::Value*>
+llvm::cast_retty_impl<llvm::Value,llvm::Value*>
+llvm::cast_retty_wrap<llvm::Instruction,const llvm::Operator*,const llvm::Operator*>
+llvm::cast_convert_val<llvm::Instruction,const llvm::Value*,const llvm::Value*>
+llvm::simplify_type<llvm::Use>
+llvm::isa_impl_cl<llvm::User>
+llvm::isa_impl_wrap<llvm::Function,const llvm::Use,llvm::Value*>
+llvm::cast_retty<llvm::Instruction,const llvm::Value*>
+llvm::cast_retty_impl<llvm::Constant,llvm::Value*>
+llvm::cast_retty_wrap<llvm::Value,llvm::Use,llvm::Value*>
+llvm::cast_convert_val<llvm::ConstantExpr,const llvm::Operator*,const llvm::Operator*>
+llvm::simplify_type<llvm::Value*>
+llvm::isa_impl_cl<const llvm::PointerType>
+llvm::isa_impl_wrap<llvm::ConstantExpr,const llvm::Value,const llvm::Value>
+llvm::cast_retty<llvm::ConstantExpr,const llvm::Operator*>
+llvm::cast_retty_impl<llvm::User,const llvm::User*>
+llvm::cast_retty_wrap<llvm::Value,llvm::Value*,llvm::Value*>
+llvm::cast_convert_val<llvm::User,const llvm::User*,const llvm::User*>
+llvm::Inverse<GraphType>
+llvm::simplify_type<const llvm::Use*>
+llvm::isa_impl_cl<const llvm::Type>
+llvm::isa_impl_wrap<llvm::Value,const llvm::Use,llvm::Value*>
+llvm::cast_retty<llvm::Value,llvm::Use>
+llvm::cast_retty_impl<llvm::User,llvm::User*>
+llvm::cast_retty_wrap<llvm::Constant,llvm::Use,llvm::Value*>
+llvm::cast_convert_val<llvm::User,llvm::User*,llvm::User*>
+llvm::GraphTraits<GraphType>
+llvm::simplify_type<const llvm::Type*>
+llvm::isa_impl_cl<const llvm::Use>
+llvm::isa_impl_wrap<llvm::Constant,const llvm::Use,llvm::Value*>
+llvm::cast_retty<llvm::Constant,llvm::Use>
+llvm::cast_retty_impl<llvm::Instruction,const llvm::User*>
+llvm::cast_retty_wrap<llvm::Constant,llvm::Value*,llvm::Value*>
+llvm::cast_convert_val<llvm::Instruction,const llvm::User*,const llvm::User*>
+llvm::GraphTraits<const llvm::Type*>
+llvm::simplify_type<const llvm::Operator*>
+llvm::isa_impl_cl<const llvm::Operator>
+llvm::isa_impl_wrap<llvm::User,const llvm::User,const llvm::User>
+llvm::cast_retty<llvm::User,const llvm::User*>
+llvm::cast_retty_impl<llvm::Instruction,llvm::User*>
+llvm::cast_retty_wrap<llvm::User,const llvm::User*,const llvm::User*>
+llvm::cast_convert_val<llvm::Instruction,llvm::User*,llvm::User*>
+llvm::GraphTraits<llvm::Type*>
+llvm::simplify_type<const llvm::PointerType*>
+llvm::isa_impl_cl<const llvm::User>
+llvm::isa_impl_wrap<llvm::Instruction,const llvm::User,const llvm::User>
+llvm::cast_retty<llvm::User,llvm::User*>
+llvm::cast_retty_wrap<llvm::User,llvm::User*,llvm::User*>
+llvm::OwningArrayPtr<T>
+llvm::simplify_type<const llvm::Value*>
+llvm::isa_impl_cl<const llvm::PointerType*>
+llvm::isa_impl_wrap<llvm::Instruction,const llvm::Value,const llvm::Value>
+llvm::cast_retty<llvm::Instruction,const llvm::User*>
+llvm::cast_retty_impl<To,const From* const>
+llvm::cast_retty_wrap<llvm::Instruction,const llvm::User*,const llvm::User*>
+llvm::cast_convert_val<To,FromTy,FromTy>
+llvm::GraphTraits<llvm::Inverse<llvm::Inverse<T> > >
+llvm::simplify_type<const llvm::User*>
+llvm::isa_impl_cl<const llvm::Type*>
+llvm::isa_impl_wrap<llvm::GlobalValue,const llvm::Value,const llvm::Value>
+llvm::cast_retty<llvm::Instruction,llvm::User*>
+llvm::cast_retty_impl<To,const From*>
+llvm::cast_retty_wrap<llvm::Instruction,llvm::User*,llvm::User*>
+llvm::OwningPtr<T>
+llvm::simplify_type<llvm::User*>
+llvm::isa_impl_cl<const llvm::Use*>
+llvm::isa_impl_wrap<llvm::Constant,const llvm::Value,const llvm::Value>
+llvm::cast_retty_impl<To,From*>
+llvm::FoldingSetNodeWrapper<T>
+llvm::simplify_type<llvm::Constant*>
+llvm::isa_impl_cl<const llvm::Value>
+llvm::isa_impl_wrap<llvm::GlobalAlias,const llvm::Value,const llvm::Value>
+llvm::cast_retty_impl<To,const From>
+llvm::cast_retty_wrap<To,FromTy,FromTy>
+llvm::FoldingSet<T>
+llvm::simplify_type<const llvm::ilist_iterator<NodeTy> >
+llvm::isa_impl_cl<const llvm::Operator*>
+llvm::isa_impl_wrap<llvm::Function,const llvm::Value,const llvm::Value>
+llvm::FoldingSetBucketIterator<T>
+llvm::simplify_type<llvm::ilist_iterator<NodeTy> >
+llvm::isa_impl_cl<const llvm::User*>
+llvm::isa_impl_wrap<llvm::GlobalVariable,const llvm::Value,const llvm::Value>
+llvm::cast_retty<llvm::ConstantInt,llvm::Constant*>
+llvm::FoldingSetBucketIteratorImpl
+llvm::FoldingSetIterator<T>
+llvm::simplify_type<const llvm::Use* const>
+llvm::isa_impl_cl<llvm::User*>
+llvm::FoldingSetIteratorImpl
+llvm::FoldingSetNode
+llvm::simplify_type<llvm::Use*>
+llvm::isa_impl_cl<const llvm::Value*>
+llvm::isa_impl_wrap<To,const FromTy,const FromTy>
+llvm::AllocaInst
+llvm::FoldingSetTrait<T>
+llvm::simplify_type<llvm::Use* const>
+llvm::cast_retty<llvm::FunctionType,const llvm::Type*>
+llvm::LoadInst
+llvm::SmallVector<T,N>
+llvm::FoldingSetTrait<const T*>
+llvm::simplify_type<llvm::value_use_iterator<const llvm::User> >
+llvm::simplify_type<const From>
+llvm::SmallVectorTemplateBase<T,isPodLike>
+llvm::SmallVector<unsigned int,4u>
+llvm::FoldingSetTrait<T*>
+llvm::simplify_type<const llvm::value_use_iterator<const llvm::User> >
+llvm::isa_impl_cl<FromCl&>
+llvm::SmallVectorTemplateCommon<T>
+llvm::simplify_type<llvm::value_use_iterator<llvm::User> >
+llvm::isa_impl_cl<FromCl*>
+llvm::StoreInst
+llvm::conditional<<anonymous>,T,F>
+llvm::simplify_type<const llvm::value_use_iterator<llvm::User> >
+llvm::isa_impl_cl<const FromCl>
+llvm::remove_pointer<T>
+llvm::conditional<false,T,F>
+llvm::is_base_of<Base,Derived>
+llvm::remove_pointer<T* const volatile>
+llvm::SmallVectorTemplateBase<T,true>
+llvm::enable_if<Cond,T>
+llvm::remove_pointer<T* volatile>
+llvm::enable_if_c<Cond,T>
+llvm::remove_pointer<T* const>
+llvm::is_same<T,U>
+llvm::remove_pointer<T*>
+llvm::is_class<T>
+llvm::is_same<T,T>
+llvm::enable_if_c<false,T>
+llvm::simplify_type<const llvm::PATypeHolder>
+llvm::VariadicOperandTraits<MINARITY>
+llvm::is_class<const llvm::PassInfo*>
+llvm::simplify_type<llvm::PATypeHolder>
+llvm::GetElementPtrInst
+llvm::OptionalOperandTraits<ARITY>
+llvm::VariadicOperandTraits<3u>
+llvm::is_class<unsigned int>
+llvm::FixedNumOperandTraits<ARITY>
+llvm::OptionalOperandTraits<1u>
+llvm::VariadicOperandTraits<1u>
+llvm::FixedNumOperandTraits<3u>
+llvm::FixedNumOperandTraits<1u>
+llvm::VariadicOperandTraits<0u>
+llvm::FixedNumOperandTraits<2u>
+llvm::ilist<NodeTy>
+llvm::ilist_default_traits<NodeTy>
+llvm::ilist_node_traits<NodeTy>
+llvm::ilist_sentinel_traits<NodeTy>
+llvm::ilist_iterator<NodeTy>
+llvm::iplist<NodeTy,Traits>
+llvm::SymbolTableListTraits<ValueSubClass,ItemParentClass>
+llvm::ilist_node<NodeTy>
+llvm::ilist_nextprev_traits<NodeTy>
+llvm::CastInst
+llvm::ilist_half_node<NodeTy>
+llvm::ilist_traits<NodeTy>
+llvm::HungoffOperandTraits<<anonymous> >
+llvm::HungoffOperandTraits<1u>
+llvm::OperandTraits<llvm::BranchInst>
+llvm::HungoffOperandTraits<2u>
+llvm::OperandTraits<llvm::ExtractElementInst>
+llvm::OperandTraits<llvm::SelectInst>
+llvm::OperandTraits<llvm::CallInst>
+llvm::OperandTraits<llvm::CmpInst>
+llvm::OperandTraits<llvm::UnaryInstruction>
+llvm::OperandTraits<llvm::BlockAddress>
+llvm::OperandTraits<llvm::GlobalVariable>
+llvm::OperandTraits<llvm::InvokeInst>
+llvm::OperandTraits<llvm::IndirectBrInst>
+llvm::OperandTraits<llvm::SwitchInst>
+llvm::OperandTraits<llvm::ReturnInst>
+llvm::OperandTraits<llvm::PHINode>
+llvm::PHINode
+llvm::OperandTraits<llvm::InsertValueInst>
+llvm::ilist_traits<const Ty>
+llvm::InsertValueInst
+llvm::OperandTraits<llvm::ShuffleVectorInst>
+llvm::ShuffleVectorInst
+llvm::OperandTraits<llvm::InsertElementInst>
+llvm::InsertElementInst
+llvm::OperandTraits<llvm::GetElementPtrInst>
+llvm::OperandTraits<llvm::StoreInst>
+llvm::OperandTraits<llvm::BinaryOperator>
+llvm::OperandTraits<llvm::ConstantExpr>
+llvm::OperandTraits<llvm::ConstantVector>
+llvm::OperandTraits<llvm::ConstantUnion>
+llvm::OperandTraits<llvm::ConstantStruct>
+llvm::OperandTraits<llvm::ConstantArray>
+llvm::OperandTraits<llvm::GlobalAlias>
+llvm::OperandTraits<llvm::User>
+llvm::ICmpInst
+llvm::FCmpInst
+llvm::VAArgInst
+llvm::ExtractValueInst

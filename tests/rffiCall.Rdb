@@ -1,0 +1,204 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	xmlns:c="http://www.C.org">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+
+<section>
+<para>
+The goal here is to generate a routine via LLVM
+and then invoke it using our regular  invocation
+facilities in R, i.e. .C or Rffi.
+</para>
+
+
+<para>
+Here we setup a simple function.  This just returns the number 3 as an
+integer.  We can't call this with .C, but we can use the Rffi package.
+
+<r:code>
+library(Rllvm)
+InitializeNativeTarget()
+mod = Module("rffi")
+fun = Function("bar", Int32Type, module = mod)
+b = Block(fun, "entry")
+ir = IRBuilder(b)
+k = createIntegerConstant(3L)
+ir$createRet(k)
+</r:code>
+<r:code>
+run(fun)
+</r:code>
+</para>
+<para>
+
+Now we call this via Rffi.
+<r:code>
+ee = ExecutionEngine(mod)
+ptr = getPointerToFunction(fun, ee)
+</r:code>
+Check we can call it with a specific cast to the correct
+function pointer type
+<r:code>
+.Call("R_checkNativePtr", ptr@ref)
+</r:code>
+
+Now let's use the Rffi package
+<r:code>
+library(Rffi)
+cif = CIF(sint32Type)
+callCIF(cif, ptr@ref)
+</r:code>
+And things work.
+
+</para>
+</section>
+
+<section>
+<title></title>
+
+<para>
+In this example, we will create a routine via LLVM
+and invoke it using the Rffi package, or
+via the .C interface.
+The difference here is that we are going to pass 
+arguments, specifically R vectors.
+The routine we will define is 
+<c:code>
+void
+foo(int *x)
+{
+   return(x[0] + x[1]);
+}
+</c:code>
+</para>
+<para>
+Our first task is to define this function.
+We do this with our calls to LLVM functions.
+
+<r:code>
+library(Rllvm)
+InitializeNativeTarget()
+mod = Module("dotC")
+</r:code>
+
+
+We start by declaring  the function 
+which takes an integer pointer and returns
+nothing. This allows us to invoke the function via
+the <r:func>.C</r:func> function.
+<r:code>
+fun = Function("myAdd", Int32Type, list(x = Int32PtrType), module = mod)
+params = getParameters(fun)
+</r:code>
+
+Next, we implement the body of the function
+
+<r:code>
+b = Block(fun, "entry")
+ir = IRBuilder(b)
+xa = createLocalVariable(ir, Int32PtrType, "x_addr")
+x = ir$createStore(params$x, xa)
+a = ir$createLoad(ir$createGEP(ir$createLoad(xa), 0L))
+b = ir$createLoad(ir$createGEP(ir$createLoad(xa), 1L))
+ans = ir$binOp(Add, a, b)
+ir$createRet(ans)
+</r:code>
+
+<r:code>
+showModule(mod)
+</r:code>
+</para>
+
+<para>
+Next we call this function with an R vector.
+<r:code>
+x = 1:2
+run(fun, x)
+</r:code>
+Let's try another input vector:
+<r:code>
+x = 20:21
+run(fun, x)
+</r:code>
+</para>
+
+<para>
+We can call this with Rffi in the following way.
+<r:code>
+ee = ExecutionEngine(mod)
+ptr = getPointerToFunction(fun, ee)
+library(Rffi)
+cif = CIF(sint32Type, list(pointerType))
+x = 20:21
+callCIF(cif, ptr@ref, x)
+</r:code>
+</para>
+</section>
+
+
+<section>
+<title>.C</title>
+<para>
+So now we have determined we can call this via the LLVM mechanism.
+Can we call this via the .C interface in R.  Well the problem is that
+the routine returns a value, not a void.
+To call this, we need to use the Rffi as above.
+</para>
+<para>
+Let's use the .C interface.  We need to add an extra parameter to the
+function and provide an integer pointer into which we store the
+answer.  With this approach, we can can use the .C interface.  So
+let's define this routine.
+
+<r:code>
+library(Rllvm)
+InitializeNativeTarget()
+mod = Module("dotC")
+fun = Function("foo2", VoidType, list(x = Int32PtrType, ans = Int32PtrType), module = mod)
+params = getParameters(fun)
+</r:code>
+<r:code>
+b = Block(fun, "entry")
+ir = IRBuilder(b)
+xa = createLocalVariable(ir, Int32PtrType, "x_addr")
+xb = createLocalVariable(ir, Int32PtrType, "ans_addr")
+x = ir$createStore(params$x, xa)
+x = ir$createStore(params$ans, xb)
+a = ir$createLoad(ir$createGEP(ir$createLoad(xa), 0L))
+b = ir$createLoad(ir$createGEP(ir$createLoad(xa), 1L))
+ans = ir$binOp(Add, a, b)
+ir$createStore(ans, ir$createGEP(ir$createLoad(xb), 0L))
+ir$createRetVoid()
+</r:code>
+
+If we have a pointer to the C routine, we can pass this to the .C interface
+<r:code>
+ee = ExecutionEngine(mod)
+ptr = getPointerToFunction(fun, ee)
+
+x = 1:2
+ans = 1L
+.C(ptr@ref, x, ans = ans)$ans
+</r:code>
+This doesn't work, but crashes instead.
+I don't know if we are getting a "callable" function pointer
+via <r:func>getPointerToFunction</r:func>.
+
+
+
+</para>
+
+</section>
+</article>
