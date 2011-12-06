@@ -1,0 +1,23 @@
+Package: Rllvm
+Version: 0.3-0
+Title: Interface to llvm for creating native functions
+Author: Duncan Temple Lang
+SystemRequirements: llvm (>= 2.7)
+Maintainer: Duncan Temple Lang <duncan@wald.ucdavis.edu>
+Description: This package is currently an interface to some of the
+    functionality in the llvm toolkit for programmaticall constructing native code.
+    This allows us to build "compilers" in R and use llvm's optmization and JIT techniques
+    to improve the code we generate and then turn it into machine code.
+    This is currently not a compiler. There are examples that illustrate how 
+    to generate code to create native functions that are equivalent to 
+    some simple R functions. The goal is to build on this and create a compiler,
+    hopefully building on the framework that Luke Tierney has created in his
+    compiler package (see http://www.cs.uiowa.edu/~luke/R/compiler/).
+    The speed up we achieve in our examples 
+License: GPL2
+Depends: R (>= 2.7.0), methods, RAutoGenRunTime
+URL: http://www.omegahat.org/Rllvm
+Note:  We hope to build on this to build a compiler for R.
+Collate: classDefs.R BinaryOpEnums.R Function.R	block.R module.R typeDefs.R
+         ExecutionEngine.R IRBuilder.R onLoad.R ICmpEnums.R types.R constants.R
+         externalLinkage.R globalVar.R value.R dso.R context.R TypeID.R

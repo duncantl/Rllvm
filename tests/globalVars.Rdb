@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+Here we look at global variables.  We will create a global variable in
+a module and a routine that increments it.  Then we will retrieve the
+value.
+</para>
+<para>
+We start with the usual initialization steps
+and create our module.
+<r:code>
+library(Rllvm)
+InitializeNativeTarget()
+mod = Module("global")
+</r:code>
+
+Next we create the global variable. We define a
+a constant to use as the initial value.
+<r:code>
+one = createIntegerConstant(-101L)
+gvar = createGlobalVariable("gv", one, mod, Int32Type)
+</r:code>
+
+So now we define the function that increments 
+the global variable.
+<r:code>
+fun = Function("inc", Int32Type, module = mod)
+e = Block(fun, "entry")
+ir = IRBuilder(e)
+</r:code>
+
+
+<r:code>
+tmp = ir$createLocalVariable(Int32Type, "tmp")
+zero = createIntegerConstant(0L)
+createBitCast(ir, zero, Int32Type, "cast")
+v = ir$createLoad(gvar)
+ans = ir$binOp(Add, v, 1L)
+#tmp = ir$createLoad(gvar)
+ir$createStore(ans, gvar)
+g = ir$createLoad(gvar)
+ir$createStore(g, tmp)
+</r:code>
+
+<r:code>
+ret = Block(fun)
+ir$createBr(ret)
+</r:code>
+
+
+<r:code>
+ir$setInsertPoint(ret)
+v = ir$createLoad(tmp)
+#ir$createRetVoid()
+ir$createRet(v)
+</r:code>
+
+</para>
+<para>
+Let's add another function to get the current value.
+<r:code>
+getGV = Function("getGV", Int32Type, module = mod)
+b = Block(getGV)
+ir = IRBuilder(b)
+
+
+#tmp = ir$createLocalVariable(Int32Type, "tmp")
+#zero = createIntegerConstant(0L) 
+#ir$createBitCast(zero, Int32Type)
+ans = ir$createLoad(gvar)
+#val = ir$createStore(ans, tmp)
+#ans = ir$createLoad(tmp)
+ir$createReturn(ans)
+</r:code>
+
+<r:code>
+ee = ExecutionEngine(mod)
+run(getGV, .ee = ee)
+run(fun, .ee = ee)
+run(fun, .ee = ee)
+run(fun, .ee = ee)
+run(getGV, .ee = ee)
+replicate(10, run(fun, .ee = ee))
+run(getGV, .ee = ee)
+</r:code>
+</para>
+
+</section>
+</article>

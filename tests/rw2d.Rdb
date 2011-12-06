@@ -1,0 +1,345 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+Here we implement the very initial version of Ross's
+naieve 2D random walk.
+
+<r:code>
+rw2d1 =
+function(n = 100) {
+    xpos = ypos = numeric(n)
+    for(i in 2:n) {
+          # Decide whether we are moving horizontally or vertically.
+      delta = if(runif(1) > .5) 1 else -1
+      if (runif(1) > .5) {
+        xpos[i] = xpos[i-1] + delta
+        ypos[i] = ypos[i-1]
+      }
+      else {
+        xpos[i] = xpos[i-1]
+        ypos[i] = ypos[i-1] + delta
+      }
+    }
+    list(x = xpos, y = ypos)
+  }
+</r:code>
+
+We have seen how to write loops, get elements from pointers and do conditional branching
+in cumsum.Rdb
+So this is very similar.
+
+We are going to implement a slightly different version
+that receives the int * pointers for x and y and just
+fills them in. We can write a .Call() wrapper for this
+so we can compare apples and apples.
+
+<r:code>
+library(Rllvm)
+InitializeNativeTarget()
+mod = Module("2Drw")
+ptrInt = pointerType(Int32Type)
+fun = Function("rw2d", VoidType, c(x = ptrInt, y = ptrInt, len = Int32Type), mod)
+</r:code>
+<r:code>
+entry = Block(fun, "entry")
+cond = Block(fun, "loopCond")
+body = Block(fun, "loopBody")
+ret = Block(fun, "return")
+h = Block(fun, "Horizontal")
+v = Block(fun, "Vertical")
+increment = Block(fun, "increment")
+</r:code>
+<r:code>
+one = createIntegerConstant(1L)
+minusOne = createIntegerConstant(-1L)
+</r:code>
+
+<r:code>
+ir = IRBuilder(entry)
+
+iv = ir$createLocalVariable(Int32Type, "i")
+lena = ir$createLocalVariable(Int32Type, "lenp")
+xa = ir$createLocalVariable(ptrInt, "xp")
+ya = ir$createLocalVariable(ptrInt, "yp")
+delta = ir$createLocalVariable(Int32Type, "delta")
+ir$createStore(fun$x, xa)
+ir$createStore(fun$y, ya)
+ir$createStore(fun$len, lena)
+ir$createStore(one, iv)
+ir$createBr(cond)
+</r:code>
+
+
+<r:code>
+ir$setInsertPoint(cond)
+a = ir$createLoad(iv)
+b = ir$createLoad(lena)
+ok = ir$createICmp(ICMP_SLT, a, b)
+ir$createCondBr(ok, body, ret)
+</r:code>
+
+
+<r:code>
+ir$setInsertPoint(ret)
+ir$createRetVoid()
+</r:code>
+
+
+<r:code>
+ir$setInsertPoint(body)
+ # declare runif which takes a number but ignores it. 
+runif = Function("runif", DoubleType, c(n = Int32Type), mod)
+
+ # compute delta
+u = ir$createCall(runif, one)
+gt = ir$createFCmp(FCMP_UGE, u, createDoubleConstant(.5))
+ir$createStore(ir$createSelect(gt, minusOne, one),  delta)
+
+ # now determine whether to go horiz or vert.
+u = ir$createCall(runif, one)
+gt = ir$createFCmp(FCMP_UGE, u, createDoubleConstant(.5))
+
+ir$createCondBr(gt, h, v)
+</r:code>
+
+
+Next we fill in the horizontal move.
+We load x[i-1] and add delta to it
+and the store this in x[i]
+<r:code>
+ir$setInsertPoint(h)
+a = ir$createLoad(iv)
+b = ir$binOp(Sub, a, one)
+r = ir$createLoad(xa)
+idx = ir$createSExt(b, 64L)
+x.prev = ir$createLoad(ir$createGEP(r, idx))
+nw = ir$binOp(Add, x.prev, ir$createLoad(delta))
+a = ir$createLoad(xa)
+i = ir$createLoad(iv)
+idx = ir$createSExt(i, 64L)
+xi = ir$createGEP(a, idx)
+ir$createStore(nw, xi)
+</r:code>
+
+Next we copy y[i-1] to y[i]
+<r:code>
+a = ir$createLoad(iv)
+b = ir$binOp(Sub, a, one)
+r = ir$createLoad(ya)
+idx = ir$createSExt(b, 64L)
+y.prev = ir$createLoad(ir$createGEP(r, idx))
+a = ir$createLoad(ya)
+i = ir$createLoad(iv)
+idx = ir$createSExt(i, 64L)
+yi = ir$createGEP(a, idx)
+ir$createStore(y.prev, yi)
+</r:code>
+Finally, we jump to the loop increment and then to the condition.
+<r:code>
+ir$createBr(increment)
+</r:code>
+
+
+This is the increment block that updates i and
+then jumps to the loop condition.
+<r:code>
+ir$setInsertPoint(increment)
+i = ir$createLoad(iv)
+inc = ir$binOp(Add, i, 1L)
+ir$createStore(inc, iv)
+ir$createBr(cond)
+</r:code>
+
+
+
+<r:code>
+ir$setInsertPoint(v)
+
+a = ir$createLoad(iv)
+b = ir$binOp(Sub, a, one)
+r = ir$createLoad(ya)
+idx = ir$createSExt(b, 64L)
+y.prev = ir$createLoad(ir$createGEP(r, idx))
+nw = ir$binOp(Add, y.prev, ir$createLoad(delta))
+a = ir$createLoad(ya)
+i = ir$createLoad(iv)
+idx = ir$createSExt(i, 64L)
+yi = ir$createGEP(a, idx)
+ir$createStore(nw, yi)
+
+
+a = ir$createLoad(iv)
+b = ir$binOp(Sub, a, one)
+r = ir$createLoad(xa)
+idx = ir$createSExt(b, 64L)
+x.prev = ir$createLoad(ir$createGEP(r, idx))
+a = ir$createLoad(xa)
+i = ir$createLoad(iv)
+idx = ir$createSExt(i, 64L)
+xi = ir$createGEP(a, idx)
+ir$createStore(x.prev, xi)
+
+
+
+ir$createBr(increment)
+</r:code>
+
+</para>
+
+
+</section>
+<section>
+<title>Timings</title>
+
+<para>
+<r:code>
+ee = ExecutionEngine(mod)
+Optimize(mod, ee)
+llvmAddSymbol(runif = getNativeSymbolInfo("runif")$address)
+</r:code>
+
+<r:code>
+n = 1e7
+</r:code>
+
+</para>
+
+<para>
+The interpreted version
+<r:code>
+#interp = system.time({rw2d1(n)})
+interp = replicate(5, system.time({rw2d1(n)}))
+interp = apply(interp, 1, median)
+</r:code>
+</para>
+
+<para>
+
+<r:code>
+
+doit = 
+function(n = 1000000) {
+ x = integer(n)
+ y = integer(n)
+ run(fun, x = x, y = y, n, .ee = ee, .all = TRUE)[c("x", "y")]
+}
+
+tt = system.time({ doit(n)})
+tt = system.time({ doit(n)}) # second time runs faster
+</r:code>
+
+<r:code>
+tt = replicate(10, system.time({ doit(n)}))
+tt = apply(tt, 1, median)
+</r:code>
+
+
+
+
+
+<r:code>
+library(compiler)
+g = cmpfun(rw2d1)
+cmp = replicate(3, system.time(g(n)))
+cmp = apply(cmp, 1, median)
+interp/cmp
+</r:code>
+
+
+<r:code>
+ross = "rw1.R"
+source(ross)
+fastInterp = replicate(10, system.time({rw2d5(n)}))
+fastInterp = apply(fastInterp, 1, median)
+fastInterp/interp
+</r:code>
+
+
+<r:code eval="false">
+apply(fastInterp, 1, median)/apply(tt, 1, median)
+</r:code>
+
+
+<r:code>
+tmp = c(interp[1], cmp[1], fastInterp[1], tt[1])
+m = matrix(c(tmp, interp[1]/tmp), length(tmp), ,
+        dimnames = list(c("Interpeted", "Byte Compiled", "Vectorized", "Rllvm"), c("Time", "Speedup")))
+</r:code>
+
+
+
+
+<table>
+<tgroup cols="3" align="right">
+<colspec colnum="1" align="left"/>
+<thead>
+<row><entry>Method</entry><entry>Times</entry><entry>Speedup</entry></row>
+</thead>
+<tbody>
+<row><entry>Interpreted</entry><entry>170.9</entry><entry>1</entry></row>
+<row><entry>Byte compiled</entry><entry>93.8</entry><entry>1.8</entry></row>
+<row><entry>Vectorized</entry><entry>.88</entry><entry>194.2</entry></row>
+<row><entry>Rllvm</entry><entry>.50</entry><entry>341.8</entry></row>
+</tbody>
+</tgroup>
+</table>
+
+</para>
+<para>
+With an optimized R (i.e. compiled with -O3)
+<table bgcolor="gray">
+  <?dbfo keep-together="auto"?>
+  <tgroup cols="3">
+    <thead>
+      <row>
+        <entry align="right"></entry>
+        <entry align="center">Time</entry>
+        <entry align="center">Speedup</entry>
+      </row>
+    </thead>
+    <tbody>
+      <row>
+        <entry align="right">Interpeted</entry>
+        <entry align="right">169</entry>
+        <entry align="right">1</entry>
+      </row>
+      <row>
+        <entry align="right">Byte Compiled</entry>
+        <entry align="right">84.5</entry>
+        <entry align="right">2.00</entry>
+      </row>
+      <row>
+        <entry align="right">Vectorized</entry>
+        <entry align="right">0.81</entry>
+        <entry align="right">208</entry>
+      </row>
+      <row>
+        <entry align="right">Rllvm</entry>
+        <entry align="right">0.487</entry>
+        <entry align="right">346</entry>
+      </row>
+    </tbody>
+  </tgroup>
+</table> 
+
+</para>
+
+
+</section>
+</article>

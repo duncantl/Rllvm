@@ -1,0 +1,12 @@
+VoidType = 1
+LabelType = 1
+FloatType = 1
+DoubleType = 1
+Int1Type = 1
+Int8Type = 1
+Int16Type = 1
+Int32Type = 1
+Int64Type = 1
+FloatPtrType = 1
+DoublePtrType = 1
+Int32PtrType = 1

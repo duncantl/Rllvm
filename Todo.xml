@@ -1,0 +1,117 @@
+<todo>
+
+<items>
+
+<item>
+In the TU, ExecutionEngine create method has an NA for the type of one of the parameters.
+The type is there and the name of the type is also there, just not shown.
+<r:code>
+system.time({tu = parseTU("inst/TU/llvm.c.001t.tu")})
+k = getClassNodes(tu)
+m = getClassMethods(k[["llvm::ExecutionEngine"]])
+rm = resolveType(m, tu)
+rm$create
+</r:code>
+
+</item>
+
+<item>
+varargs
+</item>
+
+<item>
+structures
+</item>
+
+<item>
+Methods for IRBuilder
+<br/>
+See the TU interface generation.
+<br/>
+
+CreateVAArg
+CreateExtractElemet
+CreateInsertElement
+CreatePtrDiff
+
+CreateSwitch,
+CreateIndirectBr, CreateAggregateRet, 
+CreateInvoke,
+
+CrateNSWAdd, NUWAdd, NSWSub, ...
+
+CreateInBoundsGEP
+
+CreateTrunc, CreateZExt, CreateSExt
+
+CreatePHI
+
+[Done] CreateIsNull, CreateIsNotNull
+CreateUnwind, CreateUnreachable
+CreateSelect
+</item>
+
+<item>
+Also allow passing in a function pointer to an LLVM generated
+routine as a type of argument.
+<br/>
+How do we specify that sort of type?
+</item>
+
+<item>
+Make certain that errors don't abort R.
+</item>
+
+<item status="done">
+IRBuilder has a $ method so we can use
+ ir$createICmp(), ir$createRet(), etc.
+a la C++ invocation.
+</item>
+
+<item>
+create a GEP with inbounds.
+<br/>
+Need to specify the indices in the constructor.
+Call IRBuilder-&gt;CreateInBoundsGEP
+</item>
+
+<item>
+global variables. Get the value.  Write a routine to get them.  Can't
+we do this generically.
+<br/>
+Use the ExecutionEngine and its  methods
+</item>
+
+<item>
+strings &amp; string constants.
+</item>
+
+<item>
+dump a module to a buffer.
+or createPrintModulePass to our buffer.
+</item>
+
+<item status="done">
+Call a generated routine via Rffi or .Call()/.C()
+<br/>
+Use getPointerToFunction().
+See tests/rffiCall.Rdb.
+Crashing now.
+See the second example in rffiCall.Rdb
+<br/>
+</item>
+
+<item status="done">
+Within a routine, call an existing routine in a DSO.
+<br/>
+Need to help out the resolving of routines.
+<br/>
+Ideally we would like to call the R engine
+to resolve a symbol. However, for now
+we can require that the caller
+register symbols or DLLs.
+</item>
+
+
+</items>
+</todo>

@@ -1,0 +1,291 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:c="http://www.C.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+We'll use the benchmark function from 
+Luke's UseR! talk in 2010.
+The function is
+<r:function><![CDATA[
+p1 = 
+function(x) {
+  for(i in seq_along(x))
+     x[i] <- x[i] + 1
+
+  x
+}
+]]></r:function>
+
+We want to "compile" this using LLVM.
+</para>
+<para>
+We start by initializing the LLVM environment and creating a module.
+<r:code>
+library(Rllvm)
+
+InitializeNativeTarget()
+</r:code>
+
+<r:code>
+mod = Module("x plus 1")
+</r:code>
+Our native routine will take a double * and the length of the
+vector. It will return nothing, mutating the elements of the
+array in place.
+<r:code>
+ptrDouble = pointerType(DoubleType)
+fun = Function("plus1", VoidType, c(x = ptrDouble, len = Int32Type), mod)
+</r:code>
+</para>
+
+<para>
+We get the parameter objects so we can refer to them.
+<r:code>
+params = getParameters(fun)
+</r:code>
+
+</para>
+<para>
+Now onto the body of the function.
+We'll need 4 blocks again (as in cumsum.Rdb)
+since we have a loop.
+<r:code>
+entry = Block(fun, "entry")
+cond = Block(fun, "loopCond")
+body = Block(fun, "loopBody")
+ret = Block(fun, "return")
+</r:code>
+
+</para>
+<para>
+We'll start with the entry block and create
+and initialize some local variables.
+We create an IR builder first
+<r:code>
+ir = IRBuilder(entry)
+</r:code>
+So now the local variables.
+<r:code>
+iv = ir$createLocalVariable(Int32Type, "i")
+xref = ir$createLocalVariable(ptrDouble, "x_addr")
+len.ref = ir$createLocalVariable(Int32Type, "len_addr")
+</r:code>
+<r:code>
+ir$createStore(0L, iv)
+ir$createStore(params$x, xref)
+ir$createStore(params$len, len.ref)
+</r:code>
+Now we jump/branch into the condition of the loop.
+<r:code>
+ir$createBr(cond)
+</r:code>
+</para>
+<para>
+So now onto the loop.
+<r:code>
+ir$setInsertPoint(cond)
+</r:code>
+We load i and the value of len and perform a comparison.
+We use this logical value to then branch to 
+the body of the loop or the return block.
+This is the same as in the cumsum example.
+<r:code>
+a = ir$createLoad(iv)
+b = ir$createLoad(len.ref)
+ok = ir$createICmp(ICMP_SLT, a, b)
+ir$createCondBr(ok, body, ret)
+</r:code>
+</para>
+
+<para>
+The return is simple as we just return without any value (i.e. void)
+
+<r:code>
+ir$setInsertPoint(ret)
+ir$createRetVoid()
+</r:code>
+</para>
+<para>
+So now let's do the body of the loop
+
+<r:code>
+ir$setInsertPoint(body)
+</r:code>
+
+Again this is very similar to what we did in cumsum
+but simpler. We have to load x[i]
+<r:code>
+a = ir$createLoad(xref)
+i = ir$createLoad(iv)
+idx = ir$createSExt(i, 64L)
+xi = ir$createLoad(ir$createGEP(a, idx))
+</r:code>
+Then add 1 to this:
+
+<r:code>
+tmp = ir$binOp(FAdd, 1.0, xi)
+</r:code>
+Next we store the result back in x[i].
+
+<r:code>
+x = ir$createLoad(xref)
+i = ir$createLoad(iv)
+i = ir$createSExt(i, 64L)
+x = ir$createGEP(x, i)
+ir$createStore(tmp, x)
+</r:code>
+
+</para>
+<para>
+That is the heart of the loop.
+We just need to increment i.
+
+<r:code>
+i = ir$createLoad(iv)
+inc = ir$binOp(Add, i, 1L)
+ir$createStore(inc, iv)
+</r:code>
+
+And loop back to the condition
+
+<r:code>
+ir$createBr(cond)
+</r:code>
+
+</para>
+<para>
+We'll now optimize this.
+
+<r:code>
+ee = ExecutionEngine(mod)
+Optimize(mod, ee)
+</r:code>
+</para>
+</section>
+
+<section>
+<title></title>
+<para>
+And now we will call this function
+
+<r:code>
+n = 1e7
+</r:code>
+
+<r:code>
+ll = system.time({x = rep(1, n); run(fun, x = x, n = length(x), .all = TRUE, .ee = ee)$x})
+</r:code>
+
+<r:code>
+x = rep(1, n)
+interp = replicate(5, system.time({p1(x)}))
+interp = apply(interp, 1, median)
+</r:code>
+
+
+<r:code>
+library(compiler)
+g = cmpfun(p1)
+x = rep(1, n)
+cmp = replicate(5, system.time({g(x)}))
+cmp = apply(cmp, 1, median)
+</r:code>
+
+
+
+<r:code>
+ll = replicate(10, system.time({x = rep(1, n); run(fun, x = x, n = length(x), .all = TRUE, .ee = ee)$x}))
+ll = apply(ll, 1, median)
+</r:code>
+
+
+<r:code>
+x = rep(1, n)
+vec = replicate(10, system.time(x + 1))
+vec = apply(vec, 1, median)
+</r:code>
+
+
+<r:code>
+tmp = c(interp[1], cmp[1], ll[1], vec[1])
+matrix(c(tmp, interp[1]/tmp), length(tmp), ,
+        dimnames = list(c("Interpeted", "Byte Compiled", "Rllvm", "Vectorized"), c("Time", "Speedup")))
+</r:code>
+
+
+</para>
+<para>
+For n = 1e7, here are the timings for the different implementations:
+<table>
+<tgroup cols="3" align="right">
+<colspec colnum="1" align="left"/>
+<thead>
+<row><entry>Method</entry><entry>Times</entry><entry>Speedup</entry></row>
+</thead>
+<tbody>
+<row><entry>Interpreted</entry><entry>29.35</entry><entry>1</entry></row>
+<row><entry>Byte compiled</entry><entry>7.65</entry><entry>3.83</entry></row>
+<row><entry>Rllvm</entry><entry>.41</entry><entry>70.3</entry></row>
+<row><entry>Vectorized</entry><entry>.039</entry><entry>793.4</entry></row>
+</tbody>
+</tgroup>
+</table>
+
+</para>
+<para>
+On OS X with R compiled with -O3 optimization (and no -g for debugging)
+<table bgcolor="gray">
+  <?dbfo keep-together="auto"?>
+  <tgroup cols="3">
+    <thead>
+      <row>
+        <entry align="right"></entry>
+        <entry align="center">Time</entry>
+        <entry align="center">Speedup</entry>
+      </row>
+    </thead>
+    <tbody>
+      <row>
+        <entry align="right">Interpeted</entry>
+        <entry align="right">26.1</entry>
+        <entry align="right">1</entry>
+      </row>
+      <row>
+        <entry align="right">Byte Compiled</entry>
+        <entry align="right">7.5</entry>
+        <entry align="right">3.48</entry>
+      </row>
+      <row>
+        <entry align="right">Rllvm</entry>
+        <entry align="right">0.416</entry>
+        <entry align="right">62.6</entry>
+      </row>
+      <row>
+        <entry align="right">Vectorized</entry>
+        <entry align="right">0.0365</entry>
+        <entry align="right">715</entry>
+      </row>
+    </tbody>
+  </tgroup>
+</table> 
+
+
+</para>
+
+</section>
+</article>

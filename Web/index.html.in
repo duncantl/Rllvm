@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<link rel="stylesheet" href="http://www.omegahat.org/OmegaTech.css">
+<title>Rllvm</title>
+</head>
+
+<body>
+<h1>The Rllvm Package</h1>
+<p align=right><a href="@TAR_FILE@">@TAR_FILE@</a> (@DATE@)</p>
+<p align=right><a href="philosophy.html">Manual</a></p>
+
+The Rllvm package is an R-interface to the <a
+href="http://llvm.org">llvm</a> library that provides
+facilities for creating native code and compilers for different
+languages.  The aim of this package is to provide an interface
+to the llvm facilities so that we, as a community, can experiment
+with building compilers for the R language and aim to speed up
+its evaluation.
+
+<p>
+I have long felt that we should build on
+other platforms that provide their own compilers, e.g. LISP,
+but this is an effort to stay within the R community but provide
+the foundation to build on native compilers rather than
+intepreted byte compilers.
+
+<p> This package is not yet a compiler for R.  It merely provides the
+tools on which one can write a compiler to create native code.  I
+expect that we can utilize Luke Tierney's <a
+href="http://www.cs.uiowa.edu/~luke/R/compiler/">compiler package</a>
+on top of this to leverage some optimizations there and then generate
+the native code and then use LLVMs optimization passes.
+It remains to be seen whether these two optimization approaches
+are orthogonal oor share a great deal in common.
+
+
+
+<h2>Documentation</h2>
+There are several examples, adapted from the LLVM tutorials
+and developed as explorations of that API. 
+<dl>
+  <dt>
+  <li><a href="tut1.R">compiling simple scalar arithmetic</a>
+  <dd>
+  This example comes from the          <a
+  href="http://llvm.org/releases/2.6/docs/tutorial/JITTutorial1.html">LLVM
+  tutorial</a>
+       (actually the documentation for the previous release).
+      This takes 3 numbers and squares the 3rd and adds the
+      result to the sum of others. This is not a vectorized
+      function.
+       The code in R closes parallels the C++ code described in that tutorial.
+  <dt>
+  <li> <a href="tut2.R">Computing the greatest common divisor
+      (GCD)</a>
+       
+  <dd> <a href="tut2.R">Computing the GCD of two integer.</a>
+      This example comes from the 
+         <a
+  href="http://llvm.org/releases/2.6/docs/tutorial/JITTutorial2.html">LLVM
+  tutorial</a>
+       (actually the documentation for the previous release).
+       The code in R closes parallels the C++ code described in that tutorial.
+  <dt>
+  <li>  <a href="cumsum.html">cumulative sum of a vector</a>
+  <dd> This implements the cumulative sum of a vector
+      in R and via a manually generated native routine.
+      The speedup is a factor of 32.7 on a Mac OS X machine
+      and 26  on a Linux machine.
+      
+  <dt>
+  <li>  <a href="xPlus1.html">Implementing x + 1 in R and natively</a>
+  <dd>    This is the example Luke Tierney illustrated timing results
+      for in his UseR! 2010 talk illustrating two approaches to byte-code compilation,
+      and Stephen Milborrow’s Ra/jit system.
+      Here, we manually generated native code to implement the R
+      function. The code  we created performs 108 times
+      faster than the interpreter R code on a Mac OS X,
+      and 72 times faster on a Linux machine.
+      This contrasts with the numbers Luke reported (on a different machine)
+       on which there was a a speedup of a factor of 3.4 for the original byte compilation,
+       20 for Ra, and 29 for the experimental byte compilation
+       system Luke is working on.
+
+  <dt>
+  <li> <a href="rw2d.html">2-D random walk</a>
+  <dd>
+      This is an implementation and comparison of Ross
+      Ihaka's example of a 2-D random walk.
+      Ross progressively illustrates how to improve the naieve
+      implementation using profiling and gradually vectorizing
+      the code.
+      The result is a speed up of a factor of 200.
+      By implementing the naieve version via Rllvm,
+      we obtain a speedup of a factor of 340.
+      
+  <dt>
+  <li> <a href="extCall.html">Generating a routine that calls an
+	existing, external routine</a>
+  <dd>
+	    This also shows how to control how the external symbols
+	are resolved.
+
+     <dt>
+     <li> <a href="globalVars.html">Global variables</a>
+     <dd>
+
+     <dt>
+     <li> Details of storing values in variables and
+	 elements of arrays
+     <dd>
+	 <a href="store.R">store.R</a>,
+	  <a href="store1.R">store1.R</a>
+          <a href="store2.R">store2.R</a>	 
+        
+
+<dt>
+<li> <a href="FAQ.html">FAQ</a>
+<dd>
+
+</dl>
+
+
+<h2>Other Approaches</h2>
+
+I was unaware when I started this work that Byron Ellis had also
+started on bindings to llvm back in 2008. See rllvm on <a
+href="http://rllvm.r-forge.r-project.org/">r-forge</a>.
+
+<p>
+Byte-code compilation is another worthwhile approach.
+See Luke Tierney's articles on this 
+<a href="http://www.cs.uiowa.edu/~luke/R/bytecode.html"></a>
+and the existing support in the R engine and his compiler package.
+
+<h2>Issues</h2>
+There are many classes and methods to add
+to this interface.
+
+<h2>License</h2>
+This is distributed under the GPL2 License.
+
+
+<hr>
+<address><a href="http://www.stat.ucdavis.edu/~duncan">Duncan Temple Lang</a>
+<a href=mailto:duncan@wald.ucdavis.edu>&lt;duncan@wald.ucdavis.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Wed Sep  8 09:57:12 PDT 2010
+<!-- hhmts end -->
+
+</body> </html>

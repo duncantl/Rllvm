@@ -1,0 +1,14 @@
+ExternalLinkage = 0
+AvailableExternallyLinkage = 1
+LinkOnceAnyLinkage = 2
+LinkOnceODRLinkage = 3
+WeakAnyLinkage = 4
+WeakODRLinkage = 5
+AppendingLinkage = 6
+InternalLinkage = 7
+PrivateLinkage = 8
+LinkerPrivateLinkage = 9
+DLLImportLinkage = 10
+DLLExportLinkage = 11
+ExternalWeakLinkage = 12
+CommonLinkage = 13
