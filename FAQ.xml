@@ -1,0 +1,12 @@
+<faq>
+<q>
+I get errors of the form
+<quote>
+ failed to create execution engine: Unable to find target for this triple (no targets are registered)
+</quote>
+What's the problem?
+<a>
+You need to call InitializeNativeTarget() before creating the execution engine.
+</a>
+</q>
+</faq>

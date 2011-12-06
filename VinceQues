@@ -1,0 +1,45 @@
+- delaying evaluation of arguments... necessary for functions like `<-`. Should this be done with a lookup table, or
+ should all arguments be unevaluated, passed into the compiling function, and then handled individually?
+
+    Well, all arguments are delayed due to lazy evaluation.  And then there are the .Primitive() and
+    .Internal() functions. Let's talk about these tomorrow.
+
+
+- is positional argument matching ok for now?
+
+    Absolutely, it is fine for the moment. However, it is probably quite easy.
+    We can use match.call() to expand the call and match the arguments.
+
+- I'm a bit unclear on createSExt.
+   That is a cast operation. What do you need to cast and to what?
+ 
+- How do we do constant detection? Not necessarily for constant folding...
+   
+    Do you mean a literal or a constant?  I think of a literal as being 
+     a string or number. So a literal is a constant value.
+    And I think of a constant as a variable that doesn't change, i.e. a const in C. 
+    To identify constants in this sense we have to look through the rest of the code.
+    I imagine you are talking about literals specifically?
+    
+    Suppose we have an expression or body of a function such as 
+      {
+         x = 1 + y
+         sprintf("0x%f", x)
+      }
+     We' see the AST/parse tree and it would be equivalent to 
+        e = quote( { x = 1 + y;  sprintf("0x%f", x)})
+     Now, let's look at the first expression (the x = ...)  which is element 2
+     and specifically the RHS:
+      sapply(e[[2]][[3]], class)
+     [1] "name"    "numeric" "name"   
+
+     See that the 1 is of class numeric, whereas the others are of class "name"
+     referring to variables.  So if something is of class 
+       logical, integer, numeric, character, complex
+     in the parse tree, that  is a literal/constant.
+
+- What was the dependency finding system you mentioned? 
+ 
+     The CodeDepends package. Should be on the omegahat site.
+    If not, let me know and I can put it there and/or give you access
+    to the repository on eeyore.ucdavis.edu 

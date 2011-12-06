@@ -1,0 +1,214 @@
+useDynLib(Rllvm)
+
+import(methods)
+
+exportClasses(AllocaInst,
+  BasicBlock,
+  BranchInst,
+  CallInst,
+  CastInst,
+  CompositeType,
+  Constant,
+  ConstantFP,
+  ConstantInt,
+  DerivedType,
+  ExecutionEngine,
+  Function,
+  GetElementPtrInst,
+  Instruction,
+  IRBuilder,
+  LLVMContext,
+  LoadInst,
+  Module,
+  ParameterList,
+  PointerType,
+  'RC++Reference',
+  ReturnInst,
+  SequentialType,
+  SExtInst,
+  StoreInst,
+  StructType,
+  TerminatorInst,
+  Type,
+  UnaryInstruction,
+  UnionType,
+  User,
+  Value,
+  FunctionPassManager,
+  BinaryOperator)
+
+exportMethods("$", "names", "names<-", "run", "setName", "getName", "$",
+               createIntegerConstant, coerce)
+
+export(
+Add,
+And,
+AShr,
+BAD_FCMP_PREDICATE,
+BAD_ICMP_PREDICATE,
+BinaryOps,
+binOp,
+Block,
+createBr,
+createCall,
+createCondBr,
+createConstant,
+createFloatingPointConstant,
+createGEP,
+createICmp,
+createFCmp,
+createIntegerConstant,
+createLoad,
+createLocalArrayVariable,
+createLocalVariable,
+createNeg,
+createNot,
+createRet,
+createReturn,
+createReturnVoid,
+createRetVoid,
+createSExt,
+createStore,
+createUIToFP,
+DoublePtrType,
+DoubleType,
+ExecutionEngine,
+FAdd,
+FCMP_FALSE,
+FCMP_OEQ,
+FCMP_OGE,
+FCMP_OGT,
+FCMP_OLE,
+FCMP_OLT,
+FCMP_ONE,
+FCMP_ORD,
+FCMP_TRUE,
+FCMP_UEQ,
+FCMP_UGE,
+FCMP_UGT,
+FCMP_ULE,
+FCMP_ULT,
+FCMP_UNE,
+FCMP_UNO,
+FDiv,
+FIRST_FCMP_PREDICATE,
+FIRST_ICMP_PREDICATE,
+FloatPtrType,
+FloatType,
+FMul,
+FRem,
+FSub,
+Function,
+getGlobalContext,
+createLogicalConstant,
+getName,
+getParameters,
+ICMP_EQ,
+ICMP_NE,
+ICMP_SGE,
+ICMP_SGT,
+ICMP_SLE,
+ICMP_SLT,
+ICMP_UGE,
+ICMP_UGT,
+ICMP_ULE,
+ICMP_ULT,
+ICmpInst.Predicate,
+InitializeNativeTarget,
+Int16Type,
+Int1Type,
+Int32PtrType,
+Int32Type,
+Int64Type,
+Int8Type,
+IRBuilder,
+isBasicType,
+LabelType,
+LAST_FCMP_PREDICATE,
+LAST_ICMP_PREDICATE,
+LShr,
+makeConstant,
+Module,
+Mul,
+Or,
+pointerType,
+run, .llvm,
+SDiv,
+setInsertPoint,
+getInsertBlock,       
+setName,
+setTailCall,
+Shl,
+SRem,
+Sub,
+UDiv,
+URem,
+verifyModule,
+VoidType,
+Xor
+)
+
+
+export(createBitCast)
+export(createGlobalVariable, createGlobalVar)
+export(Optimize)
+exportMethods(Optimize)
+
+
+export(setLinkage)
+
+export(findFunction, getPointerToFunction)
+
+export(createDoubleConstant)
+
+export(showModule)
+
+
+
+export(ExternalLinkage,
+AvailableExternallyLinkage,
+LinkOnceAnyLinkage,
+LinkOnceODRLinkage,
+WeakAnyLinkage,
+WeakODRLinkage,
+AppendingLinkage,
+InternalLinkage,
+PrivateLinkage,
+LinkerPrivateLinkage,
+DLLImportLinkage,
+DLLExportLinkage,
+ExternalWeakLinkage,
+CommonLinkage)
+
+export(llvmAddSymbol, llvmLoadDLL)
+
+
+export(createGlobalString, createIsNull, createIsNotNull, createSelect,
+       createUnreachable, createUnwind)
+
+
+
+#export(getModule)
+
+export(getModuleFunctions)
+export(getPassManager)
+export(getBlocks)
+
+export(getTerminator)
+export(getGlobalVariable)
+export(getCalledFunction, getReturnType, getType)
+
+
+export(createNeg, createNot)
+exportMethods(createNeg, createNot)
+
+export(getFalse, getTrue)
+
+
+
+export(getScalarType, getDescription)
+exportMethods(getDescription)
+
+export(isVoidType, isFloatType, isDoubleType, isX86_FP80Type, isFP128Type,
+       isPPC_FP128Type, isLabelType, isMetadataType, isIntegerType, isFunctionType,
+       isStructType, isArrayType, isPointerType, isOpaqueType, isVectorType)

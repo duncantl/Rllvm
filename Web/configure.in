@@ -1,0 +1,18 @@
+AC_INIT(index.html.in)
+
+DESC=../DESCRIPTION
+
+PKG_NAME=`cat $DESC | grep Package | sed -e 's/.*: //'`
+VERSION=`cat $DESC | grep Version | sed -e 's/.*: //'`
+
+TAR_FILE="${PKG_NAME}_${VERSION}.tar.gz"
+
+AC_SUBST(PKG_NAME)
+AC_SUBST(VERSION)
+AC_SUBST(TAR_FILE)
+
+
+DATE=`date "+%d %b %Y"`
+AC_SUBST(DATE)
+
+AC_OUTPUT(index.html)

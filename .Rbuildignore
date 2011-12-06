@@ -1,0 +1,15 @@
+#*~
+config.log
+config.status
+.*Web
+GNUmakefile
+inst/doc/old.xml
+.*Rllvm.Rcheck
+.*autom4te.cache
+\.\.Rcheck.*
+Rplots.ps
+tests/.*.o
+.*\.tar\.gz
+Experiments
+.*.tcp
+.*.cache.*

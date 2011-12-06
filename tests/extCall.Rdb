@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+In this example, we illustrate how to generate a routine
+via LLVM which calls a routine that exists in the R 
+executable. This shows how we can make use of existing
+functions.
+
+<r:code>
+library(Rllvm)
+InitializeNativeTarget()
+mod = Module("dotC")
+</r:code>
+
+
+Now we create the routine.
+<r:code>
+fun = Function("tossCoin", Int32Type, module = mod)
+</r:code>
+
+
+<r:code>
+b = Block(fun, "entry")
+head = Block(fun)
+tail = Block(fun)
+ret = Block(fun)
+ir = IRBuilder(b)
+</r:code>
+
+<r:code>
+zero = createIntegerConstant( 0L)
+one = createIntegerConstant( 1L)
+
+ans = createLocalVariable(ir, Int32Type, "ans")
+runif = Function("runif", DoubleType, module = mod)
+setLinkage(runif, ExternalLinkage)
+toss = ir$createCall(runif)
+point5 = createDoubleConstant(0.5)
+gt = ir$createFCmp(FCMP_ULT, toss, point5)
+
+ir$createCondBr(gt, head, tail)
+</r:code>
+
+<r:code>
+ir$setInsertPoint(head)
+ir$createStore(one, ans)
+ir$createBr(ret)
+</r:code>
+
+<r:code>
+ir$setInsertPoint(tail)
+ir$createStore(zero, ans)
+ir$createBr(ret)
+</r:code>
+
+<r:code>
+ir$setInsertPoint(ret)
+ans = ir$createLoad(ans)
+ir$createRet(ans)
+</r:code>
+
+
+We have to tell LLVM how to find the external runif that is not part of the module
+but is referenced in our routine.  We can do this by explicitly finding
+the address of the routine via the R function <r:func>getNativeSymbolInfo</r:func>
+<r:code>
+llvmAddSymbol(runif = getNativeSymbolInfo("runif")$address)
+print(run(fun))
+</r:code>
+
+
+
+<r:code eval="false">
+llvmLoadDLL(system.file("libs", "Rllvm.so", package = "Rllvm"))
+print(run(fun))
+</r:code>
+
+
+</para>
+<para>
+For repeated calls, we can save a great deal of time by 
+creating the ExecutionEngine in which to evaluate the call
+to the function just once and the passing it explicitly in the
+call to run:
+<r:code>
+ee = ExecutionEngine(as(fun, "Module"))
+system.time(replicate(1000, run(fun, .ee = ee)))
+</r:code>
+
+We can time how long this takes for different number of calls
+<r:code>
+n = 10^(2:7)
+tt = sapply(n, function(n) system.time(replicate(n, run(fun, .ee = ee))))
+colnames(tt) = n
+plot(n, tt["elapsed", ], type = "l")
+</r:code>
+
+
+</para>
+<para>
+Let's compare this to doing it in R.
+Of course we would call runif just once to generate all n values,
+but instead we mimic what we are doing with our tossCoin function.
+<r:code>
+system.time(as.integer(replicate(n[length(n)], runif(1)) > .5))
+</r:code>
+This takes about 117 seconds, as opposed to the 880
+for the call to tossCoin.
+This may be due in part to the fact that runif uses
+the .Internal mechanism, whereas run(fun) involves
+a non-trivial overhead of processing the arguments.
+
+
+</para>
+
+</section>
+</article>

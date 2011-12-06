@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+This is a very simple example of working with strings.
+We will generate a function that calls strlen and 
+returns its value. It is  just a test of the conversion
+mechanism. We will write a more interesting routine that
+iterates over the string and does things to the elements.
+</para>
+<para>
+We initialize the engine and declare the function's signature.
+We also declare strlen.
+<r:code>
+library(Rllvm)
+InitializeNativeTarget()
+mod = Module("string")
+fun = Function("bar", Int32Type, list(x = pointerType(Int8Type)), module = mod)
+strlen = Function("strlen", Int32Type, list(pointerType(Int8Type)), module = mod)
+</r:code>
+
+
+Next we call strlen.
+
+<r:code>
+b = Block(fun)
+ir = IRBuilder(b)
+xaddr = ir$createLocalVariable(pointerType(Int8Type), "xaddr")
+ir$createStore(fun$x, xaddr)
+val = ir$createCall(strlen, ir$createLoad(xaddr))
+ir$createRet(val)
+</r:code>
+
+</para>
+<para>
+We may want to see the IR for the routine:
+
+<r:code>
+showModule(mod)
+</r:code>
+
+
+</para>
+<para>
+Now we can call this routine:
+<r:code>
+run(fun, "abc")
+run(fun, "abcdefghij")
+</r:code>
+
+
+</para>
+
+
+</section>
+</article>
