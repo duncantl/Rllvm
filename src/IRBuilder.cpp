@@ -192,12 +192,57 @@ R_IRBuilder_CreateUIToFP(SEXP r_builder, SEXP r_val, SEXP r_type)
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
     llvm::Value *val = GET_REF(r_val, Value);
-    llvm::Type *type = GET_REF(r_val, Type);
+    llvm::Type *type = GET_REF(r_type, Type);
 
     llvm::Value * ans = builder->CreateUIToFP(val, type);
 
     return(R_createRef(ans, "Value"));
 }
+
+
+extern "C"
+SEXP
+R_IRBuilder_CreateFPToSI(SEXP r_builder, SEXP r_val, SEXP r_type)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *val = GET_REF(r_val, Value);
+    llvm::Type *type = GET_REF(r_type, Type);
+
+    llvm::Value * ans = builder->CreateFPToSI(val, type);
+
+    return(R_createRef(ans, "Value"));
+}
+
+extern "C"
+SEXP
+R_IRBuilder_CreateFPToUI(SEXP r_builder, SEXP r_val, SEXP r_type)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *val = GET_REF(r_val, Value);
+    llvm::Type *type = GET_REF(r_type, Type);
+
+    llvm::Value * ans = builder->CreateFPToUI(val, type);
+
+    return(R_createRef(ans, "Value"));
+}
+
+
+extern "C"
+SEXP
+R_IRBuilder_CreateSIToFP(SEXP r_builder, SEXP r_val, SEXP r_type)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *val = GET_REF(r_val, Value);
+    llvm::Type *type = GET_REF(r_type, Type);
+
+    llvm::Value * ans = builder->CreateSIToFP(val, type);
+
+    return(R_createRef(ans, "Value"));
+}
+
 
 
 extern "C"
@@ -523,3 +568,5 @@ R_IRBuilder_getCurrentFunctionReturnType(SEXP r_builder)
     builder = GET_REF(r_builder, IRBuilder<>);
     return(R_createRef(builder->getCurrentFunctionReturnType(), "Type"));
 }
+
+
