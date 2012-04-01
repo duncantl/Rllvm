@@ -1,6 +1,9 @@
 Version 0.4-0
 
-	*  Added getDescription() and method for Type and getTypeID(), getScalarType().
+	*  Added getDescription() and method for Type and getTypeID(),
+    	   getScalarType().
+   
+	*  Added createFPToSI() and createSIToFP().
 	
 Version 0.3-0
 
