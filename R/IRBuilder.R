@@ -86,6 +86,25 @@ function(builder, val, type, id = character())
   .Call("R_IRBuilder_CreateUIToFP", builder, val, type)
 }
 
+
+createFPToSI =
+function(builder, val, type, id = character())
+{
+  .Call("R_IRBuilder_CreateFPToSI", builder, val, type)
+}
+
+createFPToUI =
+function(builder, val, type, id = character())
+{
+  .Call("R_IRBuilder_CreateFPToUI", builder, val, type)
+}
+
+createSIToFP =
+function(builder, val, type, id = character())
+{
+  .Call("R_IRBuilder_CreateSIToFP", builder, val, type)
+}
+
 createICmp =
 function(builder, op, lhs, rhs, id = character())
 {

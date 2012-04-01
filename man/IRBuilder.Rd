@@ -18,6 +18,9 @@
 \alias{createStore}
 \alias{createBitCast}
 \alias{createUIToFP}
+\alias{createSIToFP}
+\alias{createFPToSI}
+\alias{createFPToUI}
 \alias{setInsertPoint}
 \alias{$,IRBuilder-method}
 \alias{coerce,IRBuilder,LLVMContext-method}
