@@ -73,6 +73,14 @@ function(builder, val, id = character())
   .Call("R_IRBuilder_CreateNeg", builder, val)
 }
 
+
+createFNeg =
+function(builder, val, id = character())
+{
+  .Call("R_IRBuilder_CreateFNeg", builder, val)
+}
+
+
 createNot =
 function(builder, val, id = character())
 {

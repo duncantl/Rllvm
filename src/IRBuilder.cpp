@@ -187,6 +187,17 @@ R_IRBuilder_CreateNeg(SEXP r_builder, SEXP r_val)
 
 extern "C"
 SEXP
+R_IRBuilder_CreateFNeg(SEXP r_builder, SEXP r_val)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *val = GET_REF(r_val, Value);
+    llvm::Value * ans = builder->CreateFNeg(val);
+    return(R_createRef(ans, "Value"));
+}
+
+extern "C"
+SEXP
 R_IRBuilder_CreateUIToFP(SEXP r_builder, SEXP r_val, SEXP r_type)
 {
     llvm::IRBuilder<> *builder;
