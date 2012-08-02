@@ -64,9 +64,13 @@ extern "C"
 SEXP
 R_Type_getDescription(SEXP r_type)
 {
+#if LLVM_VERSION > 2
+    return(ScalarString(R_NaString));
+#else
     llvm::Type *ty = GET_TYPE(r_type);
     std::string str = ty->getDescription();
     return( ScalarString( str.data()  ? mkChar(str.data()) : R_NaString) ) ;
+#endif
 }
 
 extern "C"
@@ -118,6 +122,8 @@ R_isType(Function)
 R_isType(Struct)
 R_isType(Array)
 R_isType(Pointer)
-R_isType(Opaque)
 R_isType(Vector)
 
+#if LLVM_VERSION <= 2
+R_isType(Opaque)
+#endif

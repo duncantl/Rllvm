@@ -71,16 +71,19 @@ void myMain() {
 
 }
 
+#include <llvm/ADT/ArrayRef.h>
 
 Module* makeLLVMModule1(Function **fun1, Function **fun2) {
 
   // Module Construction
   Module* mod = new Module("global.bc", getGlobalContext());
  
-  std::vector<const Type*>FuncTy_1_args;
+  std::vector<Type*> FuncTy_1_args;
+  llvm::ArrayRef<llvm::Type*> argsRef = makeArrayRef(FuncTy_1_args);
   FunctionType* FuncTy_1 = FunctionType::get(
     /*Result=*/IntegerType::get(mod->getContext(), 32),
-    /*Params=*/FuncTy_1_args,
+//    /*Params=*/ FuncTy_1_args,
+    argsRef,
     /*isVarArg=*/false);
   
   

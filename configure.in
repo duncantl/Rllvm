@@ -22,6 +22,11 @@ void foo() {
 
 AC_SUBST(LLVM_CONFIG)
 
+LLVM_VERSION=`${LLVM_CONFIG} --version | sed -e 's/\.[[0-9]]*//'`
+
+echo "version: $LLVM_VERSION"
+AC_SUBST(LLVM_VERSION)
+
 echo ""
 echo "*** llvm-config ${LLVM_CONFIG}"
 echo ""

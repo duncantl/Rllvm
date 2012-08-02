@@ -622,6 +622,7 @@ CPPFLAGS
 ac_ct_CXX
 EXEEXT
 OBJEXT
+LLVM_VERSION
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -2336,6 +2337,11 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 
 
+LLVM_VERSION=`${LLVM_CONFIG} --version | sed -e 's/\.[0-9]*//'`
+
+echo "version: $LLVM_VERSION"
+
+
 echo ""
 echo "*** llvm-config ${LLVM_CONFIG}"
 echo ""
@@ -3015,11 +3021,12 @@ CPPFLAGS!$CPPFLAGS$ac_delim
 ac_ct_CXX!$ac_ct_CXX$ac_delim
 EXEEXT!$EXEEXT$ac_delim
 OBJEXT!$OBJEXT$ac_delim
+LLVM_VERSION!$LLVM_VERSION$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 47; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 48; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

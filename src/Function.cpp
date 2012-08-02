@@ -109,7 +109,8 @@ R_Function_getBasicBlockList(SEXP r_func)
     for(llvm::iplist<const llvm::BasicBlock>::const_iterator it = blocks.begin(); it != blocks.end(); it++, i++)
     {
         const llvm::BasicBlock *cur = &(*it);
-        SET_STRING_ELT(names, i, mkChar(cur->getNameStr().data()));
+//        SET_STRING_ELT(names, i, mkChar(cur->getNameStr().data())); // Worked for llvm 2.8
+        SET_STRING_ELT(names, i, mkChar(cur->getName().data()));
         SET_VECTOR_ELT(rans, i, R_createRef(cur, "Block"));
     }
 #endif

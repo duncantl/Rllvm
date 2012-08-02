@@ -121,10 +121,16 @@ R_IRBuilder_CreateCall(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_id)
     llvm::CallInst *ans;
 
     if(nargs) {
+//XXX For LLVM > 2.*, use CreateCall(callee, ArayRef<llvm::Value*>)
         std::vector<llvm::Value *> args; // does this disappear and we lose the elements?
         for(int i = 0; i < nargs; i++)
             args.push_back(GET_REF(VECTOR_ELT(r_args, i), Value));
-        ans = builder->CreateCall(callee, args.begin(), args.end()); // Use the name.
+#if LLVM_VERSION > 2
+        llvm::ArrayRef<llvm::Value*> argsRef = makeArrayRef(args); // args.begin(), nargs);
+        ans = builder->CreateCall(callee, argsRef);
+#else
+        ans = builder->CreateCall(callee, args.begin(), args.end()); // Use the name or leave to below.
+#endif
     } else {
         ans = builder->CreateCall(callee);
     }
@@ -473,9 +479,15 @@ extern "C"
 SEXP
 R_IRBuilder_CreateUnwind(SEXP r_builder, SEXP r_id)
 {
+#if LLVM_VERSION > 2
+    PROBLEM "cannot (yet) create unwind instruction for this version of LLVM"
+    WARN;
+    return(R_NilValue);
+#else
     llvm::IRBuilder<> *builder;
     llvm::UnwindInst *ans = builder->CreateUnwind();
     return(R_createRef(ans, "UnwindInst"));
+#endif
 }
 
 extern "C"

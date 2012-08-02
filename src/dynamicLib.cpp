@@ -1,5 +1,5 @@
 #include "Rllvm.h"
-#include <llvm/System/DynamicLibrary.h>
+#include <llvm/Support/DynamicLibrary.h> // System or Support?
 
 extern "C"
 SEXP

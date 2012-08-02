@@ -34,21 +34,24 @@ SEXP
 R_createFunction(SEXP r_module, SEXP r_name, SEXP r_retType, SEXP r_types)
 {
     llvm::Function *ans;
-    //llvm::FunctionType *fsig;
+    //
     llvm::Module *module;
     module = GET_REF(r_module, Module); // llvm::cast<llvm::Module>
-    const llvm::Type *rtype = GET_TYPE(r_retType);
+    llvm::Type *rtype = GET_TYPE(r_retType);
     int nargs = Rf_length(r_types);
-    std::vector<const llvm::Type *> params(nargs);
+    std::vector<llvm::Type *> params(nargs);
     for(int i = 0; i < nargs; i++)
         params[i] = GET_TYPE(VECTOR_ELT(r_types, i));
 
-#if 0
+#if 1
+    llvm::FunctionType * fsig;	
     fsig = llvm::FunctionType::get(rtype, params, false);
-    ans = llvm::cast<llvm::Function>( module->getOrInsertFunction(CHAR(STRING_ELT(r_name, 0)), fsig));
+    ans = llvm::cast<llvm::Function>( module->getOrInsertFunction(CHAR(STRING_ELT(r_name, 0)), fsig) );
 #else
-    llvm::FunctionType *fty;
-    fty = llvm::FunctionType::get(rtype, params, false);                  //xxx
+    llvm::FunctionType * fty;
+//    fty = llvm::FunctionType::get(rtype, params, false);                  //xxx
+    llvm::ArrayRef<llvm::Type*> paramsRef = makeArrayRef(params);
+    fty = llvm::FunctionType::get(rtype, paramsRef, false);                  //xxx
     ans = llvm::Function::Create(fty, llvm::GlobalValue::ExternalLinkage, strdup(CHAR(STRING_ELT(r_name, 0))), module);
 #endif
     

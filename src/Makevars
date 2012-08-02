@@ -1,4 +1,6 @@
-LLVM_CONFIG=/usr/local/bin//llvm-config
+LLVM_CONFIG=/usr/local/bin/llvm-config
 
-PKG_CPPFLAGS= $(shell $(LLVM_CONFIG) --cxxflags | sed -e 's/-O[0-9]//g') -fexceptions
+PKG_CPPFLAGS= -DLLVM_VERSION=3 $(shell $(LLVM_CONFIG) --cxxflags | sed -e 's/-O[0-9]//g') -fexceptions
 PKG_LIBS=$(shell $(LLVM_CONFIG) --ldflags --libs)
+# -lLLVMSystem
+
