@@ -1,22 +1,21 @@
+Version 0.4-1
+
+	*  Compiles and installs with LLVM 3.1.
+	
 Version 0.4-0
 
-<<<<<<< HEAD
-	*  Added getDescription() and method for Type and getTypeID(), getScalarType().
-=======
 	*  Added getDescription() and method for Type and getTypeID(),
     	   getScalarType().
-   
+
 	*  Added createFPToSI() and createSIToFP().
->>>>>>> 00bab558bdf70e3723cb095c186dd1194e65aef0
-	
+
 Version 0.3-0
 
 	*  The package automatically calls InitializeNativeTarget()
 	   unless the R option  Rllvm.autoInitialize is set to FALSE
 	   before the package is loaded.
-	
 	*  Added getTerminator(), getInsertBlock()
-  	   
+
 	*  Implemented getting logical constants for TRUE and FALSE.
 
 Version 0.2-1
@@ -36,14 +35,14 @@ Version 0.2-0
 	*  getModuleFunctions() allows us to get the list of functions
  	   in a module.
 
-	*  showModule() returns the content as a string, but can also 
+	*  showModule() returns the content as a string, but can also
 	   write on the console/stdout().
            We might make it possible to write to a connection in the
 	   future.
 
 	*  Additional examples in experiments/ that show constant
 	   folding, avoiding temporary variables.
-	
+
 Version 0.1-0
 
 	*  Addition to configuration to check suitable version of llvm available on the machine.
