@@ -349,12 +349,23 @@ ee = ExecutionEngine(mod)
 Optimize(mod, ee)
 </r:code>
 
+<r:code>
+N = 10
+x = as.numeric(1:N)
+ans = numeric(length(x))
+
+val = run(fun, x = x, ans = ans, n = length(x), .all = TRUE, .ee = ee)$ans
+all.equal(val, cumsum(x))
+</r:code>
+
+
 <r:code eval="false">
 N = 1000000
 x = as.numeric(1:N)
 ans = numeric(length(x))
 
 interp = replicate(10, system.time({Cumsum(x)}))
+native =  replicate(10, system.time({cumsum(x)}))
 ll = replicate(10, system.time({run(fun, x = x, ans = ans, n = length(x), .all = TRUE, .ee = ee)$ans}))
 rowMeans(interp)/rowMeans(ll)
 </r:code>
