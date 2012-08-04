@@ -79,7 +79,7 @@ fun = Function("Cumsum", VoidType, c(x = ptrDouble, ans = ptrDouble, len = Int32
 </r:code>
 Note that we create an intermediate variable - <r:var>ptrDouble</r:var>
 to represent a pointer to a <c:type>double</c:type>.
-We also named the parameters in the argument, i.e. x, ans, len.
+We also named the parameters in the third argument, i.e. x, ans, len.
 We could do this separately with
 
 <r:code>
@@ -172,6 +172,8 @@ a = ir$createLoad(xref)
 b = ir$createGEP(a, 0L)
 x0 = ir$createLoad(b)
 </r:code>
+GEP stands for "Get Element Pointer".
+See <ulink url="http://llvm.org/docs/GetElementPtr.html"/>
 
 Then we assign this to ans[0]
 <r:code>
@@ -216,6 +218,7 @@ b = ir$createLoad(len.ref)
 ok = ir$createICmp(ICMP_SLT, a, b)
 ir$createCondBr(ok, body, ret)
 </r:code>
+<r:var>ICMP_SLT</r:var> stands for "Integer comparison, Signed Less Than".
 
 </para>
 <para>
@@ -228,7 +231,7 @@ ir$createRetVoid()
 
 </para>
 <para>
-So now we focus on the body of the loop. 
+So now we focus on the body of the loop: 
 <r:code>
 ir$setInsertPoint(body)
 </r:code>
@@ -355,6 +358,11 @@ interp = replicate(10, system.time({Cumsum(x)}))
 ll = replicate(10, system.time({run(fun, x = x, ans = ans, n = length(x), .all = TRUE, .ee = ee)$ans}))
 rowMeans(interp)/rowMeans(ll)
 </r:code>
+The results on my Mac (under some additional load) give
+<r:output><![CDATA[
+ user.self   sys.self    elapsed 
+216.012780   6.666667 164.025822 
+]]></r:output>
 </para>
 
 </section>

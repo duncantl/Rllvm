@@ -3,7 +3,12 @@
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/JIT.h>
 
+#if LLVM_VERSION < 3
 #include <llvm/Target/TargetSelect.h>
+#else
+#include <llvm/Support/TargetSelect.h>
+#endif
+
 
 extern "C"
 void
