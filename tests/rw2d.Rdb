@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <article xmlns:r="http://www.r-project.org"
-         xmlns:xi="http://www.w3.org/2003/XInclude">
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:c="http://www.C.org">
 
 <articleinfo>
 
@@ -17,9 +18,14 @@
 <title></title>
 
 <para>
-Here we implement the very initial version of Ross's
-naieve 2D random walk.
-
+Here we implement the very initial version of Ross Ihaka's
+2D random walk example of how to improve the performance of code.
+His example starts with the naieve and obvious implementation
+of the 2D walk.  At the end, he vectorizes this in <r/> code and
+gets a speedup of a factor of about 200.
+</para>
+<para>
+The naive implementation is
 <r:code>
 rw2d1 =
 function(n = 100) {
@@ -41,9 +47,13 @@ function(n = 100) {
 </r:code>
 
 We have seen how to write loops, get elements from pointers and do conditional branching
-in cumsum.Rdb
-So this is very similar.
-
+in <filename>cumsum.Rdb</filename>.
+So to "compile" this function is very similar.
+</para>
+</section>
+<section id="compileCode">
+<title>Compiling the Code</title>
+<para>
 We are going to implement a slightly different version
 that receives the int * pointers for x and y and just
 fills them in. We can write a .Call() wrapper for this
@@ -201,19 +211,27 @@ ir$createBr(increment)
 </r:code>
 
 </para>
-
-
 </section>
+
 <section>
 <title>Timings</title>
 
 <para>
+We now run our compiled code to see how fast it is relative
+to the other implementations.
+Our compiled code references the <c:func>runif</c:func>
+routine and so needs to be able to find that. 
+We do this before running the code as it only needs to be done
+once.
 <r:code>
 ee = ExecutionEngine(mod)
 Optimize(mod, ee)
 llvmAddSymbol(runif = getNativeSymbolInfo("runif")$address)
 </r:code>
-
+</para>
+<para>
+We'll set the number of steps to something quite large so that we measure sufficiently
+lengthy computations:
 <r:code>
 n = 1e7
 </r:code>
@@ -221,7 +239,8 @@ n = 1e7
 </para>
 
 <para>
-The interpreted version
+We run the interpreted version 5 times and take the medians of the
+three different measurements (self, system and elapsed):
 <r:code>
 #interp = system.time({rw2d1(n)})
 interp = replicate(5, system.time({rw2d1(n)}))
@@ -230,7 +249,7 @@ interp = apply(interp, 1, median)
 </para>
 
 <para>
-
+Now we run the compiled code
 <r:code>
 
 doit = 
@@ -244,15 +263,18 @@ tt = system.time({ doit(n)})
 tt = system.time({ doit(n)}) # second time runs faster
 </r:code>
 
+Since this runs much faster than the interpreted version, we 
+run more repetitions and again compute the median:
 <r:code>
 tt = replicate(10, system.time({ doit(n)}))
 tt = apply(tt, 1, median)
 </r:code>
 
 
-
-
-
+</para>
+<para>
+We'll also compare how well byte-compiling our interpreted
+function improves the performance:
 <r:code>
 library(compiler)
 g = cmpfun(rw2d1)
@@ -260,8 +282,12 @@ cmp = replicate(3, system.time(g(n)))
 cmp = apply(cmp, 1, median)
 interp/cmp
 </r:code>
-
-
+</para>
+<para>
+Finally, we'll run the manually implemented vectorized
+version of the random walk that Ross Ihaka wrote.
+This is pure R, but highly leverages C-level computations
+within the interpreter.
 <r:code>
 ross = "rw1.R"
 source(ross)
@@ -339,6 +365,31 @@ With an optimized R (i.e. compiled with -O3)
 </table> 
 
 </para>
+
+
+<invisible>
+R-2.16 on my Mac laptop Aug 4, 2012
+
+                 Time    Speedup
+Interpeted    302.488   1.000000
+Byte Compiled 203.226   1.488432
+Vectorized      1.549 195.279535
+Rllvm           0.641 471.900156
+
+                  Time    Speedup
+Interpeted    305.5500   1.000000
+Byte Compiled 204.3310   1.495368
+Vectorized      1.5775 193.692552
+Rllvm           0.6430 475.194401
+
+
+Linux machine: (donald)
+                 Time    Speedup
+Interpeted    255.310   1.000000
+Byte Compiled 167.970   1.519974
+Vectorized      1.365 187.040293
+Rllvm           0.970 263.206186
+</invisible>
 
 
 </section>
