@@ -368,6 +368,8 @@ With an optimized R (i.e. compiled with -O3)
 
 
 <invisible>
+All of these done with the same version of Rllvm &amp; LLVM 
+  3.1 and 
 R-2.16 on my Mac laptop Aug 4, 2012
 
                  Time    Speedup
@@ -389,6 +391,14 @@ Interpeted    255.310   1.000000
 Byte Compiled 167.970   1.519974
 Vectorized      1.365 187.040293
 Rllvm           0.970 263.206186
+
+
+eeyore:
+               Time    Speedup
+Interpeted    171.62   1.000000
+Byte Compiled  85.49   2.007486
+Vectorized      0.88 195.022727
+Rllvm           0.70 245.171429
 </invisible>
 
 

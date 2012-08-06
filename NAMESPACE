@@ -215,3 +215,6 @@ exportMethods(getDescription)
 export(isVoidType, isFloatType, isDoubleType, isX86_FP80Type, isFP128Type,
        isPPC_FP128Type, isLabelType, isMetadataType, isIntegerType, isFunctionType,
        isStructType, isArrayType, isPointerType, isOpaqueType, isVectorType)
+
+
+export(parseIR)

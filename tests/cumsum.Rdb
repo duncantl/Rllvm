@@ -416,6 +416,24 @@ Now we compare the byte-compiled code and the LLVM-compiled code:
 </r:code>
 </para>
 
+<para>
+Curiously, on eeyore - an Ubuntu Linux machine - 
+we get much worse performance comparing 
+interpreted to LLVM-compiled code.
+The interpreted code is running about 30 faster on 
+the Linux box.
+The LLVM-code is running about as 10th as fast as it does on OS X.
+<r:code>
+print((rowMeans(interp)/rowMeans(ll))[1:3], digits = 3)
+<r:output><![CDATA[
+user.self  sys.self   elapsed
+  23.8803    0.0435   20.5082
+]]></r:output>
+</r:code>
+This may be due to 
+</para>
+
+
 </section>
 </article>
 

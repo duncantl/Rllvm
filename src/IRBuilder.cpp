@@ -593,3 +593,35 @@ R_IRBuilder_getCurrentFunctionReturnType(SEXP r_builder)
 }
 
 
+
+
+#include <llvm/Support/IRReader.h>
+extern "C" 
+SEXP
+R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
+{
+    llvm::Module *mod;
+    llvm::SMDiagnostic err;
+
+    llvm::LLVMContext *context;
+    if(Rf_length(r_context))
+        context = (GET_REF(r_context, LLVMContext)); // llvm::cast<llvm::LLVMContext> 
+    else
+        context = & llvm::getGlobalContext();
+
+    std::string fn(CHAR(STRING_ELT(r_content, 0)));
+
+    if(LOGICAL(r_inMemory)[0])  {
+        llvm::MemoryBuffer *buf;
+        buf = llvm::MemoryBuffer::getMemBuffer(fn);
+        mod = llvm::ParseIR(buf, err, *context);
+    } else { 
+        mod = llvm::ParseIRFile(fn, err, *context);
+    }
+    if(!mod) {
+        PROBLEM "failed to parse IR: (line = %d, col = %d), %s", 
+            err.getLineNo(), err.getColumnNo(), err.getMessage().c_str()
+           ERROR;
+    }
+    return(mod  ?  R_createRef(mod, "Module") : R_NilValue );
+}
