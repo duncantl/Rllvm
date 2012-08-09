@@ -3,6 +3,15 @@
 <items>
 
 <item>
+Find out how to parse IR text into IR structures.
+<br/>
+ParseIRFile() in opt.cpp.
+So Support/IRReader.h
+<br/>
+For BitCode, see  include/llvm/Bitcode/ReaderWriter.h
+</item>
+
+<item>
 In the TU, ExecutionEngine create method has an NA for the type of one of the parameters.
 The type is there and the name of the type is also there, just not shown.
 <r:code>

@@ -313,3 +313,15 @@ function(ir)
 {
   .Call("R_IRBuilder_getTrue", ir)
 }
+
+
+parseIR =
+function(content, context = NULL, asText = is(content, "AsIs") || !file.exists(content))
+{
+    if(!asText)
+      content = path.expand(content)
+    else
+      content = paste(as.character(content), collapse = "\n")
+    
+   .Call("R_llvm_ParseIRFile", content, as.logical(asText), context)
+}

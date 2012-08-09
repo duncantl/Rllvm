@@ -1,7 +1,10 @@
 Version 0.4-1
 
 	*  Compiles and installs with LLVM 3.1.
-	
+
+	*  parseIR() function allows us to parse IR code and so  we
+ 	   could create the code via strings.
+	  
 Version 0.4-0
 
 	*  Added getDescription() and method for Type and getTypeID(),

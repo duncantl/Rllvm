@@ -1,0 +1,112 @@
+<faq
+	 xmlns:omg="http://www.omegahat.org"
+	 xmlns:r="http://www.r-project.org">
+<q>
+<para>How do I see the code after I construct it?</para>
+<a>
+<para>
+Use <r:func>showModule</r:func>
+For example, the code generated in the cumsum example is given by
+<r:code>
+showModule(mod)
+<r:output><![CDATA[
+; ModuleID = 'Cumsum'
+
+define void @Cumsum(double* %x, double* %ans, i32 %len) {
+entry:
+  %0 = load double* %x, align 8
+  store double %0, double* %ans, align 8
+  br label %loopCondition
+
+loopCondition:                                    ; preds = %loopBody, %entry
+  %lsr.iv = phi i64 [ %lsr.iv.next, %loopBody ], [ 1, %entry ]
+  %1 = phi double [ %0, %entry ], [ %7, %loopBody ]
+  %lsr2 = trunc i64 %lsr.iv to i32
+  %tmp = trunc i64 %lsr.iv to i32
+  %2 = icmp slt i32 %tmp, %len
+  br i1 %2, label %loopBody, label %return
+
+return:                                           ; preds = %loopCondition
+  ret void
+
+loopBody:                                         ; preds = %loopCondition
+  %3 = add i32 %lsr2, -1
+  %4 = sext i32 %3 to i64
+  %5 = getelementptr double* %ans, i64 %4
+  %scevgep1 = getelementptr double* %x, i64 %lsr.iv
+  %6 = load double* %scevgep1, align 8
+  %7 = fadd double %1, %6
+  %scevgep = getelementptr double* %ans, i64 %lsr.iv
+  store double %7, double* %scevgep, align 8
+  %lsr.iv.next = add i64 %lsr.iv, 1
+  br label %loopCondition
+}
+]]></r:output>
+</r:code>
+</para>
+</a>
+</q>
+
+<q>
+
+<para>
+How do I check that the code  I created is valid?
+</para>
+<a>
+
+<para>
+<r:func>verifyModule</r:func>
+</para>
+</a>
+</q>
+
+<q>
+<para>How do I optimize the code I create with LLVM?</para>
+<a>
+Call the <r:func>Optimize</r:func> function, passing it
+the module and also, preferably, the execution engine.
+</a>
+</q>
+
+<q>
+How do I call a routine I have compiled, passing it inputs from <r/>?
+<a>
+We use the function <r:func>run</r:func> (or its alias <r:func>.llvm</r:func>) to call a function/routine
+in an LLVM module.
+Along with the function object and the arguments/inputs,
+we should provide an Execution Engine created via the <r:func>ExecutionEngine</r:func>.
+We pass this via the <r:arg>.ee</r:arg> parameter. If we don't provide this,
+one is created but it is quite expensive. So if we are going to make multiple
+calls to functions in a particular module, we should create the execution
+engine just once and reuse it.
+</a>
+</q>
+
+<q>
+<para>
+My code needs to call an existing native routine that is in
+a DLL. How do I connect the code to that routine?
+</para>
+<a>
+You can load the DLL with either <r:func>dyn.load</r:func>
+or <r:func>llvmLoadDLL</r:func>.
+After that, you can lookup the symbol by name with
+<r:func>getNativeSymbolInfo</r:func>.
+We register one or more of these symbols 
+</a>
+
+</q>
+
+
+<q>
+I get errors of the form
+<quote>
+ failed to create execution engine: Unable to find target for this triple (no targets are registered)
+</quote>
+What's the problem?
+<a>
+You need to call <r:func>InitializeNativeTarget</r:func> before creating the execution engine.
+</a>
+</q>
+
+</faq>

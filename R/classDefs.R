@@ -23,7 +23,7 @@ setClass("BinaryOperator", contains = "Instruction")
 
 setClass("BranchInst", contains = "TerminatorInst")
 
-setClass("ParameterList", contains = "list")
+setClass("ParameterList", representation(names = "character"), contains = "list")
 
   # allocates memory on the stack.
 setClass("AllocaInst", contains = "UnaryInstruction")

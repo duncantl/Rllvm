@@ -1,5 +1,5 @@
 PKG=Rllvm
-WEB_DIR=www.omegahat.org:/home3/WebSites/Omega/$(PKG)
+WEB_DIR=www.omegahat.org:~/OmegaWeb/$(PKG)
 
 
 shipIndex: index.html extra

@@ -15,8 +15,7 @@
 </articleinfo>
 
 <section>
-<title></title>
-
+<title>The <r/> Code</title>
 <para>
 
 Consider the following R function to perform a
@@ -60,6 +59,10 @@ Note that we are passing in a reference to the original x and a new
 vector into which the cumulative sum elements will be inserted.
 
 </para>
+</section>
+
+<section id="compileCode">
+<title>Compiling the Code</title>
 <para>
 
 So we want to write LLVM code to build this routine.
@@ -294,8 +297,8 @@ ir$createBr(cond)
 </r:code>
 
 </para>
-
 </section>
+
 <section>
 <title>Calling the Cumsum routine</title>
 <para>
@@ -341,6 +344,7 @@ more, dealing with <r:na/> values, etc.
 </para>
 
 </section>
+
 <section>
 <title>Optimization</title>
 <para>
@@ -348,6 +352,8 @@ more, dealing with <r:na/> values, etc.
 ee = ExecutionEngine(mod)
 Optimize(mod, ee)
 </r:code>
+</para>
+
 
 <r:code>
 N = 10
@@ -369,12 +375,65 @@ native =  replicate(10, system.time({cumsum(x)}))
 ll = replicate(10, system.time({run(fun, x = x, ans = ans, n = length(x), .all = TRUE, .ee = ee)$ans}))
 (rowMeans(interp)/rowMeans(ll))[1:3]
 </r:code>
+
+<para>
 The results on my Mac (under some additional load) give
+(these are older results, probably from LLVM 2.7 or 2.8)
 <r:output><![CDATA[
  user.self   sys.self    elapsed 
 216.012780   6.666667 164.025822 
 ]]></r:output>
+
 </para>
+
+<para>
+Let's compare with the byte-code compiler.
+We'll first compare the byte-code compiled run-time with the interpreted
+version of the function.
+<r:code>
+library(compiler)
+cCumsum = cmpfun(Cumsum)
+compiled = replicate(10, system.time({cCumsum(x)}))
+</r:code>
+<r:code>
+(rowMeans(interp)/rowMeans(compiled))[1:3]
+<r:output><![CDATA[
+ user.self   sys.self    elapsed 
+  3.973048        Inf   3.975758 
+]]></r:output>
+</r:code>
+
+</para>
+
+<para>
+Now we compare the byte-compiled code and the LLVM-compiled code:
+<r:code>
+(rowMeans(compiled)/rowMeans(ll))[1:3]
+<r:output><![CDATA[
+ user.self   sys.self    elapsed 
+39.8798587  0.3333333 33.6428571 
+]]></r:output>
+</r:code>
+</para>
+
+<para>
+Curiously, on eeyore - an Ubuntu Linux machine - 
+we get much worse performance comparing 
+interpreted to LLVM-compiled code.
+The interpreted code is running about 30 faster on 
+the Linux box.
+The LLVM-code is running about as 10th as fast as it does on OS X.
+<r:code>
+print((rowMeans(interp)/rowMeans(ll))[1:3], digits = 3)
+<r:output><![CDATA[
+user.self  sys.self   elapsed
+  23.8803    0.0435   20.5082
+]]></r:output>
+</r:code>
+This may be due to 
+</para>
+
 
 </section>
 </article>
+
