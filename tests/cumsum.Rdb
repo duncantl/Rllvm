@@ -359,7 +359,7 @@ all.equal(val, cumsum(x))
 </r:code>
 
 
-<r:code eval="false">
+<r:code>
 N = 1000000
 x = as.numeric(1:N)
 ans = numeric(length(x))
@@ -367,7 +367,7 @@ ans = numeric(length(x))
 interp = replicate(10, system.time({Cumsum(x)}))
 native =  replicate(10, system.time({cumsum(x)}))
 ll = replicate(10, system.time({run(fun, x = x, ans = ans, n = length(x), .all = TRUE, .ee = ee)$ans}))
-rowMeans(interp)/rowMeans(ll)
+(rowMeans(interp)/rowMeans(ll))[1:3]
 </r:code>
 The results on my Mac (under some additional load) give
 <r:output><![CDATA[
