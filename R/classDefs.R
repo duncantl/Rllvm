@@ -10,8 +10,11 @@ setClass("BasicBlock", contains = "Value")
 
 setClass("FunctionPassManager", contains = "RC++Reference")
 
+# if llvm 3.1, otherwise Instruction extends RC++Reference
+# setClass("Instruction", contains = "RC++Reference")
+setClass("User", contains = "Value")
+setClass("Instruction", contains = "User")
 
-setClass("Instruction", contains = "RC++Reference")
 setClass("UnaryInstruction", contains = "RC++Reference")
 setClass("TerminatorInst", contains = "Instruction")
 setClass("ReturnInst", contains = "TerminatorInst")
