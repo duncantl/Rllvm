@@ -18,3 +18,11 @@ printi(int val)
 {
     fprintf(stdout, "%d\n", val);
 }
+
+extern "C"
+void 
+abort()
+{
+ PROBLEM "aborting"
+ ERROR;
+}

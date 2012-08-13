@@ -3,6 +3,7 @@
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/Target/TargetData.h>
 #include <llvm/LinkAllPasses.h>
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
 
 #if 0
 extern "C"
@@ -28,6 +29,12 @@ R_getPassManager(SEXP r_module, SEXP r_ee)
      mgr->add(new llvm::TargetData(*TheExecutionEngine->getTargetData()));
   }
 
+#if 1
+ llvm::PassManagerBuilder Builder;
+ Builder.OptLevel = 3;
+ Builder.populateFunctionPassManager(*mgr);
+// Builder.populateModulePassManager(MPM);
+#else
   // Promote allocas to registers.
   mgr->add(llvm::createPromoteMemoryToRegisterPass());
   // Do simple "peephole" optimizations and bit-twiddling optzns.
@@ -38,7 +45,7 @@ R_getPassManager(SEXP r_module, SEXP r_ee)
   mgr->add(llvm::createGVNPass());
   // Simplify the control flow graph (deleting unreachable blocks, etc).
   mgr->add(llvm::createCFGSimplificationPass());
-
+#endif
   mgr->doInitialization();
 
   return(R_createRef(mgr, "FunctionPassManager"));

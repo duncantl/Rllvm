@@ -191,7 +191,7 @@ export(createGlobalString, createIsNull, createIsNotNull, createSelect,
 
 
 
-#export(getModule)
+export(getModule)
 
 export(getModuleFunctions)
 export(getPassManager)

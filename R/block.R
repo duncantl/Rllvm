@@ -11,5 +11,11 @@ function(fun, id = character(), context = getGlobalContext(), n = 1)
 getTerminator =
 function(block)
 {
+   block = as(block, "BasicBlock")
    .Call("R_BasicBlock_getTerminator", block)
 }
+
+setAs("IRBuilder", "BasicBlock",
+      function(from) {
+        getInsertBlock(from)
+      })
