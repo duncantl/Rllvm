@@ -69,3 +69,29 @@ function(module, var, allowInternal = TRUE)
 {
   .Call("R_Module_getGlobalVariable", module, as.character(var), as.logical(allowInternal))
 }
+
+
+
+
+setMethod("names", "Module",
+           function(x) {
+             names(getModuleFunctions(x)) # global variables?
+           })
+
+setMethod("[", c("Module", "character", "missing"),
+           function(x, i, j, ...) {
+             getModuleFunctions(x)[i]  # global variables?
+           })
+
+setMethod("[[", c("Module", "character", "missing"),
+           function(x, i, j, ...) {
+             getModuleFunctions(x)[[i]]  # global variables?
+           })
+
+setMethod("$", c("Module"),
+           function(x, name) {
+             getModuleFunctions(x)[[name]]  # global variables?
+           })
+setAs("Function", "Module",
+      function(from)
+        getModule(from))

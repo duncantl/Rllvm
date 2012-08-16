@@ -120,6 +120,7 @@ R_IRBuilder_CreateCall(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_id)
     int nargs = Rf_length(r_args);
     llvm::CallInst *ans;
 
+try {
     if(nargs) {
 //XXX For LLVM > 2.*, use CreateCall(callee, ArayRef<llvm::Value*>)
         std::vector<llvm::Value *> args; // does this disappear and we lose the elements?
@@ -134,7 +135,10 @@ R_IRBuilder_CreateCall(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_id)
     } else {
         ans = builder->CreateCall(callee);
     }
-
+} catch (std::exception e) {
+  PROBLEM "Failed to CreateCall"
+   ERROR;
+}
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
