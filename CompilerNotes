@@ -1,0 +1,3 @@
+strength reduction
+   changing multiplications to additions where possible
+   or other operations to cheaper ones
