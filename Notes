@@ -1,0 +1,16 @@
+.ll  files are the text version of LLVM code in its Intermediate Representation
+
+.bc  binary bitcode
+
+
+See experiments/
+
+
+ TO get IR code:
+clang fib.c -emit-llvm -S -o -
+
+The opt command line executable is for passing IR code through the LLVM optimizer passes.
+
+   opt -print-after-all ~/GitWorkingArea/Rllvm/experiments/add.ll  > /tmp/FOO
+
+ bitcode goes to /tmp/FOO; we see IR code on the 
