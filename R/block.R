@@ -19,3 +19,16 @@ setAs("IRBuilder", "BasicBlock",
       function(from) {
         getInsertBlock(from)
       })
+
+
+getBlockInstructions =
+function(block)
+{
+    block = as(block, "BasicBlock")
+    .Call("R_BasicBlock_getBlockInstructions", block)
+}
+
+setMethod("getParent", "BasicBlock",
+          function(x, ...)
+          .Call("R_BasicBlock_getParent", x))
+

@@ -44,6 +44,9 @@ setClass("StructType", contains = "CompositeType")
 setClass("UnionType", contains = "CompositeType")
 setClass("SequentialType", contains = "CompositeType")
 setClass("PointerType", contains = "SequentialType")
+setClass("ArrayType", contains = "SequentialType")
+setClass("VectorType", contains = "SequentialType")
+
 
 
 setClass("User", contains = "Value")

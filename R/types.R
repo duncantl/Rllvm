@@ -52,3 +52,49 @@ function(type, id)
   .Call(sym, type)
 }
 
+
+
+
+structType =
+function(elTypes, name = NA, context = NULL, isPacked = NA)
+{
+  if(is.na(name))
+    name = NULL
+  else
+    name = as.character(name)
+  
+  .Call("R_StructType_create", elTypes, name, context, isPacked)
+}
+
+
+setMethod("getName", "StructType",
+          function(obj, name)
+             .Call("R_StructType_getName", obj))
+
+setMethod("getElementTypes", "StructType",
+          function(x, ...)
+             .Call("R_StructType_getElementTypes", x, PACKAGE = "Rllvm"))
+
+
+
+arrayType =
+function(elType, num)
+{
+   .Call("R_ArrayType_get", elType, as.numeric(num), PACKAGE = "Rllvm")
+}
+
+
+setMethod("getNumElements", "ArrayType",
+          function(x, ...)
+           .Call("R_ArrayType_getNumElements", x))
+
+
+vectorType =
+function(elType, num)
+{
+   .Call("R_VectorType_get", elType, as.numeric(num), PACKAGE = "Rllvm")
+}
+
+setMethod("getNumElements", "VectorType",
+          function(x, ...)
+           .Call("R_VectorType_getNumElements", x))

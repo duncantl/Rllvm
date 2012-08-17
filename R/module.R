@@ -70,28 +70,82 @@ function(module, var, allowInternal = TRUE)
   .Call("R_Module_getGlobalVariable", module, as.character(var), as.logical(allowInternal))
 }
 
+getGlobalVariables = getModuleGlobals =
+function(module)
+{
+  module = as(module, "Module")
+  .Call("R_Module_getGlobalList", module)
+}
 
 
+# [[ is for variables
+# $ is for functions
+# This is consistent with how we did inter-system interfaces in the past.
+#  e.g. obj$method()
+#       obj[["property"]]
+
+#
+#  When we assign a literal or R data value to a global variable in a module
+#  with mod[["name"]] = value
+#  this creates a GlobalVariable object and uses the type of the value.
+#  When we get that value mod[["name"]], we get the GlobalVariable object
+#   not its value.
+# 
 
 setMethod("names", "Module",
            function(x) {
-             names(getModuleFunctions(x)) # global variables?
+             c(names(getModuleFunctions(x)), names(getGlobalVariables(x))) # global variables?
            })
+
+ # This creates a the GlobalVariable object
+setMethod("[[<-", c("Module", "character", "missing"),
+           function(x, i, j, ..., value) {
+             val = as(value, "Value")
+             createGlobalVariable(i, val, x)
+             x
+           })
+
+setMethod("[[<-", c("Module", "Value", "missing"),
+           function(x, i, j, ..., value) {
+             createGlobalVariable(i, value, x)
+             x
+           })
+
+getGlobalEntries =
+function(mod, ids, varOnly = FALSE)
+{
+  if(varOnly)
+    lapply(ids, getGlobalVariable, mod)
+  else {
+    c(getModuleFunctions(mod), getGlobalVariables(mod))[ids]
+  }
+}
 
 setMethod("[", c("Module", "character", "missing"),
-           function(x, i, j, ...) {
-             getModuleFunctions(x)[i]  # global variables?
+           function(x, i, j, ..., varOnly = FALSE, drop = TRUE) {
+              getGlobalEntries(x, i, varOnly)
            })
 
+
 setMethod("[[", c("Module", "character", "missing"),
-           function(x, i, j, ...) {
-             getModuleFunctions(x)[[i]]  # global variables?
+           function(x, i, j, ..., varOnly = FALSE) {
+             if(varOnly)
+               getGlobalVariable(x, i)
+             else {
+               tmp = getGlobalEntries(x, i, FALSE)
+               if(!is.null(tmp))
+                 tmp[[1]]
+               else
+                 tmp
+             }
            })
+
 
 setMethod("$", c("Module"),
            function(x, name) {
              getModuleFunctions(x)[[name]]  # global variables?
            })
+
 setAs("Function", "Module",
       function(from)
         getModule(from))

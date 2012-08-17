@@ -1,4 +1,16 @@
 
+setAs("integer", "Value",
+      function(from)
+        createIntegerConstant(from))
+setAs("numeric", "Value",
+      function(from)
+        createDoubleConstant(from))
+
+setAs("logical", "Value",
+      function(from)
+        createLogicalConstant(from))
+           
+
 createGlobalVar = createGlobalVariable =
 function(id, val, mod, type = getType(val), # guessType(val), 
           constant = FALSE, linkage = ExternalLinkage, threadLocal = FALSE)

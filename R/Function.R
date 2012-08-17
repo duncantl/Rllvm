@@ -46,7 +46,7 @@ setMethod("getName", "Value",
               .Call("R_Value_getName", obj))
 
 
-getParameters =
+getFunctionArgs = getParameters =
 function(fun, addNames = TRUE)
 {
    els = .Call("R_getFunctionArgs", fun)
