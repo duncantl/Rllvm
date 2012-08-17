@@ -43,3 +43,29 @@ SEXP convertGenericValueToR(const llvm::GenericValue *val, const llvm::Type *typ
 
 extern llvm::Twine makeTwine(SEXP);
 
+
+#define  MAKE_R_eraseFromParent(TYPE)		\
+   extern "C" \
+   SEXP \
+   R_##TYPE##_eraseFromParent(SEXP r_block, SEXP r_delete) \
+   { \
+       llvm::TYPE  *block = GET_REF(r_block, TYPE);	\
+      if(block) \
+          LOGICAL(r_delete)[0] ? block->eraseFromParent() :  block->removeFromParent(); \
+      return(ScalarLogical(block != NULL));				\
+   }
+
+
+
+#define MAKE_R_getParent(TYPE, ReturnType) \
+   extern "C" \
+   SEXP \
+   R_##TYPE##_getParent(SEXP r_block) \
+   { \
+       llvm::TYPE  *block = GET_REF(r_block, TYPE);	\
+      if(!block) \
+	  return(R_NilValue); \
+      llvm::ReturnType *  ans = block->getParent();	\
+      return(R_createRef(ans, #ReturnType));		\
+   }
+

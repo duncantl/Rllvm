@@ -1,5 +1,9 @@
 Version 0.4-1
 
+	*  ArrayType, VectorType, StructType.
+	
+	*  Methods for Instruction class. (Machine generated)
+
 	*  Compiles and installs with LLVM 3.1.
 
 	*  parseIR() function allows us to parse IR code and so  we

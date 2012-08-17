@@ -3,6 +3,12 @@
 <items>
 
 <item>
+Navigate/traverse the tree of blocks, instructions,
+and the ability to remove and insert instructions and
+blocks.
+</item>
+
+<item status="done">
 Find out how to parse IR text into IR structures.
 <br/>
 ParseIRFile() in opt.cpp.
@@ -19,9 +25,17 @@ system.time({tu = parseTU("inst/TU/llvm.c.001t.tu")})
 k = getClassNodes(tu)
 m = getClassMethods(k[["llvm::ExecutionEngine"]])
 rm = resolveType(m, tu)
-rm$create
 </r:code>
-
+</item>
+<item>
+In TU
+<r:code>
+m = getClassMethods(k[["llvm::BasicBlock"]])
+<r:error>
+Error in getClass("GCC::Node::offset_type") : 
+  "GCC::Node::offset_type" is not a defined class
+</r:error>
+</r:code>
 </item>
 
 <item>

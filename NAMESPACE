@@ -106,6 +106,7 @@ getGlobalContext,
 createLogicalConstant,
 getName,
 getParameters,
+getFunctionArgs,
 ICMP_EQ,
 ICMP_NE,
 ICMP_SGE,
@@ -221,3 +222,37 @@ export(parseIR)
 
 exportMethods("names", "[", "[[", "$")
 exportMethods(coerce)
+
+
+export('isTerminator')
+export('isBinaryOp')
+export('isShift')
+export('isCast')
+export('isLogicalShift')
+export('isArithmeticShift')
+export('hasMetadata')
+export('hasMetadataOtherThanDebugLoc')
+export('isAssociative')
+export('isCommutative')
+export('mayWriteToMemory')
+export('mayReadFromMemory')
+export('mayThrow')
+export('mayHaveSideEffects')
+export('isSafeToSpeculativelyExecute')
+
+export(getOpcode)
+
+export(getParent)
+export(getBlockInstructions)
+export(eraseFromParent)
+
+exportMethods("[[<-") # module
+
+export(getGlobalVariables, getModuleGlobals)
+
+export(structType, getElementTypes)
+
+export(arrayType, getNumElements)
+export(vectorType)
+
+

@@ -39,3 +39,51 @@ LinkageTypes = structure(0:13, .Names = c("ExternalLinkage", "AvailableExternall
 
 #########
 irb.methods = getClassMethods(llClasses[["llvm::IRBuilder<preserveNames,T,Inserter>"]])
+
+
+
+##############################
+if(!exists("tu"))
+  system.time({tu = parseTU("../inst/TU/llvm.c.001t.tu")})
+if(!exists("classes"))
+  classes = getClassNodes(tu)
+m = getClassMethods(classes[["llvm::Instruction"]])
+rm = lapply(m, resolveType, tu)
+
+ # Get the simple methods that return a bool and which are not static methods for the class
+bi = rm[sapply(rm, function(x)
+                     "public" %in% x$access && !is(x, "StaticMethod") &&
+                       is(x$returnType, "boolType") && length(x$parameters) == 1) ]
+
+cppCode = sprintf('extern "C"\nSEXP\nR_Instruction_%s(SEXP r_inst)\n{\n\tllvm::Instruction *inst = GET_REF(r_inst, Instruction);\n\tif(!inst) return(ScalarLogical(NA_LOGICAL));\n\treturn(ScalarLogical(inst->%s()));\n}', names(bi), names(bi))
+cat(cppCode, sep = "\n")
+
+
+rgeneric = sprintf("setGeneric('%s', 
+                  function(x, ...)
+                         standardGeneric('%s'))",
+                   names(bi), names(bi))
+
+rcode = sprintf("setMethod('%s', 'Instruction',
+                  function(x, ...)
+                     .Call('R_Instruction_%s', x, PACKAGE = 'Rllvm'))",
+                 names(bi), names(bi))
+           
+cat(rcode, file = "../R/instruction.R", sep = "\n")
+cat(rgeneric, file = "../R/generics.R", sep = "\n")
+
+cat(sprintf("export('%s')", names(bi)), sep = "\n")
+
+
+
+########################################
+
+irb = getClassMethods(k [[ "llvm::IRBuilder<preserveNames,T,Inserter>"  ]])
+
+
+
+#################################
+
+ty = getClassMethods(classes[["llvm::Type"]])
+ty = lapply(ty, resolveType, tu)
+

@@ -249,6 +249,37 @@ R_Module_getFunctionList(SEXP r_module)
 #endif
 
 
+extern "C"
+SEXP
+R_Module_getGlobalList(SEXP r_module)
+{
+    llvm::Module *mod = GET_REF(r_module, Module);
+
+    int n, i = 0;
+    SEXP rans, names;
+
+    llvm::iplist<llvm::GlobalVariable> &funclist = mod->getGlobalList();
+    n = funclist.size();
+
+    PROTECT(rans = NEW_LIST(n));
+    PROTECT(names = NEW_CHARACTER(n));
+
+    for(llvm::iplist<const llvm::GlobalVariable>::iterator it = funclist.begin(); it != funclist.end(); it++, i++)
+    {
+        const llvm::GlobalVariable *curfunc = &(*it);
+        SET_STRING_ELT(names, i, mkChar(curfunc->getName().data()));
+        SET_VECTOR_ELT(rans, i, R_createRef(curfunc, "GlobalVariable"));
+    }
+    SET_NAMES(rans, names);
+
+    UNPROTECT(2);
+    return(rans);
+}
+
+
+
+
+
 
 extern "C"
 SEXP
