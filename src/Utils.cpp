@@ -19,6 +19,8 @@ printi(int val)
     fprintf(stdout, "%d\n", val);
 }
 
+
+#if 0
 extern "C"
 void 
 abort()
@@ -26,3 +28,4 @@ abort()
  PROBLEM "aborting"
  ERROR;
 }
+#endif
