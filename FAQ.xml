@@ -1,3 +1,47 @@
-<faq>
+<faq
+	 xmlns:sh="http://www.shell.org"
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:omg="http://www.omegahat.org">
+<q>
+<para>
+I want to compile <omg:pkg>Rllvm</omg:pkg> with a local, non-centrally installed
+version of llvm, e.g. a development version that I build in my own account area
+and not the one in that is installed /usr/local/.  What do I have to do?
+</para>
+<a>
+<para>
+The first thing to do is set the environment variable LLVM_CONFIG 
+to the full path to the local version of llvm-config you want to use,
+e.g.
+<sh:code>
+export LLVM_CONFIG=~/LLVM/build/Debug+Asserts/bin/llvm-config
+</sh:code>
+Here I have put the source for llvm in LLVM/llvm, and configured
+and built it from a directory named build/.
+</para>
+<para>
+If you have a version of llvm installed  in /usr/local, 
+you will need to force the local library directory to come before
+/usr/local/lib when building the shared library. R doesn't make
+this especially customizable, so we can force it by setting
+the Make variable SHLIB_LINK in our own local Makevars
+file in <sh:path>${HOME}/.R</sh:path>, i.e. <sh:path>${HOME}/.R./Makevars</sh:path>.
+We can do this with
+<sh:code>
+SHLIB_LINK= $(SHLIB_LD) $(shell $(LLVM_CONFIG) --ldflags) $(SHLIB_LDFLAGS) $(LDFLAGS)
+</sh:code>
+</para>
+<para>
+The last step is, of course, to ensure the system loader  finds your 
+local versions of the libraries. You need to set
+<sh:var>LD_LIBRARY_PATH</sh:var>, or <sh:var>DYLD_LIBRARY_PATH</sh:var>
+on OS X, or <sh:var>PATH</sh:var> on Windows, to point to
+the lib/ directory in your build, e.g.
+<sh:code>
+export DYLD_LIBRARY_PATH=~/LLVM/build/lib/
+</sh:code>
+</para>
+</a>
+</q>
 
 </faq>

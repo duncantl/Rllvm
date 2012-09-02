@@ -1,6 +1,9 @@
 LLVM_CONFIG=@LLVM_CONFIG@
 
-PKG_CPPFLAGS= -DLLVM_VERSION=@LLVM_VERSION@ $(shell $(LLVM_CONFIG) --cxxflags | sed -e 's/-O[0-9]//g') -fexceptions
+PKG_CPPFLAGS= -DLLVM_VERSION=@LLVM_VERSION@ -DLLVM_MINOR_VERSION=@LLVM_MINOR_VERSION@ $(shell $(LLVM_CONFIG) --cxxflags | sed -e 's/-O[0-9]//g') -fexceptions
+ALL_LIBS:= $(shell $(LLVM_CONFIG) --ldflags) $(ALL_LIBS)
 PKG_LIBS=$(shell $(LLVM_CONFIG) --ldflags --libs)
+SHLIB_CXXLDFLAGS:=$(shell $(LLVM_CONFIG) --ldflags) $(SHLIB_CXXLDFLAGS)
+
 # -lLLVMSystem
 

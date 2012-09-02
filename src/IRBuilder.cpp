@@ -1,6 +1,9 @@
-
 #include "Rllvm.h"
+#if LLVM_VERSION <= 3 && LLVM_MINOR_VERSION < 2
 #include <llvm/Support/IRBuilder.h>
+#else
+#include <llvm/IRBuilder.h>
+#endif
 
 SEXP
 R_createRef(const void *ptr, const char * const className, const char * tag)

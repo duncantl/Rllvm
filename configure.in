@@ -11,7 +11,7 @@ if test -z "${LLVM_CONFIG}" ; then
 
 fi
 
-CFLAGS=`${LLVM_CONFIG} --cxxflags`
+CXXFLAGS=`${LLVM_CONFIG} --cxxflags`
 AC_LANG(C++)
 AC_COMPILE_IFELSE([
 #include <llvm/LLVMContext.h>
@@ -22,10 +22,12 @@ void foo() {
 
 AC_SUBST(LLVM_CONFIG)
 
-LLVM_VERSION=`${LLVM_CONFIG} --version | sed -e 's/\.[[0-9]]*//'`
+LLVM_VERSION=`${LLVM_CONFIG} --version | sed -e 's/\.[[0-9]]*//' | sed -e 's/svn//'`
+LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -e 's/[[0-9]]\.//' | sed -e 's/svn//'`
 
-echo "version: $LLVM_VERSION"
+echo "version: $LLVM_VERSION, minor = $LLVM_MINOR_VERSION"
 AC_SUBST(LLVM_VERSION)
+AC_SUBST(LLVM_MINOR_VERSION)
 
 echo ""
 echo "*** llvm-config ${LLVM_CONFIG}"

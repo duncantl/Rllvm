@@ -16,7 +16,11 @@ R_createGlobalVariable(SEXP r_module, SEXP r_type, SEXP r_val, SEXP r_name, SEXP
     llvm::GlobalVariable *ans;
     ans = new llvm::GlobalVariable(*mod, ty, LOGICAL(r_isConstant)[0], 
                                    (llvm::GlobalValue::LinkageTypes) INTEGER(r_linkage)[0], 
-                                    val, tw, NULL, LOGICAL(r_threadLocal)[0]);
+                                    val, tw, NULL, 
+#if LLVM_VERSION >=3 && LLVM_MINOR_VERSION>=2
+               (llvm::GlobalVariable::ThreadLocalMode)
+#endif
+                                    INTEGER(r_threadLocal)[0]);
 
     return(R_createRef(ans, "GlobalVariable"));
 }
