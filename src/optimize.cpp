@@ -26,7 +26,9 @@ R_getPassManager(SEXP r_module, SEXP r_ee)
      TheExecutionEngine = GET_REF(r_ee, ExecutionEngine);
      // Set up the optimizer pipeline.  Start with registering info about how the
      // target lays out data structures.
+#ifdef LLVM_VERSION_THREE_TWO
      mgr->add(new llvm::TargetData(*TheExecutionEngine->getTargetData()));
+#endif
   }
 
 #if 1

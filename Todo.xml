@@ -1,6 +1,9 @@
 <todo>
 
 <items>
+<item>
+Get element type of a pointer, array or vector type.
+</item>
 
 <item>
 Navigate/traverse the tree of blocks, instructions,

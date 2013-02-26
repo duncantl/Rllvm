@@ -622,7 +622,9 @@ CPPFLAGS
 ac_ct_CXX
 EXEEXT
 OBJEXT
+LLVM_VERSION_NUMBER
 LLVM_VERSION
+LLVM_MINOR_VERSION
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -1682,7 +1684,7 @@ fi
 
 fi
 
-CFLAGS=`${LLVM_CONFIG} --cxxflags`
+CXXFLAGS=`${LLVM_CONFIG} --cxxflags`
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -2337,9 +2339,13 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 
 
-LLVM_VERSION=`${LLVM_CONFIG} --version | sed -e 's/\.[0-9]*//'`
+LLVM_VERSION_NUMBER=`${LLVM_CONFIG} --version | sed -e 's/svn//'`
+LLVM_VERSION=`${LLVM_CONFIG} --version | sed -e 's/\.[0-9]*//' | sed -e 's/svn//'`
+LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -e 's/[0-9]\.//' | sed -e 's/svn//'`
 
-echo "version: $LLVM_VERSION"
+echo "version: $LLVM_VERSION, minor = $LLVM_MINOR_VERSION"
+
+
 
 
 echo ""
@@ -3021,12 +3027,14 @@ CPPFLAGS!$CPPFLAGS$ac_delim
 ac_ct_CXX!$ac_ct_CXX$ac_delim
 EXEEXT!$EXEEXT$ac_delim
 OBJEXT!$OBJEXT$ac_delim
+LLVM_VERSION_NUMBER!$LLVM_VERSION_NUMBER$ac_delim
 LLVM_VERSION!$LLVM_VERSION$ac_delim
+LLVM_MINOR_VERSION!$LLVM_MINOR_VERSION$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 48; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 50; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

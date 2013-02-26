@@ -13,7 +13,11 @@ SEXP
 R_Function_setDoesNotThrow(SEXP r_func, SEXP r_val)
 {
     llvm::Function *func = GET_REF(r_func, Function);
+#ifdef LLVM_VERSION_THREE_TWO
     func->setDoesNotThrow(LOGICAL(r_val)[0]);
+#else
+    func->setDoesNotThrow();
+#endif
     return(R_NilValue);
 }
 
@@ -31,7 +35,11 @@ SEXP
 R_Function_setOnlyReadsMemory(SEXP r_func, SEXP r_val)
 {
     llvm::Function *func = GET_REF(r_func, Function);
+#ifdef LLVM_VERSION_THREE_TWO
     func->setOnlyReadsMemory(LOGICAL(r_val)[0]);
+#else
+    func->setOnlyReadsMemory();
+#endif
     return(R_NilValue);
 }
 
@@ -48,7 +56,11 @@ SEXP
 R_Function_setDoesNotAccessMemory(SEXP r_func, SEXP r_val)
 {
     llvm::Function *func = GET_REF(r_func, Function);
+#ifdef LLVM_VERSION_THREE_TWO
     func->setDoesNotAccessMemory(LOGICAL(r_val)[0]);
+#else
+    func->setDoesNotAccessMemory();
+#endif
     return(R_NilValue);
 }
 

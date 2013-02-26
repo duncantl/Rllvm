@@ -1,3 +1,8 @@
+Version 0.4-2
+
+	*  Support for building from the LLVM subversion repository
+	   for version 3.2 of LLVM.  See FAQ.xml.
+	
 Version 0.4-1
 
 	*  ArrayType, VectorType, StructType.

@@ -20,6 +20,11 @@
 
 #include <Rdefines.h>
 
+#if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION > 2
+#define LLVM_VERSION_THREE_TWO 1
+#endif
+
+
 SEXP R_createRef(const void *ptr, const char * const className, const char *tagName = NULL);
 
 void *getRReference(SEXP val);
