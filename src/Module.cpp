@@ -296,3 +296,34 @@ R_Module_getGlobalVariable(SEXP r_module, SEXP r_name, SEXP r_allowInternal)
 
     return(R_createRef(var, "GlobalVariable"));
 }
+
+
+#include <llvm/Assembly/Parser.h>
+#include <llvm/Support/SourceMgr.h>
+
+extern "C"
+SEXP
+R_ParseAssemblyString(SEXP r_str, SEXP r_module, SEXP r_context)
+{
+    llvm::Module *module;
+    llvm::SMDiagnostic err;
+
+    llvm::LLVMContext *context;
+    if(Rf_length(r_context))
+        context = (GET_REF(r_context, LLVMContext)); // llvm::cast<llvm::LLVMContext> 
+    else
+        context = & llvm::getGlobalContext();
+
+    if(length(r_module))
+        module = GET_REF(r_module, Module); 
+    else
+        module = NULL;
+
+    const char *text = CHAR(STRING_ELT(r_str, 0));
+    module = llvm::ParseAssemblyString(text, module, err, *context);
+    if(!module) {
+        PROBLEM  "problem reading assembler code"
+            ERROR;
+    }
+    return(R_createRef(module, "Module"));
+}

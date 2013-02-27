@@ -149,3 +149,20 @@ setMethod("$", c("Module"),
 setAs("Function", "Module",
       function(from)
         getModule(from))
+
+
+
+parseAssembly =
+function(code, module = NULL, context = NULL, asText = !file.exists(code))
+{
+  if(missing(asText) || !missing(asText) && !asText) {
+     code = sapply(code, readLines)
+     asText = TRUE
+  }
+
+  if(length(code))
+    code = paste(code, collapse = "\n")
+
+  .Call("R_ParseAssemblyString", code, module, context)
+}
+

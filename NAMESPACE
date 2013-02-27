@@ -256,3 +256,4 @@ export(arrayType, getNumElements)
 export(vectorType)
 
 
+export(parseAssembly)

@@ -1,6 +1,35 @@
 <todo>
 
 <items>
+
+<item>
+Metadata
+</item>
+
+<item>
+Get module's name via getName() method.
+</item>
+<item>
+Function to allow putting a block at the end, i.e. the return block.
+See llvmpy, (tests/JUTTutorial2.py)
+Is this what is actually going on in that example or are we jumping to that blick?
+</item>
+<item>
+Clone a module - see llvmpy
+</item>
+<item>
+module to native assembly - is this the IR?
+</item>
+
+<item status="done">
+From assembly string? Done?
+ParseAssemblyString
+</item>
+
+<item>
+Write out bitcode, llvm module (IR or ?), shared object (need linker step - system or in LLVM API?)
+</item>
+
 <item>
 Get element type of a pointer, array or vector type.
 </item>
