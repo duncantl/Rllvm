@@ -166,3 +166,47 @@ function(code, module = NULL, context = NULL, asText = !file.exists(code))
   .Call("R_ParseAssemblyString", code, module, context)
 }
 
+
+setMethod("getName", "Module",
+          function(obj, ...)
+              .Call("R_Module_getModuleIdentifier", obj))
+
+          
+
+
+
+setMethod("clone", "Module",
+          function(x, ...)
+          .Call("R_Module_CloneModule", x))
+
+
+
+readBitcode =
+  #
+  #
+  #  readBitcode("experiments/stress.bc")
+  #  readBitcode("experiments/stress.ll")   error
+  #
+function(src, context = NULL)
+{
+ # src = as.character(src)
+  if(is.character(src) && !file.exists(src))
+    stop("no file named ", src)
+  .Call("R_ParseBitcodeFile", src, context, as)
+}
+
+
+setAs("Module", "character",
+        function(from)
+           showModule(from, TRUE))
+
+
+writeBitcode =
+function(module, to = character())
+{
+  ans = .Call("R_WriteBitcodeToFile", module, NULL)
+  if(length(to) && !is.na(to))
+    writeBin(ans, to)
+  else
+    ans
+}

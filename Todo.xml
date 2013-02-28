@@ -1,24 +1,53 @@
-<todo>
+<?xml-stylesheet type="text/xsl" href="XSL/Todo.xsl" ?> 
+<topics
+	 xmlns:r="http://www.r-project.org">
+<topic>
+
 
 <items>
+
+<item>
+Example of accessing a struct.
+</item>
+
+<item >
+[Done] Read bitcode (.bc) into a Module.
+readBitCode.
+Should be able to read from a raw also.
+</item>
 
 <item>
 Metadata
 </item>
 
 <item>
+getTypeID should return the name of the type, not just the enum
+value.
+</item>
+
+<item status="done">
 Get module's name via getName() method.
 </item>
+
+<item status="done">
+makeRFunction to create a wrapper for an LLVM routine.
+</item>
+
 <item>
 Function to allow putting a block at the end, i.e. the return block.
 See llvmpy, (tests/JUTTutorial2.py)
 Is this what is actually going on in that example or are we jumping to that blick?
 </item>
-<item>
+
+<item status="done">
 Clone a module - see llvmpy
+<br/>
+clone() generic and method for Module.
 </item>
+
 <item>
 module to native assembly - is this the IR?
+If so, then simply showModule() or as(module, "character")
 </item>
 
 <item status="done">
@@ -28,10 +57,12 @@ ParseAssemblyString
 
 <item>
 Write out bitcode, llvm module (IR or ?), shared object (need linker step - system or in LLVM API?)
+See pycc.
 </item>
 
 <item>
 Get element type of a pointer, array or vector type.
+getPointerElementType(), getVectorElementType(), getArrayElementType(), etc.
 </item>
 
 <item>
@@ -76,6 +107,13 @@ varargs
 
 <item>
 structures
+getStructName()  (getName() in R), 
+getElementTypes equivalent to getStructElementType(), getStructNumElements() in C++.
+How to create them?  structType() function in R.
+</item>
+<item>
+How do we get the names of the elements on a struct Type?
+Do we add this in meta-data?
 </item>
 
 <item>
@@ -167,6 +205,6 @@ we can require that the caller
 register symbols or DLLs.
 </item>
 
-
 </items>
-</todo>
+</topic>
+</topics>

@@ -68,3 +68,4 @@ function(call, val = TRUE)
 }
 
 
+setGeneric("clone", function(x, ...) standardGeneric("clone"))

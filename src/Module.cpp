@@ -327,3 +327,100 @@ R_ParseAssemblyString(SEXP r_str, SEXP r_module, SEXP r_context)
     }
     return(R_createRef(module, "Module"));
 }
+
+
+
+extern "C"
+SEXP
+R_Module_getModuleIdentifier(SEXP r_module)
+{
+    llvm::Module *module;
+    module = GET_REF(r_module, Module); 
+    std::string str = module->getModuleIdentifier();
+    return( ScalarString( str.data()  ? mkChar(str.data()) : R_NaString) ) ;	
+}
+
+#include <llvm/Transforms/Utils/Cloning.h>
+extern "C"
+SEXP
+R_Module_CloneModule(SEXP r_module)
+{
+    llvm::Module *module, *ans;
+    module = GET_REF(r_module, Module); 
+    ans = llvm::CloneModule(module);
+
+    return(R_createRef(ans, "Module"));
+}
+
+#include <llvm/Support/system_error.h>
+#include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Bitcode/ReaderWriter.h>
+
+#if 1
+extern "C"
+SEXP
+R_WriteBitcodeToFile(SEXP r_module, SEXP r_to)
+{
+    llvm::Module *module;
+    SEXP ans;
+
+    module = GET_REF(r_module, Module); 
+
+    std::string str;
+    llvm::raw_string_ostream out(str); 
+    llvm::WriteBitcodeToFile(module, out);
+
+    std::string tmp = out.str();
+    size_t len = tmp.size();
+
+    PROTECT(ans = NEW_RAW(len));
+    memcpy(RAW(ans), tmp.data(), len);
+    UNPROTECT(1);
+    return(ans);
+}
+#endif
+
+
+
+//   Module *ParseBitcodeFile(MemoryBuffer *Buffer, LLVMContext &Context,
+//                           std::string *ErrMsg = 0);
+extern "C"
+SEXP
+R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
+{
+    llvm::LLVMContext *context;
+    if(Rf_length(r_context))
+        context = (GET_REF(r_context, LLVMContext)); // llvm::cast<llvm::LLVMContext> 
+    else
+        context = & llvm::getGlobalContext();
+
+    llvm::MemoryBuffer *buf;
+    llvm::error_code ec;
+    
+    if(TYPEOF(r_input) == STRSXP) {
+        llvm::OwningPtr<llvm::MemoryBuffer> tmp;
+        ec = llvm::MemoryBuffer::getFile(CHAR(STRING_ELT(r_input, 0)), tmp);
+        if(ec) {
+            PROBLEM "error reading file: %s", ec.message().c_str()
+            ERROR;
+        }
+        buf = tmp.take();
+    } else {
+#if 1
+       llvm::StringRef ref((const char *) RAW(r_input), Rf_length(r_input));
+       buf = llvm::MemoryBuffer::getMemBuffer(ref, "", false);        
+#else
+       PROBLEM "handling of raw bitcode content not implemented yet"
+       ERROR;
+#endif
+    }
+
+    
+    std::string msg;
+    llvm::Module *ans = llvm::ParseBitcodeFile(buf, *context, &msg);
+    if(!ans) {
+        PROBLEM "failed to read bitcode %s", msg.c_str()
+         ERROR;
+    }
+    return(R_createRef(ans, "Module"));    
+}

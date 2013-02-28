@@ -120,3 +120,7 @@ setMethod("getCalledFunction", "CallInst",
 
   
 
+
+setAs("Function", "function",
+       function(from)
+         makeRFunction(from))

@@ -33,8 +33,8 @@ verifyModule(mod)
 val = run(fun, 2, 10, 3, .ee = ExecutionEngine(mod))
 print(val)  # should be 2 * 10 + 3 = 23
 
-#foo = makeFun(fun)   # create the R code to call this routine.
-                      # performing the coercions, etc.
+#foo = makeRFunfunction(fun)   # create the R code to call this routine.
+                               # performing the coercions, etc.
 
 # Next we want to dump the compiled routine so that we can
 # load it into a future session.

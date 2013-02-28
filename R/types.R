@@ -17,7 +17,7 @@ setMethod("getDescription", "Type",
 
 getTypeID =
   function(x, ...)
-     .Call("R_Type_getTypeID", ans)
+     .Call("R_Type_getTypeID", x)
 
 getScalarType = 
   function(x, ...)
@@ -74,6 +74,7 @@ setMethod("getName", "StructType",
 setMethod("getElementTypes", "StructType",
           function(x, ...)
              .Call("R_StructType_getElementTypes", x, PACKAGE = "Rllvm"))
+
 
 
 

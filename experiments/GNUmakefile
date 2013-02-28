@@ -4,4 +4,11 @@
 %.llcpp: %.bc
 	llc -march=cpp $< -o $@
 
+%.bc: %.ll
+	llvm-as $<
+
+stress.ll:
+	llvm-stress > $@
+
+
 

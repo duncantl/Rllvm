@@ -257,3 +257,12 @@ export(vectorType)
 
 
 export(parseAssembly)
+
+export(makeRFunction)
+
+export(clone)
+exportMethods(clone)
+
+
+export(readBitcode, writeBitcode)
+

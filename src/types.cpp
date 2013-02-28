@@ -190,6 +190,7 @@ R_StructType_setBody(SEXP r_type, SEXP elTypes)
 }
 
 
+
 extern "C"
 SEXP
 R_StructType_getElementTypes(SEXP r_type)
@@ -205,6 +206,7 @@ R_StructType_getElementTypes(SEXP r_type)
     UNPROTECT(1);
     return(ans);
 }
+
 
 /****************************************/
 
