@@ -49,3 +49,13 @@ function(funcName, execEngine)
 {
    .Call("R_ExecutionEngine_FindFunctionNamed", execEngine, as.character(funcName))
 }
+
+
+getGlobalValue = 
+function(var, exec)
+{
+   ptr = getPointerToGlobal(var, exec)
+   type = getType(var)
+   ty = getElementType(type)
+   .Call("R_convertNativeValuePtrToR", ptr@ref, ty)
+}

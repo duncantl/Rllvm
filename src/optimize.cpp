@@ -1,7 +1,9 @@
 #include "Rllvm.h"
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
+#if 0
 #include <llvm/Target/TargetData.h>
+#endif
 #include <llvm/LinkAllPasses.h>
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
 

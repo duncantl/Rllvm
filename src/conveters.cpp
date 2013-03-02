@@ -128,7 +128,6 @@ convertNativeValuePtrToR(void *ptr, const llvm::Type *type)
             ans = ScalarInteger( * ((int *) ptr)); 
         break;
         case llvm::Type::DoubleTyID:
-            fprintf(stderr, "%lf  %lf\n", 1.0 , * ((double*) ptr) );
             ans = ScalarReal( * ((double *) ptr));
         break;
         case llvm::Type::FloatTyID:
