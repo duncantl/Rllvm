@@ -8,7 +8,7 @@
 	llc -march=cpp $< -o $@
 
 %.ll: %.c GNUmakefile
-	clang -g -S -emit-llvm -o $@ $<
+	clang -S -emit-llvm -o $@ $<
 
 %.bc: %.ll
 	llvm-as $<
