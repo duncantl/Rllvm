@@ -113,3 +113,42 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
      case Type::PointerTyID:
        return PTOGV(((void*(*)())(intptr_t)FPtr)());
 */
+
+#include <stdio.h>
+
+SEXP
+convertNativeValuePtrToR(void *ptr, const llvm::Type *type)
+{
+    SEXP ans = R_NilValue;
+
+    llvm::Type::TypeID ty = type->getTypeID();
+
+    switch(ty) {
+        case llvm::Type::IntegerTyID:
+            ans = ScalarInteger( * ((int *) ptr)); 
+        break;
+        case llvm::Type::DoubleTyID:
+            fprintf(stderr, "%lf  %lf\n", 1.0 , * ((double*) ptr) );
+            ans = ScalarReal( * ((double *) ptr));
+        break;
+        case llvm::Type::FloatTyID:
+            ans = ScalarReal( * ((float *) ptr));
+        break;
+/*
+        case llvm::Type::PointerTyID:
+            ans = convertPointerToR(ptr, type);
+            break;
+*/
+    }
+
+    return(ans);
+}
+
+extern "C"
+SEXP
+R_convertNativeValuePtrToR(SEXP r_ptr, SEXP r_type)
+{
+    void *ptr = R_ExternalPtrAddr(r_ptr);
+    llvm::Type *ty = GET_TYPE(r_type);
+    return(convertNativeValuePtrToR(ptr, ty));
+}

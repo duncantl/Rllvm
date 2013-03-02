@@ -149,7 +149,8 @@ UDiv,
 URem,
 verifyModule,
 VoidType,
-Xor
+Xor,
+createExtractElement, createInsertElement
 )
 
 
@@ -200,7 +201,8 @@ export(getBlocks)
 
 export(getTerminator)
 export(getGlobalVariable)
-export(getCalledFunction, getReturnType, getType)
+export(getCalledFunction, getReturnType, getType, getTypeID)
+export(getElementType)
 
 
 export(createNeg, createNot)

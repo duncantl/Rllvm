@@ -75,7 +75,10 @@ setMethod("getElementTypes", "StructType",
           function(x, ...)
              .Call("R_StructType_getElementTypes", x, PACKAGE = "Rllvm"))
 
-
+getElementType =
+function(type) {
+   .Call("R_Type_getPointerElementType", type)
+ }
 
 
 arrayType =

@@ -252,3 +252,26 @@ R_VectorType_getNumElements(SEXP r_elType)
     llvm::VectorType *type = GET_REF(r_elType, VectorType);
     return(ScalarReal(type->getNumElements()));
 }
+
+
+extern "C"
+SEXP
+R_Type_getPointerElementType(SEXP r_type)
+{
+    llvm::Type *ty = GET_TYPE(r_type);
+    llvm::Type *ans = NULL;
+    llvm::Type::TypeID id = ty->getTypeID();
+    if(id == llvm::Type::ArrayTyID) 
+        ans = ty->getArrayElementType();
+    else if(id == llvm::Type::PointerTyID)
+        ans = ty->getPointerElementType();
+    else if(id == llvm::Type::ArrayTyID)
+        ans = ty->getArrayElementType();
+    else {
+        PROBLEM "can't get type of element of this type"
+            WARN;
+        return(R_NilValue);
+    }
+
+    return(R_createRef(ans, "Type"));
+}

@@ -632,3 +632,29 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
     }
     return(mod  ?  R_createRef(mod, "Module") : R_NilValue );
 }
+
+
+extern "C"
+SEXP
+R_IRBuilder_CreateExtractElement(SEXP r_builder, SEXP r_vec, SEXP r_idx)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *val = GET_REF(r_vec, Value);
+    llvm::Value *idx = GET_REF(r_idx, Value);
+    llvm::Value *ret = builder->CreateExtractElement(val, idx);
+    return(R_createRef(ret, "Value"));
+} 
+
+extern "C"
+SEXP
+R_IRBuilder_CreateInsertElement(SEXP r_builder, SEXP r_vec, SEXP r_elt, SEXP r_idx)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *val = GET_REF(r_vec, Value);
+    llvm::Value *elt = GET_REF(r_elt, Value);
+    llvm::Value *idx = GET_REF(r_idx, Value);
+    llvm::Value *ret = builder->CreateInsertElement(val, elt, idx);
+    return(R_createRef(ret, "Value"));
+} 

@@ -325,3 +325,23 @@ function(content, context = NULL, asText = is(content, "AsIs") || !file.exists(c
     
    .Call("R_llvm_ParseIRFile", content, as.logical(asText), context)
 }
+
+
+createExtractElement =
+function(builder, vec, idx)
+{
+   .Call("R_IRBuilder_CreateExtractElement", builder, vec, idx)
+}
+
+createInsertElement =
+function(builder, vec, elt, idx)
+{
+   .Call("R_IRBuilder_CreateInsertElement", builder, vec, elt, idx)
+}
+
+
+createPHI =
+function(builder, type, numReservedVals)
+{
+   .Call("R_IRBuilder_CreatePHI", builder, type, as.integer(numReservedVals))
+}

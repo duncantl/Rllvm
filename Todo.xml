@@ -7,13 +7,17 @@
 <items>
 
 <item>
+varargs
+</item>
+
+<item>
 Example of accessing a struct.
 </item>
 
-<item >
+<item status="done">
 [Done] Read bitcode (.bc) into a Module.
 readBitCode.
-Should be able to read from a raw also.
+[Done] Should be able to read from a raw also.
 </item>
 
 <item>
@@ -56,14 +60,23 @@ ParseAssemblyString
 </item>
 
 <item>
-Write out bitcode, llvm module (IR or ?), shared object (need linker step - system or in LLVM API?)
+Write out [Done] bitcode, [Done] llvm module (IR or ?), 
+shared object (need linker step - system or in LLVM API?)
 See pycc.
 </item>
 
-<item>
+<item status="done">
 Get element type of a pointer, array or vector type.
 getPointerElementType(), getVectorElementType(), getArrayElementType(), etc.
 </item>
+<item>
+structures
+getStructName()  (getName() in R), 
+getElementTypes equivalent to getStructElementType(), getStructNumElements() in C++.
+How to create them?  structType() function in R.
+</item>
+
+
 
 <item>
 Navigate/traverse the tree of blocks, instructions,
@@ -90,6 +103,7 @@ m = getClassMethods(k[["llvm::ExecutionEngine"]])
 rm = resolveType(m, tu)
 </r:code>
 </item>
+
 <item>
 In TU
 <r:code>
@@ -101,16 +115,7 @@ Error in getClass("GCC::Node::offset_type") :
 </r:code>
 </item>
 
-<item>
-varargs
-</item>
 
-<item>
-structures
-getStructName()  (getName() in R), 
-getElementTypes equivalent to getStructElementType(), getStructNumElements() in C++.
-How to create them?  structType() function in R.
-</item>
 <item>
 How do we get the names of the elements on a struct Type?
 Do we add this in meta-data?
@@ -121,27 +126,22 @@ Methods for IRBuilder
 <br/>
 See the TU interface generation.
 <br/>
-
+CreateUnwind, CreateUnreachable
+CreateSelect
 CreateVAArg
-CreateExtractElemet
-CreateInsertElement
 CreatePtrDiff
-
 CreateSwitch,
 CreateIndirectBr, CreateAggregateRet, 
 CreateInvoke,
-
-CrateNSWAdd, NUWAdd, NSWSub, ...
-
+CreateNSWAdd, NUWAdd, NSWSub, ...
 CreateInBoundsGEP
-
 CreateTrunc, CreateZExt, CreateSExt
-
 CreatePHI
+CreateInboundsGEP
 
 [Done] CreateIsNull, CreateIsNotNull
-CreateUnwind, CreateUnreachable
-CreateSelect
+[Done] CreateExtractElemet
+[Done] CreateInsertElement
 </item>
 
 <item>
@@ -149,6 +149,8 @@ Also allow passing in a function pointer to an LLVM generated
 routine as a type of argument.
 <br/>
 How do we specify that sort of type?
+<br/>
+
 </item>
 
 <item>
@@ -169,10 +171,31 @@ Call IRBuilder-&gt;CreateInBoundsGEP
 </item>
 
 <item>
+Does assigning to the global variable actually set it it
+<r:code>
+library(Rllvm)
+mod = Module("globalTest")
+mod[["i"]] = pi
+</r:code>
+Doesn't seem to.
+</item>
+<item status="high"> [Close but not working]
 global variables. Get the value.  Write a routine to get them.  Can't
 we do this generically.
 <br/>
 Use the ExecutionEngine and its  methods
+<r:code>
+library(Rllvm)
+mod = Module("globalTest")
+ee = ExecutionEngine(mod)
+id = "i"
+mod[[id]] = pi
+mod[[id]]
+ptr = Rllvm:::getPointerToGlobal(mod[[id]], ee)
+type = getType(mod[[id]])
+ty = getElementType(type)
+.Call("R_convertNativeValuePtrToR", ptr, ty)
+</r:code>
 </item>
 
 <item>
