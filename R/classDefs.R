@@ -69,3 +69,7 @@ function(call, val = TRUE)
 
 
 setGeneric("clone", function(x, ...) standardGeneric("clone"))
+
+setAs("Module", "ExecutionEngine", 
+       function(from)
+          ExecutionEngine(from))

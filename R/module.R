@@ -128,8 +128,8 @@ setMethod("[", c("Module", "character", "missing"),
 
 
 setMethod("[[", c("Module", "character", "missing"),
-           function(x, i, j, ..., varOnly = FALSE) {
-             if(varOnly)
+           function(x, i, j, ..., varOnly = FALSE, value = FALSE) {
+       ans = if(varOnly)
                getGlobalVariable(x, i)
              else {
                tmp = getGlobalEntries(x, i, FALSE)
@@ -138,6 +138,10 @@ setMethod("[[", c("Module", "character", "missing"),
                else
                  tmp
              }
+        if(value)
+	   getGlobalValue(ans, as(x, "ExecutionEngine"))
+	else
+	   ans
            })
 
 

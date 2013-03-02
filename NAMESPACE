@@ -268,3 +268,4 @@ exportMethods(clone)
 
 export(readBitcode, writeBitcode)
 
+export(getGlobalValue)
