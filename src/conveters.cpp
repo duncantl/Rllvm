@@ -124,9 +124,14 @@ convertNativeValuePtrToR(void *ptr, const llvm::Type *type)
     llvm::Type::TypeID ty = type->getTypeID();
 
     switch(ty) {
-        case llvm::Type::IntegerTyID:
-            ans = ScalarInteger( * ((int *) ptr)); 
+        case llvm::Type::IntegerTyID: {
+	    unsigned num = type->getIntegerBitWidth();
+	    if(num == 1)
+	       ans = ScalarLogical( * ((int *) ptr));
+            else
+               ans = ScalarInteger( * ((int *) ptr)); 
         break;
+}
         case llvm::Type::DoubleTyID:
             ans = ScalarReal( * ((double *) ptr));
         break;

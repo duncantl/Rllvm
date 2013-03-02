@@ -19,6 +19,16 @@ getTypeID =
   function(x, ...)
      .Call("R_Type_getTypeID", x)
 
+getIntegerBitWidth = 
+  function(x, ...) {
+     if(!isIntegerType(x))
+        stop("must be an integer type to query the bit width")
+
+     .Call("R_Type_getIntegerBitWidth", x)
+  }
+
+
+
 getScalarType = 
   function(x, ...)
      .Call("R_Type_getScalarType", x)

@@ -52,10 +52,10 @@ function(funcName, execEngine)
 
 
 getGlobalValue = 
-function(var, exec)
+function(var, exec, type = getType(var))
 {
    ptr = getPointerToGlobal(var, exec)
-   type = getType(var)
+
    ty = getElementType(type)
    .Call("R_convertNativeValuePtrToR", ptr@ref, ty)
 }

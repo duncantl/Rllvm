@@ -62,6 +62,16 @@ R_Type_getID(SEXP r_type)
 
 extern "C"
 SEXP
+R_Type_getIntegerBitWidth(SEXP r_type)
+{
+    llvm::Type *ty = GET_TYPE(r_type);
+    return(ScalarInteger(ty->getIntegerBitWidth()));
+}
+
+
+
+extern "C"
+SEXP
 R_Type_getDescription(SEXP r_type)
 {
 #if LLVM_VERSION > 2
