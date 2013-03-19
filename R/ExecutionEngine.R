@@ -10,15 +10,17 @@ setGeneric("run",
             function(.x, ...)
 	       standardGeneric("run"))
 
-setMethod("run", "Function",
-          function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .all = FALSE) {
+.llvmCallFunction =
+function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .all = FALSE) {
               ans = .Call("R_callFunction", .x, .args, .ee)
 
               if(.all)
                  append(ans, structure(.args, names = names(.args)))
               else
                  ans
-         })
+         }
+
+setMethod("run", "Function", .llvmCallFunction)
 
 
 .llvm = run

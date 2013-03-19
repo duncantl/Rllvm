@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <article xmlns:r="http://www.r-project.org"
          xmlns:c="http://www.C.org"
-         xmlns:xi="http://www.w3.org/2003/XInclude">
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:sh="http://www.shell.org">
 
 <articleinfo>
 
@@ -345,7 +346,7 @@ more, dealing with <r:na/> values, etc.
 
 </section>
 
-<section>
+<section id="optimization">
 <title>Optimization</title>
 <para>
 <r:code>
@@ -430,10 +431,76 @@ user.self  sys.self   elapsed
   23.8803    0.0435   20.5082
 ]]></r:output>
 </r:code>
-This may be due to 
+This may be due to  .... ?
 </para>
 
 
+</section>
+<section id="Ccode">
+<title>C Code</title>
+<para>
+<sh:code>
+R CMD SHLIB cumsum.c
+</sh:code>
+
+<r:code>
+dyn.load("cumsum.so") # use .Platform$dynlib.ext
+</r:code>
+<r:code>
+cnative =  replicate(10, system.time({.C("Cumsum", x, numeric(length(x)), length(x))}))
+</r:code>
+
+<r:code>
+cnativeNoDup =  replicate(10, system.time({.C("Cumsum", x, numeric(length(x)), length(x), DUP = FALSE)}))
+</r:code>
+
+rbind(
+ (rowMeans(cnative)/rowMeans(ll))[1:3],
+ (rowMeans(cnativeNoDup)/rowMeans(ll))[1:3],
+ (rowMeans(native)/rowMeans(ll))[1:3])
+<r:output><![CDATA[
+     user.self   sys.self   elapsed
+[1,] 0.7922438 0.02631579 0.7196030
+[2,] 0.5844875 0.10526316 0.5285360
+[3,] 0.5761773 0.00000000 0.5210918
+]]></r:output>
+</para>
+</section>
+<section>
+<title>Overhead of <r:func>run</r:func></title>
+
+<para>
+The numbers below need to be re-run as I was compiling clang and llvm at the same time.
+</para>
+
+<para>
+How much overhead does 
+<r:code>
+ll.rawRun = replicate(10, system.time({ .Call("R_callFunction", fun, .args = list(x = x, ans = ans, n = length(x)), ee)}))
+</r:code>
+
+<r:code>
+(ll/ll.rawRun)[,3]
+<r:output><![CDATA[
+ user.self   sys.self    elapsed user.child  sys.child 
+  2.000000        Inf   2.235294        NaN        NaN 
+]]></r:output>
+</r:code>
+</para>
+<para>
+What about if we call the function directly, but not via the generic function
+<r:code>
+ll.runDirect = replicate(10, system.time({ .llvmCallFunction(fun, x = x, ans = ans, n = length(x), .ee = ee) }))
+</r:code>
+
+<r:code>
+(ll/ll.runDirect)[,3]
+<r:output><![CDATA[
+ user.self   sys.self    elapsed user.child  sys.child 
+  2.615385        Inf   3.166667        NaN        NaN 
+]]></r:output>
+</r:code>
+</para>
 </section>
 </article>
 
