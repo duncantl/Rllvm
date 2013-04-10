@@ -93,6 +93,9 @@ or <r:func>llvmLoadDLL</r:func>.
 After that, you can lookup the symbol by name with
 <r:func>getNativeSymbolInfo</r:func>.
 We register one or more of these symbols 
+with the LLVM "system"  via
+<r:func>llvmAddSymbol</r:func>.
+Then we can call that routine in our code.
 </a>
 
 </q>

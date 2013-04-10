@@ -416,6 +416,27 @@ R_IRBuilder_CreateSExt(SEXP r_builder, SEXP r_val, SEXP r_type, SEXP r_id)
 
 extern "C"
 SEXP
+R_IRBuilder_CreateZExt(SEXP r_builder, SEXP r_val, SEXP r_type, SEXP r_id)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+
+    llvm::Value *val = GET_REF(r_val, Value);
+    llvm::Type *type = GET_TYPE(r_type);	
+
+    llvm::Value *ans;
+     ans = builder->CreateZExt(val, type);
+
+    if(Rf_length(r_id))
+        ans->setName(makeTwine(r_id));
+
+    return(R_createRef(ans, "Value"));
+}
+
+
+
+extern "C"
+SEXP
 R_IRBuilder_CreateBitCastInst(SEXP r_builder, SEXP r_val, SEXP r_type, SEXP r_id)
 {
     llvm::IRBuilder<> *builder;

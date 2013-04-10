@@ -1,5 +1,6 @@
 \name{Function}
 \alias{Function}
+\alias{Routine}
 \alias{Function-class}
 \alias{names<-,Function,character-method}
 \alias{names<-,ParameterList,character-method}

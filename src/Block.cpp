@@ -51,3 +51,16 @@ MAKE_R_eraseFromParent(BasicBlock)
 MAKE_R_getParent(BasicBlock, Function)
 
 
+
+extern "C"
+SEXP
+R_BasicBlock_getContext(SEXP r_block)
+{
+
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    llvm::LLVMContext *ans = &(block->getContext());
+   
+    return(ans ? R_createRef(ans, "LLVMContext") : R_NilValue);
+}
+
+

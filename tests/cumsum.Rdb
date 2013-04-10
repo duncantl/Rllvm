@@ -6,7 +6,8 @@
 
 <articleinfo>
 
-<title></title>
+<title>Compiling an <r/> Implementation of the <r:func>cumsum</r:func> Function
+</title>
 
 <author><firstname>Duncan</firstname><surname>Temple Lang</surname>
   <affiliation><orgname>University of California at Davis</orgname>
@@ -25,7 +26,7 @@ cumulative sum on a vector:
 Cumsum =
 function(x)
 {
-   for(i in 2:length(x))  # pardon the case where x is of length 1 or 0
+   for(i in 2:length(x))  # ignore the case where x is of length 1 or 0
      x[i] = x[i-1] + x[i]
 
    x
@@ -83,9 +84,9 @@ fun = Function("Cumsum", VoidType, c(x = ptrDouble, ans = ptrDouble, len = Int32
 </r:code>
 Note that we create an intermediate variable - <r:var>ptrDouble</r:var>
 to represent a pointer to a <c:type>double</c:type>.
-We also named the parameters in the third argument, i.e. x, ans, len.
-We could do this separately with
-
+We also named the parameters in the third argument to the call to
+<r:func>Function</r:func>, i.e. <r:var>x</r:var>, <r:var>ans</r:var>, <r:var>len</r:var>.
+We could do this separately after we call <r:func>Function</r:func> with
 <r:code>
 names(fun) = c("x", "ans", 'len')
 </r:code>
@@ -93,19 +94,18 @@ names(fun) = c("x", "ans", 'len')
 
 </para>
 <para>
-Since we want to reference the variables, we'll get them
-as a list of parameter objects. Alternatively, we can 
+Since we want to reference the variables when compiling the code, 
+we'll get them as a list of parameter objects in <r/>. Alternatively, we can 
 treat the <r:class>Function</r:class> object as a kind
 of list and access the parameters via [[, e.g.
 <r:expr eval="false">fun[["x"]]</r:expr>.
-But we'll use the <r:func>getParameters</r:func>
-approach for now.
-
+However,  we'll use the <r:func>getParameters</r:func>
+approach for now:
 <r:code>
 params = getParameters(fun)
 </r:code>
-
 </para>
+
 <para>
 So now we can start to construct the body of the routine.
 We need an entry block in which we will create
@@ -121,7 +121,10 @@ of the instructions.
 <r:code>
 ir = IRBuilder(entry)
 </r:code>
-
+By creating this with the <r:var>entry</r:var> block,
+new instructions will be created within this block.
+When we want to switch to a different block, we will
+update the variable <r:var>ir</r:var>.
 
 </para>
 <para>
@@ -131,7 +134,7 @@ We'll need a local variable for i.
 iv = ir$createLocalVariable(Int32Type, "i")
 </r:code>
 
-We also need local variables to reference x and y and len
+We also need local variables to reference <r:var>x</r:var> and <r:var>y</r:var> and <r:var>len</r:var>
 by their address.
 
 <r:code>
@@ -148,7 +151,7 @@ and combine the allocation and Store?  Seems like yes
 based on moving the C++ code to initialize the variables
 and compiling and verifying the module</q>
 
-We set i to be 1.
+We set <r:var>i</r:var> to be 1:
 <r:code>
 ir$createStore(1L, iv)
 </r:code>
@@ -165,26 +168,27 @@ ir$createStore(params$len, len.ref)
 </para>
 <para>
 So now we are ready to do some computations.
-The first thing is to set ans[0] = x[0].
-We load x[0] and then store the value in
-ans[0], having loaded that.
-
-
-We load the value of x[0]
+The first thing is to set <r:expr>ans[0] = x[0]</r:expr>.
+We load <r:expr>x[0]</r:expr> and then store the value in
+<r:expr>ans[0]</r:expr>, having loaded that.
+We load the value of x[0] with
 <r:code>
 a = ir$createLoad(xref)
 b = ir$createGEP(a, 0L)
 x0 = ir$createLoad(b)
 </r:code>
-GEP stands for "Get Element Pointer".
+GEP stands for <quote>Get Element Pointer</quote>.
 See <ulink url="http://llvm.org/docs/GetElementPtr.html"/>
-
-Then we assign this to ans[0]
+</para>
+<para>
+Next, we assign this to <r:expr>ans[0]</r:expr>
 <r:code>
 a = ir$createLoad(ans.ref)
 b = ir$createGEP(a, 0L)
 ir$createStore(x0, b)
 </r:code>
+Note the similar sequence access  <r:expr>x[0]</r:expr> and <r:expr>ans[0]</r:expr>
+and the difference in loading and assigning a value to each.
 </para>
 
 <para>
@@ -208,7 +212,8 @@ ir$createBr(cond)
 </r:code>
 We are now working on that and
 so want the new instructions to be
-added there.
+added there. So we tell the <r:class>IRBuilder</r:class> object
+<r:var>ir</r:var> to put new instructions there with
 <r:code>
 ir$setInsertPoint(cond)
 </r:code>
@@ -222,9 +227,9 @@ b = ir$createLoad(len.ref)
 ok = ir$createICmp(ICMP_SLT, a, b)
 ir$createCondBr(ok, body, ret)
 </r:code>
-<r:var>ICMP_SLT</r:var> stands for "Integer comparison, Signed Less Than".
-
+It may help to know that <r:var>ICMP_SLT</r:var> stands for "Integer comparison, Signed Less Than".
 </para>
+
 <para>
 The return block is very simple. We return nothing
 so can create a void return
@@ -232,8 +237,9 @@ so can create a void return
 ir$setInsertPoint(ret)
 ir$createRetVoid()
 </r:code>
-
 </para>
+
+
 <para>
 So now we focus on the body of the loop: 
 <r:code>
@@ -247,13 +253,17 @@ value, then load ans and use the value of i-1 to index the value and
 load that.
 
 <r:code>
-a = ir$createLoad(iv)
-b = ir$binOp(Sub, a, ir$createConstant(1L))
-r = ir$createLoad(ans.ref)
-idx = ir$createSExt(b, 64L)
+a = ir$createLoad(iv)  # load i
+b = ir$binOp(Sub, a, ir$createConstant(1L))  # subtract 1 from i
+r = ir$createLoad(ans.ref)  # load ans
+idx = ir$createSExt(b, 64L) #  index for ans[i-1]
 ans.i1 = ir$createLoad(ir$createGEP(r, idx))
 </r:code>
-So now we have ans[i-1].
+<q>Why can't we just use createGEP with <r:var>b</r:var>?
+The SExt is a <quote>signed extension</quote> that transforms the operand to, in our case, 64 bit.</q>
+So now we have <r:expr>ans[i-1]</r:expr>.
+</para>
+<para>
 Next, we have to load the value of x[i]
 <r:code>
 a = ir$createLoad(xref)
@@ -261,14 +271,19 @@ i = ir$createLoad(iv)
 idx = ir$createSExt(i, 64L)
 xi = ir$createLoad(ir$createGEP(a, idx))
 </r:code>
-
+This is the very same idiom as for loading an element of <r:var>ans</r:var> above.
+</para>
+<para>
 Now we can add these two values xi and ans.i1
 <r:code>
 tmp = ir$binOp(FAdd, ans.i1, xi)
 </r:code>
-And now we need to load ans[i] and
-store the value of tmp in that.
-The following gets ans[i] in place.
+Note that we had to know these were two real-valued variables.
+</para>
+<para>
+Now we need to load <r:expr>ans[i]</r:expr> and
+store the value of <r:var>tmp</r:var> in that.
+The following gets <r:expr>ans[i]</r:expr> in place:
 <r:code>
 x = ir$createLoad(ans.ref)
 i = ir$createLoad(iv)
@@ -292,11 +307,10 @@ i = ir$createLoad(iv)
 inc = ir$binOp(Add, i, 1L)
 ir$createStore(inc, iv)
 </r:code>
-
+Now we jump back to the top of the loop:
 <r:code>
 ir$createBr(cond)
 </r:code>
-
 </para>
 </section>
 
@@ -319,7 +333,7 @@ tt$ans
 <para>
 Now let's do a quick test of speed.
 We'll use the interpreted version
-Cumsum, the build in <r:func>cumsum</r:func>
+Cumsum, the built-in <r:func>cumsum</r:func>
 implemented in C and
 our LLVM-generated routine.
 <r:code>
@@ -340,7 +354,7 @@ and optimize the  generated code.)
 So we get a speed up of 26 over the interpreted version.
 We are significantly slower than the <r:func>cumsum</r:func>.
 Is this optimization in the C compiler?
-Remember that <r:func>cumsum</r:func> is actually doing 
+Remember that the built-in <r:func>cumsum</r:func> function is actually doing 
 more, dealing with <r:na/> values, etc.
 </para>
 
@@ -474,16 +488,16 @@ The numbers below need to be re-run as I was compiling clang and llvm at the sam
 </para>
 
 <para>
-How much overhead does 
+How much overhead does the <r:func>run</r:func> function add
 <r:code>
 ll.rawRun = replicate(10, system.time({ .Call("R_callFunction", fun, .args = list(x = x, ans = ans, n = length(x)), ee)}))
 </r:code>
 
 <r:code>
-(ll/ll.rawRun)[,3]
+(rowMeans(ll)/rowMeans(ll.rawRun))[1:3]
 <r:output><![CDATA[
- user.self   sys.self    elapsed user.child  sys.child 
-  2.000000        Inf   2.235294        NaN        NaN 
+user.self  sys.self   elapsed 
+ 2.675439  7.200000  3.017544 
 ]]></r:output>
 </r:code>
 </para>
@@ -494,12 +508,26 @@ ll.runDirect = replicate(10, system.time({ .llvmCallFunction(fun, x = x, ans = a
 </r:code>
 
 <r:code>
-(ll/ll.runDirect)[,3]
+(rowMeans(ll)/rowMeans(ll.runDirect))[1:3]
 <r:output><![CDATA[
- user.self   sys.self    elapsed user.child  sys.child 
-  2.615385        Inf   3.166667        NaN        NaN 
+user.self  sys.self   elapsed 
+     2.99       Inf      3.37 
 ]]></r:output>
 </r:code>
+</para>
+<para>
+So now lets' compare the native <r/> call to 
+<r:func>cumsum</r:func> and our direct call to <r:func>fun</r:func>
+<r:code>
+(rowMeans(native)/rowMeans(ll.runDirect))[1:3]
+<r:output><![CDATA[
+user.self  sys.self   elapsed 
+     2.03       NaN      2.03 
+]]></r:output>
+</r:code>
+(The numbers underlying this are different from the numbers above,
+but still done on the same machine.)
+This suggests that the LLVM routine we generated is almost twice as fast
 </para>
 </section>
 </article>

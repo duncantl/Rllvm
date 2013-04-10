@@ -5,7 +5,7 @@
 
 <articleinfo>
 
-<title></title>
+<title>Implementing 2-D Random Walks with <r:pkg>Rllvm</r:pkg></title>
 
 <author><firstname>Duncan</firstname><surname>Temple Lang</surname>
   <affiliation><orgname>University of California at Davis</orgname>
