@@ -501,6 +501,7 @@ user.self  sys.self   elapsed
 ]]></r:output>
 </r:code>
 </para>
+
 <para>
 What about if we call the function directly, but not via the generic function
 <r:code>
@@ -514,6 +515,7 @@ user.self  sys.self   elapsed
      2.99       Inf      3.37 
 ]]></r:output>
 </r:code>
+So <r:func>.llvmCallFunction</r:func> is  a reasonable
 </para>
 <para>
 So now lets' compare the native <r/> call to 
