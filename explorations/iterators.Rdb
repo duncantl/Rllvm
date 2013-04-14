@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<articleinfo>
+
+<title>Compiling Iterators in <r/></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+A very common idiom in <r/> is 
+the sequence operator <r:expr>1:N</r:expr>
+or <r:expr>seq(along = x)</r:expr> or variations of this.
+This allocates the vector to contain each of the elements
+of the sequence.
+Similarly, for example, in 
+<r:code>
+sample(1:N, n)
+</r:code>
+we create the entire sequence.
+An old idea is not to create the 
+sequence but instead an iterator. 
+When we loop over the elements of the sequence, we
+sometimes extract the elements one at a time.
+We can do this in <r/> with a special class of object and
+a method for subsetting.
+Avoiding the creation of the sequence is especially evident
+in loops. For example, the loop
+<r:code>
+ for(i in 1:n) {
+     x[i]
+ }
+</r:code>
+can be written as
+<r:code><![CDATA[
+i <- 1
+while(i <= n) {
+   x[i]
+   i <- i + 1
+}
+]]></r:code>
+This is more verbose and a little less clear (is <r:var>i</r:var> used 
+after this loop?).  But it is easy for us to compile code
+that uses this form of a loop to avoid creating the full vector of elements.
+</para>
+
+</section>
+</article>

@@ -40,12 +40,18 @@ function(input, N,
 }
 
 readUpTo =
+  # This is vectorized but uses a lot of memory considering we only want the last
+  # line we read.
 function(con, to)
 {
   readLines(con, to)[to]
 }
 
 f.readUpTo =
+  #
+  # This version reads one line at  a time and so
+  #  is very slow. But it saves on memory.
+  #
 function(con, to)
 {
    while(ctr <= to) {
