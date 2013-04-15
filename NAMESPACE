@@ -272,3 +272,4 @@ export(readBitcode, writeBitcode)
 export(getGlobalValue)
 
 export(getIntegerBitWidth)
+export(getIntrinsicID, getIntrinsic, getIntrinsicName, isIntrinsicOverloaded, isIntrinsic)

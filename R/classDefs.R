@@ -1,3 +1,4 @@
+setClass("IntrinsicID", contains = "integer")
 
 setClass("RC++Reference", representation(ref = "externalptr"))
 
@@ -46,6 +47,15 @@ setClass("SequentialType", contains = "CompositeType")
 setClass("PointerType", contains = "SequentialType")
 setClass("ArrayType", contains = "SequentialType")
 setClass("VectorType", contains = "SequentialType")
+
+
+# R specific types
+setClass("SEXPType", contains = "PointerType")
+setClass("LGLSXPType", contains = "SEXPType")
+setClass("INTSXPType", contains = "SEXPType")
+setClass("REALSXPType", contains = "SEXPType")
+setClass("STRSXPType", contains = "SEXPType")
+setClass("VECSXPType", contains = "SEXPType")
 
 
 

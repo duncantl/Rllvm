@@ -23,7 +23,7 @@ function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .a
 setMethod("run", "Function", .llvmCallFunction)
 
 
-.llvm = run
+.llvm = .llvmCallFunction
                
 
 InitializeNativeTarget =

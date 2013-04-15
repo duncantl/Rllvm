@@ -128,7 +128,65 @@ Is this because it is not of common use, or because it is not well known in the
 be they explicit in the form of <r:keyword>for</r:keyword>  loops
 </para>
 
+<para>
+The approach of making routines process and return a scalar rather than being
+vectorized allows them to be easily composed with another routine without
+the overhead of having two loops from two vectorized routines.
+Additionally, we can generate both scalar and vectorized versions quite easily.
+</para>
 
+</section>
+<section>
+<title>Compiling a Map-Reduce Composition</title>
+
+<para>
+So let's compile the expression
+<r:code>
+Reduce(`+`, Map(log, Map(Dnorm, x, mu, sigma)))
+</r:code>
+We'll try to leverage the facilities for compiling
+from the <omg:pkg>RLLVMCompile</omg:pkg> package
+but illustrate how we can add our own effects.
+Firstly, we see that there are 3 variables in
+the expression - <r:var>x</r:var>, <r:var>mu</r:var> and <r:var>sigma</r:var>.
+We can either create a routine which accepts these as inputs or alternatively,
+we can capture their current values and put those directly in the code.
+We may want to allow the caller to specify which of these to do,
+or to allow some of them be inputs (e.g. <r:var>x</r:var>)
+and others hard-coded, e.g. <r:var>mu</r:var> and <r:var>sigma</r:var>.
+Let's start with 
+<r:code>
+f = function(x, mu, sigma)
+{
+
+}
+</r:code>
+This leaves all the inputs as parameters.
+</para>
+<para>
+We can explicitly generate the code or we can rewrite the expression
+to be a loop:
+<r:code>
+for(val in x)
+   total = total + log(Dnorm(val, mu, sigma))
+</r:code>
+This latter approach then allows us to use the simple compiler in <omg:pkg>RLLVMCompile</omg:pkg> directly.
+Let's try this approach.
+<r:code>
+f = function(x, mu, sigma)
+{
+   total = 0
+   for(val in x)
+      total = total + log(Dnorm(val, mu, sigma))
+   total
+}
+</r:code>
+
+</para>
+
+<para>
+
+</para>
 
 </section>
 </article>

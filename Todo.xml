@@ -17,6 +17,16 @@ This will change in the future.
 
 
 <items>
+<item>
+Function to link two or more modules
+so that we can compile functions separately and then
+allow them to refer to each other.
+Perhaps hierarchies of modules?
+Use addGlobalMapping() explicitly to connect one routine to another module?
+No, use the Linker::LinkModules() method?
+What about the need for external linkage, the declaration, etc.
+when we make a call to the routine that isn't in the module.
+</item>
 
 <item>
 varargs
