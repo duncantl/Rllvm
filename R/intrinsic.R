@@ -2,7 +2,7 @@ getIntrinsicID =
 function(name, prefix = "", useEnums = TRUE)
 {
   if(useEnums) {
-    val = IntrinsicIDs[[name]]
+    val = IntrinsicIDs[name]
     if(is.na(val))
       new("IntrinsicID", structure(0, names = "not_intrinsic"))
     else

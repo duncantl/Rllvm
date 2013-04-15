@@ -6,9 +6,9 @@
 #
 
 if(FALSE) {
-  f = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE)
-  .llvmCallFunction(f, 2, 0, 3)
-  identical(.llvmCallFunction(f, 2, 0, 3), dnorm(2, 0, 3))
+  d = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE)
+  .llvmCallFunction(d, 2, 0, 3)
+  identical(.llvmCallFunction(d, 2, 0, 3), dnorm(2, 0, 3))
 }
 
 Dnorm <-
@@ -16,6 +16,25 @@ function(x, mu, sigma)
 {
    ( 1.0/(sqrt(2 * pi) * sigma)) * exp( - .5 * ((x - mu)/sigma)^2)
 }
+
+
+f = function(x, mu, sigma)
+{
+   total = 0
+   for(val in x)
+      total = total + log(Dnorm(val, mu, sigma))
+   total
+}
+
+if(FALSE) {
+  mod = Module("fuse")
+  d = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE, mod = mod)
+  ptrDouble = pointerType(DoubleType)
+  fc = compileFunction(f, DoubleType, list(ptrDouble, DoubleType, DoubleType), .insertReturn = TRUE, mod = mod)  
+}
+
+
+
 
 # Create a vectorized version of this.
 Dnorm_v <-

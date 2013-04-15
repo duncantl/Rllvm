@@ -63,10 +63,11 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
                  rv->PointerVal = REAL(rval);
               else
                  ok = false;
-  
            break;
 
           default:
+              PROBLEM "no method to convert R object to %d", ty
+                  WARN;
             ok = false;
        }
         return(ok);
@@ -83,6 +84,10 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
        break;
        case llvm::Type::DoubleTyID: {
            rv->DoubleVal = Rf_asReal(rval);
+       }
+       break;
+       case llvm::Type::FloatTyID: {
+           rv->FloatVal = Rf_asReal(rval);
        }
        break;
        default:
@@ -131,7 +136,7 @@ convertNativeValuePtrToR(void *ptr, const llvm::Type *type)
             else
                ans = ScalarInteger( * ((int *) ptr)); 
         break;
-}
+        }
         case llvm::Type::DoubleTyID:
             ans = ScalarReal( * ((double *) ptr));
         break;

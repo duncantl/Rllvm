@@ -368,8 +368,11 @@ ee = ExecutionEngine(mod)
 Optimize(mod, ee)
 </r:code>
 </para>
+</section>
 
-
+<section>
+<title>Timings</title>
+<para>
 <r:code>
 N = 10
 x = as.numeric(1:N)
@@ -378,7 +381,7 @@ ans = numeric(length(x))
 val = run(fun, x = x, ans = ans, n = length(x), .all = TRUE, .ee = ee)$ans
 all.equal(val, cumsum(x))
 </r:code>
-
+</para>
 
 <r:code>
 N = 1000000
@@ -531,6 +534,58 @@ user.self  sys.self   elapsed
 but still done on the same machine.)
 This suggests that the LLVM routine we generated is almost twice as fast
 </para>
+
+
+<para>
+<r:code>
+times = list(interpreted = interp, 
+              byteCompiled = compiled,
+	      native = native, 
+              llvm.run = ll, 
+              cCode = cnative,
+              llvm.dotC = ll.rawRun,
+              llvm.CallFunction = ll.runDirect)
+timings = do.call(rbind, lapply(times, t))
+timings = as.data.frame(timings[, 1:3])
+src = rep(names(times), sapply(times, ncol))
+tm = tapply(timings$elapsed, src, mean)
+timings$src = ordered(src, names(rev(sort(tm))))
+</r:code>
+<r:plot><![CDATA[
+bwplot(elapsed ~ src,  timings)
+]]></r:plot>
+<r:plot><![CDATA[
+bwplot(elapsed ~ src,  timings, subset = !(src %in% c("interpreted", "byteCompiled")))
+]]></r:plot>
+</para>
+
+
+<para>
+save.image()
+</para>
+
+</section>
+
+<section>
+<title>Larger Vectors</title>
+<para>
+Let's try 
+<r:code>
+N = 1e8
+x = as.numeric(1:N)
+ans = numeric(N)
+native =  replicate(11, system.time({cumsum(x)}))[, 2:10]
+ll.runDirect = replicate(11, system.time({ .llvmCallFunction(fun, x = x, ans = ans, n = length(x), .ee = ee) }))[, 2:10]
+</r:code>
+Note that we run 11 replications, but only take the final 10, i.e. ignore the first one.
+This avoids any overhead of the first call.
+</para>
+<para>
+<r:plot><![CDATA[
+boxplot(list(llvm = ll.runDirect["elapsed",], native = native["elapsed",]))
+]]></r:plot>
+</para>
+
 </section>
 </article>
 
