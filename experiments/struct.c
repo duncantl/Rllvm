@@ -5,6 +5,8 @@ typedef struct {
     double vals[10];
 } Foo;
 
+Foo f;
+
 int
 foo(int i, double d)
 {
@@ -13,4 +15,10 @@ foo(int i, double d)
     f.d = d;
     f.vals[0] = d;
     return(0);
+}
+
+void
+global()
+{
+    f.i = 7;
 }
