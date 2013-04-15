@@ -2,11 +2,46 @@
 
 #include <llvm/ADT/APInt.h>
 
+typedef struct {
+  int sexpType;
+  const llvm::Type *type;
+} RLLVMType; 
+
+static RLLVMType  rLLVMTypes[5];
+
+extern "C"
+SEXP
+R_setRLLVMTypes(SEXP r_type_ptrs, SEXP r_ids)
+{
+  int i;
+  for(i = 0; i < sizeof(rLLVMTypes)/sizeof(rLLVMTypes[0]); i++) {
+     rLLVMTypes[i].sexpType = INTEGER(r_ids)[i];
+     rLLVMTypes[i].type = (llvm::Type *) R_ExternalPtrAddr(VECTOR_ELT(r_type_ptrs, i));
+  }
+  return(R_NilValue);
+}
+
+int
+isSEXPType(const llvm::Type *ty)
+{
+  int ans = -1;
+  for(int i = 0; i < sizeof(rLLVMTypes)/sizeof(rLLVMTypes[0]); i++) {
+	if(ty == rLLVMTypes[i].type) {
+           return(rLLVMTypes[i].sexpType);
+	}
+  }
+  return(-1);
+}
+
 
 SEXP
 convertPointerToR(const llvm::GenericValue *val, const llvm::Type *type)
 {
     llvm::PointerTy p = val->PointerVal;
+    int rtype =  isSEXPType(type);
+    if(rtype > -1)
+      return((SEXP) p);
+
     return(R_MakeExternalPtr(p, Rf_install("void*"), R_NilValue));
 }
 
@@ -43,7 +78,7 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
 {
    llvm::Type::TypeID ty;
     if(type->isPointerTy()) {
-      const llvm::Type *elType = ((llvm::PointerType*) type)->getElementType();
+      const llvm::Type *elType = ((const llvm::PointerType*) type)->getElementType();
        ty = elType->getTypeID();       
        bool ok = true;
        switch(ty) {
@@ -66,10 +101,21 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
            break;
 
           default:
-              PROBLEM "no method to convert R object to %d", ty
-                  WARN;
             ok = false;
        }
+
+       if(ok == false) {
+	  int rtype = isSEXPType(type);
+	  if(rtype > 0) {
+             rv->PointerVal = rval;
+             ok = true;
+          }
+       }
+ 
+	if(ok == false) {
+           PROBLEM "no method to convert R object to %d", ty
+            WARN;         
+        }
         return(ok);
     }
 
