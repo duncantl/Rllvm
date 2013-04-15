@@ -1,0 +1,317 @@
+<?xml version="1.0"?>
+<article xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:r="http://www.r-project.org">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+
+The goal is to compile expressions such as
+<r:code eval="false">
+   Reduce(`+`, Map(log, Map(dnorm, x, mu, sigma)))
+</r:code>
+
+
+<r:code>
+library(RLLVMCompile)
+</r:code>
+
+<r:function><![CDATA[
+Dnorm <-
+function(x, mu, sigma)
+{
+   ( 1.0/(sqrt(2 * pi) * sigma)) * exp( - .5 * ((x - mu)/sigma)^2)
+}
+]]></r:function>
+
+
+<r:code>
+  d = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE)
+  .llvmCallFunction(d, 2, 0, 3)
+  identical(.llvmCallFunction(d, 2, 0, 3), dnorm(2, 0, 3))
+</r:code>
+
+
+<r:function><![CDATA[
+f = function(x, mu, sigma)
+{
+   total = 0
+   for(val in x)
+      total = total + log(Dnorm(val, mu, sigma))
+   total
+}
+]]></r:function>
+
+<r:code id="f2">
+f2 = function(x, mu, sigma, len = length(x))
+{
+   total = 0
+   for(i in 1:len) {
+      val = x[i]
+      total = total + log(Dnorm(val, mu, sigma))      
+   }
+   total
+}
+</r:code>
+
+<r:code id="compile">
+doublePointer = pointerType(DoubleType) 
+mod = Module("fuse")
+d = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE, mod = mod, name = "Dnorm")
+fc = compileFunction(f2, DoubleType, list(doublePointer, DoubleType, DoubleType, Int32Type), name = "f", mod = mod)
+</r:code>
+
+
+
+<r:code>
+if(FALSE) {
+  # note tested!
+  mod = Module("fuse")
+  d = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE, mod = mod)
+  ptrDouble = pointerType(DoubleType)
+  fc = compileFunction(f, DoubleType, list(ptrDouble, DoubleType, DoubleType), .insertReturn = TRUE, mod = mod)  
+}
+</r:code>
+
+<r:test>
+  x = rnorm(1e5)
+  a = .llvm(fc, x, 0, 1, length(x))
+  b = sum(log(dnorm(x)))
+  print(a - b, digits = 16)
+</r:test>
+
+<r:test>
+  x = rnorm(1e5)  #XXXX 1e6 causes a segfault!!!
+  a = .llvm(fc, x, 0, 1, length(x))
+
+   # Note no check for NAs, etc. .... 
+  tm.a = system.time(replicate(20, .llvm(fc, x, 0, 1, length(x))))
+  tm.b = system.time(replicate(20, sum(log(dnorm(x)))))
+
+
+  tm.a = replicate(20, system.time(.llvm(fc, x, 0, 1, length(x))))
+  tm.b = replicate(20, system.time(sum(log(dnorm(x)))))
+  res = structure(list(llvm = tm.a, r = tm.b), info = sessionInfo(), when = Sys.time())
+  save(res, file = "fuseLoop_osx.rda")
+</r:test>
+</para>
+</section>
+<section>
+<title>Vectorized Version of <r:func>Dnorm</r:func></title>
+<para>
+# Create a vectorized version of this.
+<r:function><![CDATA[
+Dnorm_v <-
+function(x, mu, sigma, ans)
+{
+#  apply(x, Dnorm, mu, sigma)
+  for(i in seq(along = x))
+    ans[i] = Dnorm(x[i], mu, sigma)
+}
+]]></r:function>
+
+</para>
+
+
+</section>
+<section>
+<title></title>
+
+<para>
+So let's look at creating an arbitrary 
+Reduce-Map sequence of operations, i.e.
+a single Reduce call with one or more nested Map  calls within it.
+We'll use our example above
+<r:code>
+ e = quote(Reduce(`+`, Map(log, Map(dnorm, x, mu, sigma), 2)))
+</r:code>
+<note><para>I have added the 2 for the base for the <r:var>log</r:var> call just
+to make this more interesting. It should not be there for the actual computation.
+</para></note>
+We want to rewrite this into our loop form above given by <r:var>f2</r:var>
+but with the general template
+<r:function><![CDATA[
+template = 
+function(x, len = length(x))
+{
+   total = 0
+   for(i in 1:len) {
+      val = x[i]
+      total = total + mr     
+   }
+   total
+}
+]]></r:function>
+This is the general form for any Reduce-Map - at least one with  + as the Reduce operation.
+We need to rewrite our Map steps to a) compute the expression on the RHS (Right Hand Side) in the loop 
+and also identify the different inputs we need capture or allow the caller to provide as inputs to our function.
+The Map steps are in <r:expr>e[[3]]</r:expr>.
+We can loop over this sequence and capture the information with
+<r:function id="getMapInfo"><![CDATA[
+getMapInfo = 
+function(e)
+{
+   ans = list()
+   while(!is.null(e) && is.call(e) && e[[1]] == "Map") {
+     tmp = list(func = e[[2]], args = as.list(e[-(1:3)]))
+     ans[[length(ans) + 1L]] = tmp
+     e = e[[3]]
+   }
+   ans
+}
+]]></r:function>
+<r:code>
+info = getMapInfo(e[[3]])
+</r:code>
+Now that we have this information we can construct the
+call in our function to compute each element.
+<r:function><![CDATA[
+writeMapCall =
+function(info)
+{
+    cur = NULL
+    for(i in 1:length(info)) {
+       el = info[[i]]
+       k = makeCall(el$func, quote(val), el$args)
+       if(!is.null(cur))
+         cur[[2]] = k
+       else
+         cur = k
+    }
+
+    cur
+}
+]]></r:function>
+
+Our helper function to create each call is defined as 
+<r:function><![CDATA[
+makeCall =
+function(func, val = NULL, args = list())
+{
+  ans = substitute(f(), list(f = func))
+  if(length(val))
+    ans[[2]] = val
+  if(length(args))
+    ans[seq(along = args) + length(ans)] = args
+  
+  ans
+}
+]]></r:function>
+Note we don't deal with named arguments.
+That is an entirely different issue.
+</para>
+<para>
+We can call this  with
+<r:code>
+writeMapCall(info)
+</r:code>
+and we get the  call object
+<r:output><![CDATA[
+log(dnorm(x[i], mu, sigma), 2)
+]]></r:output>
+</para>
+<para>
+Now we can insert this into our template for our
+loop fusion.
+<r:code>
+body(template)[[3]][[4]][[3]][[3]][[3]] = writeMapCall(info)
+</r:code>
+This is hideous indexing of the expressions in the body of
+the function. We could do it more elegantly with some tree walking
+and code rewriting functionality.
+</para>
+<para>
+We can also now insert the names of our extra arguments/inputs,
+i.e. <r:var>mu</r:var> and <r:var>sigma</r:var>.
+<r:code>
+args = unlist(lapply(info, function(x) x$args))
+args = args[sapply(args, is.name)]
+</r:code>
+We can then insert these as formal parameters for <r:func>f2</r:func> with
+<r:code>
+fl = formals(template)
+ids = names(fl)
+tmp = fl[[2]]
+for(i in seq(3, len = length(args))) 
+  fl[[i-1]] = fl[[1]]
+fl[[i]] = tmp
+
+names(fl) = c(ids[1], sapply(args, as.character), ids[2])
+formals(f2) = fl
+</r:code>
+</para>
+<para>
+Note that this doesn't deal with the case where
+any of the extra arguments to the Map call are 
+calls and not just simple names of variables, i.e. symbols. 
+We can deal with this by compiling those expressions outside of the loop
+and using intermediate variables for those.
+</para>
+
+
+<para>
+So let's put this all together now.
+<r:function><![CDATA[
+makeReduceMap = 
+function(expr, templateFun = template)
+{
+  info = getMapInfo(expr[[3]])
+  body(templateFun)[[3]][[4]][[3]][[3]][[3]] = writeMapCall(info)
+
+  args = unlist(lapply(info, function(x) x$args))
+  args = args[sapply(args, is.name)]
+
+  fl = formals(templateFun)
+  ids = names(fl)
+  tmp = fl[[2]]
+  for(i in seq(3, len = length(args))) 
+      fl[[i-1]] = fl[[1]]
+  fl[[i]] = tmp
+
+  names(fl) = c(ids[1], sapply(args, as.character), ids[2])
+  formals(templateFun) = fl
+
+  structure(list(func = templateFun, functions = lapply(info, `[[`, "func"), args = args), 
+             class = "ReduceMapFunction")
+}
+]]></r:function>
+We can write code to compile this with 
+<r:function><![CDATA[
+compileFunction.ReduceMapFunction = 
+function(fun, types, ...) # make same as compileFunction
+{
+   doublePointer = pointerType(DoubleType) 
+   mod = Module("fuse")
+   for(i in fun$functions) 
+      compileFunction(i, mod = mod)
+   fc = compileFunction(f2, DoubleType, list(doublePointer, DoubleType, DoubleType, Int32Type), name = "f", mod = mod)
+}
+]]></r:function>
+</para>
+
+
+<para>
+Of course, there is no need to actually use the  R language
+to describe the operation as 
+<r:code>
+ Reduce(`+`, Map(f1, Map(f2, ....)))
+</r:code>
+We can describe this more directly in R. The above is just
+syntax, a la Ross (Ihaka)!
+</para>
+
+
+</section>
+</article>
