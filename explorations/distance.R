@@ -1,4 +1,3 @@
-
 Dist <-
   #
   # Compute the distance between two sets of observations

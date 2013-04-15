@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<articleinfo>
+
+<title>Computing Distances</title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+Consider computing distances between all pairs of observations.
+We can use the <r:func>dist</r:func> function in <r/> for this.
+One thing to note about this function is that a) it
+expects a single data frame, b) it computes all pairwise distances
+for the observations in the data frame. 
+This code is implemented in <c/>. 
+If MPI is available, it uses parallel computations.
+</para>
+
+<para>
+There are several issues we may want to change.  Firstly, we may have
+two sets of observations in separate data frames. We have to combine
+them into a single data frame or matrix to pass to
+<r:func>dist</r:func>.  This involves creating a copy of the original
+data sets, consuming more memory.  Secondly, we don't necessarily want
+to compute all of the distances between all of the pairs of
+observations. Often we only want to compute the distances between each
+observation in the first data set and each of the observations in the
+second.  We don't want to bother with the extra computation of the
+distances of the within data set distances.  Another issue is that we
+may want to use a different parallel strategy, e.g. multicore.  Also,
+the <r:func>dist</r:func> function converts the observations to a
+<r:class>matrix</r:class>. If the data were originally in a
+<r:class>data.frame</r:class>, this creates yet another copy of the
+data.  We don't want to have to write code that takes a data frame,
+but we could.  Related to this is the fact that matrices are stored
+column-wise So observations stored in rows have values that are not
+conveniently and contiguously stored in memory. Instead, the elements
+in each observation are separated by a stride given by the number of
+rows.  This matters for accessing cached memory.  For a large number
+of rows, the elements are further apart and so on different pages and
+less likely to be together in the cache.  Instead, we'd like to be
+able adapt the computations to improve the cache coherency, 
+or at least easily explore the effect of the cache coherency.
+</para>
+
+<para>
+The basic computations for computing the distance are  very simple:
+compute the distance for each pair of observations by looping
+over each set of observations.  The following <r/> code illustrates this:
+<r:code>
+<xi:include href="distance.R"/>
+</r:code>
+Here we have two loops - over the pairs of observations. There is an implicit third loop over
+the elements of the pairs of observations.
+
+</para>
+
+
+
+</section>
+</article>
