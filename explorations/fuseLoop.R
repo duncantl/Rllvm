@@ -5,6 +5,8 @@
 #
 #
 
+library(RLLVMCompile)
+
 if(FALSE) {
   d = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE)
   .llvmCallFunction(d, 2, 0, 3)
@@ -26,7 +28,24 @@ f = function(x, mu, sigma)
    total
 }
 
+
+f2 <- function(x, mu, sigma, len = length(x))
+{
+   total = 0
+   for(i in 1:len) {
+      val = x[i]
+      total = total + log(Dnorm(val, mu, sigma))      
+   }
+   total
+}
+
+doublePointer = pointerType(DoubleType) 
 if(FALSE) {
+  fc = compileFunction(f2, DoubleType, list(doublePointer, DoubleType, DoubleType, Int32Type), name = "f")
+}
+
+if(FALSE) {
+  # note tested!
   mod = Module("fuse")
   d = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE, mod = mod)
   ptrDouble = pointerType(DoubleType)

@@ -26,6 +26,8 @@ function(module, id, types = list())
    id = as(id, "IntrinsicID")
    if(length(types) == 1 && !is.list(types))
      types = list(types)
+
+   types = lapply(types, function(x) if(is(x, "Type")) x@ref else x)
    
    .Call("R_Intrinsic_getDeclaration", module, id, types, PACKAGE = "Rllvm")
 }

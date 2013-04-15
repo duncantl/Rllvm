@@ -29,6 +29,18 @@ when we make a call to the routine that isn't in the module.
 </item>
 
 <item>
+Rf_length and other routines not available via getNativeSymbolInfo()
+except on OS X. Have to find another way to access them to be able to
+invoke them from LLVM.
+</item>
+
+<item>
+When converting SEXPs to and from GVs in C code,
+use the actual target SEXP type and not just the generic type.
+Similar/Related to registering routines with R and checking the types in a .Call().
+</item>
+
+<item>
 varargs
 </item>
 

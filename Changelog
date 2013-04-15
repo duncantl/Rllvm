@@ -2,6 +2,8 @@ Version 0.5-0
 
 	*  Types for representing SEXP types in routines.
 
+	*  Ability to pass R objects (SEXPs) to and from routines.
+
 	*  Support for passing a value to a routine expecting a Float.
 	
 	*  changed .llvm() to alias .llvmCallFunctio() rather than
