@@ -81,6 +81,15 @@ var = createGlobalVariable("line", mod, lineType)
 val = createStringConstant("this is a string", getGlobalContext(), NULL)
 </r:code>
 
+<r:code>
+mod = Module("sampleCSV")
+val = createStringConstant("this is a string", getGlobalContext(), NULL)
+var = createGlobalVariable("line", mod, val = val)
+
+getElementType(getType(var))
+</r:code>
+
+
 To find out if the different types are the same, let's look:
 <r:code>
 a = getType(var)
