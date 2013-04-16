@@ -39,6 +39,21 @@ R_getTypeDefinitions()
 
 }
 
+extern"C"
+SEXP
+R_IntegerType_get(SEXP r_context, SEXP r_bits)
+{
+    llvm::LLVMContext *ctxt;
+    if(Rf_length(r_context) == 0) {
+        ctxt = &llvm::getGlobalContext();
+    } else 
+        ctxt = (GET_REF(r_context, LLVMContext)); 
+
+    llvm::Type *ans;
+    ans = llvm::IntegerType::get(*ctxt, INTEGER(r_bits)[0]);
+    return(R_createRef(ans, "Type"));
+}
+
 extern "C"
 SEXP
 R_pointerType(SEXP r_type)
