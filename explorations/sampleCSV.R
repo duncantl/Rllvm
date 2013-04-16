@@ -54,9 +54,11 @@ f.readUpTo =
   #
 function(con, to)
 {
+   ctr = 1L
    while(ctr <= to) {
-     ans = readLine(con, 1)
-     ctr <- ctr + 1
+     ans = Fgets(con) # my version of fgets() which hides passing the string and the size and just returns the 
+     ctr <- ctr + 1L
    }
    ans
 }
+

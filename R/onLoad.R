@@ -10,7 +10,6 @@ function()
 .onLoad =
 function(...)
 {
-  
   types = getTypeDefs()
   e = getNamespace("Rllvm")
   mapply(utils::assignInNamespace,

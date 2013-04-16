@@ -15,6 +15,8 @@ function(builder, val, type = NULL,
     return(createIntegerConstant(val, context, type))
   } else if(is.numeric(val)) {
     return(createFloatingPointConstant(val, context, type))
+  } else if(is.character(val)) {
+     return(createStringConstant(val, context, type))
   } else
     stop("Don't know yet how to create such a constant")
 }
@@ -51,3 +53,12 @@ function(val, context = getGlobalContext(), type = DoubleType)
 {
   .Call("R_createFPConstant", as.numeric(val), context, type)
 }
+
+
+createStringConstant =
+function(val, context = getGlobalContext(), type = NULL)
+{
+  .Call("R_createStringConstant", as.character(val), context, type)
+}
+
+  

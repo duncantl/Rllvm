@@ -54,6 +54,7 @@ createCall,
 createCondBr,
 createConstant,
 createFloatingPointConstant,
+createStringConstant,
 createGEP,
 createICmp,
 createFCmp,
@@ -273,3 +274,5 @@ export(getGlobalValue)
 
 export(getIntegerBitWidth)
 export(getIntrinsicID, getIntrinsic, getIntrinsicName, isIntrinsicOverloaded, isIntrinsic)
+
+export(setInitializer)

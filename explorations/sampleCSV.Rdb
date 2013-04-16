@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <article xmlns:r="http://www.r-project.org"
-         xmlns:xi="http://www.w3.org/2003/XInclude">
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:c="http://www.C.org"
+	 xmlns:sh="http://www.shell.org">
 
 <articleinfo>
 
@@ -13,13 +15,159 @@
 </author>
 </articleinfo>
 
+<r:code>
+library(RLLVMCompile)
+</r:code>
+
 <section>
 <title></title>
+
+
+<para>
+We start by opening a file to read and obtaining 
+a <c:type>FILE</c:type> pointer. 
+The <r:func>RCurl</r:func> package has a facility to do this so we use it:
+<r:code>
+library(RCurl)
+File = CFILE("sample1.csv")
+</r:code>
+
+Now, let's access the Fgets routine.
+We compile it 
+<sh:code>
+R CMD SHLIB Fgets.c
+</sh:code>
+and then load it
+<r:code>
+dyn.load("Fgets.so")
+</r:code>
+</para>
+<para>
+Note that we could have written this ourselves in R.
+We could have written a simple little function/routine
+in R that uses a Module-level global variable to
+allocate and store the string
+<r:code>
+readLine = 
+function(con)
+{
+  fgets(globalLine, maxLen, con) != 0
+}
+</r:code>
+Then we allocate the variable globalLine to be a string
+that can hold up to, say, 10000 characters (<r:var>maxLen</r:var>).
+This should probably be an array type, not a pointer, unless we
+want to allocate the space ourselves.
+</para>
+<para>
+<q>
+How do we allocate this?
+How do we retrieve the current value from the Module as
+a string in R?
+</q>
+</para>
 
 <para>
 <r:code>
 mod = Module("sampleCSV")
+lineType = arrayType(Int8Type, 1000)
+lineType = pointerType(Int8Type)
+#ir = IRBuilder()
+# createGlobalString(ir, "empty string")
+var = createGlobalVariable("line", mod, lineType)
 </r:code>
+
+<r:code>
+val = createStringConstant("this is a string", getGlobalContext(), NULL)
+</r:code>
+
+To find out if the different types are the same, let's look:
+<r:code>
+a = getType(var)
+b = getType(val)
+
+elType = lapply(list(var = a, val = b), getElementType)
+identical(elType$val@ref, Int8Type)  # so val is what we expect.
+
+identical(getElementType(lineType)@ref, elType$val@ref)
+
+lapply(list(var = a, val = b, decl = lineType),
+        function(x) getTypeID(getElementType(x)))
+
+getTypeID(getElementType(getType(mod[["line"]])))
+</r:code>
+
+
+<r:code>
+setInitializer(var, val)
+</r:code>
+</para>
+
+
+
+<para>
+This approach using global variables is not as bad as using global variables in C code.
+This is because we can clone the  modules (or recreate different instances)
+and so end up with Module-specific variables, not truly global variables.
+In that sense, the Modules allow us to create closure-like functions/routines
+with their own variables.
+</para>
+<para>
+Now let's think about calling that routine from R.
+We can use Rffi or Rdyncall, but we want to compile a call to it from our generated code.
+That is the important aspect. We don't want to call this directly from R, but
+rather from our compiled code. So we just need to be able to describe its inputs
+and outputs and declare it to the LLVM engine when we reference it.
+<r:code>
+FILEType = pointerType(Int32Type)
+</r:code>
+Why Int32Type? Because that is how big a pointer is on an OS X machine - 32 bits or 4 bytes.
+</para>
+
+
+<para>
+How do we describe a string type.
+A sequence of characters and a character is an integer. So we can define the type
+as 
+<r:code>
+stringType = pointerType(Int8Type)
+</r:code>
+Why Int8Type? Because the characters are simple 8 bit integers (in our simple world with no Unicode).
+</para>
+
+<para>
+So we can declare this function with 
+<r:code>
+mod = Module("sampleCSV")
+Fgets = Function("Fgets", stringType, list(FILEType), module = mod)
+setLinkage(Fgets, ExternalLinkage)
+</r:code>
+</para>
+
+
+<para>
+<r:code>
+source("sampleCSV.R")
+compileFunction(f.readUpTo, stringType, list(FILEType, Int32Type), name = "f.readUpTo", mod = mod)
+</r:code>
+
+<comment>See readUpTo.ll for what clang generates for the bitcode.
+See the C++ code on jasper 
+</comment>
+</para>
+
+
+
+</section>
+<section>
+<title>Future Work</title>
+
+<para>
+Now that the connections interface is public,
+we can compile code that can take an R connection
+object and call the relevant fgets-equivalent method on
+it. This may illustrate how to access existing C structures potentially
+(if they are not opaque).
 </para>
 
 </section>

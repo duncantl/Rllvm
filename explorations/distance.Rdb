@@ -60,9 +60,8 @@ over each set of observations.  The following <r/> code illustrates this:
 <r:code>
 <xi:include href="distance.R"/>
 </r:code>
-Here we have two loops - over the pairs of observations. There is an implicit third loop over
-the elements of the pairs of observations.
-
+Here we have two loops - over the pairs of observations. There is an
+implicit third loop over the elements of the pairs of observations.
 </para>
 
 

@@ -8,13 +8,17 @@
   in an LLVM module.
 }
 \usage{
-createGlobalVariable(id, val, mod, type = guessType(val),
+createGlobalVariable(id, mod, type = guessType(val), val = NULL,
                      constant = FALSE, linkage = ExternalLinkage,
                       threadLocal = FALSE)
 }
 \arguments{
   \item{id}{the name of the variable, a character string}
-  \item{val}{the initial value of the variable}
+  \item{val}{the initial value of the variable which can be
+    \code{NULL}. If it is \code{NULL}, then the \code{type} must be
+    provided. It is also important to initialize the global variable
+    with \code{setInitializer}.
+  }
   \item{mod}{the module in which the variable is being defined}
   \item{type}{the type of the variable}
   \item{constant}{a logical value indicatingwhether the variable is

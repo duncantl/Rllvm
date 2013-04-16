@@ -35,6 +35,16 @@ invoke them from LLVM.
 </item>
 
 <item>
+Compile access to R connections.
+</item>
+
+<item>
+Example of working with an existing struct type in C
+and compile code to operate on it.
+Issues with ensuring alignment and padding if compiled by another compiler.
+</item>
+
+<item>
 When converting SEXPs to and from GVs in C code,
 use the actual target SEXP type and not just the generic type.
 Similar/Related to registering routines with R and checking the types in a .Call().

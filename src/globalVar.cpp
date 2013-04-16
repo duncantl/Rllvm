@@ -10,7 +10,7 @@ R_createGlobalVariable(SEXP r_module, SEXP r_type, SEXP r_val, SEXP r_name, SEXP
 {
     llvm::Module *mod = GET_REF(r_module, Module);
     llvm::Type *ty = GET_REF(r_type, Type);
-    llvm::Constant *val = GET_REF(r_val, Constant);
+    llvm::Constant *val = Rf_length(r_val) ? GET_REF(r_val, Constant) : NULL;
 
     llvm::Twine tw = makeTwine(r_name);
     llvm::GlobalVariable *ans;
@@ -24,3 +24,16 @@ R_createGlobalVariable(SEXP r_module, SEXP r_type, SEXP r_val, SEXP r_name, SEXP
 
     return(R_createRef(ans, "GlobalVariable"));
 }
+
+
+extern "C"
+SEXP
+R_GlobalVariable_setInitializer(SEXP r_var, SEXP r_val)
+{
+    llvm::GlobalVariable *ans = GET_REF(r_var, GlobalVariable);
+    llvm::Constant *val = GET_REF(r_val, Constant);
+
+    ans->setInitializer(val);
+    return(ScalarLogical(TRUE));
+}
+

@@ -1,4 +1,4 @@
-setClass('Type::TypeID', contains = 'EnumValue')
+setClass('Type::TypeID', representation(names = "character"), contains = 'EnumValue')
 `Type::TypeIDValues` = EnumDef('Type::TypeID', structure(as.integer(c(0,
 1,
 2,

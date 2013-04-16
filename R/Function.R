@@ -53,7 +53,7 @@ function(fun, addNames = TRUE)
    els = .Call("R_getFunctionArgs", fun)
    ans = new("ParameterList", els)
    if(addNames)
-     names(ans) = lapply(ans, getName) # names(ans) = 
+     names(ans) = lapply(ans, getName) 
    ans
 }
 

@@ -6,8 +6,8 @@ Dist <-
   #  (Combinations of both?)
   #
   # We would like to use apply() so that we can parallelize
-  # or outer(1:nrow(g1), 1:nrow(g2), f)
-  #
+  # or outer(1:nrow(g1), 1:nrow(g2), f) to avoid building the
+  # grid first but fusing the loops.
   #
 function(g1, g2, op = euclidean, ...)
 {

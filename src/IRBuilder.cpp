@@ -460,10 +460,10 @@ R_IRBuilder_CreateGlobalString(SEXP r_builder, SEXP r_val, SEXP r_id)
     llvm::IRBuilder<> *builder;
     llvm::Value *ans;
 
-    ans = builder->CreateGlobalString(CHAR(STRING_ELT(r_val, 0)));
+    ans = builder->CreateGlobalString(llvm::StringRef(strdup(CHAR(STRING_ELT(r_val, 0)))));
 
     if(Rf_length(r_id))
-        ans->setName(makeTwine(r_id));
+       ans->setName(makeTwine(r_id));
     return(R_createRef(ans, "Value"));
 }
 

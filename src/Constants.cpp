@@ -42,3 +42,15 @@ R_getLogicalConstant(SEXP r_val, SEXP r_context)
     ans = INTEGER(r_val)[0] ? llvm::ConstantInt::getTrue(*ctxt) : llvm::ConstantInt::getFalse(*ctxt);
     return(R_createRef(ans, "ConstantInt"));
 }
+
+
+extern "C"
+SEXP
+R_createStringConstant(SEXP r_val, SEXP r_context, SEXP r_type)
+{
+    llvm::Constant *ans;
+    llvm::LLVMContext *ctxt = GET_REF(r_context, LLVMContext);
+
+    ans = llvm::ConstantDataArray::getString(*ctxt, CHAR(STRING_ELT(r_val, 0)), true);
+    return(R_createRef(ans, "Constant"));
+}
