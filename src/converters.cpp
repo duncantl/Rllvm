@@ -194,6 +194,9 @@ convertNativeValuePtrToR(void *ptr, const llvm::Type *type)
             ans = convertPointerToR(ptr, type);
             break;
 */
+	default:
+	  PROBLEM  "no code to handle converting native value to R for %d", ty
+           WARN;
     }
 
     return(ans);

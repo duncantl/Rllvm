@@ -10,6 +10,14 @@ setMethod("getContext", "BasicBlock",
              function(x, ...)
                 .Call("R_BasicBlock_getContext", x))
 
+setMethod("getContext", "Module",
+             function(x, ...)
+                .Call("R_Module_getContext", x))
+
+setAs("Module", "LLVMContext",
+       function(from)
+          getContext(from))
+
 setAs("BasicBlock", "LLVMContext",
        function(from)
           getContext(from))

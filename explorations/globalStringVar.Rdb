@@ -1,0 +1,37 @@
+<article>
+
+<r:code>
+mod = Module("sampleCSV")
+val = createStringConstant("this is a string", getGlobalContext(), NULL)
+var = createGlobalVariable("line", mod, val = val)
+
+lineType = arrayType(Int8Type, 1000)
+var = createGlobalVariable("line", mod, val = val, type = lineType)
+
+
+getElementType(getType(var))
+
+ee = ExecutionEngine(mod)
+getGlobalValue(mod[["line"]], ee)
+</r:code>
+
+<r:code>
+mod = Module("sampleCSV")
+ity = .Call("R_IntegerType_get", NULL, 8L)
+val = createStringConstant("this is a string", getGlobalContext(), NULL)
+lineType = arrayType(ity, 1000)
+var = createGlobalVariable("line", mod, val = val, type = lineType)
+</r:code>
+
+<r:code>
+mod = Module("sampleCSV")
+ctx = Rllvm:::getContext(mod)
+ity = .Call("R_IntegerType_get", ctx, 8L)
+val = createStringConstant("this is a string", ctx, NULL)
+lineType = arrayType(ity, 1000)
+var = createGlobalVariable("line", mod, type = lineType)
+.Call("R_GlobalVariable_setAlignment", var, 16L)
+setInitializer(var, val)
+</r:code>
+
+</article>

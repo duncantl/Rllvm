@@ -241,7 +241,7 @@ mod[["i"]] = pi
 Doesn't seem to.
 </item>
 
-<item status="done"> [Close but not working]
+<item status="fix"> [Close but not working]
 global variables. Get the value.  Write a routine to get them.  Can't
 we do this generically.
 <br/>
