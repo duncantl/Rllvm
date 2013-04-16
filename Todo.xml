@@ -30,7 +30,7 @@ getGlobalValue(m[["str1_p"]], ee) # does not work
 </r:code>
 Do we have to dereference the pointer to get the actual
 address of the data?
-Seems fixed now in 
+Seems fixed now (in git: 19ca87e)
 </item>
 
 <item>
