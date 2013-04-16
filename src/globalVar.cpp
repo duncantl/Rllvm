@@ -25,6 +25,14 @@ R_createGlobalVariable(SEXP r_module, SEXP r_type, SEXP r_val, SEXP r_name, SEXP
     return(R_createRef(ans, "GlobalVariable"));
 }
 
+extern "C"
+SEXP
+R_GlobalVariable_setAlignment(SEXP r_var, SEXP r_val)
+{
+    llvm::GlobalVariable *ans = GET_REF(r_var, GlobalVariable);
+    ans->setAlignment(INTEGER(r_val)[0]);
+    return(ScalarLogical(TRUE));
+}
 
 extern "C"
 SEXP
