@@ -35,15 +35,37 @@ isSEXPType(const llvm::Type *ty)
 
 
 SEXP
-convertPointerToR(const llvm::GenericValue *val, const llvm::Type *type)
+convertRawPointerToR(void *p, const llvm::Type *type)
 {
-    llvm::PointerTy p = val->PointerVal;
-    int rtype =  isSEXPType(type);
+    int rtype = isSEXPType(type);
     if(rtype > -1)
       return((SEXP) p);
 
+       /* If this is a pointer to an 8-bit integer, then let's assume it is a string. 
+          Probably need to be able to override this, i.e. with an argument to the top-level call that is
+          passed down to here. 
+        */
+    /* The p here is wrong for a string pointer. */
+    const llvm::Type *elType = ((const llvm::PointerType*) type)->getElementType();
+    llvm::Type::TypeID elID = elType->getTypeID();
+    if(elID == llvm::Type::IntegerTyID) {
+       const llvm::IntegerType *ity = (const llvm::IntegerType *) elType;
+       unsigned bw = ity->getBitWidth();
+       if(bw == 8) {
+         return(ScalarString(mkChar((const char *)p)));
+       }
+    }
+	
     return(R_MakeExternalPtr(p, Rf_install("void*"), R_NilValue));
 }
+
+SEXP
+convertPointerToR(const llvm::GenericValue *val, const llvm::Type *type)
+{
+    llvm::PointerTy p = val->PointerVal;
+    return(convertRawPointerToR(p, type));
+}
+
 
 SEXP
 convertGenericValueToR(const llvm::GenericValue *val, const llvm::Type *type)
@@ -189,11 +211,12 @@ convertNativeValuePtrToR(void *ptr, const llvm::Type *type)
         case llvm::Type::FloatTyID:
             ans = ScalarReal( * ((float *) ptr));
         break;
-/*
         case llvm::Type::PointerTyID:
-            ans = convertPointerToR(ptr, type);
+            ans = convertRawPointerToR(ptr, type);
             break;
-*/
+        case llvm::Type::ArrayTyID:
+            ans = convertRawPointerToR(ptr, type);
+            break;
 	default:
 	  PROBLEM  "no code to handle converting native value to R for %d", ty
            WARN;
