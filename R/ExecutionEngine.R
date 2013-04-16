@@ -11,14 +11,18 @@ setGeneric("run",
 	       standardGeneric("run"))
 
 .llvmCallFunction =
-function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .all = FALSE) {
-              ans = .Call("R_callFunction", .x, .args, .ee)
+function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .all = FALSE) 
+{
+  if(!is(.x, "Function"))
+    stop("argument to .llvm must be a Function")
+   
+   ans = .Call("R_callFunction", .x, .args, .ee)
 
-              if(.all)
-                 append(ans, structure(.args, names = names(.args)))
-              else
-                 ans
-         }
+  if(.all)
+     append(ans, structure(.args, names = names(.args)))
+  else
+     ans
+}
 
 setMethod("run", "Function", .llvmCallFunction)
 

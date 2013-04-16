@@ -231,5 +231,7 @@ R_convertNativeValuePtrToR(SEXP r_ptr, SEXP r_type)
 {
     void *ptr = R_ExternalPtrAddr(r_ptr);
     llvm::Type *ty = GET_TYPE(r_type);
+    if(ty->getTypeID() == llvm::Type::PointerTyID)
+        ptr = * ((void **) ptr);
     return(convertNativeValuePtrToR(ptr, ty));
 }

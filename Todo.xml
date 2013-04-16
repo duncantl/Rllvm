@@ -18,6 +18,22 @@ This will change in the future.
 
 <items>
 <item>
+Should m[["notexists"]] for a Module m raise an error or return NULL.
+</item>
+
+<item status="check">
+getGlobalValue() of a pointer to a string  doesn't work.
+See explorations/globalString.R and 
+specifically 
+<r:code>
+getGlobalValue(m[["str1_p"]], ee) # does not work
+</r:code>
+Do we have to dereference the pointer to get the actual
+address of the data?
+Seems fixed now in 
+</item>
+
+<item>
 Function to link two or more modules
 so that we can compile functions separately and then
 allow them to refer to each other.
