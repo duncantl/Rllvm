@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <article xmlns:r="http://www.r-project.org"
-         xmlns:xi="http://www.w3.org/2003/XInclude">
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:c="http://www.C.org">
 
 <articleinfo>
 
-<title></title>
+<title>On Compiling Access to <c:routine>fgets</c:routine></title>
 
 <author><firstname>Duncan</firstname><surname>Temple Lang</surname>
   <affiliation><orgname>University of California at Davis</orgname>
@@ -14,7 +15,7 @@
 </articleinfo>
 
 <section>
-<title></title>
+<title>Overview</title>
 
 <para>
 We use this in our <doc href="sampleCSV.Rdb">sampleCSV()</doc>.
@@ -29,20 +30,35 @@ Then we will have to pass a pointer to this array in our call to <c:routine>fget
 
 
 <r:code>
+library(RLLVMCompile)
 mod = Module("fgets")
+ee = ExecutionEngine(mod)
+
 stringPointerType = pointerType(getIntegerType(8L))
 FILEType = pointerType(Int32Type) # an opaque struct type?
 
-.str = createGlobalVariable(".str", mod, val = string(1000))
-createGlobalVariable("ptr", line, stringPointerType, .str)
+.str = createGlobalVariable(".str", mod, val = string(1000), linkage = PrivateLinkage)
 
+ # we'd like to be able to use .str and have R functions call getGetElementPtr for us.
+p = getGetElementPtr(.str)
+createGlobalVariable("ptr", mod, stringPointerType, p) 
+
+  # could specify this information via .routineInfo parameter of compileFunction()
 declareFunction(list(stringPointerType, stringPointerType, Int32Type, FILEType), "fgets", mod) 
+</r:code>
 
+
+<r:code>
 Fgets  =
 function(file)
 {
-   fgets(ptr, 1000L, file)  != NULL # should raise an error if NULL.
+   fgets(ptr, 1000L, file) #  != NULL # should raise an error if NULL.
 }
+</r:code>
+
+Now we can compile the function
+<r:code>
+compileFunction(Fgets, stringPointerType, list(FILEType), mod, name = "Fgets")
 </r:code>
 
 Note that we could use <r:var>.str</r:var> rather than <r:var>ptr</r:var> in the call to 
@@ -53,12 +69,7 @@ the pointer to <r:var>.str</r:var> via a <r:func>getGetElementPtr</r:func> call.
 
 
 <para>
-This is a function to create a simple blank string with the specified number of characters.
-<r:function>
-string = 
-function(length) 
-   paste(rep(" ", length), collapse = "")
-</r:function>
+
 </para>
 
 

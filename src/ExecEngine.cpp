@@ -68,7 +68,7 @@ R_ExecutionEngine_addModule(SEXP r_execEngine, SEXP r_mods)
     llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
     llvm::Module *m;
     for(int i = 0 ; i < Rf_length(r_mods); i++) {
-        m = GET_REF(r_func, Function);
+        m = GET_REF(VECTOR_ELT(r_mods, i), Module);
         ee->addModule(m);
     }
     return(R_NilValue);

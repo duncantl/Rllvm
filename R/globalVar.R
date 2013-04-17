@@ -21,10 +21,12 @@ function(id, mod, type = getType(val), val = NULL, # guessType(val),
   alignment = NA
   if(!is.null(val)) {
     if(is.character(val) && length(val) == 1) {
+       txt = val
        val = createStringConstant(val, getContext(mod), NULL)
-       if(missing(type))
-         type = getType(val)
-       alignment = 1L
+       if(missing(type)) {
+          type = arrayType(getIntegerType(8L, getContext(mod)), nchar(txt) + 1L)  # getType(val) ??
+          alignment = 1L
+       }
     }
 
     if(!is(val, "Constant"))
@@ -33,6 +35,7 @@ function(id, mod, type = getType(val), val = NULL, # guessType(val),
   
   ans = .Call("R_createGlobalVariable", mod, type, val, as.character(id),
                 as.logical(constant), as.integer(linkage), as.logical(threadLocal))
+
 
   if(!is.na(alignment))
     setAlignment(ans, alignment)

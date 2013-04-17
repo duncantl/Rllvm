@@ -14,6 +14,10 @@ setMethod("getContext", "Module",
              function(x, ...)
                 .Call("R_Module_getContext", x))
 
+setMethod("getContext", "Constant",
+             function(x, ...)
+                getContext(as(x, "Module")))
+
 setAs("Module", "LLVMContext",
        function(from)
           getContext(from))
