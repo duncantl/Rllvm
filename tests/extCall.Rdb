@@ -117,7 +117,7 @@ plot(n, tt["elapsed", ], type = "l")
 Let's compare this to doing it in R.
 Of course we would call runif just once to generate all n values,
 but instead we mimic what we are doing with our tossCoin function.
-<r:code>
+<r:code eval="false">
 system.time(as.integer(replicate(n[length(n)], runif(1)) > .5))
 </r:code>
 This takes about 117 seconds, as opposed to the 880

@@ -131,8 +131,14 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
 	  if(rtype > 0) {
              rv->PointerVal = rval;
              ok = true;
-          }
+          } 
        }
+
+       if(ok == false && TYPEOF(rval) == EXTPTRSXP) {
+           rv->PointerVal = R_ExternalPtrAddr(rval);
+           ok = true;
+       }
+
  
 	if(ok == false) {
            PROBLEM "no method to convert R object to %d", ty

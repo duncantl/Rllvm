@@ -44,7 +44,7 @@ p = getGetElementPtr(.str)
 .ptr = createGlobalVariable("ptr", mod, stringType, p) 
 
   # could specify this information via .routineInfo parameter of compileFunction()
-declareFunction(list(stringType, stringType, Int32Type, FILEType), "t_fgets", mod) 
+declareFunction(list(stringType, stringType, Int32Type, FILEType), "fgets", mod) 
 </r:code>
 
 
@@ -52,7 +52,7 @@ declareFunction(list(stringType, stringType, Int32Type, FILEType), "t_fgets", mo
 Fgets  =
 function(file)
 {
-  t_fgets(ptr, 1000L, file) #  != NULL # should raise an error if NULL.
+  fgets(ptr, 1000L, file) #  != NULL # should raise an error if NULL.
 }
 </r:code>
 
@@ -82,8 +82,7 @@ the pointer to <r:var>.str</r:var> via a <r:func>getGetElementPtr</r:func> call.
 
 <para>
 <r:code eval="false" id="test">
-dyn.load("explorations/testFgets.so")
-llvmAddSymbol(t_fgets = getNativeSymbolInfo("t_fgets")$address)
+llvmAddSymbol(fgets = getNativeSymbolInfo("fgets")$address)
 library(RCurl)
 f = CFILE("DESCRIPTION", "r")
 .llvm(fun, f@ref)
