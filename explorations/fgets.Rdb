@@ -86,6 +86,7 @@ llvmAddSymbol(fgets = getNativeSymbolInfo("fgets")$address)
 library(RCurl)
 f = CFILE("DESCRIPTION", "r")
 .llvm(fun, f@ref)
+replicate(5, .llvm(fun, f@ref))
 </r:code>
 
 </para>

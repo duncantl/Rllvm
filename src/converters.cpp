@@ -41,8 +41,9 @@ convertRawPointerToR(void *p, const llvm::Type *type)
     if(rtype > -1)
       return((SEXP) p);
 
-    if(!p)
+    if(!p) { //XXXX return an empty vector of the correct type if type indicates a primitive, e.g. character(),
       return(R_NilValue);
+    }
 
        /* If this is a pointer to an 8-bit integer, then let's assume it is a string. 
           Probably need to be able to override this, i.e. with an argument to the top-level call that is
