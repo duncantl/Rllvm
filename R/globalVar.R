@@ -51,3 +51,12 @@ function(var, value)
   .Call("R_GlobalVariable_setInitializer", var, value)
   value
 }
+
+setAlignment <-
+function(var, align)
+{
+  if(!is(var, "GlobalVariable"))
+    stop("setAlignment requires a GlobalVariable")
+  
+  .Call("R_GlobalVariable_setAlignment", var, as.integer(align))
+}

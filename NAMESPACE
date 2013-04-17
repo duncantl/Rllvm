@@ -276,3 +276,7 @@ export(getIntegerBitWidth)
 export(getIntrinsicID, getIntrinsic, getIntrinsicName, isIntrinsicOverloaded, isIntrinsic)
 
 export(setInitializer)
+
+export(getIntegerType)
+export(setAlignment)
+

@@ -15,6 +15,18 @@
 </author>
 </articleinfo>
 
+
+<para>
+The basic sequence we want to explain and implement is
+to create our own version of fgets which uses a Module-level
+global variable to store the last line.
+Then we will use this to implement the readUpTo function.
+Given the readUpTo function, we can implement the sampleCSV
+by sampling the indices, sorting  them and then calling readUpTo
+in a loop.
+</para>
+
+
 <r:code>
 library(RLLVMCompile)
 </r:code>
@@ -59,6 +71,9 @@ that can hold up to, say, 10000 characters (<r:var>maxLen</r:var>).
 This should probably be an array type, not a pointer, unless we
 want to allocate the space ourselves.
 </para>
+
+
+
 <para>
 <q>
 How do we allocate this?
@@ -121,6 +136,7 @@ and so end up with Module-specific variables, not truly global variables.
 In that sense, the Modules allow us to create closure-like functions/routines
 with their own variables.
 </para>
+
 <para>
 Now let's think about calling that routine from R.
 We can use Rffi or Rdyncall, but we want to compile a call to it from our generated code.
@@ -164,6 +180,10 @@ compileFunction(f.readUpTo, stringType, list(FILEType, Int32Type), name = "f.rea
 See the C++ code on jasper 
 </comment>
 </para>
+
+
+
+
 
 
 

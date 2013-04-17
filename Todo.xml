@@ -278,6 +278,13 @@ See tests/globalGet.R
 </item>
 
 <item>
+When we specify the initializer for a global variable
+and it is an array, we have to make certain the length of the 
+array matches.  
+Ensure this in createGlobalVariable() when val is specified.
+</item>
+
+<item>
 strings &amp; string constants.
 </item>
 

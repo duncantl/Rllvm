@@ -112,3 +112,11 @@ function(elType, num)
 setMethod("getNumElements", "VectorType",
           function(x, ...)
            .Call("R_VectorType_getNumElements", x))
+
+
+
+getIntegerType <-
+function(size, ctxt = getGlobalContext())
+{
+  .Call("R_IntegerType_get", ctxt, as.integer(size))
+}

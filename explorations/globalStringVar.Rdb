@@ -17,7 +17,7 @@ getGlobalValue(mod[["line"]], ee)
 
 <r:code>
 mod = Module("sampleCSV")
-ity = .Call("R_IntegerType_get", NULL, 8L)
+ity = getIntegerType(8)
 val = createStringConstant("this is a string", getGlobalContext(), NULL)
 lineType = arrayType(ity, 1000)
 var = createGlobalVariable("line", mod, val = val, type = lineType)
@@ -40,17 +40,23 @@ want the string to end.
 <r:code>
 mod = Module("sampleCSV")
 ee = ExecutionEngine(mod)
-ctx = Rllvm:::getContext(mod)
-ity = .Call("R_IntegerType_get", ctx, 8L)
+ctx = getContext(mod)  #as(mod, "LLVMContext")
+ity = getIntegerType(8L, ctx)
 lineType = arrayType(ity, 1000)
 var = createGlobalVariable("line", mod, type = lineType)
-.Call("R_GlobalVariable_setAlignment", var, 1L)
+setAlignment(var, 1L)
 
 txt = paste(rep(" ", 999), collapse = "")
 val = createStringConstant(txt, ctx, NULL)
 setInitializer(var, val)
+
+x = getGlobalValue(mod[["line"]], ee)
+nchar(x)
 </r:code>
 </para>
+
+
+
 <r:code>
 mod = Module("sampleCSV")
 ctx = Rllvm:::getContext(mod)
