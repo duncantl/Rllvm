@@ -22,6 +22,8 @@ extern "C"
 SEXP
 R_create_ExecutionEngine(SEXP r_module)
 {
+
+    /* Do we want to use some of the create() methods in the ExecutionEngine class. */
     std::string errStr;
     llvm::Module *module = GET_REF(r_module, Module);
     llvm::ExecutionEngine *EE = llvm::EngineBuilder(module).setErrorStr(&errStr).setEngineKind(llvm::EngineKind::JIT).create();
@@ -59,6 +61,19 @@ R_callFunction(SEXP r_fun, SEXP r_args, SEXP r_execEngine)
     return(convertGenericValueToR(&val, fun->getReturnType()));
 }
 
+extern "C"
+SEXP
+R_ExecutionEngine_addModule(SEXP r_execEngine, SEXP r_mods)
+{
+    llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
+    llvm::Module *m;
+    for(int i = 0 ; i < Rf_length(r_mods); i++) {
+        m = GET_REF(r_func, Function);
+        ee->addModule(m);
+    }
+    return(R_NilValue);
+}
+
 
 extern "C"
 SEXP
@@ -85,7 +100,7 @@ R_ExecutionEngine_getPointerToGlobal(SEXP r_execEngine, SEXP r_var)
 
 extern "C"
 SEXP
-R_ExecutionEngine_FindFunctionNames(SEXP r_execEngine, SEXP r_id)
+R_ExecutionEngine_FindFunctionNamed(SEXP r_execEngine, SEXP r_id)
 {
     llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
     

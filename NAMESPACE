@@ -279,4 +279,5 @@ export(setInitializer)
 
 export(getIntegerType)
 export(setAlignment)
+export(addModule)
 

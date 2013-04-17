@@ -4,6 +4,16 @@ function(module)
   .Call("R_create_ExecutionEngine", module)
 }
 
+addModule =
+function(engine, ...)
+{
+   if(!is(engine, "ExecutionEngine"))
+     stop("can only add modules to an ExecutionEngine, currently")
+   
+   mods = list(...)
+   .Call("R_ExecutionEngine_addModule", engine, mods)
+}
+
 # Use the name .x so that we don't conflict with routines with parameters named x
 # which  we want to name in our call, e.g for mutable parameters we want back.
 setGeneric("run",

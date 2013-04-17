@@ -42,6 +42,10 @@ Use addGlobalMapping() explicitly to connect one routine to another module?
 No, use the Linker::LinkModules() method?
 What about the need for external linkage, the declaration, etc.
 when we make a call to the routine that isn't in the module.
+<br/>
+We can insert new modules into the execution engine.
+We also would like to pass the compiler a collection
+of modules so that it can find existing Functions in those.
 </item>
 
 <item>
@@ -282,6 +286,10 @@ When we specify the initializer for a global variable
 and it is an array, we have to make certain the length of the 
 array matches.  
 Ensure this in createGlobalVariable() when val is specified.
+</item>
+
+<item>
+function to create an opaque type, e.g. pointerType(opaqueType())
 </item>
 
 <item>

@@ -18,11 +18,25 @@ function(id, mod, type = getType(val), val = NULL, # guessType(val),
   if(is.null(val) && missing(type))
     stop("you need to specify either the type or an initial value for the global variable")
 
-  if(!is.null(val) && !is(val, "Constant"))
-    stop("val must be an object of class Constant")
+  alignment = NA
+  if(!is.null(val)) {
+    if(is.character(val) && length(val) == 1) {
+       val = createStringConstant(val, getContext(mod), NULL)
+       if(missing(type))
+         type = getType(val)
+       alignment = 1L
+    }
+
+    if(!is(val, "Constant"))
+      stop("val must be an object of class Constant")
+  }
   
-   .Call("R_createGlobalVariable", mod, type, val, as.character(id),
-           as.logical(constant), as.integer(linkage), as.logical(threadLocal))
+  ans = .Call("R_createGlobalVariable", mod, type, val, as.character(id),
+                as.logical(constant), as.integer(linkage), as.logical(threadLocal))
+
+  if(!is.na(alignment))
+    setAlignment(ans, alignment)
+  ans
 }
 
 

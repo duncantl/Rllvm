@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+We use this in our <doc href="sampleCSV.Rdb">sampleCSV()</doc>.
+</para>
+<para>
+We will use the <c/> routine <c:routine>fgets</c:routine> to read
+a line. We have to specify the memory into which it will place the 
+line contents. We can allocate space or alternatively we can use a module-specific
+<quote>global</quote> variable.
+We create a global variable which is a char array of length 1000.
+Then we will have to pass a pointer to this array in our call to <c:routine>fgets</c:routine>.
+
+
+<r:code>
+mod = Module("fgets")
+stringPointerType = pointerType(getIntegerType(8L))
+FILEType = pointerType(Int32Type) # an opaque struct type?
+
+.str = createGlobalVariable(".str", mod, val = string(1000))
+createGlobalVariable("ptr", line, stringPointerType, .str)
+
+declareFunction(list(stringPointerType, stringPointerType, Int32Type, FILEType), "fgets", mod) 
+
+Fgets  =
+function(file)
+{
+   fgets(ptr, 1000L, file)  != NULL # should raise an error if NULL.
+}
+</r:code>
+
+Note that we could use <r:var>.str</r:var> rather than <r:var>ptr</r:var> in the call to 
+<r:func>fgets</r:func> and our compiler should figure out to use
+the pointer to <r:var>.str</r:var> via a <r:func>getGetElementPtr</r:func> call.
+
+</para>
+
+
+<para>
+This is a function to create a simple blank string with the specified number of characters.
+<r:function>
+string = 
+function(length) 
+   paste(rep(" ", length), collapse = "")
+</r:function>
+</para>
+
+
+</section>
+</article>
