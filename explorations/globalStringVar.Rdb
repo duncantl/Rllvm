@@ -25,6 +25,7 @@ var = createGlobalVariable("line", mod, val = val, type = lineType)
 
 <r:code>
 mod = Module("sampleCSV")
+ee = ExecutionEngine(mod)
 ctx = Rllvm:::getContext(mod)
 ity = .Call("R_IntegerType_get", ctx, 8L)
 val = createStringConstant("this is a string", ctx, NULL)
