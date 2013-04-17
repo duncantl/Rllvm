@@ -53,15 +53,14 @@ Fgets  =
 function(file)
 {
   t_fgets(ptr, 1000L, file) #  != NULL # should raise an error if NULL.
-  1L
 }
 </r:code>
 
 Now we can compile the function
-<r:code eval="false">
-compileFunction(Fgets, stringType, list(FILEType), mod, name = "Fgets")
-</r:code>
 <r:code>
+fun = compileFunction(Fgets, stringType, list(FILEType), mod, name = "Fgets")
+</r:code>
+<r:code eval="false">
 fun = compileFunction(Fgets, Int32Type, list(FILEType), mod, name = "Fgets")
 </r:code>
 
