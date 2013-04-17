@@ -17,6 +17,14 @@ This will change in the future.
 
 
 <items>
+
+<item>
+When the routine's  return type is VoidType, make certain
+we get a terminator.
+<br/>
+See fgets.Rdb and change the return type to VoidType
+</item>
+
 <item>
 Should m[["notexists"]] for a Module m raise an error or return NULL.
 </item>

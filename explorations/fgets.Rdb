@@ -34,17 +34,17 @@ library(RLLVMCompile)
 mod = Module("fgets")
 ee = ExecutionEngine(mod)
 
-stringPointerType = pointerType(getIntegerType(8L))
+stringType = pointerType(getIntegerType(8L, Rllvm:::getContext(mod)))
 FILEType = pointerType(Int32Type) # an opaque struct type?
 
 .str = createGlobalVariable(".str", mod, val = string(1000), linkage = PrivateLinkage)
 
  # we'd like to be able to use .str and have R functions call getGetElementPtr for us.
 p = getGetElementPtr(.str)
-createGlobalVariable("ptr", mod, stringPointerType, p) 
+.ptr = createGlobalVariable("ptr", mod, stringType, p) 
 
   # could specify this information via .routineInfo parameter of compileFunction()
-declareFunction(list(stringPointerType, stringPointerType, Int32Type, FILEType), "fgets", mod) 
+declareFunction(list(stringType, stringType, Int32Type, FILEType), "t_fgets", mod) 
 </r:code>
 
 
@@ -52,14 +52,27 @@ declareFunction(list(stringPointerType, stringPointerType, Int32Type, FILEType),
 Fgets  =
 function(file)
 {
-   fgets(ptr, 1000L, file) #  != NULL # should raise an error if NULL.
+  t_fgets(ptr, 1000L, file) #  != NULL # should raise an error if NULL.
+  1L
 }
 </r:code>
 
 Now we can compile the function
-<r:code>
-compileFunction(Fgets, stringPointerType, list(FILEType), mod, name = "Fgets")
+<r:code eval="false">
+compileFunction(Fgets, stringType, list(FILEType), mod, name = "Fgets")
 </r:code>
+<r:code>
+fun = compileFunction(Fgets, Int32Type, list(FILEType), mod, name = "Fgets")
+</r:code>
+
+<q>
+This  claims there is a mismatch in the argument types. 
+In ../simpleCall.R, we go through each of the parameters and see
+which fail.  The problem appears that the type of the global variable
+ptr is not the same as stringType.
+Is it that we are not loading the variable?
+</q>
+
 
 Note that we could use <r:var>.str</r:var> rather than <r:var>ptr</r:var> in the call to 
 <r:func>fgets</r:func> and our compiler should figure out to use
@@ -69,6 +82,13 @@ the pointer to <r:var>.str</r:var> via a <r:func>getGetElementPtr</r:func> call.
 
 
 <para>
+<r:code eval="false" id="test">
+dyn.load("explorations/testFgets.so")
+llvmAddSymbol(t_fgets = getNativeSymbolInfo("t_fgets")$address)
+library(RCurl)
+f = CFILE("DESCRIPTION", "r")
+.llvm(fun, f@ref)
+</r:code>
 
 </para>
 
