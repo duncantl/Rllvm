@@ -125,3 +125,49 @@ R_standaloneTest2(SEXP r_mod, SEXP r_type)
     return(R_createRef(mod, "Module"));
 }
 
+
+extern "C"
+SEXP
+R_testPointer()
+{
+ // Module Construction
+ Module* mod = new Module("globalString.ll", getGlobalContext());
+
+ // Type Definitions
+ ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(mod->getContext(), 8), 17);
+ PointerType* PointerTy_2 = PointerType::get(IntegerType::get(mod->getContext(), 8), 0);
+
+ // Global Variable Declarations
+
+ GlobalVariable* gvar_ptr_str1_p = new GlobalVariable(/*Module=*/*mod, 
+ /*Type=*/PointerTy_2,
+ /*isConstant=*/false,
+ /*Linkage=*/GlobalValue::ExternalLinkage,
+ /*Initializer=*/0, // has initializer, specified below
+ /*Name=*/"str1_p");
+ gvar_ptr_str1_p->setAlignment(8);
+
+
+ GlobalVariable* gvar_array__str = new GlobalVariable(/*Module=*/*mod, 
+ /*Type=*/ArrayTy_0,
+ /*isConstant=*/true,
+ /*Linkage=*/GlobalValue::PrivateLinkage,
+ /*Initializer=*/0, // has initializer, specified below
+ /*Name=*/".str");
+ 
+ 
+ // Constant Definitions
+ Constant *const_array_15 = ConstantDataArray::getString(mod->getContext(), "This is a string", true);
+ std::vector<Constant*> const_ptr_16_indices;
+ ConstantInt* const_int32_17 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("0"), 10));
+ const_ptr_16_indices.push_back(const_int32_17);
+ const_ptr_16_indices.push_back(const_int32_17);
+ Constant* const_ptr_16 = ConstantExpr::getGetElementPtr(gvar_array__str, const_ptr_16_indices);
+
+ 
+ // Global Variable Definitions
+ gvar_array__str->setInitializer(const_array_15);
+ gvar_ptr_str1_p->setInitializer(const_ptr_16);
+
+ return(R_createRef(mod, "Module"));
+}

@@ -41,6 +41,7 @@ want the string to end.
 mod = Module("sampleCSV")
 ee = ExecutionEngine(mod)
 ctx = getContext(mod)  #as(mod, "LLVMContext")
+
 ity = getIntegerType(8L, ctx)
 lineType = arrayType(ity, 1000)
 var = createGlobalVariable("line", mod, type = lineType)

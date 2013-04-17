@@ -43,7 +43,6 @@ setMethod("createIntegerConstant",
            c("integer"), 
 function(val, context = getGlobalContext(), type = NULL, bitwidth = 32L, radix = 10L, ...)
 {
-
    createIntegerConstant(as.character(val), context, type, bitwidth, radix)
 })
 
