@@ -23,16 +23,47 @@ lineType = arrayType(ity, 1000)
 var = createGlobalVariable("line", mod, val = val, type = lineType)
 </r:code>
 
+<para>
+The following works. The problem was with the
+length of the string being used to create the constant.
+It was not the same as the array type defined and that
+is what caused the problem. The type of the array
+must match exactly - element type and length.
+For this reason, we will generally want to 
+create a pointer variable and have it be initialized
+to point to a string constant. See globalString.c and its .ll and .llcpp.
+</para>
+<para>
+When defining a string constant, we want to be able to pad
+out the elements, but then insert a \0 at the place we actually
+want the string to end.
 <r:code>
 mod = Module("sampleCSV")
 ee = ExecutionEngine(mod)
 ctx = Rllvm:::getContext(mod)
 ity = .Call("R_IntegerType_get", ctx, 8L)
-val = createStringConstant("this is a string", ctx, NULL)
 lineType = arrayType(ity, 1000)
 var = createGlobalVariable("line", mod, type = lineType)
-.Call("R_GlobalVariable_setAlignment", var, 16L)
+.Call("R_GlobalVariable_setAlignment", var, 1L)
+
+txt = paste(rep(" ", 999), collapse = "")
+val = createStringConstant(txt, ctx, NULL)
 setInitializer(var, val)
+</r:code>
+</para>
+<r:code>
+mod = Module("sampleCSV")
+ctx = Rllvm:::getContext(mod)
+txt = paste(rep(" ", 999), collapse = "")
+val = createStringConstant(txt, ctx, NULL)
+ty = getType(val)
+isArrayType(ty)
+elTy = getElementType(ty)
+getTypeID(elTy) #XXX Funny! StructTyID
+isIntegerType(elType)
+getIntegerBitWidth(elTy)
+getNumElements(ty)
+getNumElements(as(ty, "ArrayType"))
 </r:code>
 
 </article>
