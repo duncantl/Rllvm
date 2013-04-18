@@ -202,10 +202,18 @@ function(builder, val, type, id = character())
    .Call("R_IRBuilder_CreateSExt", builder, val, type, as.character(id))
 }
 
+
+
 createBitCast =
 function(builder, val, type, id = character())
 {
    .Call("R_IRBuilder_CreateBitCastInst", builder, val, type, as.character(id))
+}
+
+createIntCast =
+function(builder, val, type, isSigned = TRUE, id = character())
+{
+   .Call("R_IRBuilder_CreateIntCastInst", builder, val, type, as.logical(isSigned), as.character(id))
 }
 
 

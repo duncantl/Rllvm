@@ -18,7 +18,7 @@ This will change in the future.
 
 <items>
 
-<item>
+<item status="done">
 When the routine's  return type is VoidType, make certain
 we get a terminator.
 <br/>
@@ -51,7 +51,7 @@ No, use the Linker::LinkModules() method?
 What about the need for external linkage, the declaration, etc.
 when we make a call to the routine that isn't in the module.
 <br/>
-We can insert new modules into the execution engine.
+We can insert new modules into the execution engine. See addModule().
 We also would like to pass the compiler a collection
 of modules so that it can find existing Functions in those.
 </item>
@@ -62,8 +62,12 @@ except on OS X. Have to find another way to access them to be able to
 invoke them from LLVM.
 </item>
 
-<item>
+<item status="low">
 Compile access to R connections.
+</item>
+
+<item>
+Example of accessing a struct.
 </item>
 
 <item>
@@ -82,9 +86,7 @@ Similar/Related to registering routines with R and checking the types in a .Call
 varargs
 </item>
 
-<item>
-Example of accessing a struct.
-</item>
+
 
 <item status="done">
 [Done] Read bitcode (.bc) into a Module.
@@ -112,7 +114,7 @@ makeRFunction to create a wrapper for an LLVM routine.
 <item>
 Function to allow putting a block at the end, i.e. the return block.
 See llvmpy, (tests/JUTTutorial2.py)
-Is this what is actually going on in that example or are we jumping to that blick?
+Is this what is actually going on in that example or are we jumping to that block?
 </item>
 
 <item status="done">
@@ -143,6 +145,7 @@ See pycc.
 Get element type of a pointer, array or vector type.
 getPointerElementType(), getVectorElementType(), getArrayElementType(), etc.
 </item>
+
 <item>
 structures
 getStructName()  (getName() in R), 
@@ -151,11 +154,12 @@ How to create them?  structType() function in R.
 </item>
 
 
-
 <item>
 Navigate/traverse the tree of blocks, instructions,
 and the ability to remove and insert instructions and
 blocks.
+<br/>
+C code to erase from parent for BasicBlock and Instruction.
 </item>
 
 <item status="done">
@@ -189,7 +193,6 @@ Error in getClass("GCC::Node::offset_type") :
 </r:code>
 </item>
 
-
 <item>
 How do we get the names of the elements on a struct Type?
 Do we add this in meta-data?
@@ -211,7 +214,7 @@ CreateNSWAdd, NUWAdd, NSWSub, ...
 CreateInBoundsGEP
 CreateTrunc, CreateZExt, CreateSExt
 CreatePHI
-CreateInboundsGEP
+CreateInboundsGEP  (is this equivalent getGetElementPtr?)
 
 [Done] CreateIsNull, CreateIsNotNull
 [Done] CreateExtractElemet
@@ -220,7 +223,9 @@ CreateInboundsGEP
 
 <item>
 Also allow passing in a function pointer to an LLVM generated
-routine as a type of argument.
+routine as a type of argument, i.e. a function pointer.
+For example, the distance computation where we specify the 
+metric to use for the two observations.
 <br/>
 How do we specify that sort of type?
 <br/>

@@ -79,8 +79,13 @@ convertGenericValueToR(const llvm::GenericValue *val, const llvm::Type *type)
     llvm::Type::TypeID ty = type->getTypeID();
 
     switch(ty) {
-        case llvm::Type::IntegerTyID:
-            ans = ScalarInteger(val->IntVal.getSExtValue()); // llvm::APInt(val));
+        case llvm::Type::IntegerTyID: {
+	    unsigned num = type->getIntegerBitWidth();
+	    if(num == 1)
+                ans = ScalarLogical( val->IntVal.getSExtValue() );
+            else
+                ans = ScalarInteger( val->IntVal.getSExtValue() );
+        }
         break;
         case llvm::Type::DoubleTyID:
             ans = ScalarReal(val->DoubleVal);

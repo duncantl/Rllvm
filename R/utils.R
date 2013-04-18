@@ -2,3 +2,20 @@
 string = 
 function(length) 
    paste(rep(" ", length), collapse = "")
+
+
+sameType =
+function(a, b)
+{
+  if(identical(a, b))
+     TRUE
+  else if(is(a, "externalptr") && is(b, "Type"))
+      identical(a, b@ref)
+  else if(is(b, "externalptr") && is(a, "Type"))
+      identical(a@ref, b)
+  else if(is(b, "Type") && is(a, "Type"))
+      identical(a@ref, b@ref)  
+  else
+      FALSE
+}
+

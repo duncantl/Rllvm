@@ -156,7 +156,7 @@ createExtractElement, createInsertElement
 )
 
 
-export(createBitCast)
+export(createBitCast, createIntCast)
 export(createGlobalVariable, createGlobalVar)
 export(Optimize)
 exportMethods(Optimize)
@@ -285,3 +285,9 @@ export(getGetElementPtr)
 
 
 export(string) # utility like character() but for a single string with the given number of characters
+
+export(getContext)
+exportMethods(getContext)
+
+export(sameType)
+
