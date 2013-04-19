@@ -1,0 +1,26 @@
+LLVMTargets = strsplit('@LLVM_TARGETS@', '[[:space:]]+')[[1]]
+
+getLLVMTargets =
+function()
+{
+  LLVMTargets
+}
+
+initializeTarget =
+function(target, what = c("Target", "TargetInfo", "AsmPrinter", "Disassembler"))
+{
+   if(!(target %in% getLLVMTargets()))
+      stop(Exception(c(target, "is not supported"), "UnsupportedTarget"))
+
+   ans = structure(logical(length(what)), names = what)
+   routines = sprintf("LLVMInitialize%s%s", target, what)
+   for(i in seq(along = what))  {
+     if(is.loaded(routines[i])) {
+        .C(routines[i])
+        ans[i] = TRUE
+     }
+   }
+   ans
+}
+
+

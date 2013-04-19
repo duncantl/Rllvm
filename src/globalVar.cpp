@@ -1,6 +1,4 @@
 #include "Rllvm.h"
-
-#include <llvm/GlobalVariable.h>
 #include  <stdio.h>
 
 extern "C"

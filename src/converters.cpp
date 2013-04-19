@@ -30,7 +30,7 @@ isSEXPType(const llvm::Type *ty)
            return(rLLVMTypes[i].sexpType);
 	}
   }
-  return(-1);
+  return(ans);
 }
 
 
@@ -79,6 +79,8 @@ convertGenericValueToR(const llvm::GenericValue *val, const llvm::Type *type)
     llvm::Type::TypeID ty = type->getTypeID();
 
     switch(ty) {
+        case llvm::Type::VoidTyID: 
+            break;
         case llvm::Type::IntegerTyID: {
 	    unsigned num = type->getIntegerBitWidth();
 	    if(num == 1)
@@ -101,7 +103,7 @@ convertGenericValueToR(const llvm::GenericValue *val, const llvm::Type *type)
     return(ans);
 }
 
-#include <llvm/DerivedTypes.h>
+/* #include <llvm/DerivedTypes.h> */
 
 /* Convert an R value to a GenericValue based on the type expected, given by type. */
 bool

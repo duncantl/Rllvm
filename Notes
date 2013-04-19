@@ -17,3 +17,7 @@ The opt command line executable is for passing IR code through the LLVM optimize
 
  bitcode goes to /tmp/FOO; we see IR code on the  (?)
 
+
+
+Activating Different Targets
+ For example, the NVPTX

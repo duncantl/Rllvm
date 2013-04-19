@@ -1,12 +1,17 @@
 Version 0.5-0
 
+	*  getLLVMTargets() returns the names of the available targets
+	   for code generation.
+
+	*  New interfaces to IRBuilder methods. 
+
 	*  Types for representing SEXP types in routines.
 
 	*  Ability to pass R objects (SEXPs) to and from routines.
 
 	*  Support for passing a value to a routine expecting a Float.
 	
-	*  changed .llvm() to alias .llvmCallFunctio() rather than
+	*  changed .llvm() to alias .llvmCallFunction() rather than
 	   run() to avoid the overhead of method dispatch.
 
 	*  Support for intrinsics.

@@ -76,6 +76,7 @@ createSIToFP,
 createFPToSI,
 DoublePtrType,
 DoubleType,
+StringType,       
 ExecutionEngine,
 FAdd,
 FCMP_FALSE,
@@ -291,3 +292,4 @@ exportMethods(getContext)
 
 export(sameType)
 
+export(getLLVMTargets)

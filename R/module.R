@@ -37,9 +37,9 @@ setMethod("Optimize",
 
 
 getPassManager =
-function(module, execEngine = ExecutionEngine(module))
+function(module, execEngine = ExecutionEngine(module), level = 3L)
 {
-  .Call("R_getPassManager", module, execEngine)
+  .Call("R_getPassManager", module, execEngine, as.integer(level))
 }
 
 

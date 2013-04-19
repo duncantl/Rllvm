@@ -2,7 +2,15 @@
 #if LLVM_VERSION <= 3 && LLVM_MINOR_VERSION < 2
 #include <llvm/Support/IRBuilder.h>
 #else
+#if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 3
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IRReader/IRReader.h>
+#include <llvm/Support/SourceMgr.h>
+#include <llvm/Support/MemoryBuffer.h>
+#else
 #include <llvm/IRBuilder.h>
+#include <llvm/Support/IRReader.h>
+#endif
 #endif
 
 SEXP
@@ -642,7 +650,7 @@ R_IRBuilder_getCurrentFunctionReturnType(SEXP r_builder)
 
 
 
-#include <llvm/Support/IRReader.h>
+#if 1
 extern "C" 
 SEXP
 R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
@@ -667,12 +675,13 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
     }
     if(!mod) {
         PROBLEM "failed to parse IR: (line = %d, col = %d), %s", 
-            err.getLineNo(), err.getColumnNo(), err.getMessage().c_str()
+            err.getLineNo(), err.getColumnNo(), 
+            err.getMessage().data()  // c_str()
            ERROR;
     }
     return(mod  ?  R_createRef(mod, "Module") : R_NilValue );
 }
-
+#endif
 
 extern "C"
 SEXP

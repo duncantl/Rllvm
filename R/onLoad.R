@@ -3,7 +3,7 @@ function()
 {
    types = .Call("R_getTypeDefinitions")
    names(types) = c("Void", "Label", "Float", "Double", "Int1", "Int8", "Int16", 
-                     "Int32", "Int64", "FloatPtr", "DoublePtr", "Int32Ptr")
+                     "Int32", "Int64", "FloatPtr", "DoublePtr", "Int32Ptr", "String")
    types
 }
 
@@ -17,6 +17,8 @@ function(...)
          types, 
          MoreArgs = list(ns = e))
 
+#  utils::assignInNamespace("stringType", pointerType(getIntegerType(8L)), ns = e)
+  
   if(getOption("Rllvm.autoInitialize", TRUE))
     InitializeNativeTarget()
 }

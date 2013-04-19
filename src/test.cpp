@@ -1,3 +1,4 @@
+#if 0
 #include "Rllvm.h"
 
 char String[] = "This is my test string";
@@ -171,3 +172,6 @@ R_testPointer()
 
  return(R_createRef(mod, "Module"));
 }
+#else
+static int bar;
+#endif

@@ -1,3 +1,16 @@
+#if LLVM_VERSION >=3 && LLVM_MINOR_VERSION >= 3
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+//#include <llvm/DerivedTypes.h>
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/GlobalVariable.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/CallingConv.h>
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Instructions.h>
+#include <llvm/IR/InlineAsm.h>
+
+#else
 #include <llvm/LLVMContext.h>
 #include <llvm/Module.h>
 #include <llvm/DerivedTypes.h>
@@ -8,6 +21,10 @@
 #include <llvm/BasicBlock.h>
 #include <llvm/Instructions.h>
 #include <llvm/InlineAsm.h>
+#include <algorithm>
+
+#endif
+
 #include <llvm/Support/FormattedStream.h>
 #include <llvm/Support/MathExtras.h>
 #include <llvm/Pass.h>
@@ -15,12 +32,11 @@
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/Analysis/Verifier.h>
 #include <llvm/Assembly/PrintModulePass.h>
-#include <algorithm>
 
 
 #include <Rdefines.h>
 
-#if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION > 2
+#if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 2
 #define LLVM_VERSION_THREE_TWO 1
 #endif
 

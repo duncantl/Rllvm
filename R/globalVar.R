@@ -51,6 +51,7 @@ function(val)
    switch(typeof(val),
            "integer" = if(n < 2) Int32Type else Int32PtrType,
            "double" = if(n < 2) DoubleType else DoublePtrType,
+           "character" = if(n < 2) StringType else arrayType(StringType, n),
             stop("Can't guess type"))
 }
     

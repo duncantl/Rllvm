@@ -18,6 +18,35 @@ R_InitializeNativeTarget()
 }
 
 
+#define LLVM_TARGET(target) \
+    void inline Initialize##target##Target() { \
+    }
+
+#include <llvm/Config/Targets.def>
+
+#undef LLVM_TARGET
+
+
+
+#if 0
+extern "C"
+void
+R_InitializeNVPTXTarget()
+{
+    llvm::InitializeNVPTXTarget();
+    llvm::InitializeNVPTXTargetInfo();
+    llvm::InitializeNVPTXTargetMC();
+    llvm::InitializeNVPTXAsmPrinter();
+}
+#endif
+
+extern "C"
+void
+R_InitializeAllTargetInfos()
+{
+    llvm::InitializeAllTargetInfos();
+}
+
 extern "C"
 SEXP
 R_create_ExecutionEngine(SEXP r_module)

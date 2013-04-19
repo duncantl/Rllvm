@@ -6,23 +6,39 @@
 <title>Things To Note</title>
 <items>
 <item>
+InitializeNVPTXTarget() and generating code for PTX.
+</item>
+
+<item>
 The getGlobalVariable() functions and the setting of these values
 don't behave as expected. The get() function gets the initial value.
 The set values don't set the variable it already exists.
 This will change in the future.
+The get value doesn't get the new value, just the initialization value.
+See tests/clone2.R
 </item>
+
+<item status="high">
+Should use the pointer for the global variable to set it,
+just like we do when we get it. We need the type.
+<r:code>
+library(Rllvm)
+InitializeNativeTarget()
+mod = Module("global")
+mod[["status"]] = TRUE
+</r:code>
+doesn't set the value if the variable has already been created.
+It only sets it the first time.
+</item>
+
 </items>
 </topic>
 <topic>
 
 
 <items>
-
-<item status="done">
-When the routine's  return type is VoidType, make certain
-we get a terminator.
-<br/>
-See fgets.Rdb and change the return type to VoidType
+<item>
+strings &amp; string constants.
 </item>
 
 <item>
@@ -60,7 +76,7 @@ of modules so that it can find existing Functions in those.
 Rf_length and other routines not available via getNativeSymbolInfo()
 except on OS X. Have to find another way to access them to be able to
 invoke them from LLVM.
-</item>
+<xml:ns></xml:ns></item>
 
 <item status="low">
 Compile access to R connections.
@@ -87,13 +103,6 @@ varargs
 </item>
 
 
-
-<item status="done">
-[Done] Read bitcode (.bc) into a Module.
-readBitCode.
-[Done] Should be able to read from a raw also.
-</item>
-
 <item>
 Metadata
 </item>
@@ -103,47 +112,17 @@ getTypeID should return the name of the type, not just the enum
 value.
 </item>
 
-<item status="done">
-Get module's name via getName() method.
-</item>
-
-<item status="done">
-makeRFunction to create a wrapper for an LLVM routine.
-</item>
-
 <item>
 Function to allow putting a block at the end, i.e. the return block.
 See llvmpy, (tests/JUTTutorial2.py)
 Is this what is actually going on in that example or are we jumping to that block?
 </item>
 
-<item status="done">
-Clone a module - see llvmpy
-<br/>
-clone() generic and method for Module.
-</item>
-
-<item status="done">
-module to native assembly - is this the IR?
-If so, then simply showModule() or as(module, "character").
-For creating bit code, use writeBitcode
-</item>
-
-<item status="done">
-From assembly string? Done?
-ParseAssemblyString.
-And from IR, use parseIR
-</item>
 
 <item>
 Write out [Done] bitcode, [Done] llvm module (IR or ?), 
 shared object (need linker step - system or in LLVM API?)
 See pycc.
-</item>
-
-<item status="done">
-Get element type of a pointer, array or vector type.
-getPointerElementType(), getVectorElementType(), getArrayElementType(), etc.
 </item>
 
 <item>
@@ -162,14 +141,7 @@ blocks.
 C code to erase from parent for BasicBlock and Instruction.
 </item>
 
-<item status="done">
-Find out how to parse IR text into IR structures.
-<br/>
-ParseIRFile() in opt.cpp.
-So Support/IRReader.h
-<br/>
-For BitCode, see  include/llvm/Bitcode/ReaderWriter.h
-</item>
+
 
 <item>
 In the TU, ExecutionEngine create method has an NA for the type of one of the parameters.
@@ -236,11 +208,6 @@ How do we specify that sort of type?
 Make certain that errors don't abort R.
 </item>
 
-<item status="done">
-IRBuilder has a $ method so we can use
- ir$createICmp(), ir$createRet(), etc.
-a la C++ invocation.
-</item>
 
 
 <item>
@@ -248,30 +215,6 @@ create a GEP with inbounds.
 <br/>
 Need to specify the indices in the constructor.
 Call IRBuilder-&gt;CreateInBoundsGEP
-</item>
-
-<item status="high">
-Should use the pointer for the global variable to set it,
-just like we do when we get it. We need the type.
-<r:code>
-library(Rllvm)
-InitializeNativeTarget()
-mod = Module("global")
-mod[["status"]] = TRUE
-</r:code>
-doesn't set the value if the variable has already been created.
-It only sets it the first time.
-</item>
-
-
-<item status="done">
-[YES] Does assigning to the global variable actually set it - YES!
-<r:code>
-library(Rllvm)
-mod = Module("globalTest")
-mod[["i"]] = pi
-</r:code>
-Doesn't seem to.
 </item>
 
 <item status="fix"> [Close but not working]
@@ -305,9 +248,6 @@ Ensure this in createGlobalVariable() when val is specified.
 function to create an opaque type, e.g. pointerType(opaqueType())
 </item>
 
-<item>
-strings &amp; string constants.
-</item>
 
 <item>
 dump a module to a buffer.
@@ -315,6 +255,25 @@ or createPrintModulePass to our buffer.
 <br/>
 Is this just showModule()?
 </item>
+
+<!-- "Dones" -->
+
+<item status="done">
+Get module's name via getName() method.
+</item>
+
+<item status="done">
+makeRFunction to create a wrapper for an LLVM routine.
+</item>
+
+
+
+<item status="done">
+[Done] Read bitcode (.bc) into a Module.
+readBitCode.
+[Done] Should be able to read from a raw also.
+</item>
+
 
 <item status="done">
 Call a generated routine via Rffi or .Call()/.C()
@@ -335,6 +294,60 @@ Ideally we would like to call the R engine
 to resolve a symbol. However, for now
 we can require that the caller
 register symbols or DLLs.
+</item>
+
+<item status="done">
+Clone a module - see llvmpy
+<br/>
+clone() generic and method for Module.
+</item>
+
+<item status="done">
+module to native assembly - is this the IR?
+If so, then simply showModule() or as(module, "character").
+For creating bit code, use writeBitcode
+</item>
+
+<item status="done">
+From assembly string? Done?
+ParseAssemblyString.
+And from IR, use parseIR
+</item>
+<item status="done">
+Get element type of a pointer, array or vector type.
+getPointerElementType(), getVectorElementType(), getArrayElementType(), etc.
+</item>
+
+<item status="done">
+Find out how to parse IR text into IR structures.
+<br/>
+ParseIRFile() in opt.cpp.
+So Support/IRReader.h
+<br/>
+For BitCode, see  include/llvm/Bitcode/ReaderWriter.h
+</item>
+
+<item status="done">
+IRBuilder has a $ method so we can use
+ ir$createICmp(), ir$createRet(), etc.
+a la C++ invocation.
+</item>
+
+<item status="done">
+[YES] Does assigning to the global variable actually set it - YES!
+<r:code>
+library(Rllvm)
+mod = Module("globalTest")
+mod[["i"]] = pi
+</r:code>
+Doesn't seem to.
+</item>
+
+<item status="done">
+When the routine's  return type is VoidType, make certain
+we get a terminator.
+<br/>
+See fgets.Rdb and change the return type to VoidType
 </item>
 
 </items>

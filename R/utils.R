@@ -19,3 +19,10 @@ function(a, b)
       FALSE
 }
 
+
+Exception =
+function(msg, class)
+{
+   structure(list(msg = paste(msg, collapse = " ")), class = c(class,  c("simpleError", "error", "condition")))
+}
+

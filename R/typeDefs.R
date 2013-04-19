@@ -10,3 +10,4 @@ Int64Type = 1
 FloatPtrType = 1
 DoublePtrType = 1
 Int32PtrType = 1
+StringType = 1

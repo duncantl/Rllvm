@@ -1,6 +1,7 @@
 #include "Rllvm.h"
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
+
 #if 0
 #include <llvm/Target/TargetData.h>
 #endif
@@ -17,7 +18,7 @@ R_optimizeModule(SEXP r_module, SEXP r_passMgr)
 
 extern "C"
 SEXP
-R_getPassManager(SEXP r_module, SEXP r_ee)
+R_getPassManager(SEXP r_module, SEXP r_ee, SEXP r_level)
 {
   llvm::Module *TheModule = GET_REF(r_module, Module);
   llvm::ExecutionEngine *TheExecutionEngine = NULL;
@@ -28,14 +29,14 @@ R_getPassManager(SEXP r_module, SEXP r_ee)
      TheExecutionEngine = GET_REF(r_ee, ExecutionEngine);
      // Set up the optimizer pipeline.  Start with registering info about how the
      // target lays out data structures.
-#ifdef LLVM_VERSION_THREE_TWO
+#ifndef LLVM_VERSION_THREE_TWO
      mgr->add(new llvm::TargetData(*TheExecutionEngine->getTargetData()));
 #endif
   }
 
 #if 1
  llvm::PassManagerBuilder Builder;
- Builder.OptLevel = 3;
+ Builder.OptLevel = INTEGER(r_level)[0];
  Builder.populateFunctionPassManager(*mgr);
 // Builder.populateModulePassManager(MPM);
 #else

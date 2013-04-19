@@ -23,7 +23,8 @@ R_getTypeDefinitions()
         ty(Int64),
         ty(FloatPtr),
         ty(DoublePtr),
-        ty(Int32Ptr)
+        ty(Int32Ptr),
+        ty(Int8Ptr)
     };
 
     int n = sizeof(types)/sizeof(types[0]);

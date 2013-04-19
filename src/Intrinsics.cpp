@@ -1,5 +1,9 @@
 #include "Rllvm.h"
+#if LLVM_VERSION >=3 && LLVM_MINOR_VERSION >= 3
+#include <llvm/IR/Intrinsics.h>
+#else
 #include <llvm/Intrinsics.h>
+#endif
 
 extern "C"
 SEXP

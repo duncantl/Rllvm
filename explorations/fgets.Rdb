@@ -98,7 +98,7 @@ readTo =
 function(file, n)
 {
   ctr = 0L
-  tmp = character() # ""
+  tmp = "" # character() # ""
     # perhaps use replicate(n, Fgets(file))
     # and compile that out.  But only want the last value.
   while(ctr < n) {
@@ -110,7 +110,7 @@ function(file, n)
 ]]></r:function>
 <q>Can we get away without creating tmp outside of the loop.</q>
 
-<r:code>
+<r:code eval="false">
 rr = compileFunction(readTo, stringType, list(FILEType, Int32Type), mod, name = "readTo")
 </r:code>
 

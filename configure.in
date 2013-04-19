@@ -11,6 +11,12 @@ if test -z "${LLVM_CONFIG}" ; then
 
 fi
 
+
+LLVM_VERSION_NUMBER=`${LLVM_CONFIG} --version | sed -e 's/svn//'`
+LLVM_VERSION=`${LLVM_CONFIG} --version | sed -e 's/\.[[0-9]]*//' | sed -e 's/svn//'`
+LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -e 's/[[0-9]]\.//' | sed -e 's/svn//'`
+
+
 CXXFLAGS=`${LLVM_CONFIG} --cxxflags`
 AC_LANG(C++)
 AC_COMPILE_IFELSE([
@@ -18,21 +24,32 @@ AC_COMPILE_IFELSE([
 void foo() {
 }
 ], [echo "Successfully include LLVMContext.h"], 
-   [AC_MSG_FAILURE("cannot include llvm/LLVMContext.h. Check that you have a suitable version of llvm installed.")])
+   [CHECK_IR_DIR=1])
 
-AC_SUBST(LLVM_CONFIG)
+if test -z $CHECK_IR_DIR ; then
+AC_COMPILE_IFELSE([
+#include <llvm/LLVMContext.h>
+void foo() {
+}
+], [echo "Successfully include LLVMContext.h"], 
+   AC_MSG_FAILURE("cannot include llvm/LLVMContext.h. Check that you have a suitable version of llvm installed."))
+fi
 
-LLVM_VERSION_NUMBER=`${LLVM_CONFIG} --version | sed -e 's/svn//'`
-LLVM_VERSION=`${LLVM_CONFIG} --version | sed -e 's/\.[[0-9]]*//' | sed -e 's/svn//'`
-LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -e 's/[[0-9]]\.//' | sed -e 's/svn//'`
+
+
+
+LLVM_TARGETS="`${LLVM_CONFIG} --targets-built`"
 
 echo "version: $LLVM_VERSION, minor = $LLVM_MINOR_VERSION"
+AC_SUBST(LLVM_CONFIG)
 AC_SUBST(LLVM_VERSION_NUMBER)
 AC_SUBST(LLVM_VERSION)
 AC_SUBST(LLVM_MINOR_VERSION)
+AC_SUBST(LLVM_TARGETS)
 
 echo ""
 echo "*** llvm-config ${LLVM_CONFIG}"
 echo ""
 
 AC_OUTPUT(src/Makevars)
+AC_OUTPUT(R/targets.R)
