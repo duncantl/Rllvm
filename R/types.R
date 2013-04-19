@@ -123,7 +123,10 @@ function(size, ctxt = getGlobalContext())
 
 
 isStringType =
-function(ty)
+function(ty, asIs = FALSE)
 {
+  if(!asIs && ! (is(ty, "Type") ||  is(ty, "externalptr")))
+    ty = getType(ty)
+  
   (isArrayType(ty) || isPointerType(ty)) && sameType(getElementType(ty), Int8Type)
 }
