@@ -293,3 +293,6 @@ exportMethods(getContext)
 export(sameType)
 
 export(getLLVMTargets)
+
+export(isStringType)
+

@@ -120,3 +120,10 @@ function(size, ctxt = getGlobalContext())
 {
   .Call("R_IntegerType_get", ctxt, as.integer(size))
 }
+
+
+isStringType =
+function(ty)
+{
+  (isArrayType(ty) || isPointerType(ty)) && sameType(getElementType(ty), Int8Type)
+}
