@@ -39,12 +39,13 @@ function(val, context = getGlobalContext(), type = NULL, bitwidth = 32L, radix =
 })
 
 
-setMethod("createIntegerConstant",
-           c("integer"), 
-function(val, context = getGlobalContext(), type = NULL, bitwidth = 32L, radix = 10L, ...)
+.tmp = function(val, context = getGlobalContext(), type = NULL, bitwidth = 32L, radix = 10L, ...)
 {
    createIntegerConstant(as.character(val), context, type, bitwidth, radix)
-})
+}
+setMethod("createIntegerConstant", c("integer"), .tmp)
+setMethod("createIntegerConstant", c("numeric"), .tmp)
+
 
 
 createFloatingPointConstant = createDoubleConstant =

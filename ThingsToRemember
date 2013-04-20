@@ -1,0 +1,6 @@
+We don't return a variable, we return its value. For this, we use createLoad() 
+before createReturn()
+
+
+Blocks can be created in any order. The branches control how
+they are traversed at run-time.

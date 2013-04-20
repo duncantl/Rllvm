@@ -4,7 +4,7 @@ function(fun, id = character(), context = getGlobalContext(), n = 1)
   if(missing(n))
      n = length(id)
 
-  .Call("R_new_BasicBlock", context, as.character(id), fun)
+  .Call("R_new_BasicBlock", context, as.character(id), as(fun, "Function"))
 }
 
 

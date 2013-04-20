@@ -49,9 +49,9 @@ BAD_ICMP_PREDICATE,
 BinaryOps,
 binOp,
 Block,
-createBr,
+createBr, createBranch, 
 createCall,
-createCondBr,
+createCondBr, createCondBranch,
 createConstant,
 createFloatingPointConstant,
 createStringConstant,
@@ -70,6 +70,7 @@ createReturn,
 createReturnVoid,
 createRetVoid,
 createSExt,
+createZExt,       
 createStore,
 createUIToFP,
 createSIToFP,
@@ -295,4 +296,8 @@ export(sameType)
 export(getLLVMTargets)
 
 export(isStringType)
+
+export(simpleFunction)
+
+export(addCases)
 

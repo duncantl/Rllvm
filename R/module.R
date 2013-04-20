@@ -1,6 +1,6 @@
 
 Module =
-function(id, context = NULL)
+function(id = Sys.time(), context = NULL)
 {
    .Call("R_new_Module", as.character(id), context)
 }

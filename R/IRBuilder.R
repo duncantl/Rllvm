@@ -14,6 +14,9 @@ function(builder, block)
   .Call("R_IRBuilder_SetInsertPoint", builder, block)
 }
 
+
+
+
 binOp =
 function(builder, op, x, y, id = character())
 {
@@ -54,13 +57,13 @@ function(builder, fun, ..., .args = list(...), id = character())
 }    
 
 
-createBr =
+createBr = createBranch =
 function(builder, block)
 {
   .Call("R_IRBuilder_CreateBr", builder, block)
 }
 
-createCondBr =
+createCondBr = createCondBranch =
 function(builder, cond, true, false)
 {
   .Call("R_IRBuilder_CreateCondBr", builder, cond, true, false)
@@ -191,15 +194,18 @@ setMethod("$", "IRBuilder",
                  fun(builder = x, ...)
            })
 
-
 createSExt =
 function(builder, val, type, id = character())
+  createZExt(builder, val, type, id, FALSE)
+
+createZExt =
+function(builder, val, type, id = character(), Z = TRUE)
 {
    if(is(type, "numeric"))
       type =  switch(as.character(type),
                      "32" = Int32Type,
                      "64" = Int64Type)
-   .Call("R_IRBuilder_CreateSExt", builder, val, type, as.character(id))
+   .Call("R_IRBuilder_CreateSExt", builder, val, type, as.character(id), as.logical(Z))
 }
 
 
@@ -254,6 +260,51 @@ function(builder, cond, true, false, id = character())
 {
   .Call("R_IRBuilder_CreateSelect", builder, cond, true, false, as.character(id))
 }
+
+createPtrDiff  =
+function(builder, a, b, id = character())
+{
+  .Call("R_IRBuilder_CreatePtrDiff", builder, a, b, as.character(id))
+}
+
+createSwitch  =
+  #
+  # Should create the block first so that you can connect it to other blocks.
+  # Method to query the destination block?
+  #
+function(builder, value, dest = BasicBlock(as(builder, "Function")), ..., numCases = max(length(cases), 3L), branchWeights = 0L, id = character())
+{
+  cases = list(...)
+  inst = .Call("R_IRBuilder_CreateSwitch", builder, value, dest, as.integer(numCases), as.character(id))
+  if(length(cases))
+     addCases(inst, .cases = cases)
+  
+  inst
+}
+
+addCases =
+function(sw, ..., .cases = list(...), .values = integer(), .ctx = getGlobalContext())
+{
+  if(missing(.values)) {
+    if(length(names(.cases)) > 0)
+       .values = as.integer( names(.cases) )
+    else
+       .values = seq(along = .cases)
+  } else if(is.atomic(.values)) 
+       .values = as.integer(.values)
+
+  if(!is.recursive(.values)) 
+     .values = lapply(.values, function(i) createIntegerConstant(i, .ctx))
+  
+  .Call("R_SwitchInst_addCases", sw, .values, .cases)
+}
+
+
+
+setAs("IRBuilder", "Function",
+       function(from) {
+          getParent(getInsertBlock(from))
+       })
 
 
 getInsertBlock =
@@ -353,3 +404,6 @@ function(builder, type, numReservedVals)
 {
    .Call("R_IRBuilder_CreatePHI", builder, type, as.integer(numReservedVals))
 }
+
+
+

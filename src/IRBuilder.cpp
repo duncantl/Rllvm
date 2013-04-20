@@ -405,7 +405,7 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
 
 extern "C"
 SEXP
-R_IRBuilder_CreateSExt(SEXP r_builder, SEXP r_val, SEXP r_type, SEXP r_id)
+R_IRBuilder_CreateSExt(SEXP r_builder, SEXP r_val, SEXP r_type, SEXP r_id, SEXP r_ZorS)
 {
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
@@ -414,13 +414,14 @@ R_IRBuilder_CreateSExt(SEXP r_builder, SEXP r_val, SEXP r_type, SEXP r_id)
     llvm::Type *type = GET_TYPE(r_type);	
 
     llvm::Value *ans;
-     ans = builder->CreateSExt(val, type);
+    ans = LOGICAL(r_ZorS)[0] ? builder->CreateZExt(val, type) : builder->CreateSExt(val, type);
 
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
     return(R_createRef(ans, "Value"));
 }
+
 
 extern "C"
 SEXP
@@ -706,4 +707,35 @@ R_IRBuilder_CreateInsertElement(SEXP r_builder, SEXP r_vec, SEXP r_elt, SEXP r_i
     llvm::Value *idx = GET_REF(r_idx, Value);
     llvm::Value *ret = builder->CreateInsertElement(val, elt, idx);
     return(R_createRef(ret, "Value"));
+} 
+
+extern "C"
+SEXP
+R_IRBuilder_CreateSwitch(SEXP r_builder, SEXP r_val, SEXP r_dest, SEXP numCases, SEXP r_id)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *val = GET_REF(r_val, Value);
+    llvm::BasicBlock *dest = GET_REF(r_dest, BasicBlock);
+    llvm::SwitchInst *ans = builder->CreateSwitch(val, dest, INTEGER(numCases)[0]);
+
+    return(R_createRef(ans, "SwitchInst"));
+}
+
+
+extern "C"
+SEXP
+R_IRBuilder_CreatePtrDiff(SEXP r_builder, SEXP r_lhs, SEXP r_rhs, SEXP r_id)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *lhs = GET_REF(r_lhs, Value);
+    llvm::Value *rhs = GET_REF(r_rhs, Value);
+
+    llvm::Value *ret = builder->CreatePtrDiff(lhs, rhs); 
+
+    if(Rf_length(r_id)) 
+        ret->setName(makeTwine(r_id));
+   
+    return(R_createRef(ret, "PtrDiff"));
 } 

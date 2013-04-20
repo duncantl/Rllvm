@@ -38,11 +38,20 @@ It only sets it the first time.
 
 <items>
 <item>
+Dynamically retrieve LLVM version information.
+</item>
+
+<item>
 strings &amp; string constants.
 </item>
 
 <item>
 Should m[["notexists"]] for a Module m raise an error or return NULL.
+<br/>
+If we want to have a check if a symbol is in a module, we can use %in%:
+<r:code>
+setMethod("%in%", c("character", "Module"), function(x, table)  x %in% names(table))
+</r:code>
 </item>
 
 <item status="check">
@@ -84,9 +93,6 @@ Compile access to R connections.
 
 <item>
 Example of accessing a struct.
-</item>
-
-<item>
 Example of working with an existing struct type in C
 and compile code to operate on it.
 Issues with ensuring alignment and padding if compiled by another compiler.
@@ -113,9 +119,8 @@ value.
 </item>
 
 <item>
-Function to allow putting a block at the end, i.e. the return block.
-See llvmpy, (tests/JUTTutorial2.py)
-Is this what is actually going on in that example or are we jumping to that block?
+??? See llvmpy, (tests/JUTTutorial2.py)
+Is this what is actually going on in that example or are we jumping to that block????
 </item>
 
 
@@ -166,8 +171,20 @@ Error in getClass("GCC::Node::offset_type") :
 </item>
 
 <item>
+getOperand() method.
+It would be nice to be able to do to the LLVM instructions
+what we can do to R language objects.
+</item>
+
+<item>
 How do we get the names of the elements on a struct Type?
 Do we add this in meta-data?
+</item>
+
+<item>
+set attributes on a function, e.g. unwind , stack protect, UWTable (?)
+ func->setAttributes()  AttrBuilder B b.addAttribute(Attribute::NoUnwind)
+See a .llcpp example.
 </item>
 
 <item>
@@ -175,22 +192,29 @@ Methods for IRBuilder
 <br/>
 See the TU interface generation.
 <br/>
-CreateUnwind, CreateUnreachable
-CreateSelect
+[gone] CreateUnwind, 
+CreateUnreachable
 CreateVAArg
-CreatePtrDiff
-CreateSwitch,
-CreateIndirectBr, CreateAggregateRet, 
+
+
+CreateIndirectBr (indirect branch), 
+CreateAggregateRet (return multiple values), 
+
+
 CreateInvoke,
-CreateNSWAdd, NUWAdd, NSWSub, ...
-CreateInBoundsGEP
-CreateTrunc, CreateZExt, CreateSExt
-CreatePHI
+CreateNSWAdd, NUWAdd, NSWSub, ...   - NSW = No signed wrap, NUW = NoUnsignedWrap.
+CreateTrunc (truncate integer), 
 CreateInboundsGEP  (is this equivalent getGetElementPtr?)
 
+
+[done] CreateZExt (zero extension of integer), CreateSExt (sign extension of integer)
+[Done] CreateSwitch (multiway switch) - addCase,
+[Done] CreatePtrDiff
+[Done] CreatePHI
 [Done] CreateIsNull, CreateIsNotNull
 [Done] CreateExtractElemet
 [Done] CreateInsertElement
+[Done] CreateSelect   - ternary operator
 </item>
 
 <item>

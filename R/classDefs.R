@@ -35,6 +35,9 @@ setClass("LoadInst", contains = "UnaryInstruction")
 
 setClass("StoreInst", contains = "Instruction")
 setClass("GetElementPtrInst", contains = "Instruction")
+setClass("PtrDiff", contains = "Instruction")
+
+setClass("SwitchInst", contains = "Instruction")
 
 
 
