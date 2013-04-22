@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:c="http://www.C.org"
+	 xmlns:omg="http://www.omegahat.org">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+<r:init>
+library(RLLVMCompile)
+</r:init>
+<para>
+
+Consider the task of interfacing <r/> to a library such as libcuda and
+libcudart.  We can do this manually by writing <c/> routines and <r/>
+functions for each routine of interest in the library.  We also have
+to write C and R code to access, create, query and modify the data
+structures, i.e. <c:struct/> types.  Alternatively, we can use a
+dynamic interface such as <r:pkg>rdyncall</r:pkg> and
+<omg:pkg>Rffi</omg:pkg>. This avoids writing wrapper routines.
+Instead, we need to be able describe each of the routines and data
+structures.  With these descriptions, we can access the routines and
+fields.  In this document, we will explore a different approach that
+embraces the dynamic approach, but avoids using
+<r:pkg>rdyncall</r:pkg> or <omg:pkg>Rffi</omg:pkg>.
+Instead, we will use the <omg:func>Rllvm</omg:func> 
+and <omg:pkg>RLLVMCompile</omg:pkg> packages
+to dynamically generate machine code to invoke
+native routines.
+</para>
+<para>
+We'll start with a simple example.
+Suppose there already exists a <c/> routine named
+<c:func>fib</c:func> and it is available via a dynamic library
+(DSO/DSL).
+We can load it into <r/> with, say, 
+<r:code>
+dyn.load("fib.so")
+</r:code>
+and access the <c/> routine as <c:func>fib</c:func>.
+</para>
+<para>
+Now, let's think about an <r/> function that acts as a simple
+proxy for this.
+We'll call this <r:func>fib</r:func>.  We know that the input
+type is an <r:var>Int32Type</r:var>.
+We can write an <r/> function that interfaces to this with
+<r:function eval="false"><![CDATA[
+cat("XXXXXXX\n")
+createProxy = 
+function(name, returnType, types = list())
+{
+  mod = Module(name)
+  
+}
+]]></r:function>
+
+<invisible>
+<r:code>source("createProxy.R")</r:code>
+</invisible>
+</para>
+<para>
+How do we get the descriptions of the native routines?  Of course, we
+can do this by hand, i.e. by reading the header files.  Alternatively,
+we can do this programmatically via a number of facilities.  gccxml is
+a extension to the GNU compiler that provides information about
+routines and data structures.  The <r/> packages
+<omg:pkg>RGCCTranslationUnit</omg:pkg> and
+<omg:pkg>RClangSimple</omg:pkg> provide alternative mechanisms to get
+the information.  Given the description of the routines, we can generate
+the code to invoke it.
+In this way, the <omg:pkg>Rllvm</omg:pkg> package provides a 
+simplification of the <omg:pkg>Rffi</omg:pkg> and <r:pkg>rdyncall</r:pkg>
+mechanism. However, it is much more powerful as it allows us to generate
+code for more general  situations, not just invoking existing routines.
+In other words, we can compile <r/> code and other languages to native code.
+</para>
+<para>
+The approach we use is quite simple, given the facilities in
+the <omg:pkg>Rllvm</omg:pkg> and <omg:pkg>RLLVMCompile</omg:pkg> packages.
+Essentially, we define a simple R function that is a direct proxy for the
+native routine. It has the same parameters and the body merely calls
+the native routine. In this sense, it is a true proxy function. 
+For example, consider the simple <c/> routine declared as
+<c:decl>int fib(int)</c:decl>.
+The <r/> proxy is simply
+<r:function><![CDATA[
+rfib= 
+function(n)
+  fib(n)
+]]></r:function>
+The function <r:func>mkProxyFn</r:func> creates this proxy function for us.
+We can then pass this to <r:func>compileFunction</r:func> to 
+create the machine-level code to invoke the native routine.
+We need to know the return type and the types of the parameters of
+the native routine. Given these, we can make the <llvm/>
+engine aware of this routine.
+Then we can compile our proxy to invoke this.
+</para>
+<para>
+We load the native code into  R with
+<r:code>
+dyn.load("fib.so")
+</r:code>
+Next we can compile the machine code for our proxy
+<r:code>
+fi = createProxy("fib", Int32Type, list(n = Int32Type))
+</r:code>
+We use the same name as the native routine.
+The name of the argument(s) is not important.
+</para>
+<para>
+We can now invoke this function/routine with 
+<r:code>
+.llvm(fi, 10)
+</r:code>
+</para>
+
+</section>
+</article>

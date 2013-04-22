@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<articleinfo>
+
+<title>Compiling for Nvidia GPUs</title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+LLVM has support for generating native code (PTX) for Nvidia GPUs. 
+We specify the code in the same way to LLVM, but it generates
+the native instructions for the different target.
+</para>
+
+
+<para>
+We'll compile the normal density function as our GPU kernel
+This is too simple as it just computes the density for a single
+value that is passed to it. Instead, we want this
+to find value in the "global" memory based on the threadIdx, etc.
+<r:function><![CDATA[
+Dnorm <-
+function(x, mu, sigma)
+{
+   ( 1.0/(sqrt(2 * pi) * sigma)) * exp( - .5 * ((x - mu)/sigma)^2)
+}
+]]></r:function>
+</para>
+
+
+<para>
+<r:code>
+library(Rllvm)
+m = Module("ptx")
+
+.C("R_InitializeNVPTXTarget")
+tri = "nvptx64--"
+setTargetTriple(m, tri)
+getTargetTriple(m)
+</r:code>
+
+<r:code>
+trgt = lookupTarget(tri)
+</r:code>
+<r:code>
+machine = createTargetMachine(trgt, tri, "sm_20")
+</r:code>
+
+<r:code>
+trgtLibInfo = targetLibraryInfo(tri)
+</r:code>
+
+<r:code>
+dataLayout = getDataLayout(machine)
+</r:code>
+
+Now create a pass manager object and add the data layout to it.
+<r:code>
+pm = passManager(m)
+addPass(pm, dataLayout)
+</r:code>
+
+</para>
+<para>
+<r:code>
+library(RLLVMCompile)
+compileFunction(Dnorm, DoubleType, replicate(3, DoubleType), module = m, optimize = FALSE)
+</r:code>
+
+</para>
+
+
+
+<para>
+The target library info is an object that contains many fundamental routines
+for run-time, e.g. exp, cosf, atan, alloc and delete.
+</para>
+
+
+</section>
+</article>
