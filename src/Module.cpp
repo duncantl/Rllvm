@@ -202,6 +202,16 @@ R_Module_getDataLayout(SEXP r_module)
 
 extern "C"
 SEXP
+R_Module_setDataLayout(SEXP r_module, SEXP r_layout)
+{
+    llvm::Module *mod = GET_REF(r_module, Module);
+    std::string layout(CHAR(STRING_ELT(r_layout, 0)));
+    mod->setDataLayout(layout);
+    return(ScalarLogical(TRUE));
+}
+
+extern "C"
+SEXP
 R_Module_getTargetTriple(SEXP r_module)
 {
     llvm::Module *mod = GET_REF(r_module, Module);
@@ -423,4 +433,19 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
          ERROR;
     }
     return(R_createRef(ans, "Module"));    
+}
+
+
+
+#include <llvm/ADT/Triple.h>
+
+extern "C"
+SEXP
+R_Module_setTargetTriple(SEXP r_mod, SEXP r_triple)
+{
+    llvm::Module *mod = GET_REF(r_mod, Module);     
+    llvm::LLVMContext &ctx = mod->getContext();
+
+    mod->setTargetTriple(llvm::Triple::normalize(CHAR(STRING_ELT(r_triple, 0))));
+    return(ScalarLogical(TRUE));
 }

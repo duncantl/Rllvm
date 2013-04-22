@@ -1,4 +1,9 @@
 explorations/sample.csv
 src/Makevars
+*.ll
+*.bc
+*.llcpp
+a.out.dSYM
+
 
 

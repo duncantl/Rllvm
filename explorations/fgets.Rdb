@@ -110,10 +110,16 @@ function(file, n)
 ]]></r:function>
 <q>Can we get away without creating tmp outside of the loop.</q>
 
-<r:code eval="false">
+<r:code>
 rr = compileFunction(readTo, stringType, list(FILEType, Int32Type), mod, name = "readTo")
 </r:code>
 
+
+<r:code eval="false">
+library(RCurl)
+ff = CFILE("NAMESPACE")
+.llvm(mod[["readTo"]], ff@ref,  5)
+</r:code>
 
 </section>
 </article>

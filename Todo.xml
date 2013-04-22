@@ -6,7 +6,40 @@
 <title>Things To Note</title>
 <items>
 <item>
+R print method for Function to show the signature. 
+Possibly for Module also, e.g. to show the names of the elements, perhaps their type.
+</item>
+
+<item>
+get attributes for a Function object. 
+How do we work with the AttrListPtr.
+</item>
+
+<item>
+Allow Adding passes to the pass manager - e.g. the AlwaysInlinerPass.
+addPass() function exists.
+Constructors for different passes.
+</item>
+
+<item>
 InitializeNVPTXTarget() and generating code for PTX.
+
+See https://github.com/halide/Halide/blob/master/src/cllutil.c
+
+<ol>
+<li>initialize the NVPTXTarget.</li>
+<li>set the triple on the module</li>
+<li>lookupTarget(triple)</li>
+<li>create and fill in a TargetOptions struct</li>
+<li>create the TargetMachine object (TheTarget->createTargetMachine())</li>
+<li>create, fill in and then run pass manager. Set targetLibraryInfo in the PassManager,
+along with other information from the machine and module</li>
+</ol>
+
+How do we get the code back from LLVM so that we can pass it to CUDA?
+How do we run the code on the GPU?
+Can we use cuModuleLoadData?
+Can we get the address of the function from the execution engine?
 </item>
 
 <item>
@@ -34,11 +67,15 @@ It only sets it the first time.
 </items>
 </topic>
 <topic>
-
-
+<title>Main</title>
 <items>
+
 <item>
-Dynamically retrieve LLVM version information.
+shutdown LLVM.
+</item>
+
+<item status="done">
+Dynamically retrieve LLVM version information. See <r:func>llvmVersion</r:func>
 </item>
 
 <item>
@@ -113,7 +150,7 @@ varargs
 Metadata
 </item>
 
-<item>
+<item status="done">
 getTypeID should return the name of the type, not just the enum
 value.
 </item>
@@ -182,6 +219,13 @@ Do we add this in meta-data?
 </item>
 
 <item>
+{g,s}etCallingConv(), hasUWTable(), doesnNotThrow()/setDoesNotThrow(), getEntryBlock(), getBasicBlockList().
+</item>
+<item>
+C routine to get Context from a Function to avoid going to the Module.
+</item>
+
+<item status="done">
 set attributes on a function, e.g. unwind , stack protect, UWTable (?)
  func->setAttributes()  AttrBuilder B b.addAttribute(Attribute::NoUnwind)
 See a .llcpp example.
@@ -200,11 +244,14 @@ CreateVAArg
 CreateIndirectBr (indirect branch), 
 CreateAggregateRet (return multiple values), 
 
-
-CreateInvoke,
 CreateNSWAdd, NUWAdd, NSWSub, ...   - NSW = No signed wrap, NUW = NoUnsignedWrap.
-CreateTrunc (truncate integer), 
+CreateTrunc (truncate integer),   - [Done] perhaps a general function for CreateCast(). Is the first argument an enum or an object.
 CreateInboundsGEP  (is this equivalent getGetElementPtr?)
+
+All of the SExtOrOther, etc. methods.
+
+
+[Test] CreateInvoke - allows continuation to branch based on how the called function returns - normal or resume.
 
 
 [done] CreateZExt (zero extension of integer), CreateSExt (sign extension of integer)
@@ -230,11 +277,20 @@ How do we specify that sort of type?
 
 <item>
 Make certain that errors don't abort R.
+Is this just compiling w/o assertions.
+We should also check all constraints in R or C++ code before
+calling the C++ methods.
+</item>
+
+<item>
+Add checks on the call stack (like R's interpreter) and segfaults 
+and ensure  recovery. 
+We can do this with inbound array checks, but there are other sources.
 </item>
 
 
 
-<item>
+<item status="checkDone">
 create a GEP with inbounds.
 <br/>
 Need to specify the indices in the constructor.
@@ -372,6 +428,15 @@ When the routine's  return type is VoidType, make certain
 we get a terminator.
 <br/>
 See fgets.Rdb and change the return type to VoidType
+</item>
+
+<item status="done">
+Where is the default value of mod coming from? .RData
+</item>
+
+<item status="done">
+When passed an argument that is supposed to be a pointer,
+if it is not an externalptr, but isS4, look for a @ref slot.
 </item>
 
 </items>

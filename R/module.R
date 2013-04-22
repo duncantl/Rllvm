@@ -22,7 +22,9 @@ setGeneric("Optimize",
                 standardGeneric("Optimize"))
 
 setMethod("Optimize",   "Module",
-          function(obj, execEngine = NULL, ...) {
+          function(obj, execEngine = NULL, ...)
+          {
+               # should we run optimize on the module. Could it do better in the larger context.
             fun = getModuleFunctions(obj)
             mgr = getPassManager(obj, execEngine)
             lapply(fun, Optimize, mgr)
@@ -35,12 +37,6 @@ setMethod("Optimize",
               .Call("R_optimizeFunction", obj, passManager)
             })
 
-
-getPassManager =
-function(module, execEngine = ExecutionEngine(module), level = 3L)
-{
-  .Call("R_getPassManager", module, execEngine, as.integer(level))
-}
 
 
 setClass("ModuleDisplay", contains = "character")
@@ -55,6 +51,8 @@ function(mod, asString = FALSE)
   ans = .Call("R_showModule", mod, as.logical(asString))
   if(asString)
     new("ModuleDisplay", ans)
+  else
+    invisible(ans)
 }
 
 getModuleFunctions =
@@ -214,3 +212,26 @@ function(module, to = character())
   else
     ans
 }
+
+
+
+getTriple = getTargetTriple =
+function(m)
+{
+   .Call("R_Module_getTargetTriple", m)
+}
+
+setTriple = setTargetTriple =
+function(m, str)
+{
+   .Call("R_Module_setTargetTriple", m, as.character(str))
+}   
+
+
+setMethod("getDataLayout", "Module",
+           function(from, ...)
+             .Call("R_Module_getDataLayout", from))
+
+
+          
+  

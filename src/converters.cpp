@@ -150,6 +150,14 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
            ok = true;
        }
 
+       /* See if this is an S4 object with a "ref" slot that is an external pointer */
+       SEXP refRVal = NULL;
+       if(ok == false && IS_S4_OBJECT(rval) && (refRVal = GET_SLOT(rval, Rf_install("ref"))) 
+               && refRVal != R_NilValue && TYPEOF(refRVal) == EXTPTRSXP) {
+           rv->PointerVal = R_ExternalPtrAddr(refRVal);
+           ok = true;
+       }
+
  
 	if(ok == false) {
            PROBLEM "no method to convert R object to %d", ty

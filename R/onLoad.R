@@ -16,8 +16,6 @@ function(...)
          paste(names(types), "Type", sep = ""),
          types, 
          MoreArgs = list(ns = e))
-
-#  utils::assignInNamespace("stringType", pointerType(getIntegerType(8L)), ns = e)
   
   if(getOption("Rllvm.autoInitialize", TRUE))
     InitializeNativeTarget()

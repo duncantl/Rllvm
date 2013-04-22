@@ -29,3 +29,14 @@ abort()
  ERROR;
 }
 #endif
+
+
+#if 0
+#include <Support/ManagedStatic.h>
+extern "C"
+void
+R_llvm_shutdown()
+{
+    llvm::llvm_shutdown();
+}
+#endif

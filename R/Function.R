@@ -1,7 +1,7 @@
 #
 
 Routine <- Function <-
-function(name, retType, paramTypes = list(),  module)
+function(name, retType, paramTypes = list(),  module, ...)
 {
 
   fun = .Call("R_createFunction", module, as.character(name), retType, paramTypes)
@@ -9,6 +9,10 @@ function(name, retType, paramTypes = list(),  module)
   if(length(names(paramTypes)))
      names(fun) = names(paramTypes)
 
+  attrs = list(...)
+  
+  if(length(attrs))
+     setFuncAttributes(fun, .attrs = attrs)
   fun
 }
 
@@ -125,3 +129,42 @@ setMethod("getCalledFunction", "CallInst",
 setAs("Function", "function",
        function(from)
          makeRFunction(from))
+
+
+getFuncAttributes =
+function(func)
+{
+   .Call("R_Function_getAttributes", func)
+}
+
+  
+setFuncAttributes =
+function(func, ..., .attrs = list(...))
+{
+   vals = matchFuncAttributes(unlist(.attrs))
+   .Call("R_Function_setAttributes", func, vals)
+}
+
+FuncAttributes =
+structure(1:27, .Names = c("AddressSafety", "Alignment", "AlwaysInline",
+                  "ByVal", "InlineHint", "InReg", "MinSize", "Naked", "Nest", "NoAlias",
+                  "NoCapture", "NoImplicitFloat", "NoInline", "NonLazyBind", "NoRedZone",
+                  "NoReturn", "NoUnwind", "OptimizeForSize", "ReadNone", "ReadOnly",
+                  "ReturnsTwice", "SExt", "StackAlignment", "StackProtect", "StackProtectReq",
+                  "StructRet", "UWTable"))
+matchFuncAttributes =
+function(vals)
+{
+   if(is(vals, "numeric"))
+      i = match(vals, FuncAttributes)
+   else
+      i = match(as.character(vals), names(FuncAttributes))
+
+   if(any(is.na(i)))
+     stop("invalid function attributes")
+
+   FuncAttributes[i]
+}
+
+
+

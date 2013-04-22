@@ -301,3 +301,18 @@ export(simpleFunction)
 
 export(addCases)
 
+export(createCast)
+export(setFuncAttributes, getFuncAttributes)
+
+
+export(getTargetTriple, setTargetTriple)
+export(createTargetMachine, targetLibraryInfo, lookupTarget)
+
+export(getDataLayout, setDataLayout)
+
+export(addPass)
+export(passManager)
+
+export(llvmVersion)
+
+

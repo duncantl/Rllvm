@@ -407,3 +407,19 @@ function(builder, type, numReservedVals)
 
 
 
+
+
+CastOps = structure(33:44, .Names = c("Trunc", "ZExt", "SExt", "FPToUI",
+                    "FPToSI", "UIToFP", "SIToFP", "FPTrunc", "FPExt", "PtrToInt",
+                    "IntToPtr", "BitCast"))
+createCast =
+function(builder, op, from, to, id = character())
+{
+   if(is(op, "character"))
+     op = match(op, names(CastOps))
+      
+   if(is(op, "numeric"))
+      stopifnot(is.na(op) || op %in% CastOps)
+  
+  .Call("R_IRBuilder_CreateCast", builder, as.integer(op), from, to, as.character(id))
+}

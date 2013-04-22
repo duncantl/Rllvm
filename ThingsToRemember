@@ -4,3 +4,15 @@ before createReturn()
 
 Blocks can be created in any order. The branches control how
 they are traversed at run-time.
+
+
+
+Run-Time:
+
+When passing a pointer to a compiled routine, we pass an externalptr
+object. Sometimes we store this in an S4 object. If we use the convention
+that the slot used to hold this pointer is named "ref", the Rllvm
+code will try to access that. This avoids having to explicitly 
+pass x@ref, but instead just x.
+If the S4 class extends RC++Reference, the ref slot is immediately available
+and all will work.

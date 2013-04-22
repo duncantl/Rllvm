@@ -11,6 +11,11 @@ sort(table(gsub("<.*", "", llClasses)))
 
 
 enums = getEnumerations(tu)
+simpleEnums = grep("(^_|<|\\$)", names(enums), value = TRUE, invert = TRUE)
+
+typeIds = resolveType(enums[[ "Type::TypeID" ]], tu)
+dput(typeIds@values)
+
 
 enums[["Instruction::BinaryOps"]]
 e = resolveType(enums[["Instruction::BinaryOps"]], tu)

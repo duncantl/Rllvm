@@ -27,3 +27,29 @@ function(target, what = c("Target", "TargetInfo", "AsmPrinter", "Disassembler"))
 }
 
 
+
+targetLibraryInfo =
+function(triple)
+{
+  .Call("R_TargetLibraryInfo_new", as.character(triple))
+}
+
+
+createTargetMachine =
+function(target, triple, cpu, features = "", options = list())
+{
+  .Call("R_Target_createTargetMachine", target, as.character(triple), as.character(cpu), as.character(features), options)
+}
+
+lookupTarget =
+function(triple)
+{
+  .Call("R_TargetRegistry_lookupTarget", as.character(triple))
+}
+
+
+
+
+setMethod("getDataLayout", "TargetMachine",
+           function(from, ...)
+             .Call("R_TargetMachine_getDataLayout", from))

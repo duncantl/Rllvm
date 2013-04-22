@@ -51,5 +51,10 @@ echo ""
 echo "*** llvm-config ${LLVM_CONFIG}"
 echo ""
 
+if test -r R/targets.R ; then
+ chmod  +w R/targets.R
+fi
+
 AC_OUTPUT(src/Makevars)
 AC_OUTPUT(R/targets.R)
+chmod  -w R/targets.R

@@ -140,3 +140,38 @@ R_Function_getReturnType(SEXP r_func)
     llvm::Function *func = GET_REF(r_func, Function);
     return(R_createRef(func->getReturnType(), "Type"));
 }
+
+
+extern "C"
+SEXP
+R_Function_setAttributes(SEXP r_func, SEXP r_vals)
+{
+     llvm::Function *func = GET_REF(r_func, Function);
+     for(int i = 0; i < Rf_length(r_vals); i++) {
+         func->addFnAttr((llvm::Attributes::AttrVal)  INTEGER(r_vals)[i]);
+     }
+     return(ScalarLogical(TRUE));
+
+}
+
+#if 0
+extern "C"
+SEXP
+R_Function_getAttributes(SEXP r_func)
+{
+     llvm::Function *func = GET_REF(r_func, Function);
+     const llvm::AttrListPtr attrs = func->getAttributes();
+     unsigned n = attrs.getNumSlots();
+     SEXP ans = NEW_CHARACTER(n); //ScalarInteger(n);  // NEW_INTEGER(n);
+     PROTECT(ans);
+#if 0
+     for(int i = 0; i < n; i++) {
+//         INTEGER(ans)[i] = (int) attrs.getAttributesAtIndex(i);
+         std::string str = att
+         SET_STRING_ELT(ans, i, 
+     }
+#endif
+     UNPROTECT(1);
+     return(ans);
+}
+#endif

@@ -21,6 +21,10 @@ entry:
 m = parseAssembly(tt, asText = TRUE)
 showModule(m)
 
+names(m)
+.llvm(m[["test_func"]], 2, 3, 7) # 14 = 2 * 3 + 7 + 1
+
+
 #
 # read into an existing module
 

@@ -28,15 +28,15 @@ R_InitializeNativeTarget()
 
 
 
-#if 0
+#if 1
 extern "C"
 void
 R_InitializeNVPTXTarget()
 {
-    llvm::InitializeNVPTXTarget();
-    llvm::InitializeNVPTXTargetInfo();
-    llvm::InitializeNVPTXTargetMC();
-    llvm::InitializeNVPTXAsmPrinter();
+    LLVMInitializeNVPTXTarget();
+    LLVMInitializeNVPTXTargetInfo();
+    LLVMInitializeNVPTXTargetMC();
+    LLVMInitializeNVPTXAsmPrinter();
 }
 #endif
 

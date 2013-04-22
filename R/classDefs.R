@@ -9,7 +9,9 @@ setClass("ExecutionEngine", contains = "RC++Reference")
 setClass("Value", contains = "RC++Reference")
 setClass("BasicBlock", contains = "Value")
 
-setClass("FunctionPassManager", contains = "RC++Reference")
+setClass("PassManagerBase", contains = "RC++Reference")
+setClass("FunctionPassManager", contains = "PassManagerBase")
+setClass("PassManager", contains = "PassManagerBase")
 
 # if llvm 3.1, otherwise Instruction extends RC++Reference
 # setClass("Instruction", contains = "RC++Reference")
@@ -20,6 +22,7 @@ setClass("UnaryInstruction", contains = "RC++Reference")
 setClass("TerminatorInst", contains = "Instruction")
 setClass("ReturnInst", contains = "TerminatorInst")
 setClass("CallInst", contains = "Instruction")
+setClass("InvokeInst", contains = "Instruction")
 setClass("CastInst", contains = "UnaryInstruction")
 setClass("SExtInst", contains = "CastInst")
 
@@ -86,3 +89,19 @@ setGeneric("clone", function(x, ...) standardGeneric("clone"))
 setAs("Module", "ExecutionEngine", 
        function(from)
           ExecutionEngine(from))
+
+
+setClass("Target", contains = "RC++Reference")
+setClass("TargetMachine", contains = "RC++Reference")
+setClass("TargetLibraryInfo", contains = "RC++Reference")
+
+
+setClass("Pass", contains = "RC++Reference")
+setClass("ImmutablePass", contains = "Pass")
+setClass("DataLayout", contains = "ImmutablePass") 
+
+setGeneric("getDataLayout", function(from, ...) standardGeneric("getDataLayout"))
+setGeneric("setDataLayout", function(from, ...) standardGeneric("setDataLayout"))
+
+
+

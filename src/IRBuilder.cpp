@@ -739,3 +739,46 @@ R_IRBuilder_CreatePtrDiff(SEXP r_builder, SEXP r_lhs, SEXP r_rhs, SEXP r_id)
    
     return(R_createRef(ret, "PtrDiff"));
 } 
+
+extern "C"
+SEXP
+R_IRBuilder_CreateCast(SEXP r_builder, SEXP r_op, SEXP r_lhs, SEXP r_type, SEXP r_id)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *lhs = GET_REF(r_lhs, Value);
+    llvm::Type *rhs = GET_REF(r_type, Type);
+    llvm::Value *ret = builder->CreateCast((llvm::Instruction::CastOps) INTEGER(r_op)[0], lhs, rhs);
+
+    if(Rf_length(r_id)) 
+        ret->setName(makeTwine(r_id));
+   
+    return(R_createRef(ret, "Value"));
+}
+
+
+
+
+extern "C"
+SEXP
+R_IRBuilder_CreateInvoke(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_normal, SEXP r_unwind, SEXP r_id)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::BasicBlock *normal = GET_REF(r_normal, BasicBlock);
+    llvm::BasicBlock *unwind = GET_REF(r_unwind, BasicBlock);
+    llvm::Value *callee = GET_REF(r_fun, Value);
+
+    int nargs = Rf_length(r_args);
+    llvm::CallInst *ans;
+    std::vector<llvm::Value *> args; // does this disappear and we lose the elements?
+    for(int i = 0; i < nargs; i++)
+        args.push_back(GET_REF(VECTOR_ELT(r_args, i), Value));
+
+    builder->CreateInvoke(callee, normal, unwind, args);
+
+    if(Rf_length(r_id))
+        ans->setName(makeTwine(r_id));
+
+    return(R_createRef(ans, "InvokeInst"));
+}

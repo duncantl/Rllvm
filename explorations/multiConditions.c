@@ -10,3 +10,12 @@ foo(int x, int y)
     else
 	return(7);
 }
+
+int
+bar(int x)
+{
+    if(x > 4 && x < 10)
+	x = 3;
+
+    return(x);
+}
