@@ -1,13 +1,13 @@
-library(RLLVMCompile)
 createProxy =
-  # dyn.load("fib.so")
+  # dyn.load("explorations/fib.so")
   # fi = createProxy("fib", Int32Type, list(n = Int32Type))
   #
   # createProxy("foo", Int32Type, list(x = Int32Type, y = DoubleType))
-function(name, returnType, types = list(), mod = Module(name), ee = ExecutionEngine(mod),
+function(name, returnType, types = list(),
+         id = sprintf("r%s", name),
+          mod = Module(name), ee = ExecutionEngine(mod),
           env = globalenv(), sym = getNativeSymbolInfo(name)$address, ...)
 {
-  id = sprintf("r%s", name)
   if(length(types) > 0) {
     if(length(names(types)) == 0)
        names(types) = letters[seq(along = types)]

@@ -2,7 +2,8 @@
 <article xmlns:r="http://www.r-project.org"
          xmlns:xi="http://www.w3.org/2003/XInclude"
 	 xmlns:c="http://www.C.org"
-	 xmlns:omg="http://www.omegahat.org">
+	 xmlns:omg="http://www.omegahat.org"
+	 xmlns:sh="http://www.shell.org">
 
 <articleinfo>
 
@@ -77,7 +78,7 @@ we can do this programmatically via a number of facilities.  gccxml is
 a extension to the GNU compiler that provides information about
 routines and data structures.  The <r/> packages
 <omg:pkg>RGCCTranslationUnit</omg:pkg> and
-<omg:pkg>RClangSimple</omg:pkg> provide alternative mechanisms to get
+<omg:pkg>RCIndex</omg:pkg> provide alternative mechanisms to get
 the information.  Given the description of the routines, we can generate
 the code to invoke it.
 In this way, the <omg:pkg>Rllvm</omg:pkg> package provides a 
@@ -125,6 +126,239 @@ We can now invoke this function/routine with
 <r:code>
 .llvm(fi, 10)
 </r:code>
+</para>
+</section>
+<section>
+<title>Programmatically Obtaining the Type Information</title>
+
+<para>
+We have show how we can create the proxy routine
+using the type information.
+The next step is to automate obtaining this type information.
+We have several possible mechanisms.
+We can use gcc-xml to dump information about C code into XML.
+This is the approach <r:pkg>rdyncall</r:pkg> uses and provides.
+I have two other approaches - <omg:pkg>RGCCTranslationUnit</omg:pkg>
+and <omg:pkg>RCIndex</omg:pkg>.
+</para>
+
+<para>
+To use <omg:pkg>RGCCTranslationUnit</omg:pkg>,
+we have to compile our <c/> code to create a tu file.
+We can do this with
+<sh:code>
+gcc -fdump-translation-unit -c fib.c -o /dev/null
+</sh:code>
+This creates <file>fib.c.001t.tu</file>.
+We can then read this in <r/>
+<r:code>
+library(RGCCTranslationUnit)
+tu = parseTU("fib.c.001t.tu")
+</r:code>
+<r:code>
+r = getRoutines(tu)
+rr = resolveType(r, tu)
+</r:code>
+<r:var>rr</r:var> is a list with just one element:
+<r:code>
+rr
+<r:output><![CDATA[
+$fib
+[1] " int     fib (  int n  )"
+
+attr(,"class")
+[1] "ResolvedRoutineList"
+]]></r:output>
+</r:code>
+</para>
+<para>
+This element contains information about the routine.
+It is displayed here as a string, but in fact, is
+much richer:
+<r:code>
+names(rr$fib)
+<r:output><![CDATA[
+[1] "parameters" "INDEX"      "name"       "node"       "returnType"
+[6] "pure"       "virtual"   
+]]></r:output>
+</r:code>
+Importantly, we have the return type and the parameters
+and their types, e.g.
+<r:code>
+rr$fib$returnType
+<r:output><![CDATA[
+An object of class "intType"
+Slot "name":
+[1] "int"
+
+Slot "alias":
+character(0)
+
+Slot "qualifiers":
+character(0)
+
+Slot "scope":
+NULL
+]]></r:output>
+</r:code>
+This is a simple integer type (as we expected from the <c/> code).
+This corresponds to <r:var>Int32Type</r:var> in <omg:pkg>Rllvm</omg:pkg>.
+(See types.cc in <dir>examples</dir> in the <omg:pkg>RGCCTranslationUnit</omg:pkg> package for others.)
+</para>
+<para>
+We can define a function that maps a type description from the 
+<omg:pkg>RGCCTranslationUnit</omg:pkg> package to an llvm type.
+The basics of this are very simple, but there are lot of details to deal
+with all the different sub-types.
+<r:function><![CDATA[
+library(Rllvm)
+tuLLVMType =
+function(type)
+{
+  if(is(type, "ArrayType"))
+     return(arrayType(tuLLVMType(type@type), type@length))
+  else if(is(type, "PointerType"))
+     return(pointerType(tuLLVMType(type@type)))
+
+  switch(class(type),
+         intType = Int32Type,
+         doubleType = DoubleType,
+         shortUnsignedIntType = ,
+         shortIntType = Int16Type,
+         boolType = Int1Type,
+         longUnsignedIntType = ,
+         longIntType = Int32Type,
+         charType = Int8Type
+        )
+}
+]]></r:function>
+This doesn't deal with extended/qualified types <c:type>long double</c:type>
+but could be easily modified to do so.
+</para>
+
+
+<para>
+We can then use this to get the types for the <c:func>fib</c:func> routine
+and create our proxy function with
+<r:code>
+fun = createProxy("fib", tuLLVMType(rr$fib$returnType),
+                   lapply(rr$fib$parameters, function(x) tuLLVMType(x$type)))
+</r:code>
+This is the same as we obtained above where we explicitly specified the types.
+We can invoke the routine with 
+<r:code>
+.llvm(fun, 20)
+</r:code>
+</para>
+
+
+<ignore>
+<para>
+See types.cc and types.R in RGCCTranslationUnit/examples/
+<r:code eval="false">
+sapply(rgvars, function(x) tuLLVMType(x@type))
+</r:code>
+</para>
+</ignore>
+
+
+</section>
+<section>
+<title>Using <omg:pkg>RCIndex</omg:pkg></title>
+
+<para>
+We'll now see how we can do the same thing with 
+<omg:pkg>RCIndex</omg:pkg>.
+We can start by obtaining the translation unit.
+We could read it and traverse it in different ways.
+However, we only want the descriptions of the routines, so we can 
+use
+<r:code>
+library(RCIndex)
+funs = getFunctions("fib.c")
+</r:code>
+We can specify flags for the compiler via the <r:arg>args</r:arg> parameter of <r:func>parseTU</r:func>.
+</para>
+<para>
+This is slightly simpler using <omg:pkg>RCIndex</omg:pkg>
+as we can do it entirely in <r/>.
+However, we did have to install the clang libraries.
+</para>
+<note>
+<para>
+If we want to read the 
+<r:code>
+tu = parseTU("fib.c")
+</r:code>
+Then we can use <r:func>visitTU</r:func> to traverse the nodes.
+</para>
+</note>
+
+<para>
+<r:var>funs</r:var> is a <r:list/> and we can see the names of the functions
+with 
+<r:code>
+names(funs)
+<r:output><![CDATA[
+[1] "fib"
+]]></r:output>
+f = funs$fib
+</r:code>
+This element is a <r:class>FunctionDecl</r:class> object.
+This is currently an <s3/> class which is  list
+with elements for the return type, parameters and the function definition
+node.  These are all <r:class>CXCursor</r:class> objects. 
+</para>
+<para>
+We can find the nature of the return type with
+<r:code>
+getTypeKind(f$returnType)
+<r:output><![CDATA[
+Int 
+ 17 
+]]></r:output>
+</r:code>
+This is an enumerated type, with the name of the element giving us some
+indication.
+We can compare it the built-in values which are prefixed by <r:var>CXType_</r:var>,
+e.g. <r:var>CXType_Int</r:var>.
+</para>
+<para>
+We can also as many questions of the type, e.g. is it a constant, its size, etc.
+For example,
+<r:code>
+getSizeOf(f$returnType)
+</r:code>
+yields 4.
+</para>
+
+<para>
+We can also query the function's parameters:
+<r:code>
+sapply(f$params, getTypeKind)
+</r:code>
+</para>
+
+<para>
+We can now write our function that maps a CLang/<omg:pkg>RCIndex</omg:pkg> type 
+to the corresponding LLVM type.
+<r:function><![CDATA[
+clang2LLVMType = 
+function(type, kind = getTypeKind(type))
+{
+#    if(kind == CXType_Array
+    switch(names(kind),
+           Int = Int32Type,
+           Double = DoubleType,
+           shortUnsignedIntType = ,
+           shortIntType = Int16Type,
+           Bool = Int1Type,
+           ULong = ,
+           Long = Int32Type,
+           SChar = Int8Type
+          )
+}
+]]></r:function>
 </para>
 
 </section>

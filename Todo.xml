@@ -5,6 +5,13 @@
 <topic>
 <title>Things To Note</title>
 <items>
+
+<item>
+Add a finalizer routine to a Module and when we garbage collect it, 
+then we can call it.
+This can release global variables in the module, e.g. regular expressions.
+</item>
+
 <item>
 R print method for Function to show the signature. 
 Possibly for Module also, e.g. to show the names of the elements, perhaps their type.

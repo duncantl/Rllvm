@@ -18,3 +18,5 @@ stress.ll:
 
 
 
+%.tu: %.c
+	gcc $(CFLAGS) -fdump-translation-unit -c -o /dev/null $<
