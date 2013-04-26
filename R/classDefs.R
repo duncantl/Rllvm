@@ -62,6 +62,7 @@ setClass("INTSXPType", contains = "SEXPType")
 setClass("REALSXPType", contains = "SEXPType")
 setClass("STRSXPType", contains = "SEXPType")
 setClass("VECSXPType", contains = "SEXPType")
+setClass("CHARSXPType", contains = "SEXPType")
 
 
 

@@ -316,3 +316,4 @@ export(passManager)
 export(llvmVersion)
 
 
+export(getSEXPType)

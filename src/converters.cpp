@@ -7,13 +7,18 @@ typedef struct {
   const llvm::Type *type;
 } RLLVMType; 
 
-static RLLVMType  rLLVMTypes[5];
+static RLLVMType  rLLVMTypes[7]; // this has to match the number of elements in ../R/sexpTypes.R
 
 extern "C"
 SEXP
 R_setRLLVMTypes(SEXP r_type_ptrs, SEXP r_ids)
 {
   int i;
+  if(Rf_length(r_type_ptrs) != sizeof(rLLVMTypes)/sizeof(rLLVMTypes[0])) {
+      PROBLEM "error in the number of the C and R types for referring to SEXP types"
+          ERROR;
+  }
+
   for(i = 0; i < sizeof(rLLVMTypes)/sizeof(rLLVMTypes[0]); i++) {
      rLLVMTypes[i].sexpType = INTEGER(r_ids)[i];
      rLLVMTypes[i].type = (llvm::Type *) R_ExternalPtrAddr(VECTOR_ELT(r_type_ptrs, i));

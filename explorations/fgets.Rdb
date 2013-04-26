@@ -84,7 +84,7 @@ the pointer to <r:var>.str</r:var> via a <r:func>getGetElementPtr</r:func> call.
 <r:code eval="false" id="test">
 llvmAddSymbol(fgets = getNativeSymbolInfo("fgets")$address)
 library(RCurl)
-f = CFILE("DESCRIPTION", "r")
+f = CFILE("../DESCRIPTION", "r")
 .llvm(fun, f@ref)
 replicate(5, .llvm(fun, f@ref))
 </r:code>
@@ -95,7 +95,7 @@ replicate(5, .llvm(fun, f@ref))
 <title></title>
 <r:function><![CDATA[
 readTo =
-function(file, n)
+function(n, file)
 {
   ctr = 0L
   tmp = "" # character() # ""
@@ -111,15 +111,268 @@ function(file, n)
 <q>Can we get away without creating tmp outside of the loop.</q>
 
 <r:code>
-rr = compileFunction(readTo, stringType, list(FILEType, Int32Type), mod, name = "readTo")
+rr = compileFunction(readTo, stringType, list(Int32Type, FILEType), mod, name = "readTo")
 </r:code>
 
 
 <r:code eval="false">
 library(RCurl)
-ff = CFILE("NAMESPACE")
-.llvm(mod[["readTo"]], ff@ref,  5)
+ff = CFILE("../NAMESPACE")
+.llvm(mod[["readTo"]], 5, ff@ref)
+</r:code>
+</section>
+
+<section>
+<title></title>
+
+<para>
+The next step is to be able to call the 
+compiled readTo routine in a loop.
+We have an integer vector giving the line numbers we want to read.
+We'll make this easy and compute the differences in <r/>, i.e.
+the number of lines to read to the next line we actually want.
+We can then pass this directly to <r:func>readTo</r:func>.
+So we want an <r/> function  something like
+<r:function eval="false">
+function(lineSkip, file)
+{
+   ans = character()
+   for(i in lineSkip)
+      ans = c(ans, readTo(i, file))
+   ans
+}
+</r:function>
+This doesn't use pre-allocation. So we want 
+<r:function eval="false">
+function(lineSkip, file)
+{
+   ans = character(length(lineSkip))
+   for(i in seq(along = lineSkip))
+      ans[i] = readTo(lineSkip[i], file)
+   ans
+}
+</r:function>
+This is  a little verbose and awkward.
+We really  want to do this so that we can use the loop counter to 
+index and avoid the <r:expr eval="false">seq(along = lineSkip)</r:expr>. 
+We would like
+<r:code eval="false">
+  for(i in lineSkip)
+     ans[i] = readTo(i, file)
+</r:code>
+However, this is ambiguous. Instead, we could introduce a DSL-specific .i
+or .loopCounter variable, e.g.
+<r:code eval="false">
+  for(i in lineSkip)
+     ans[.loopCounter] = readTo(i, file)
+</r:code>
+However, this means this code is no longer <r/>
+code and won't work.
+(We could implement a version of <r:keyword>for</r:keyword> which 
+implements this.)
+</para>
+<para>
+A much better <r/> approach however  is
+<r:function eval="false">
+readSelectedLines =
+function(lineSkip, file)
+{
+  sapply(lineSkip, readTo, file)
+}
+</r:function>
+This is clearer and more brief.
+</para>
+<para>
+We could also use
+<r:function eval="false"><![CDATA[
+function(lineSkip, file)
+{
+   Map(readTo, lineSkip, MoreArgs = list(file))
+}
+]]></r:function>
+
+</para>
+
+
+<para>
+We can rewrite <r:func>readSelectedLines</r:func>
+to use the compiled version of <r:func>readTo</r:func>
+<r:function>
+readSelectedLines =
+function(lineSkip, file, .ee)
+{
+  f = function(i, file) .llvm(rr, i, file, .ee = .ee)
+  sapply(lineSkip, f, file)
+}
+</r:function>
+</para>
+<para>
+We can run  this in <r/> with
+<r:code>
+library(RCurl)
+ff = CFILE("../NAMESPACE")
+ee = ExecutionEngine(mod)
+readSelectedLines(c(3, 10, 10), ff, ee)
+</r:code>
+</para>
+
+<para>
+This  is faster than calling the version of:
+<r:code>
+targetFile = "sample.csv"
+N = 1000
+whichLines = diff(c(0, sort(sample(1e8, N))))
+</r:code>
+<r:code>
+ff = CFILE(targetFile)
+tm = system.time(readSelectedLines(whichLines, ff, ee))
+tm
+</r:code>
+</para>
+
+
+<para>
+Unfortunately, there is still the overhead of an <r/>
+function call for each line we want to read.
+The body of <r:func>readSelectLines</r:func>
+is very simple and can easily be recognized
+as an <r:func>sapply</r:func> loop - <r:expr eval="false">sapply(lineSkip, readTo, file)</r:expr>.
+We also know that the <r:func>readTo</r:func> function returns a
+single string. Therefore we know that this function returns a
+<r:character/> vector and we know its length is the same as 
+the vector over which we are looping - <r:var>lineSkip</r:var>.
+We also know that <r:var>lineSkip</r:var> is (or should be) an <r:integer/>
+since <r:func>readTo</r:func> expects and <r:var>Int32Type</r:var>.
+So to compile this, we need the array of integers in <r:var>lineSkip</r:var>
+and also its length. 
+Alternatively, we could pass the <r/> vector <r:var>lineSkip</r:var>
+and have the compiled code call <c:func>INTEGER</c:func> and
+<c:routine>Rf_length</c:routine> to obtain these.
+We also need to turn the strings returned by <r:func>readTo</r:func>
+into CHARSXP objects in R and also put them into a <r:character/>
+vector. This involves <c:func>Rf_mkChar</c:func> and <c:func>SET_STRING_ELT</c:func>.
+We also need to create this character vector to store the individual strings.
+Again, we can have this be passed to the compiled routine,
+or we can create the vector in the compiled code.
+The former is not a good idea (due to having to create a contiguous array of char* elements).
+We can do the latter with <c:func>Rf_allocVector</c:func>
+knowing the integer value identifying the STRSXP type.
+(We can find this with <omg:pkg>RCIndex</omg:pkg>. See getRDefines.r)
+(Note also that the <c:func>NEW_CHARACTER</c:func> macro/routine is not available via <r:func>getNativeSymbolInfo</r:func>.)
+We also need <c:func>Rf_protect</c:func> and <c:func>Rf_unprotect</c:func>.
+</para>
+<para>
+Our compiled code should correspond to the following C code:
+<c:code><![CDATA[
+SEXP
+readSelectedLines(SEXP r_lineSkip, FILE *file)
+{
+   int n = Rf_length(r_lineSkip);
+   int *els = INTEGER(r_lineSkip);
+   SEXP r_ans;
+
+   r_ans = Rf_allocVector(n, 16);
+   Rf_protect(r_ans);
+
+   for(i = 0; i < n; i++) {
+       int el;
+       el = els[i];
+       const char *tmp = readTo(el, file);
+       SEXP r_str = Rf_mkChar(tmp);
+       SET_VECTOR_ELT(r_ans, i, r_str);
+   }   
+
+   Rf_unprotect(1);
+
+   return(r_ans);
+}
+]]></c:code>
+</para>
+<note>
+<para>
+These native routines in R are not available on Linux
+via <r:func>getNativeSymbolInfo</r:func>.
+They are on OS X (at least when R is compiled from source).
+We will have to find a way to have the LLVM execution
+engine locate these. We may be able to do this
+with some linking facilities and libR.{so,dll,dylib}. Alternatively,
+we can provide wrapper routines compiled into Rllvm or a run-time
+library that act as proxies to the handful of routines we want.
+</para>
+</note>
+
+<para>
+Before we generate the code, let's describe the native routines.
+<r:code>
+INTSXPType = getSEXPType("INT")
+STRSXPType = getSEXPType("STR")
+SEXPType = getSEXPType("SEXP")
+
+declareFunction( list(Int32Type, SEXPType ), "Rf_length", mod) 
+declareFunction( list(Int32PtrType, INTSXPType), "INTEGER", mod)
+
+declareFunction( list(SEXPType, Int32Type, Int32Type), "Rf_allocVector", mod)
+
+declareFunction( list(VoidType, SEXPType), "Rf_protect", mod)
+declareFunction( list(VoidType, Int32Type), "Rf_unprotect", mod)
+
+declareFunction( list(SEXPType, StringType), "Rf_mkChar", mod)
+
+#XXX should be more specific SEXP types, i.e. STRSXPType, CHARSXPType
+declareFunction( list(SEXPType, SEXPType, Int32Type, SEXPType), "SET_VECTOR_ELT", mod)
+</r:code>
+We need to use a different type than Int32Type if we have support for long vectors
+at least for Rf_length, Rf_allocVector (first parameter), SET_VECTOR_ELT (second parameter).
+</para>
+<para>
+Let's also register the addresses of the native routines we use with LLVM: 
+<r:code>
+syms = lapply(c("Rf_length", "INTEGER", "Rf_allocVector", 
+                "Rf_protect", "Rf_unprotect", 
+                "Rf_mkChar", "SET_VECTOR_ELT"),
+              function(x) 
+                getNativeSymbolInfo(x)$address)
+llvmAddSymbol(.syms = syms)
+</r:code>
+</para>
+
+
+<para>
+At this point, we have the information we need to compile our routine.
+<r:code>
+readSelectedLines.c = compileFunction(readSelectedLines, STRSXPType, list(INTSXPType, FILEType), mod)
 </r:code>
 
+</para>
+
+
+<para>
+Of course, we could compile the function that takes these lines and
+converts them to a data frame.  In that case, we might want to compile
+<r:func>readSelectedLines</r:func> in a different way. Firstly, we may
+chose not to store the strings in an <r/> character vector.  Instead,
+we can use a regular char** that we allocate in ourselves in our
+compiled version of the function.  Additionally, we might pre-allocate
+the data frame and fill in each row as we read each line.  This is
+loop fusion and cuts down on memory.  This is an example of how we
+would write/generate code differently for different contexts.
+</para>
+
+
+
+
+</section>
+
+<section>
+<title></title>
+<para>
+Note that since we are talking about large files,
+a regular integer type may not be capable of holding
+some of the  line numbers we may want to sample.
+We can easily compile the code to use a larger integer
+with a larger range of values for <r:func>readTo</r:func>. We can use an
+unsigned integer or a long or an Int64.
+
+</para>
 </section>
 </article>
