@@ -129,6 +129,8 @@ of modules so that it can find existing Functions in those.
 Rf_length and other routines not available via getNativeSymbolInfo()
 except on OS X. Have to find another way to access them to be able to
 invoke them from LLVM.
+Perhaps we can persuade the LLVM linker to use the 
+libR.{so,Rdylib}
 <xml:ns></xml:ns></item>
 
 <item status="low">
