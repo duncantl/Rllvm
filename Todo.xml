@@ -7,6 +7,15 @@
 <items>
 
 <item>
+When a parameter type is one of the SEXP types, then coerce the input to that type.
+</item>
+
+<item>
+Find out how to create and export INTSXPType (=getSEXPType("INT")) in the onLoad()
+function. The struct class is not available then apparently.
+</item>
+
+<item>
 Add a finalizer routine to a Module and when we garbage collect it, 
 then we can call it.
 This can release global variables in the module, e.g. regular expressions.

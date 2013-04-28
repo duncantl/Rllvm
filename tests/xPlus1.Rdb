@@ -48,8 +48,7 @@ Our native routine will take a double * and the length of the
 vector. It will return nothing, mutating the elements of the
 array in place.
 <r:code>
-ptrDouble = pointerType(DoubleType)
-fun = Function("plus1", VoidType, c(x = ptrDouble, len = Int32Type), mod)
+fun = Function("plus1", VoidType, c(x = DoublePtrType, len = Int32Type), mod)
 </r:code>
 </para>
 
@@ -82,7 +81,7 @@ ir = IRBuilder(entry)
 So now the local variables.
 <r:code>
 iv = ir$createLocalVariable(Int32Type, "i")
-xref = ir$createLocalVariable(ptrDouble, "x_addr")
+xref = ir$createLocalVariable(DoublePtrType, "x_addr")
 len.ref = ir$createLocalVariable(Int32Type, "len_addr")
 </r:code>
 <r:code>
@@ -188,7 +187,7 @@ n = 1e7
 </r:code>
 
 <r:code>
-ll = system.time({x = rep(1, n); run(fun, x = x, n = length(x), .all = TRUE, .ee = ee)$x})
+ll = system.time({x = rep(1, n); .llvm(fun, x = x, n = length(x), .all = TRUE, .ee = ee)$x})
 </r:code>
 
 <r:code>

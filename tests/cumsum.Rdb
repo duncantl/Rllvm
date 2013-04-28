@@ -79,11 +79,10 @@ We create a module and declare the function
 by specifying the return type and the parameter types.
 <r:code>
 mod = Module("Cumsum")
-ptrDouble = pointerType(DoubleType)
-fun = Function("Cumsum", VoidType, c(x = ptrDouble, ans = ptrDouble, len = Int32Type), mod)
+fun = Function("Cumsum", VoidType, c(x = DoublePtrType, ans = DoublePtrType, len = Int32Type), mod)
 </r:code>
-Note that we create an intermediate variable - <r:var>ptrDouble</r:var>
-to represent a pointer to a <c:type>double</c:type>.
+Note that <r:var>DoublePtrType</r:var>
+represents a pointer to a <c:type>double</c:type>.
 We also named the parameters in the third argument to the call to
 <r:func>Function</r:func>, i.e. <r:var>x</r:var>, <r:var>ans</r:var>, <r:var>len</r:var>.
 We could do this separately after we call <r:func>Function</r:func> with
@@ -95,10 +94,11 @@ names(fun) = c("x", "ans", 'len')
 </para>
 <para>
 Since we want to reference the variables when compiling the code, 
-we'll get them as a list of parameter objects in <r/>. Alternatively, we can 
+we'll get them as a list of parameter objects in <r/>. (Alternatively, we could
 treat the <r:class>Function</r:class> object as a kind
 of list and access the parameters via [[, e.g.
 <r:expr eval="false">fun[["x"]]</r:expr>.
+This isn't implemented and won't always work as the parameters may not have names.)
 However,  we'll use the <r:func>getParameters</r:func>
 approach for now:
 <r:code>
@@ -117,31 +117,27 @@ entry = Block(fun, "entry")
 
 We'll also create an IRBuilder to manage the construction
 of the instructions.
-
 <r:code>
 ir = IRBuilder(entry)
 </r:code>
 By creating this with the <r:var>entry</r:var> block,
 new instructions will be created within this block.
-When we want to switch to a different block, we will
+When we want to switch to a different block to add instructions, we will
 update the variable <r:var>ir</r:var>.
 
 </para>
 <para>
-We'll need a local variable for i.
-
+We'll need a local variable for the variablei, our loop counter:
 <r:code>
 iv = ir$createLocalVariable(Int32Type, "i")
 </r:code>
 
-We also need local variables to reference <r:var>x</r:var> and <r:var>y</r:var> and <r:var>len</r:var>
+We also need local variables to reference the parameters <r:var>x</r:var> and <r:var>y</r:var> and <r:var>len</r:var>
 by their address.
-
 <r:code>
-xref = ir$createLocalVariable(ptrDouble, "x_addr")
-ans.ref = ir$createLocalVariable(ptrDouble, "ans_addr")
+xref = ir$createLocalVariable(DoublePtrType, "x_addr")
+ans.ref = ir$createLocalVariable(DoublePtrType, "ans_addr")
 len.ref = ir$createLocalVariable(Int32Type, "len_addr")
-
 </r:code>
 
 </para>
@@ -163,15 +159,14 @@ and set the local variables that refer to these.
 ir$createStore(params$x, xref)
 ir$createStore(params$ans, ans.ref)
 ir$createStore(params$len, len.ref)
-
 </r:code>
-
 </para>
+
 <para>
 So now we are ready to do some computations.
-The first thing is to set <r:expr>ans[0] = x[0]</r:expr>.
-We load <r:expr>x[0]</r:expr> and then store the value in
-<r:expr>ans[0]</r:expr>, having loaded that.
+The first thing is to set <r:expr eval="false">ans[0] = x[0]</r:expr>.
+We load <r:expr eval="false">x[0]</r:expr> and then store the value in
+<r:expr eval="false">ans[0]</r:expr>, having loaded that.
 We load the value of x[0] with
 <r:code>
 a = ir$createLoad(xref)
@@ -181,33 +176,31 @@ x0 = ir$createLoad(b)
 GEP stands for <quote>Get Element Pointer</quote>.
 See <ulink url="http://llvm.org/docs/GetElementPtr.html"/>
 </para>
+
 <para>
-Next, we assign this to <r:expr>ans[0]</r:expr>
+Next, we assign this to <r:expr eval="false">ans[0]</r:expr>
 <r:code>
 a = ir$createLoad(ans.ref)
 b = ir$createGEP(a, 0L)
 ir$createStore(x0, b)
 </r:code>
-Note the similar sequence access  <r:expr>x[0]</r:expr> and <r:expr>ans[0]</r:expr>
+Note the similar sequence access  for both <r:expr eval="false">x[0]</r:expr> and <r:expr eval="false">ans[0]</r:expr>
 and the difference in loading and assigning a value to each.
 </para>
 
 <para>
-At this point we are ready to jump into the loop.
-We branch to the test of the condition
-and within that we perform the test and
-determine which other block to jump to,
-the body or the return.
-So we need to create these 3 blocks:
-the condition test, the body and the return
-
+At this point we are ready to jump into the loop.  We branch to the
+test of the condition and within that we perform the test and
+determine which other block to jump to -  the body or the return.  So we
+need to create these 3 blocks: the condition test, the body and the
+return
 <r:code>
 cond = Block(fun, "loopCondition")
 ret = Block(fun, "return")
 body = Block(fun, "loopBody")
 </r:code>
 
-Now we branch to the condition, uncoditionally.
+Now we branch to the condition, unconditionally.
 <r:code>
 ir$createBr(cond)
 </r:code>
@@ -262,7 +255,7 @@ ans.i1 = ir$createLoad(ir$createGEP(r, idx))
 </r:code>
 <q>Why can't we just use createGEP with <r:var>b</r:var>?
 The SExt is a <quote>signed extension</quote> that transforms the operand to, in our case, 64 bit.</q>
-So now we have <r:expr>ans[i-1]</r:expr>.
+So now we have <r:expr eval="false">ans[i-1]</r:expr>.
 </para>
 <para>
 Next, we have to load the value of x[i]
@@ -282,9 +275,9 @@ tmp = ir$binOp(FAdd, ans.i1, xi)
 Note that we had to know these were two real-valued variables.
 </para>
 <para>
-Now we need to load <r:expr>ans[i]</r:expr> and
+Now we need to load <r:expr eval="false">ans[i]</r:expr> and
 store the value of <r:var>tmp</r:var> in that.
-The following gets <r:expr>ans[i]</r:expr> in place:
+The following gets <r:expr eval="false">ans[i]</r:expr> in place:
 <r:code>
 x = ir$createLoad(ans.ref)
 i = ir$createLoad(iv)
@@ -326,7 +319,7 @@ or via Rffi.
 <r:code>
 x = as.numeric(1:4)
 ans = numeric(length(x))
-tt = run(fun, x = x, ans = ans, n = length(x), .all = TRUE)
+tt = .llvm(fun, x = x, ans = ans, n = length(x), .all = TRUE)
 tt$ans
 </r:code>
 </para>
@@ -338,13 +331,13 @@ Cumsum, the built-in <r:func>cumsum</r:func>
 implemented in C and
 our LLVM-generated routine.
 <r:code>
-N = 1000000
+N = 1e7
 x = as.numeric(1:N)
 ans = numeric(length(x))
 
 a = system.time({Cumsum(x)})
 b = system.time({cumsum(x)})
-c = system.time({run(fun, x = x, ans = ans, n = length(x), .all = TRUE)$ans})
+c = system.time({ .llvm(fun, x = x, ans = ans, n = length(x), .all = TRUE)$ans})
 </r:code>
 We should use the measurements from the second and subsequent
 invocations of fun to remove any overhead of the
@@ -379,19 +372,19 @@ N = 10
 x = as.numeric(1:N)
 ans = numeric(length(x))
 
-val = run(fun, x = x, ans = ans, n = length(x), .all = TRUE, .ee = ee)$ans
+val = .llvm(fun, x = x, ans = ans, n = length(x), .all = TRUE, .ee = ee)$ans
 all.equal(val, cumsum(x))
 </r:code>
 </para>
 
 <r:code>
-N = 1000000
+N = 1e7
 x = as.numeric(1:N)
 ans = numeric(length(x))
 
 interp = replicate(10, system.time({Cumsum(x)}))
 native =  replicate(10, system.time({cumsum(x)}))
-ll = replicate(10, system.time({run(fun, x = x, ans = ans, n = length(x), .all = TRUE, .ee = ee)$ans}))
+ll = replicate(10, system.time({.llvm(fun, x = x, ans = ans, n = length(x), .all = TRUE, .ee = ee)$ans}))
 (rowMeans(interp)/rowMeans(ll))[1:3]
 </r:code>
 
@@ -553,6 +546,7 @@ tm = tapply(timings$elapsed, src, mean)
 timings$src = ordered(src, names(rev(sort(tm))))
 </r:code>
 <r:plot><![CDATA[
+library(lattice)
 bwplot(elapsed ~ src,  timings)
 ]]></r:plot>
 <r:plot><![CDATA[
@@ -586,6 +580,13 @@ This avoids any overhead of the first call.
 boxplot(list(llvm = ll.runDirect["elapsed",], native = native["elapsed",]))
 ]]></r:plot>
 </para>
+
+
+<para>
+So the <r:func>.llvm</r:func> function is now an alias for <r:func>.llvmCallFunction</r:func>
+and we encourage people to use that.
+</para>
+
 
 </section>
 </article>

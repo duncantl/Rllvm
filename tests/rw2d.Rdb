@@ -217,12 +217,10 @@ ir$createBr(increment)
 <title>Timings</title>
 
 <para>
-We now run our compiled code to see how fast it is relative
-to the other implementations.
-Our compiled code references the <c:func>runif</c:func>
-routine and so needs to be able to find that. 
-We do this before running the code as it only needs to be done
-once.
+We now run our compiled code to see how fast it is relative to the
+other implementations.  Our compiled code references the
+<c:func>runif</c:func> routine and so needs to be able to find that.
+We do this before running the code as it only needs to be done once.
 <r:code>
 ee = ExecutionEngine(mod)
 Optimize(mod, ee)
@@ -365,11 +363,21 @@ With an optimized R (i.e. compiled with -O3)
 </table> 
 
 </para>
+<para>
+On a Macbook Pro, OSX 10.7.5, 8G RAM, R-3.1 devel, optimization level -O3, 
+I get (Apr 27 2013)
+<r:output><![CDATA[
+                  Time    Speedup
+Interpeted    161.2180   1.000000
+Byte Compiled  99.4940   1.620379
+Vectorized      0.7495 215.100734
+Rllvm           0.6220 259.192926
+]]></r:output>
+</para>
 
 
 <invisible>
-All of these done with the same version of Rllvm &amp; LLVM 
-  3.1 and 
+All of these done with the same version of Rllvm &amp; LLVM  3.1 and 
 R-2.16 on my Mac laptop Aug 4, 2012
 
                  Time    Speedup

@@ -12,11 +12,15 @@ makeSEXPTypes =
 function()
 {
    ans = list()
-   ans[["SEXP"]] = tmp = pointerType(structType(list(type = Int32Type), "SEXP"))
+   ref = structType(list(type = Int32Type), "SEXP")
+   ans[["SEXP"]] = tmp = pointerType(ref)
    assign("SEXP", new("SEXPType", tmp), SEXPTypes)
           
    for(i in c("LGL", "INT", "REAL", "STR", "VEC", "CHAR")) {
-      tmp = pointerType(structType(list(type = Int32Type), sprintf("%sSXP", i)))
+       # Intentionally reuse the same instance of the struct type
+       # so that they all look the same to LLVM but our classes
+       # in R identify the particular type of SEXP when this is necessary.
+       # So no:    tmp = pointerType(ref)  # structType(ref,  sprintf("%sSXP", i))
       tmp = new(sprintf("%sSXPType", i), tmp)
       assign(i, tmp, SEXPTypes)
       ans[[i]] = tmp@ref

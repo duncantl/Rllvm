@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <article xmlns:r="http://www.r-project.org"
          xmlns:xi="http://www.w3.org/2003/XInclude"
-	 xmlns:c="http://www.C.org">
+	 xmlns:c="http://www.C.org"
+	 xmlns:omg="http://www.omegahat.org">
 
 <articleinfo>
 
@@ -143,7 +144,8 @@ function(lineSkip, file)
 }
 </r:function>
 This doesn't use pre-allocation. So we want 
-<r:function eval="false">
+<r:function>
+readSelectedLines = 
 function(lineSkip, file)
 {
    ans = character(length(lineSkip))
@@ -218,16 +220,17 @@ readSelectedLines(c(3, 10, 10), ff, ee)
 
 <para>
 This  is faster than calling the version of:
-<r:code>
+<r:test id="makeInputs">
 targetFile = "sample.csv"
-N = 1000
-whichLines = diff(c(0, sort(sample(1e8, N))))
-</r:code>
-<r:code>
+N = 1e3
+lineNums = sort(as.integer(sample(1e8, N)))
+lineSkips = as.integer(diff(c(0L, lineNums)))
+</r:test>
+<r:test>
 ff = CFILE(targetFile)
-tm = system.time(readSelectedLines(whichLines, ff, ee))
+tm = system.time(readSelectedLines(lineSkips, ff))
 tm
-</r:code>
+</r:test>
 </para>
 
 
@@ -301,9 +304,10 @@ library that act as proxies to the handful of routines we want.
 </para>
 </note>
 
+<ignore>
 <para>
 Before we generate the code, let's describe the native routines.
-<r:code>
+<r:code eval="false">
 INTSXPType = getSEXPType("INT")
 STRSXPType = getSEXPType("STR")
 SEXPType = getSEXPType("SEXP")
@@ -324,6 +328,7 @@ declareFunction( list(SEXPType, SEXPType, Int32Type, SEXPType), "SET_VECTOR_ELT"
 We need to use a different type than Int32Type if we have support for long vectors
 at least for Rf_length, Rf_allocVector (first parameter), SET_VECTOR_ELT (second parameter).
 </para>
+
 <para>
 Let's also register the addresses of the native routines we use with LLVM: 
 <r:code>
@@ -335,16 +340,22 @@ syms = lapply(c("Rf_length", "INTEGER", "Rf_allocVector",
 llvmAddSymbol(.syms = syms)
 </r:code>
 </para>
-
+</ignore>
 
 <para>
 At this point, we have the information we need to compile our routine.
 <r:code>
+readSelectedLines =
+function(lineSkip, file)
+{
+  sapply(lineSkip, readTo, file)
+}
+INTSXPType = getSEXPType("INT")
+STRSXPType = getSEXPType("STR")
 readSelectedLines.c = compileFunction(readSelectedLines, STRSXPType, list(INTSXPType, FILEType), mod)
 </r:code>
 
 </para>
-
 
 <para>
 Of course, we could compile the function that takes these lines and
@@ -359,7 +370,187 @@ would write/generate code differently for different contexts.
 </para>
 
 
+</section>
+<section id="timings" r:eval="false">
+<title>Timing the Different Approaches</title>
 
+<para>
+Note that the order in which we do these computations may affect the results
+as the operating system may cache files, etc.
+</para>
+<para>
+The numbers below are for the most part on a freshly rebooted machine
+with very few other applications running (i.e. no Web browser, mail reader, etc.)
+</para>
+
+
+<para>
+<r:test>
+ff = CFILE("sample1.csv")
+.llvm(mod$Fgets, ff)
+.llvm(mod$readTo, 1, ff) # 2nd line
+.llvm(mod$readTo, 10, ff) # 12th line
+
+.llvm(mod$readSelectedLines, as.integer(c(5, 7, 2, 19)), ff)
+</r:test>
+
+<r:test>
+tm.1e3 = replicate(10, { ff = CFILE(targetFile); system.time(.llvm(mod$readSelectedLines, lineSkips, ff))})
+<r:output><![CDATA[
+            [,1]  [,2]  [,3]  [,4]  [,5]  [,6]  [,7]  [,8]  [,9] [,10]
+user.self  2.683 2.665 2.696 2.710 2.663 2.677 2.704 2.671 2.665 2.710
+sys.self   0.333 0.333 0.339 0.338 0.330 0.331 0.338 0.334 0.330 0.338
+elapsed    3.017 2.999 3.035 3.048 2.994 3.008 3.042 3.005 2.995 3.047
+]]></r:output>
+</r:test>
+The first invocation takes quite a while and there is a large
+disparity between user and elapsed time. 
+Is this LLVM or the operating system caching the file?
+After that, we are about 2.8 &amp; 3.2 seconds for user and elapsed.
+Now compare with the C code we wrote in <r:pkg>FastCSVSample</r:pkg>.
+<r:test>
+library(FastCSVSample)
+tmf.1e3 = replicate(10, system.time(.Call("R_csv_sample", targetFile, lineNums)))
+<r:output><![CDATA[
+            [,1]  [,2]  [,3]  [,4]  [,5]  [,6]  [,7]  [,8]  [,9] [,10]
+user.self  2.534 2.508 2.513 2.548 2.505 2.502 2.530 2.535 2.507 2.519
+sys.self   0.333 0.331 0.330 0.334 0.330 0.329 0.332 0.334 0.330 0.330
+elapsed    2.867 2.839 2.844 2.881 2.836 2.831 2.862 2.869 2.837 2.848
+]]></r:output>
+</r:test>
+(Note that 
+
+<r:code>
+print((rowMeans(tm.1e3)/rowMeans(tmf.1e3))[1:3], digits = 3)
+<r:output><![CDATA[
+user.self  sys.self   elapsed 
+     1.12      1.03      1.11 
+]]></r:output>
+</r:code>
+This is on a MacBook Pro running OS 10.7.5 with 8G of RAM, 2.66Ghz Intel Core i7. 
+So we see the LLVM code is running about 11% or 12% slower than the C code
+(compiled with the optimization level set to -O3, using gcc 4.2.1).
+In other runs, we see this down at 7%.
+</para>
+
+
+
+<para>
+In R, we can use <r:func>readSelectedLines</r:func>
+and all we need to do is implement <r:func>readTo</r:func> efficiently.
+<r:function id="rfuns"><![CDATA[
+readTo = 
+function(numLines, con)
+ readLines(con, numLines)[numLines]
+
+readSelectedLines =
+function(lineSkip, file)
+  sapply(lineSkip, readTo, file)
+]]></r:function>
+
+<r:test>
+con = file("sample.csv", "r"); tmr.1e3 = system.time(readSelectedLines(lineSkips, con))
+tmr
+<r:output>
+  <!-- With R compiled as -O3 -->
+   user  system elapsed 
+ 63.697   0.961  64.681 
+   user  system elapsed 
+ 64.036   0.947  65.021 
+   user  system elapsed 
+ 61.177   0.932  62.117 
+<!-- The following are for R compiled without any optimization flags. With -O3 -->
+   user  system elapsed 
+ 92.827   0.865  93.696 
+   user  system elapsed 
+ 91.538   0.890  92.434 
+   user  system elapsed 
+ 89.456   0.880  90.338 
+   user  system elapsed 
+ 90.595   0.921  91.521 
+</r:output>
+</r:test>
+Curiously, these are getting faster across each run.
+</para>
+<para>
+Now let's compare these with our LLVM-compiled code:
+<r:code>
+print((tmr.1e3/rowMeans(tmf.1e3))[1:3], digits = 3)
+<r:output>
+  <!-- with -O3 for R -->
+user.self  sys.self   elapsed 
+    24.28      2.81     21.78 
+    <!-- with no optimization -->
+user.self  sys.self   elapsed 
+    38.21      3.27     33.55 
+</r:output>
+</r:code>
+So we see that we gained a factor of 21.
+This is for N = 1000.
+</para>
+<para>
+Let's see what happens  with N = 1e5.
+<r:code>
+targetFile = "sample.csv"
+N = 1e6
+lineNums = sort(as.integer(sample(1e8, N)))
+lineSkips = as.integer(diff(c(0L, lineNums)))
+</r:code>
+
+<r:code>
+con = file("sample.csv", "r"); tmr.1e6 = system.time(readSelectedLines(lineSkips, con))
+tm.1e6 = replicate(10, { ff = CFILE(targetFile); system.time(.llvm(mod$readSelectedLines, lineSkips, ff))})
+tmf.1e6 = replicate(10, system.time(.Call("R_csv_sample", targetFile, lineNums)))
+<r:output><![CDATA[
+LLVM - now segfaulting (since compiling R with -O3)
+R code
+   user  system elapsed 
+108.074   1.007 109.086 
+
+FastCSVSample
+user.self  sys.self   elapsed 
+    2.873     0.384     3.258 
+]]></r:output>
+</r:code>
+The results don't change much. 
+<wrong reason="with -O3">The <r/> version goes up to between 102 and  108.</wrong>
+The LLVM-based computations is about 3.16.
+Why do the numbers stay approximately the same?
+When we sample the line numbers, they range from
+the start to the end of the file. This means
+that even with more samples, we are still reading approximately
+the same number of lines from the file in total.
+That is, the largest value of the line number doesn't
+change significantly as we take more sample lines.
+
+</para>
+
+</section>
+<section>
+<title>Timing <r:func>readTo</r:func></title>
+
+
+<para>
+Let's test how fast the <r:func>readTo</r:func> functions are.
+<r:code>
+tm.readTo.1e6 = replicate(10, system.time(replicate(10, { ff = CFILE(targetFile); system.time(.llvm(mod$readTo, 1e6L, ff)); close(ff)})))
+tmr.readTo.1e6 = replicate(10, system.time(replicate(10, { ff = file(targetFile, "r"); system.time(readTo(1e6L, ff)); close(ff)})))
+print((rowMeans(tmr.readTo.1e6)/rowMeans(tm.readTo.1e6))[1:3], digits = 4)
+<r:output><![CDATA[
+user.self  sys.self   elapsed 
+    3.173     1.970     3.136 
+]]></r:output>
+</r:code>
+So the LLVM-version is 3 times faster than the R version.
+Again, the R version uses C code so should be equivalent to the LLVM version.
+However, it uses <r:func>readLines</r:func> which returns the entire vector of lines
+and then we have to subset it. There is a large overhead of  memory  involved in this.
+The R code is also more general, being able to read from arbitrary connections.
+The LLVM code we generated reads only from a <c:type>FILE</c:type>.
+However, we could just as easily have generated  code to read from
+an arbitrary file  descriptor or any form of input. We have to generate
+that code, but we can do it using the native routines.
+</para>
 
 </section>
 
