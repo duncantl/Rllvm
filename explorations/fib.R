@@ -19,13 +19,20 @@ fc = compileFunction(fib, Int32Type, Int32Type)
 
 time =   
 function(n)
-  rbind(ll = system.time(replicate(10, .llvm(fc, n))),
-        fibc = system.time(replicate(10, fibc(n))),
-        fib = system.time(replicate(10, fib(n))))[, 1:3]
+  rbind(ll = system.time(replicate(200, .llvm(fc, n)))/10,
+        fibc = system.time(replicate(20, fibc(n))),
+        fib = system.time(replicate(20, fib(n))))[, 1:3]
 
 tm.30 = time(30)
 
 apply(tm.30, 2, function(x) x/min(x))
+
+
+getTimes =
+function(n) {
+
+}
+
 
 #t(apply(tm.30, 1, function(x)  x/apply(tm.30, 2, min)))
 
@@ -34,3 +41,8 @@ apply(tm.30, 2, function(x) x/min(x))
 # fibc  461.9535     18.0 442.1778
 # fib   464.0465     18.5 444.3333
 
+# OS X
+#     user.self sys.self  elapsed
+#ll      1.0000     1.00   1.0000
+#fibc  738.1905    31.75 716.0000
+#fib   746.3929    32.50 723.9885

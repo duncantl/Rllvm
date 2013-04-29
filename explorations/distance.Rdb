@@ -65,6 +65,47 @@ implicit third loop over the elements of the pairs of observations.
 </para>
 
 
+<para>
+We have  a problem passing the array of values 
+for each observation to our distance function.
+In R, we pass g1[i,] and g2[j,].
+R takes the time to create two new vectors
+and then passes them to our function <r:func>op</r:func>.
+Our <r:func>euclidean</r:func> function
+<r:function><![CDATA[
+function(x, y)
+   sum((x - y)^2)
+]]></r:function>
+takes these and uses R's vectorization to loop 
+</para>
+<para>
+We can write this euclidean distance as
+<r:function><![CDATA[
+function(x, y)
+  Reduce(sum, Map(`^`, Map(`-`, x, y), 2))
+]]></r:function>
+We can recognize this as and fuse the loops.
+In the future, we will endeavor to recognize this in regular R code,
+i.e. the original version.
+</para>
+
+
+<para>
+Regardless of how we write the euclidean distance function for two observations,
+the critical aspect is how they access the elements of the two observations.
+What is key is that because we are compiling the euclidean function
+for use in the distance function, we can arrange how the data are made
+available and how that function accesses them. This gives us a great deal of freedom.
+We can also compile different versions of our distance function and the 
+<r:func>op</r:func> functions to work with data frames and so access the data in different
+ways again.
+</para>
+<para>
+We'll assume our 
+</para>
+
+
+
 
 </section>
 </article>

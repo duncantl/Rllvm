@@ -3,7 +3,9 @@
 #include <llvm/Target/TargetLibraryInfo.h>
 #include <llvm/Target/TargetMachine.h>
 
-#include <llvm/DataLayout.h>
+// Don't need this and not in same place on Linux setup.
+//  #include <llvm/DataLayout.h> 
+
 
 extern "C"
 SEXP
