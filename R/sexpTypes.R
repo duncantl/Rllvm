@@ -15,7 +15,10 @@ function()
    ref = structType(list(type = Int32Type), "SEXP")
    ans[["SEXP"]] = tmp = pointerType(ref)
    assign("SEXP", new("SEXPType", tmp), SEXPTypes)
-          
+
+     # Come from Rinternals.h. Could get them programmatically with RCIndex/RClangSimple.
+   ids = c(ANY = 18L, LGL = 10L, INT = 13L, REAL = 14L, STR = 16L, VEC = 19L, CHAR = 9L)
+   
    for(i in c("LGL", "INT", "REAL", "STR", "VEC", "CHAR")) {
        # Intentionally reuse the same instance of the struct type
        # so that they all look the same to LLVM but our classes
@@ -26,7 +29,7 @@ function()
       ans[[i]] = tmp@ref
    }
    
-   ids = c(18L, 10L, 13L, 14L, 16L, 19L, 9L)
+
    .Call("R_setRLLVMTypes", ans, ids)
    ans
 }

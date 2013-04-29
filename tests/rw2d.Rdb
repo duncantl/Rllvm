@@ -249,17 +249,25 @@ interp = apply(interp, 1, median)
 <para>
 Now we run the compiled code
 <r:code>
-
 doit = 
 function(n = 1000000) {
  x = integer(n)
  y = integer(n)
- run(fun, x = x, y = y, n, .ee = ee, .all = TRUE)[c("x", "y")]
+ .llvm(fun, x = x, y = y, n, .ee = ee, .all = TRUE)[c("x", "y")]
 }
 
 tt = system.time({ doit(n)})
 tt = system.time({ doit(n)}) # second time runs faster
 </r:code>
+
+
+<r:test><![CDATA[
+z = doit(100000)
+table(diff(z$x))
+table(diff(z$y))
+]]></r:test>
+These should be 50% 0 and 25% for each of -1 and 1.
+
 
 Since this runs much faster than the interpreted version, we 
 run more repetitions and again compute the median:
@@ -301,9 +309,11 @@ apply(fastInterp, 1, median)/apply(tt, 1, median)
 
 
 <r:code>
-tmp = c(interp[1], cmp[1], fastInterp[1], tt[1])
-m = matrix(c(tmp, interp[1]/tmp), length(tmp), ,
+i = 3
+tmp = c(interp[i], cmp[i], fastInterp[i], tt[i])
+m = matrix(c(tmp, interp[i]/tmp), length(tmp), ,
         dimnames = list(c("Interpeted", "Byte Compiled", "Vectorized", "Rllvm"), c("Time", "Speedup")))
+m
 </r:code>
 
 

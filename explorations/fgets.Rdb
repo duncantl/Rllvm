@@ -6,6 +6,16 @@
 
 <articleinfo>
 
+<ignore>
+<r:code>
+library(XML)
+xmlSource("fgets.Rdb", verbose = TRUE)
+doc = xmlParse("fgets.Rdb")
+tt = getNodeSet(doc, "//section[@id = 'timings']//r:test | //r:function[@id = 'rfuns'] | //r:test[@id='makeInputs']")
+xmlSource(tt, verbose = TRUE, force = TRUE)
+</r:code>
+</ignore>
+
 <title>On Compiling Access to <c:routine>fgets</c:routine></title>
 
 <author><firstname>Duncan</firstname><surname>Temple Lang</surname>
@@ -46,6 +56,7 @@ p = getGetElementPtr(.str)
 
   # could specify this information via .routineInfo parameter of compileFunction()
 declareFunction(list(stringType, stringType, Int32Type, FILEType), "fgets", mod) 
+llvmAddSymbol(fgets = getNativeSymbolInfo("fgets")$address)
 </r:code>
 
 
@@ -83,7 +94,6 @@ the pointer to <r:var>.str</r:var> via a <r:func>getGetElementPtr</r:func> call.
 
 <para>
 <r:code eval="false" id="test">
-llvmAddSymbol(fgets = getNativeSymbolInfo("fgets")$address)
 library(RCurl)
 f = CFILE("../DESCRIPTION", "r")
 .llvm(fun, f@ref)
@@ -92,6 +102,7 @@ replicate(5, .llvm(fun, f@ref))
 
 </para>
 </section>
+
 <section>
 <title></title>
 <r:function><![CDATA[
@@ -408,7 +419,7 @@ disparity between user and elapsed time.
 Is this LLVM or the operating system caching the file?
 After that, we are about 2.8 &amp; 3.2 seconds for user and elapsed.
 Now compare with the C code we wrote in <r:pkg>FastCSVSample</r:pkg>.
-<r:test>
+<r:test id="llvm">
 library(FastCSVSample)
 tmf.1e3 = replicate(10, system.time(.Call("R_csv_sample", targetFile, lineNums)))
 <r:output><![CDATA[
@@ -450,7 +461,7 @@ function(lineSkip, file)
 
 <r:test>
 con = file("sample.csv", "r"); tmr.1e3 = system.time(readSelectedLines(lineSkips, con))
-tmr
+tmr.1e3
 <r:output>
   <!-- With R compiled as -O3 -->
    user  system elapsed 
@@ -497,7 +508,7 @@ lineNums = sort(as.integer(sample(1e8, N)))
 lineSkips = as.integer(diff(c(0L, lineNums)))
 </r:code>
 
-<r:code>
+<r:test>
 con = file("sample.csv", "r"); tmr.1e6 = system.time(readSelectedLines(lineSkips, con))
 tm.1e6 = replicate(10, { ff = CFILE(targetFile); system.time(.llvm(mod$readSelectedLines, lineSkips, ff))})
 tmf.1e6 = replicate(10, system.time(.Call("R_csv_sample", targetFile, lineNums)))
@@ -511,7 +522,7 @@ FastCSVSample
 user.self  sys.self   elapsed 
     2.873     0.384     3.258 
 ]]></r:output>
-</r:code>
+</r:test>
 The results don't change much. 
 <wrong reason="with -O3">The <r/> version goes up to between 102 and  108.</wrong>
 The LLVM-based computations is about 3.16.
@@ -526,13 +537,13 @@ change significantly as we take more sample lines.
 </para>
 
 </section>
-<section>
+<section eval="false">
 <title>Timing <r:func>readTo</r:func></title>
 
 
 <para>
 Let's test how fast the <r:func>readTo</r:func> functions are.
-<r:code>
+<r:test>
 tm.readTo.1e6 = replicate(10, system.time(replicate(10, { ff = CFILE(targetFile); system.time(.llvm(mod$readTo, 1e6L, ff)); close(ff)})))
 tmr.readTo.1e6 = replicate(10, system.time(replicate(10, { ff = file(targetFile, "r"); system.time(readTo(1e6L, ff)); close(ff)})))
 print((rowMeans(tmr.readTo.1e6)/rowMeans(tm.readTo.1e6))[1:3], digits = 4)
@@ -540,7 +551,7 @@ print((rowMeans(tmr.readTo.1e6)/rowMeans(tm.readTo.1e6))[1:3], digits = 4)
 user.self  sys.self   elapsed 
     3.173     1.970     3.136 
 ]]></r:output>
-</r:code>
+</r:test>
 So the LLVM-version is 3 times faster than the R version.
 Again, the R version uses C code so should be equivalent to the LLVM version.
 However, it uses <r:func>readLines</r:func> which returns the entire vector of lines
