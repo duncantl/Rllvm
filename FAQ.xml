@@ -44,4 +44,31 @@ export DYLD_LIBRARY_PATH=~/LLVM/build/lib/
 </a>
 </q>
 
+<q>
+I am getting error messages of the form
+<sh:output>
+/usr/local/include/llvm/Use.h:43: error: redefinition of ‘class llvm::PointerLikeTypeTraits<llvm::Use**>’
+/usr/local/include/llvm/IR/Use.h:43: error: previous definition of ‘class llvm::PointerLikeTypeTraits<llvm::Use**>’
+</sh:output>
+What's the problem?
+<a>
+One likely explanation is that you had installed a version of the llvm libraries
+and then install llvm 3.3.  The layout/organization of the header
+files changed in that development branch and now we have the old and
+new headers mixed together.  I would suggest
+moving the llvm header directory (e.g. in /usr/local/include/)  aside
+and then re-installing llvm 3.3 (or higher).
+</a>
+</q>
+
+<q>
+I get error messages when compiling and/or loading Rllvm's DSO/DLL.
+It complains that some symbols are not found.
+<a>
+One possible explanation of this is that you are using a locally installed
+version of LLVM but linking against a different centrally installed set of LLVM libraries.
+This happens because R puts -L/usr/local/lib ahead of package link options.
+</a>
+</q>
+
 </faq>

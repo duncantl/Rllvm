@@ -27,10 +27,15 @@ tm.30 = time(30)
 
 apply(tm.30, 2, function(x) x/min(x))
 
-#t(apply(tm.30, 1, function(x)  x/apply(tm.30, 2, min)))
-
+# OS X
 #      user.self sys.self  elapsed
 # ll      1.0000      1.0   1.0000
 # fibc  461.9535     18.0 442.1778
 # fib   464.0465     18.5 444.3333
+
+# Linux
+#     user.self sys.self  elapsed
+#ll      1.0000      Inf   1.0000
+#fibc  234.8908      Inf 229.9615
+#fib   236.8297      NaN 231.8034
 

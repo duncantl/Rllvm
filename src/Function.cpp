@@ -1,4 +1,5 @@
 #include "Rllvm.h"
+#include <llvm/IR/Attributes.h>
 
 extern "C"
 SEXP
@@ -142,6 +143,7 @@ R_Function_getReturnType(SEXP r_func)
 }
 
 
+#if 0
 extern "C"
 SEXP
 R_Function_setAttributes(SEXP r_func, SEXP r_vals)
@@ -153,6 +155,7 @@ R_Function_setAttributes(SEXP r_func, SEXP r_vals)
      return(ScalarLogical(TRUE));
 
 }
+#endif
 
 #if 0
 extern "C"
