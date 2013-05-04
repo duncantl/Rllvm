@@ -58,7 +58,7 @@ The basic computations for computing the distance are  very simple:
 compute the distance for each pair of observations by looping
 over each set of observations.  The following <r/> code illustrates this:
 <r:code>
-<xi:include href="distance.R"/>
+<xi:include href="distance.R" parse="text"/>
 </r:code>
 Here we have two loops - over the pairs of observations. There is an
 implicit third loop over the elements of the pairs of observations.
@@ -82,7 +82,7 @@ takes these and uses R's vectorization to loop
 We can write this euclidean distance as
 <r:function><![CDATA[
 function(x, y)
-  Reduce(sum, Map(`^`, Map(`-`, x, y), 2))
+  Reduce(`+`, Map(`^`, Map(`-`, x, y), 2))
 ]]></r:function>
 We can recognize this as and fuse the loops.
 In the future, we will endeavor to recognize this in regular R code,
@@ -101,11 +101,65 @@ We can also compile different versions of our distance function and the
 ways again.
 </para>
 <para>
-We'll assume our 
+We'll assume our two sets of observations are in matrices.
+We will loop (i) over the rows of the first matrix
+and for each of these, loop over the rows of the
+other matrix. 
+When we compute the distance for the i-th and j-th observations,
+we loop over the elements of the matrices starting
+ X + i and Y + j. The next pair of values is 
+ X + i + nrow(X) and Y + j + nrow(Y).
+ There are p iterations in this third loop.
 </para>
 
+<r:function><![CDATA[
+dist = 
+function(X, Y, nx = nrow(X), ny = nrow(Y), p = ncol(X), ans = numeric(nx * ny))
+{
+  ctr = 1L
+  for(i in 1:nx) {
+#    for(j in seq(i, length = ny - i + 1)) {
+     for(j in 1:ny) {
+#id = sprintf("%d.%d", i,j)
+       total = 0.0
+       posX = i
+       posY = j
+       for(k in 1:p) {
+          total = total + (X[posX]  - Y[posY])^2
+          posX = posX + nx
+          posY = posY + ny
+       }
+       ans[ctr] = sqrt(total)
+#       names(ans)[ctr] = id
+       ctr = ctr + 1L
+    }
+  }
+  ans
+#  matrix(ans, nx, ny, byrow = TRUE)
+}
+]]></r:function>
 
 
+<r:test><![CDATA[
+X = matrix(rnorm(15), 3, 5)
+Y = matrix(rnorm(20), 4, 5)
+dist(X, Y)
+as.matrix(stats::dist(rbind(X, Y)))[1:3, -(1:3)]
+
+A = matrix(1:15, 3,5)
+B = matrix(20:1, 4,5)
+dist(A, B)
+as.matrix(stats::dist(rbind(A, B)))[1:3, -(1:3)]
+]]></r:test>
+
+
+<r:code>
+library(RLLVMCompile)
+DoublePtrType = pointerType(DoubleType)
+mod = Module()
+
+distc = compileFunction(dist, REALSXPType, list(DoublePtrType, DoublePtrType, Int32Type, Int32Type, Int32Type, REALSXPType), module = mod)
+</r:code>
 
 </section>
 </article>
