@@ -346,7 +346,7 @@ R_IRBuilder_CreateLoad(SEXP r_builder, SEXP r_val, SEXP r_isVolatile, SEXP r_id)
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "StoreInst"));
+    return(R_createRef(ans, "LoadInst"));
 
 }
 
@@ -360,14 +360,37 @@ R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id)
     builder = GET_REF(r_builder, IRBuilder<>);
 
     llvm::Value *val = GET_REF(r_val, Value);
-    llvm::Value *idx = GET_REF(r_idx, Value);
-
     llvm::Value *ans;
-    try {	
-       ans = builder->CreateGEP(val, idx);
-    } catch(std::exception &e) {
-	PROBLEM "failed to create GEP"
-	  ERROR;
+
+    if(TYPEOF(r_idx) == VECSXP) {
+        int nargs = Rf_length(r_idx);
+        std::vector<llvm::Value *> args; // does this disappear and we lose the elements?
+        for(int i = 0; i < nargs; i++) 
+            args.push_back(GET_REF(VECTOR_ELT(r_idx, i), Value));
+
+
+        llvm::ArrayRef<llvm::Value *> idxs = makeArrayRef(args);
+        try {	
+#if 1
+             ans = builder->CreateGEP(val, idxs);
+#else
+ fprintf(stderr, "Calling GetElementPtrInst::Create()\n");
+              ans = llvm::GetElementPtrInst::Create(val, args); // idxs
+              ans = builder->Insert(ans, "");
+#endif
+
+        } catch(std::exception &e) {
+            PROBLEM "failed to create GEP"
+                ERROR;
+        }
+    } else {
+        llvm::Value *idx = GET_REF(r_idx, Value);
+        try {	
+            ans = builder->CreateGEP(val, idx);
+        } catch(std::exception &e) {
+            PROBLEM "failed to create GEP"
+                ERROR;
+        }
     }
 
     if(Rf_length(r_id))
@@ -781,4 +804,20 @@ R_IRBuilder_CreateInvoke(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_normal,
         ans->setName(makeTwine(r_id));
 
     return(R_createRef(ans, "InvokeInst"));
+}
+
+
+extern "C"
+SEXP
+R_IRBuilder_CreateStructGEP(SEXP r_builder, SEXP r_value, SEXP r_index, SEXP r_id) 
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *ans, *value;
+    value = GET_REF(r_builder, Value);
+    ans = builder->CreateStructGEP(value,  INTEGER(r_index)[0]);
+    if(Rf_length(r_id)) 
+        ans->setName(makeTwine(r_id));
+
+    return(R_createRef(ans, "Value"));
 }

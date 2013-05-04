@@ -49,13 +49,13 @@ R_InitializeAllTargetInfos()
 
 extern "C"
 SEXP
-R_create_ExecutionEngine(SEXP r_module)
+R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel)
 {
 
     /* Do we want to use some of the create() methods in the ExecutionEngine class. */
     std::string errStr;
     llvm::Module *module = GET_REF(r_module, Module);
-    llvm::ExecutionEngine *EE = llvm::EngineBuilder(module).setErrorStr(&errStr).setEngineKind(llvm::EngineKind::JIT).create();
+    llvm::ExecutionEngine *EE = llvm::EngineBuilder(module).setErrorStr(&errStr).setEngineKind(llvm::EngineKind::JIT).setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]).create();
     if(!EE) {
         PROBLEM "failed to create execution engine: %s", errStr.c_str()
             ERROR;

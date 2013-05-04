@@ -133,3 +133,24 @@ R_Instruction_mayHaveSideEffects(SEXP r_inst)
 	if(!inst) return(ScalarLogical(NA_LOGICAL));
 	return(ScalarLogical(inst->mayHaveSideEffects()));
 }
+
+
+
+
+
+
+#define MAKE_SET_ALIGNMENT(type) \
+extern "C" \
+SEXP \
+R_##type##_setAlignment(SEXP r_inst, SEXP r_align) \
+{ \
+	llvm::type *inst = GET_REF(r_inst, type); \
+	if(!inst) return(ScalarLogical(NA_LOGICAL)); \
+        inst->setAlignment(INTEGER(r_align)[0]); \
+	return(ScalarLogical(TRUE)); \
+}
+
+MAKE_SET_ALIGNMENT(StoreInst)
+MAKE_SET_ALIGNMENT(LoadInst)
+MAKE_SET_ALIGNMENT(AllocaInst)
+

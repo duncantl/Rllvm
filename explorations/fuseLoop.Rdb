@@ -107,6 +107,19 @@ This does not give us the projected 3-fold speedup we expected.
 However, it does show that we can compile R code to get equivalent
 speedup 
 </para>
+
+
+<para>
+
+<r:test><![CDATA[
+tm.loop = system.time(replicate(50, normalLogLik(x, 0, 1)))
+tm.vector = system.time(replicate(50, sum(log(dnorm(x, 0, 1)))))
+tm.reduceMap = system.time(replicate(50,  Reduce(`+`, Map(log, Map(dnorm, x, MoreArgs = list(0, 1)))) ))
+]]></r:test>
+
+</para>
+
+
 </section>
 
 <section>

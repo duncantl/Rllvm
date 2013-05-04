@@ -316,8 +316,17 @@ m = matrix(c(tmp, interp[i]/tmp), length(tmp), ,
 m
 </r:code>
 
+On a Macbook Pro (April 29th 2013) - elapsed time.
+<r:output><![CDATA[
+                 Time   Speedup
+Interpeted    167.950   1.00000
+Byte Compiled 115.211   1.45776
+Vectorized      0.894 187.86353
+Rllvm           0.649 258.78274
+]]></r:output>
 
 
+The following are for user time, not elapsed time.
 
 <table>
 <tgroup cols="3" align="right">

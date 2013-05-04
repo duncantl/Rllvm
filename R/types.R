@@ -1,7 +1,11 @@
 pointerType =
-function(elType)
+function(elType, rawPointer = FALSE)
 {
-   .Call("R_pointerType", elType)
+   ans = .Call("R_pointerType", elType, as.logical(rawPointer))
+   if(rawPointer)
+     new("PointerType", ref = ans)
+   else
+     ans
 }
 
 
@@ -77,14 +81,14 @@ function(type, id)
 
 
 structType =
-function(elTypes, name = NA, context = NULL, isPacked = NA)
+function(elTypes, name = NA, context = NULL, isPacked = NA, rawPointer = FALSE)
 {
   if(is.na(name))
     name = NULL
   else
     name = as.character(name)
   
-  .Call("R_StructType_create", elTypes, name, context, isPacked)
+  .Call("R_StructType_create", elTypes, name, context, isPacked, as.logical(rawPointer))
 }
 
 

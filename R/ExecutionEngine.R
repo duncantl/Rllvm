@@ -1,7 +1,12 @@
+CodeGenOpt_None = 0L
+CodeGenOpt_Les = 1L
+CodeGenOpt_Default = 2L
+CodeGenOpt_Aggressive = 2L
+
 ExecutionEngine =
-function(module)
+function(module, optimizationLevel = CodeGenOpt_Default)
 {
-  .Call("R_create_ExecutionEngine", module)
+  .Call("R_create_ExecutionEngine", module, as.integer(optimizationLevel))
 }
 
 addModule =
@@ -25,7 +30,11 @@ function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .a
 {
   if(!is(.x, "Function"))
     stop("argument to .llvm must be a Function")
-   
+
+# If an argument is a Function, we probably want to treat it as a function pointer and so want
+# its address which can be obtained via getPointerToFunction() with the exec engine also.
+#  .args = lapply(.args, function(x) if(is(x, "Function")) getPointerToFunction(x, .ee)@ref else x)
+  
    ans = .Call("R_callFunction", .x, .args, .ee)
 
   if(.all)

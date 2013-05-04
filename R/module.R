@@ -98,14 +98,23 @@ setMethod("names", "Module",
  # This creates a the GlobalVariable object
 setMethod("[[<-", c("Module", "character", "missing"),
            function(x, i, j, ..., value) {
+             # use the context of the module
+             # if(isBasicType(value))
              val = as(value, "Value")
-             createGlobalVariable(i, val, x)
+             createGlobalVariable(i, x, val = val)
              x
            })
 
+#????  Need to match arguments correctly
 setMethod("[[<-", c("Module", "Value", "missing"),
            function(x, i, j, ..., value) {
-             createGlobalVariable(i, value, x)
+             createGlobalVariable(i, val = value, mod = x)
+             x
+           })
+
+setMethod("[[<-", c("Module", "character", "missing", value = "Type"),
+           function(x, i, j, ..., value) {
+              createGlobalVariable(i, x, type = value)
              x
            })
 
@@ -126,7 +135,7 @@ setMethod("[", c("Module", "character", "missing"),
 
 
 setMethod("[[", c("Module", "character", "missing"),
-           function(x, i, j, ..., varOnly = FALSE, value = FALSE) {
+           function(x, i, j, ..., varOnly = FALSE, value = !missing(ee), ee = as(x, "ExecutionEngine")) {
        ans = if(varOnly)
                getGlobalVariable(x, i)
              else {
@@ -137,7 +146,7 @@ setMethod("[[", c("Module", "character", "missing"),
                  tmp
              }
         if(value)
-	   getGlobalValue(ans, as(x, "ExecutionEngine"))
+	   getGlobalValue(ans, ee)
 	else
 	   ans
            })

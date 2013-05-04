@@ -1,9 +1,14 @@
 #include "Rllvm.h"
 
 
-#define  ty(id)  llvm::Type::get##id##Ty(ctxt)
+#define  ty(id)  { llvm::Type::get##id##Ty(ctxt), #id }
 
 //const llvm::Type stringType
+
+struct TypeName {
+    const llvm::Type *type;
+    const char * const name;
+} ;
 
 extern "C"
 SEXP
@@ -11,7 +16,8 @@ R_getTypeDefinitions()
 {
     llvm::LLVMContext &ctxt = llvm::getGlobalContext();
 
-    const llvm::Type *types[] = {
+//    const llvm::Type *types[] = {
+    struct TypeName types[] = {
         ty(Void),
         ty(Label),
         ty(Float),
@@ -31,9 +37,11 @@ R_getTypeDefinitions()
 
     SEXP ans;
     PROTECT(ans = NEW_LIST(n));
-    for(int i = 0; i < n; i++)
-        SET_VECTOR_ELT(ans, i, R_MakeExternalPtr((void *) types[i], Rf_install("Type"), R_NilValue)); // R_createRef((void *) types[i], "Type")
-
+    for(int i = 0; i < n; i++) {
+        SEXP tmp;
+        SET_VECTOR_ELT(ans, i, tmp = R_MakeExternalPtr((void *) types[i].type, Rf_install("Type"), R_NilValue)); // R_createRef((void *) types[i], "Type")
+//        Rf_setAttrib(tmp, Rf_install("typeName"), mkString(types[i].name));
+    }
     UNPROTECT(1);
 
     return(ans);
@@ -57,14 +65,16 @@ R_IntegerType_get(SEXP r_context, SEXP r_bits)
 
 extern "C"
 SEXP
-R_pointerType(SEXP r_type)
+R_pointerType(SEXP r_type, SEXP r_noClass)
 {
     llvm::Type *elType = GET_REF(r_type, Type);
 
     llvm::PointerType *ans;
     ans = llvm::PointerType::get(elType, 0);
 
-    return(R_createRef(ans, "PointerType"));
+    return(LOGICAL(r_noClass)[0] ? 
+             R_MakeExternalPtr((void *) ans, Rf_install("PointerType"), R_NilValue) :
+             R_createRef(ans, "PointerType"));
 }
 
 
@@ -124,7 +134,7 @@ R_Type_getContext(SEXP r_type)
 {
     llvm::Type *ty = GET_TYPE(r_type);
     const llvm::LLVMContext *ans = &(ty->getContext());
-    return(R_createRef(ans, "Context"));
+    return(R_createRef(ans, "LLVMContext"));
 }
 
 
@@ -169,7 +179,7 @@ R_StructType_getName(SEXP r_type)
 
 extern "C"
 SEXP
-R_StructType_create(SEXP elTypes, SEXP name, SEXP r_context, SEXP r_isPacked) /*XXX use  isPacked */
+R_StructType_create(SEXP elTypes, SEXP name, SEXP r_context, SEXP r_isPacked, SEXP r_noClass) /*XXX use  isPacked */
 {
     llvm::LLVMContext *ctxt;
     llvm::StructType *ans;
@@ -194,7 +204,9 @@ R_StructType_create(SEXP elTypes, SEXP name, SEXP r_context, SEXP r_isPacked) /*
     if(Rf_length(name))
         ans->setName(llvm::StringRef(CHAR(STRING_ELT(name, 0))));
     
-    return(R_createRef(ans, "StructType"));
+    return(LOGICAL(r_noClass)[0] ? 
+             R_MakeExternalPtr((void *) ans, Rf_install("Type"), R_NilValue) :
+             R_createRef(ans, "StructType"));
 }
 
 

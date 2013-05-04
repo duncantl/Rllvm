@@ -135,7 +135,8 @@ R_verifyModule(SEXP r_module)
     module = (GET_REF(r_module, Module)); // llvm::cast<llvm::Module>
     try {
         std::string errors;
-        bool status = llvm::verifyModule(*module, llvm::PrintMessageAction, &errors); // want to collect the error information
+                                                 // was PrintMessageAction
+        bool status = llvm::verifyModule(*module, llvm::ReturnStatusAction, &errors); 
         if(status != false) {
             PROBLEM "module verification: %s", errors.c_str()
                 ERROR;

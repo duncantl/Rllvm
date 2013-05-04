@@ -17,10 +17,12 @@ function(...)
          types, 
          MoreArgs = list(ns = e))
 
-# The StructType class isn't available yet.  
-#  makeSEXPTypes()
-#  sapply(ls(e), function(x) utils::assignInNamespace(x, get(x, SEXPTypes), ns = e))
+# The StructType class isn't available yet at this stage in loading the packge.
+   tmp =  makeSEXPTypes(rawPointer = TRUE)
+  mapply(utils::assignInNamespace,
+          c("SEXPType", sprintf("%sSXPType", names(tmp)[-1])),
+          tmp, MoreArgs = list(ns = e))
   
   if(getOption("Rllvm.autoInitialize", TRUE))
-    InitializeNativeTarget()
+     InitializeNativeTarget()
 }

@@ -5,7 +5,13 @@
 <topic>
 <title>Things To Note</title>
 <items>
-
+<item status="done">
+Find out how to call a routine that is dynamically loaded from another .so
+We are using addGlobalMapping(), but that doesn't seem to be working
+See RLLVMCompile/tests/dynLoadCall.R
+<br/>
+Already working. I just broke it when allowing strings as arguments to get NativeSymbolInfo values.
+</item>
 <item>
 When a parameter type is one of the SEXP types, then coerce the input to that type.
 </item>
@@ -255,6 +261,12 @@ Methods for IRBuilder
 See the TU interface generation.
 <br/>
 [gone] CreateUnwind, 
+
+?CreateNeg, CreateNot ?
+
+CreateAnd, CreateOr, CreateXor
+CdcreateShr/Shl
+
 CreateUnreachable
 CreateVAArg
 

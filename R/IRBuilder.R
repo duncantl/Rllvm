@@ -423,3 +423,20 @@ function(builder, op, from, to, id = character())
   
   .Call("R_IRBuilder_CreateCast", builder, as.integer(op), from, to, as.character(id))
 }
+
+
+createStructGEP =
+function(builder, value, field)
+{
+  if(!is(value, "Value"))
+    stop("need a value")
+  
+  if(is.character(field))
+     field = getStructFieldIndex(field, getType(value))
+
+  field = as.integer(field)
+  if(length(field) != 1 || is.na(field))
+     stop("not a field index")
+
+  .Call("R_IRBuilder_CreateStructGEP",  builder, value, as.integer(field))
+}

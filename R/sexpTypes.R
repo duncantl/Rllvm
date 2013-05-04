@@ -1,4 +1,6 @@
+# Do we still need this env? Don't think so.
 SEXPTypes = new.env()
+SEXPType = LGLSXPType = INTSXPType = REALSXPType = STRSXPType = VECSXPType = CHARSXPType = NULL
 
 getSEXPType =
 function(type = "SEXP")
@@ -9,12 +11,17 @@ function(type = "SEXP")
 }
 
 makeSEXPTypes =
-function()
+function( rawPointer = FALSE)
 {
    ans = list()
-   ref = structType(list(type = Int32Type), "SEXP")
-   ans[["SEXP"]] = tmp = pointerType(ref)
-   assign("SEXP", new("SEXPType", tmp), SEXPTypes)
+   types = list()   
+   ref = structType(list(type = Int32Type), "SEXPStruct", rawPointer = rawPointer)
+   if(rawPointer)
+      ref = new("StructType", ref = ref)
+
+   ans[["SEXP"]] = tmp = pointerType(ref, rawPointer = rawPointer)
+   types[["SEXP"]] = new("SEXPType", tmp)
+   assign("SEXP", types[["SEXP"]], SEXPTypes)
 
      # Come from Rinternals.h. Could get them programmatically with RCIndex/RClangSimple.
    ids = c(ANY = 18L, LGL = 10L, INT = 13L, REAL = 14L, STR = 16L, VEC = 19L, CHAR = 9L)
@@ -27,11 +34,13 @@ function()
       tmp = new(sprintf("%sSXPType", i), tmp)
       assign(i, tmp, SEXPTypes)
       ans[[i]] = tmp@ref
+      types[[i]] = tmp
    }
    
 
    .Call("R_setRLLVMTypes", ans, ids)
-   ans
+   # ans
+   types
 }
 
 

@@ -1,5 +1,8 @@
 #include "Rllvm.h"
+#if 0
 #include <llvm/IR/Attributes.h>
+#endif
+
 
 extern "C"
 SEXP

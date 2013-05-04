@@ -57,11 +57,31 @@ convertRawPointerToR(void *p, const llvm::Type *type)
     /* The p here is wrong for a string pointer. */
     const llvm::Type *elType = ((const llvm::PointerType*) type)->getElementType();
     llvm::Type::TypeID elID = elType->getTypeID();
-    if(elID == llvm::Type::IntegerTyID) {
+    llvm::Type::TypeID ID = type->getTypeID();   
+//    fprintf(stderr, "ID = %d, elID = %d\n", ID, elID);
+    if(ID == llvm::Type::ArrayTyID) {
+        SEXP ans = R_NilValue;
+        unsigned nels = type->getArrayNumElements(), i;
+//        fprintf(stderr, "# elements = %d\n", nels);
+        if(elID == llvm::Type::IntegerTyID) {
+            PROTECT(ans = NEW_INTEGER(nels));
+            for(i = 0 ; i < nels; i++)
+                INTEGER(ans)[i] = ((int *) p)[i];
+        } else if(elID == llvm::Type::DoubleTyID) {
+            PROTECT(ans = NEW_NUMERIC(nels));
+            for(i = 0 ; i < nels; i++)
+                REAL(ans)[i] = ((double *) p)[i];
+        }
+
+        UNPROTECT(1);
+        return(ans);
+    } else if(elID == llvm::Type::IntegerTyID) {
        const llvm::IntegerType *ity = (const llvm::IntegerType *) elType;
        unsigned bw = ity->getBitWidth();
        if(bw == 8) {
          return(ScalarString(mkChar((const char *)p)));
+       } else if (bw == 32) {
+           
        }
     }
 	

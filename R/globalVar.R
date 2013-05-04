@@ -18,6 +18,9 @@ function(id, mod, type = getType(val), val = NULL, # guessType(val),
   if(is.null(val) && missing(type))
     stop("you need to specify either the type or an initial value for the global variable")
 
+  if(missing(val) && isArrayType(type))
+    val = constantAggregateZero(type)
+  
   alignment = NA
   if(!is.null(val)) {
     if(is.character(val) && length(val) == 1) {
@@ -70,11 +73,22 @@ function(var, value)
   value
 }
 
-setAlignment <-
-function(var, align)
-{
-  if(!is(var, "GlobalVariable"))
-    stop("setAlignment requires a GlobalVariable")
-  
-  .Call("R_GlobalVariable_setAlignment", var, as.integer(align))
-}
+
+setGeneric("setAlignment",
+           function(var, align, ...)
+              standardGeneric("setAlignment"))
+
+setMethod("setAlignment", "GlobalVariable",
+           function(var, align, ...)          
+              .Call("R_GlobalVariable_setAlignment", var, as.integer(align)))
+
+setMethod("setAlignment", "StoreInst",
+           function(var, align, ...)          
+              .Call("R_StoreInst_setAlignment", var, as.integer(align)))
+setMethod("setAlignment", "LoadInst",
+           function(var, align, ...)          
+              .Call("R_LoadInst_setAlignment", var, as.integer(align)))
+setMethod("setAlignment", "AllocaInst",
+           function(var, align, ...)          
+              .Call("R_AllocaInst_setAlignment", var, as.integer(align)))
+

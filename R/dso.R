@@ -14,8 +14,35 @@ function(libs)
 llvmAddSymbol =
 function(..., .syms = list(...))
 {
+   if(length(.syms) == 0)
+       return(list())
+      
+   ids = names(.syms)
+   if(length(ids) == 0)
+     w = rep(TRUE, length(.syms))
+   else
+     w <- (ids == "")
+   
+   if(any(w))
+     names(.syms)[w] =  lapply(.syms[w], as, "character")
+   
+   .syms = lapply(.syms, as, "NativeSymbol")
+
    if(length(names(.syms)) == 0 || any(names(.syms) == ""))
-      stop("need names for all symbols")
+      stop("need names for all symbols")   
    
    invisible(.Call("R_DynamicLibrary_AddSymbol", .syms, names(.syms)))
 }
+
+setOldClass("NativeSymbol")
+setOldClass("NativeSymbolInfo")
+
+setAs("character", "NativeSymbol",
+        function(from)
+           getNativeSymbolInfo(from)$address)
+
+
+setAs("NativeSymbolInfo", "NativeSymbol",
+        function(from)
+           from$adress)
+

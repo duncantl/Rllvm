@@ -10,6 +10,9 @@ mod[["l"]]
 mod[["r"]]
 mod[["i"]]
 
+ee = ExecutionEngine(mod)
+mod[["l", ee = ee]]
+
 mod[c("r", "i")]
 
 if(require(RLLVMCompile)) {

@@ -1,16 +1,46 @@
 Version 0.5-0
 
+	*  Methods for getContext().
+
+	*  Methods for setAlignment() for Store, Load and Alloca instructions.
+
+	*  Errors verifying a module are reported as a regular error
+	   and not printed on the console.
+
+	*  Retrieve global variable arrays as R objects.
+
+	*  createStructGEP().
+
+        *  ExecutionEngine() supports specifying optimization level.
+
+	*  createGlobalVariable() initializes array types with constantAggregateZero.
+
+	*  constantAggregateZero() function.
+
+	*  llvmAddSymbol() also accepts the names and resolves the
+	   corresponding symbols itself. So we can mix symbols and
+	   strings as arguments.
+
+	*  <Removed> Put a typeName attribute on the type external pointers to
+   	   be able to identify them in R. This unfortunately causes identical()
+           on the external pointers fail in some cases in sameType().
+
+        *  Export *SXPType variables representing the type definitions
+	   for different R types, i.e. logical, integer, numeric, ...,
+ 	   ANY/SEXP. Removes the need to call getSEXPType('typeName')
+
+
 	*  getLLVMTargets() returns the names of the available targets
 	   for code generation.
 
-	*  New interfaces to IRBuilder methods. 
+	*  New interfaces to IRBuilder methods.
 
 	*  Types for representing SEXP types in routines.
 
 	*  Ability to pass R objects (SEXPs) to and from routines.
 
 	*  Support for passing a value to a routine expecting a Float.
-	
+
 	*  changed .llvm() to alias .llvmCallFunction() rather than
 	   run() to avoid the overhead of method dispatch.
 

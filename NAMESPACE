@@ -2,7 +2,8 @@ useDynLib(Rllvm)
 
 import(methods)
 
-exportClasses(AllocaInst,
+exportClasses(
+  AllocaInst,
   BasicBlock,
   BranchInst,
   CallInst,
@@ -11,6 +12,7 @@ exportClasses(AllocaInst,
   Constant,
   ConstantFP,
   ConstantInt,
+  ConstantAggregateZero,              
   DerivedType,
   ExecutionEngine,
   Function,
@@ -281,6 +283,8 @@ export(setInitializer)
 
 export(getIntegerType)
 export(setAlignment)
+exportMethods(setAlignment)
+
 export(addModule)
 
 export(getGetElementPtr)
@@ -317,3 +321,16 @@ export(llvmVersion)
 
 
 export(getSEXPType)
+
+
+exportClasses(SEXPType, LGLSXPType, INTSXPType, REALSXPType, STRSXPType, VECSXPType, CHARSXPType)
+export(SEXPType, LGLSXPType, INTSXPType, REALSXPType, STRSXPType, VECSXPType, CHARSXPType)
+
+export(createStructGEP)
+
+
+export(constantAggregateZero)
+
+
+exportPattern("CodeGenOpt_.*")  # enums for optimization level
+

@@ -68,3 +68,10 @@ function(cons, index = c(0L, 0L), inBounds = FALSE, ctx = getContext(cons))
    index = lapply(index, function(x) if(!is(x, "Constant")) createConstant(val = x, context = ctx) else x)
    .Call("R_Constant_getGetElementPtr", cons, index, as.logical(inBounds))
 }
+
+
+constantAggregateZero =
+function(type)
+{
+   .Call("R_ConstantAggregateZero_get", as(type, "Type"))
+}

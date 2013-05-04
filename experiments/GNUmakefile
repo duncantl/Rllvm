@@ -1,5 +1,8 @@
+CC=llvm-gcc
+CC=clang
+
 %.bc: %.c
-	llvm-gcc $(OPT_LEVEL) -emit-llvm $< -c -o $@
+	$(CC) $(OPT_LEVEL) -emit-llvm $< -c -o $@
 
 %.llcpp: %.bc
 	llc -march=cpp $< -o $@

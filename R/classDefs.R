@@ -34,9 +34,9 @@ setClass("ParameterList", representation(names = "character"), contains = "list"
 
   # allocates memory on the stack.
 setClass("AllocaInst", contains = "UnaryInstruction")
-setClass("LoadInst", contains = "UnaryInstruction")
-
 setClass("StoreInst", contains = "Instruction")
+setClass("LoadInst", contains = "Instruction")
+
 setClass("GetElementPtrInst", contains = "Instruction")
 setClass("PtrDiff", contains = "Instruction")
 
@@ -68,6 +68,7 @@ setClass("CHARSXPType", contains = "SEXPType")
 
 setClass("User", contains = "Value")
 setClass("Constant", contains = "User")
+setClass("ConstantAggregateZero", contains = "Constant")
 setClass("ConstantInt", contains = "Constant")
 setClass("ConstantFP", contains = "Constant")
 setClass("GlobalValue", contains = "Constant")
