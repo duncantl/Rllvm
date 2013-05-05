@@ -313,3 +313,20 @@ R_Type_getPointerElementType(SEXP r_type)
 
     return(R_createRef(ans, "Type"));
 }
+
+
+/* Not sure we will use this. For varags, but can do this in R_createFunction in Module.cpp */
+extern "C"
+SEXP
+R_FunctionType_get(SEXP r_returnType, SEXP r_argTypes, SEXP r_varArgs)
+{
+    llvm::FunctionType *ans;
+
+    std::vector<llvm::Type*> args;
+    for(int i = 0; i < Rf_length(r_argTypes); i++)
+        args.push_back(GET_REF(VECTOR_ELT(r_argTypes, i), Type));
+
+    llvm::Type *returnType = GET_REF(r_returnType, Type);
+    ans = llvm::FunctionType::get(returnType, args, INTEGER(r_varArgs)[0]);
+    return(R_createRef(ans, "FunctionType"));
+}

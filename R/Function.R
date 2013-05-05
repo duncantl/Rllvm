@@ -1,10 +1,10 @@
 #
 
 Routine <- Function <-
-function(name, retType, paramTypes = list(),  module, ...)
+function(name, retType, paramTypes = list(),  module, varArgs = FALSE, ...)
 {
 
-  fun = .Call("R_createFunction", module, as.character(name), retType, paramTypes)
+  fun = .Call("R_createFunction", module, as.character(name), retType, paramTypes, as.logical(varArgs))
   
   if(length(names(paramTypes)))
      names(fun) = names(paramTypes)

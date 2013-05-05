@@ -11,7 +11,7 @@ target triple = "x86_64-apple-macosx10.7.0"
 @.str1 = private unnamed_addr constant [21 x i8] c"A replacement string\00", align 1
 @str3_a_noinit = common global [99 x i8] zeroinitializer, align 16
 
-define i32 @getLen1() #0 {
+define i32 @getLen1()  {
 entry:
   %0 = load i8** @str1_p, align 8
   %call = call i64 @strlen(i8* %0)
@@ -19,34 +19,34 @@ entry:
   ret i32 %conv
 }
 
-declare i64 @strlen(i8*) #1
+declare i64 @strlen(i8*)
 
-define i32 @getLen2() #0 {
+define i32 @getLen2()  {
 entry:
   %call = call i64 @strlen(i8* getelementptr inbounds ([11 x i8]* @str2_a, i32 0, i32 0))
   %conv = trunc i64 %call to i32
   ret i32 %conv
 }
 
-define i8* @getStr2() #0 {
+define i8* @getStr2()  {
 entry:
   ret i8* getelementptr inbounds ([11 x i8]* @str2_a, i32 0, i32 0)
 }
 
-define i8* @getStr1() #0 {
+define i8* @getStr1()  {
 entry:
   %0 = load i8** @str1_p, align 8
   ret i8* %0
 }
 
-define void @setStr1() #0 {
+define void @setStr1() {
 entry:
   %call = call i8* @strdup(i8* getelementptr inbounds ([21 x i8]* @.str1, i32 0, i32 0))
   store i8* %call, i8** @str1_p, align 8
   ret void
 }
 
-declare i8* @strdup(i8*) #1
+declare i8* @strdup(i8*) 
 
-attributes #0 = { nounwind ssp uwtable "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf"="true" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #1 = { "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf"="true" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes { nounwind ssp uwtable "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf"="true" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes { "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf"="true" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "unsafe-fp-math"="false" "use-soft-float"="false" }

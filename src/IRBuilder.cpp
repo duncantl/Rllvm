@@ -402,7 +402,7 @@ R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id)
 
 extern "C"
 SEXP
-R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r_id)
+R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r_id, SEXP r_beforeTerminator)
 {
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
@@ -416,7 +416,16 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
     } else
         ans = new llvm::AllocaInst(type, makeTwine(r_id));            
 
-    ans = builder->Insert(ans);
+    if(LOGICAL(r_beforeTerminator)[0]) {
+        llvm::BasicBlock *block;
+        block = builder->GetInsertBlock();
+        llvm::TerminatorInst *inst = block->getTerminator();
+        if(inst)
+            block->getInstList().insert(inst, ans);
+        else
+            builder->Insert(ans);
+    } else    
+        ans = builder->Insert(ans);
 
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));

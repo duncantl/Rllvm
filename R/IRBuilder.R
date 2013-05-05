@@ -162,9 +162,9 @@ function(builder, val, index, id = character())
 
 createLocalVariable =
   #XXX doesn't match method in IRBuilder.  Building myself. Be suspicious
-function(builder, type, id)
+function(builder, type, id, beforeTerminator = FALSE)
 {
-  .Call("R_IRBuilder_createLocalVariable", builder, type, integer(), as.character(id))
+  .Call("R_IRBuilder_createLocalVariable", builder, type, integer(), as.character(id), as.logical(beforeTerminator))
 }
 
 createLocalArrayVariable =

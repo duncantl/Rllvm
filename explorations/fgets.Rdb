@@ -45,7 +45,7 @@ library(RLLVMCompile)
 mod = Module("fgets")
 ee = ExecutionEngine(mod)
 
-stringType = pointerType(getIntegerType(8L, Rllvm:::getContext(mod)))
+stringType = pointerType(getIntegerType(8L, getContext(mod)))
 FILEType = pointerType(Int32Type) # an opaque struct type?
 
 .str = createGlobalVariable(".str", mod, val = string(1000), linkage = PrivateLinkage)

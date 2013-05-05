@@ -334,3 +334,9 @@ export(constantAggregateZero)
 
 exportPattern("CodeGenOpt_.*")  # enums for optimization level
 
+exportClass(FunctionType)
+
+export(getFirstNonPHI)
+
+export(llvmStartMultiThreaded, llvmStopMultiThreaded)
+

@@ -81,14 +81,17 @@ function(type, id)
 
 
 structType =
-function(elTypes, name = NA, context = NULL, isPacked = NA, rawPointer = FALSE)
+function(elTypes, name = NA, context = NULL, isPacked = NA, rawPointer = FALSE, withNames = TRUE)
 {
   if(is.na(name))
     name = NULL
   else
     name = as.character(name)
   
-  .Call("R_StructType_create", elTypes, name, context, isPacked, as.logical(rawPointer))
+  ans = .Call("R_StructType_create", elTypes, name, context, isPacked, as.logical(rawPointer))
+  if(withNames)
+    ans = new("StructTypeWithNames", names = names(elTypes), ref = ans@ref)
+  ans
 }
 
 

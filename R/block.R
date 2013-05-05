@@ -15,6 +15,13 @@ function(block)
    .Call("R_BasicBlock_getTerminator", block)
 }
 
+getFirstNonPHI =
+function(block)
+{
+   block = as(block, "BasicBlock")
+   .Call("R_BasicBlock_getFirstNonPHI", block)
+}
+
 setAs("IRBuilder", "BasicBlock",
       function(from) {
         getInsertBlock(from)

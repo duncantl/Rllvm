@@ -28,6 +28,18 @@ R_BasicBlock_getTerminator(SEXP r_block)
     return(ans ? R_createRef(ans, "TerminatorInst") : R_NilValue);
 }
 
+extern "C"
+SEXP
+R_BasicBlock_getFirstNonPHI(SEXP r_block)
+{
+
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    const llvm::Instruction *ans = block->getFirstNonPHI();
+   
+    return(ans ? R_createRef(ans, "Instruction") : R_NilValue);
+}
+
+
 
 /*XXX  Can we use the references from the iterator after the iterator is gone? */
 extern "C"

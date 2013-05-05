@@ -1,3 +1,4 @@
+
 fib =
 function(n)
 {
@@ -13,13 +14,14 @@ library(compiler)
 
 fibc = cmpfun(fib)
 fc = compileFunction(fib, Int32Type, Int32Type)
+ee = ExecutionEngine(as(fc, "Module"), "Aggressive")
 
-.llvm(fc, 20)
+.llvm(fc, 20, .ee = ee)
 
 
 time =   
 function(n)
-  rbind(ll = system.time(replicate(200, .llvm(fc, n)))/10,
+  rbind(ll = system.time(replicate(200, .llvm(fc, n, .ee = ee)))/10,
         fibc = system.time(replicate(20, fibc(n))),
         fib = system.time(replicate(20, fib(n))))[, 1:3]
 

@@ -36,7 +36,7 @@ R_new_Module(SEXP r_name, SEXP r_context)
 
 extern "C"
 SEXP
-R_createFunction(SEXP r_module, SEXP r_name, SEXP r_retType, SEXP r_types)
+R_createFunction(SEXP r_module, SEXP r_name, SEXP r_retType, SEXP r_types, SEXP r_varArgs)
 {
     llvm::Function *ans;
     //
@@ -50,7 +50,7 @@ R_createFunction(SEXP r_module, SEXP r_name, SEXP r_retType, SEXP r_types)
 
 #if 1
     llvm::FunctionType * fsig;	
-    fsig = llvm::FunctionType::get(rtype, params, false);
+    fsig = llvm::FunctionType::get(rtype, params, INTEGER(r_varArgs)[0]);
     ans = llvm::cast<llvm::Function>( module->getOrInsertFunction(CHAR(STRING_ELT(r_name, 0)), fsig) );
 #else
     llvm::FunctionType * fty;

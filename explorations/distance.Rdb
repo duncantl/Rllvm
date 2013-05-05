@@ -131,13 +131,14 @@ dist =
 function(X, Y, nx = nrow(X), ny = nrow(Y), p = ncol(X),  ans = numeric(nx * ny))
 {
   ctr = 1L
-#  ans.els = REAL(ans)
+  #  ans = numeric(nx * ny)  # want to do this.
   for(i in 1:nx) {
-     for(j in 1:ny) {
+    for(j in 1:ny) {
        total = 0.0
        posX = i
        posY = j
        for(k in 1:p) {
+#cat(i, j, k, X[posX], Y[posY], "\n")
           total = total + (X[posX]  - Y[posY])^2
           posX = posX + nx
           posY = posY + ny
@@ -151,6 +152,19 @@ function(X, Y, nx = nrow(X), ny = nrow(Y), p = ncol(X),  ans = numeric(nx * ny))
 }
 ]]></r:function>
 </para>
+
+
+<para>
+We have lost the convenience and succinct nature of <r/>'s syntax and vector operations.
+We have explicitly looped over the p elements of each observation.
+We have done this so that we don't have to create intermediate vectors, e.g.
+<r:expr eval="false">X[i,]</r:expr> which explicitly needs to create a new numeric vector
+to make the elements continigous in memory. 
+One of the things we'd like to do is analyze the regular <r/>  code with
+<r:expr eval="false">X[i,]</r:expr> and <r:expr eval="false">(X[i,] - Y[j,])^2</r:expr>
+and recognize that we can rewrite the computations to avoid creating these intermediate representations of the data.
+</para>
+
 
 <para>
 It may not be obvious, but the important part of defining the metric
@@ -172,12 +186,13 @@ Y = matrix(rnorm(20), 4, 5)
 dist(X, Y)
 as.matrix(stats::dist(rbind(X, Y)))[1:3, -(1:3)]
 </r:test>
+
 A second test with deterministic input is
 <r:test>
-A = matrix(1:15, 3,5)
-B = matrix(20:1, 4,5)
-dist(A, B)
-as.matrix(stats::dist(rbind(A, B)))[1:3, -(1:3)]
+A = matrix(as.numeric(1:15), 3,5)
+B = matrix(as.numeric(20:1), 4,5)
+a = matrix(dist(A, B), 3, 4, byrow = TRUE)
+b = as.matrix(stats::dist(rbind(A, B)))[1:3, -(1:3)]
 </r:test>
 
 </para>
@@ -186,6 +201,8 @@ Now let's consider compiling the <r/> function above:
 <r:code id="compile">
 library(RLLVMCompile)
 mod = Module()
+declareFunction(list(VoidType, Int32Type), "printInt", mod)
+llvmAddSymbol("printInt")
 distc = compileFunction(dist, REALSXPType, list(DoublePtrType, DoublePtrType, Int32Type, Int32Type, Int32Type, REALSXPType), module = mod)
 </r:code>
 
@@ -196,10 +213,47 @@ B = matrix(as.numeric(20:1), 4,5)
 A = matrix(rnorm(15), 3,5)
 B = matrix(rnorm(20), 4,5)
 
-ans = .llvm(distc, A, B, nrow(A), nrow(B), ncol(A), numeric(nrow(A) * nrow(B)))
+ee = ExecutionEngine(distc)
+ans = .llvm(distc, A, B, nrow(A), nrow(B), ncol(A), numeric(nrow(A) * nrow(B)), .ee = ee)
 ans = matrix(ans, nrow(A), nrow(B), byrow = TRUE)
 true = as.matrix(stats::dist(rbind(A, B)))[ 1:nrow(A), - (1:nrow(A))]
+all(ans == true) 
 </r:test>
+
+<r:test id="test">
+p = 40
+n1 = 8000 
+n2 = 3100
+A = matrix(rnorm(n1 * p), n1, p)
+B = matrix(rnorm(n2 * p), n2, p)
+
+lf = function(A, B, .ee = ExecutionEngine(distc)) {
+   matrix(.llvm(distc, A, B, nrow(A), nrow(B), ncol(A), numeric(nrow(A) * nrow(B)), .ee = .ee), nrow(A), nrow(B), byrow = TRUE)
+}
+
+rm(dist)
+rf = function(A, B) {
+    as.matrix(dist(rbind(A, B)))[ 1:nrow(A), - (1:nrow(A)) ]
+}
+</r:test>
+<r:test><![CDATA[  
+tm.ll = system.time(a <- lf(A, B, ee))
+tm.r = system.time(b <- rf(A, B))
+all.equal(a, b)
+]]>
+<r:output><![CDATA[ 
+ # p = 40, n1 = 8000, n2 = 3100, OS X
+rbind(tm.ll, tm.r)[,1:3] 
+      user.self sys.self elapsed
+tm.ll    25.521    0.142  25.664
+tm.r     18.850    2.821  21.673
+]]></r:output>
+</r:test>
+The results show the LLVM code is  about 18% slower.
+Note that the <r/> code causes the system time to be significant.
+This is probably points to memory allocation.
+</para>
+<para>
 
 Here we assume that we are going to return an <r/> numeric vector
 with the distance values. We pass in the two matrices, the
@@ -227,4 +281,8 @@ prudent to compile this <r/> code specifically  for
 a particular data set, knowing the types of its columns.
 </para>
 </section>
+
+<r:code eval="false" id="source">
+xmlSourceFunctions("distance.Rdb", verbose = FALSE); xmlSource("distance.Rdb", ids = "compile"); xmlSource("distance.Rdb", xnodes = "//r:test[@id = 'run' or @id = 'test']")
+</r:code>
 </article>

@@ -1,5 +1,10 @@
 Version 0.5-0
 
+	*  createLocalVariable() allows the instruction to be inserted
+	   before the terminator of the current block.
+
+	*  Added llvmShutdown(), llvmStartMultiThreaded(), llvmStopMultiThreaded()
+
 	*  Methods for getContext().
 
 	*  Methods for setAlignment() for Store, Load and Alloca instructions.

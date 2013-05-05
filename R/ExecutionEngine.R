@@ -1,12 +1,37 @@
 CodeGenOpt_None = 0L
-CodeGenOpt_Les = 1L
+CodeGenOpt_Less = 1L
 CodeGenOpt_Default = 2L
-CodeGenOpt_Aggressive = 2L
+CodeGenOpt_Aggressive = 3L
+
+CodeGenOptEnum = c(None = CodeGenOpt_None, Less = CodeGenOpt_Less,
+               Default = CodeGenOpt_Default,
+               Aggressive = CodeGenOpt_Aggressive)
+
+matchEnum =
+function(val, values)
+{
+  orig = val
+  
+  if(is.character(val)) {
+    val = pmatch(tolower(val), tolower(names(values)))
+    val = values[val]
+  }
+
+  if(is.na(val))
+    stop("no matching value")
+
+  if(!(val %in% values))
+    stop("value is not one of the acceptable values")
+
+  val
+}
 
 ExecutionEngine =
 function(module, optimizationLevel = CodeGenOpt_Default)
 {
-  .Call("R_create_ExecutionEngine", module, as.integer(optimizationLevel))
+  optimizationLevel = matchEnum(optimizationLevel, CodeGenOptEnum)
+  
+  .Call("R_create_ExecutionEngine", as(module, "Module"), as.integer(optimizationLevel))
 }
 
 addModule =
@@ -15,7 +40,7 @@ function(engine, ...)
    if(!is(engine, "ExecutionEngine"))
      stop("can only add modules to an ExecutionEngine, currently")
    
-   mods = list(...)
+   mods = lapply(list(...), as, "Module")
    .Call("R_ExecutionEngine_addModule", engine, mods)
 }
 

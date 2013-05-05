@@ -37,7 +37,7 @@ function(x, mu, sigma)
 ]]></r:function>
 
 
-<r:code>
+<r:code eval="false">
   d = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE)
   .llvmCallFunction(d, 2, 0, 3)
   identical(.llvmCallFunction(d, 2, 0, 3), dnorm(2, 0, 3))
@@ -308,7 +308,7 @@ entire block of code without requiring  the R user to specify these.
 <para>
 Of course, there is no need to actually use the  R language
 to describe the operation as 
-<r:code>
+<r:code eval="false">
  Reduce(`+`, Map(f1, Map(f2, ....)))
 </r:code>
 We can describe this more directly in R. The above is just
@@ -319,7 +319,7 @@ syntax, a la Ross (Ihaka)!
 </section>
 
 
-<section>
+<section eval="false">
 <title>Vectorized Version of <r:func>Dnorm</r:func></title>
 <para>
 # Create a vectorized version of this.

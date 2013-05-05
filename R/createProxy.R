@@ -19,6 +19,7 @@ function(name, returnType, types = list(),
     
   f = mkProxyFn(name, types, env)
 
+    #XXX declareFunction is in RLLVMCompile.
   declareFunction(list(returnType = returnType, params = types), name, mod)
   fun = compileFunction(f, returnType, types, mod = mod, name = id, ...)
   llvmAddSymbol(.syms = structure(list(sym), names = name))

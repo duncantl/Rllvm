@@ -18,7 +18,7 @@ setClass("PassManager", contains = "PassManagerBase")
 setClass("User", contains = "Value")
 setClass("Instruction", contains = "User")
 
-setClass("UnaryInstruction", contains = "RC++Reference")
+setClass("UnaryInstruction", contains = "Instruction")
 setClass("TerminatorInst", contains = "Instruction")
 setClass("ReturnInst", contains = "TerminatorInst")
 setClass("CallInst", contains = "Instruction")
@@ -48,11 +48,14 @@ setClass("Type", contains = "RC++Reference")
 setClass("DerivedType", contains = "Type")
 setClass("CompositeType", contains = "DerivedType")
 setClass("StructType", contains = "CompositeType")
+setClass("StructTypeWithNames", representation(names = "character"), contains = "StructType")
 setClass("UnionType", contains = "CompositeType")
 setClass("SequentialType", contains = "CompositeType")
 setClass("PointerType", contains = "SequentialType")
 setClass("ArrayType", contains = "SequentialType")
 setClass("VectorType", contains = "SequentialType")
+
+setClass("FunctionType", contains = "Type")
 
 
 # R specific types

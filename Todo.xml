@@ -5,6 +5,19 @@
 <topic>
 <title>Things To Note</title>
 <items>
+<item>
+Allow calling varargs functions directly.
+See varargs.R
+<r:code>
+.llvm(pf, "result: %d ***\n", 34L)
+</r:code>
+Currently, runFunction in LLVM doesn't support this.
+Assertion: "This doesn't support passing arguments through varargs (yet)!"
+</item>
+<item>
+Move createProxy to RLLVMCompile or declareFunction from there to Rllvm.
+</item>
+
 <item status="done">
 Find out how to call a routine that is dynamically loaded from another .so
 We are using addGlobalMapping(), but that doesn't seem to be working

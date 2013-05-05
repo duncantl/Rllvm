@@ -73,7 +73,10 @@ R_callFunction(SEXP r_fun, SEXP r_args, SEXP r_execEngine)
 
     int nargs = Rf_length(r_args);
     const llvm::FunctionType *fty = fun->getFunctionType();
-    if(nargs != fty->getNumParams()) {
+    int numParams = fty->getNumParams();
+    if(nargs != numParams
+           && !(fty->isVarArg() && nargs >= numParams)) {
+          /* LLVM doesn't currently support passing ... through runFunction */
         PROBLEM "incorrect number of arguments to routine"
             ERROR; 
     }
@@ -81,7 +84,7 @@ R_callFunction(SEXP r_fun, SEXP r_args, SEXP r_execEngine)
     std::vector<llvm::GenericValue> args(nargs);
     if(nargs > 0) {
         for(int i = 0; i < nargs; i++)
-            convertRToGenericValue(&args[i], VECTOR_ELT(r_args, i), fty->getParamType(i));
+            convertRToGenericValue(&args[i], VECTOR_ELT(r_args, i), i < numParams ? fty->getParamType(i) : NULL);
     }
 
     llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
