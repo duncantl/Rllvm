@@ -19,11 +19,23 @@
 <para>
 Consider computing distances between all pairs of observations.
 We can use the <r:func>dist</r:func> function in <r/> for this.
-One thing to note about this function is that a) it
+Some things to note about this function are that a) it
 expects a single data frame, b) it computes all pairwise distances
-for the observations in the data frame. 
-This code is implemented in <c/>. 
-If MPI is available, it uses parallel computations.
+between the observations in the data frame,
+c) there are a fixed set of known metrics,
+d) the code is implemented in <c/> and so less accessible, extensible
+and requires more up-front effort to develop,
+d) since this is C code, it less adaptable to parallel computation strategies
+e.g. running on GPUs. 
+If MPI is available, the code use parallel computations.
+However, the strategy is defined when programmed, not during the <R/> session.
+</para>
+<para>
+Point a) is important as if we have two large data sets
+(e.g. test and training) and don't want to combine them into a single
+data frame for reasons of memory consumption, we have a problem.
+The <r:pkg>pdist</r:pkg> package addresses this. However, it implements
+only the Euclidean metric!
 </para>
 
 <para>
@@ -38,16 +50,16 @@ observation in the first data set and each of the observations in the
 second.  We don't want to bother with the extra computation of the
 distances of the within data set distances.  Another issue is that we
 may want to use a different parallel strategy, e.g. multicore.  Also,
-the <r:func>dist</r:func> function converts the observations to a
+the <r:func>dist</r:func> function converts the input observations to a
 <r:class>matrix</r:class>. If the data were originally in a
 <r:class>data.frame</r:class>, this creates yet another copy of the
 data.  We don't want to have to write code that takes a data frame,
 but we could.  Related to this is the fact that matrices are stored
-column-wise So observations stored in rows have values that are not
+column-wise. So observations stored in rows have values that are not
 conveniently and contiguously stored in memory. Instead, the elements
 in each observation are separated by a stride given by the number of
 rows.  This matters for accessing cached memory.  For a large number
-of rows, the elements are further apart and so on different pages and
+of rows, the elements are further apart and so on different memory pages and
 less likely to be together in the cache.  Instead, we'd like to be
 able adapt the computations to improve the cache coherency, 
 or at least easily explore the effect of the cache coherency.
@@ -112,15 +124,16 @@ we loop over the elements of the matrices starting
  There are p iterations in this third loop.
 </para>
 
+<para>
+The code is 
 <r:function><![CDATA[
 dist = 
-function(X, Y, nx = nrow(X), ny = nrow(Y), p = ncol(X), ans = numeric(nx * ny))
+function(X, Y, nx = nrow(X), ny = nrow(Y), p = ncol(X),  ans = numeric(nx * ny))
 {
   ctr = 1L
+#  ans.els = REAL(ans)
   for(i in 1:nx) {
-#    for(j in seq(i, length = ny - i + 1)) {
      for(j in 1:ny) {
-#id = sprintf("%d.%d", i,j)
        total = 0.0
        posX = i
        posY = j
@@ -130,7 +143,6 @@ function(X, Y, nx = nrow(X), ny = nrow(Y), p = ncol(X), ans = numeric(nx * ny))
           posY = posY + ny
        }
        ans[ctr] = sqrt(total)
-#       names(ans)[ctr] = id
        ctr = ctr + 1L
     }
   }
@@ -138,28 +150,81 @@ function(X, Y, nx = nrow(X), ny = nrow(Y), p = ncol(X), ans = numeric(nx * ny))
 #  matrix(ans, nx, ny, byrow = TRUE)
 }
 ]]></r:function>
+</para>
 
+<para>
+It may not be obvious, but the important part of defining the metric
+is within the third-nested loop and is in the expression.
+The expression <r:expr eval="false">(X[posX] - Y[posY])^2</r:expr>
+computes the squared difference for each variable between to observations.
+The next operation is the call to <r:func>sqrt</r:func>.
+That computes the final value of the distance.
+While it may not be very familiar to <r/> users,
+we can readily rewrite these expressions and substitute a different 
+computation.
+</para>
 
-<r:test><![CDATA[
+<para>
+Let's test our function to determinate we get the correct results:
+<r:test>
 X = matrix(rnorm(15), 3, 5)
 Y = matrix(rnorm(20), 4, 5)
 dist(X, Y)
 as.matrix(stats::dist(rbind(X, Y)))[1:3, -(1:3)]
-
+</r:test>
+A second test with deterministic input is
+<r:test>
 A = matrix(1:15, 3,5)
 B = matrix(20:1, 4,5)
 dist(A, B)
 as.matrix(stats::dist(rbind(A, B)))[1:3, -(1:3)]
-]]></r:test>
+</r:test>
 
-
-<r:code>
+</para>
+<para>
+Now let's consider compiling the <r/> function above:
+<r:code id="compile">
 library(RLLVMCompile)
-DoublePtrType = pointerType(DoubleType)
 mod = Module()
-
 distc = compileFunction(dist, REALSXPType, list(DoublePtrType, DoublePtrType, Int32Type, Int32Type, Int32Type, REALSXPType), module = mod)
 </r:code>
 
+<r:test id="run">
+A = matrix(as.numeric(1:15), 3,5)
+B = matrix(as.numeric(20:1), 4,5)
+
+A = matrix(rnorm(15), 3,5)
+B = matrix(rnorm(20), 4,5)
+
+ans = .llvm(distc, A, B, nrow(A), nrow(B), ncol(A), numeric(nrow(A) * nrow(B)))
+ans = matrix(ans, nrow(A), nrow(B), byrow = TRUE)
+true = as.matrix(stats::dist(rbind(A, B)))[ 1:nrow(A), - (1:nrow(A))]
+</r:test>
+
+Here we assume that we are going to return an <r/> numeric vector
+with the distance values. We pass in the two matrices, the
+number of rows of each and the number of columns that is the same for each matrix.
+The final input is the numeric vector into which we will insert the results.
+It will be up to the <r/> code that calls this to reorganize the result into a matrix.
+</para>
+<para>
+As we have indicated, we can change this code to access the actual values
+in the individual observations in a different way.
+We could accept two data frames. We would then compute 
+<r:expr eval="false">X[posX]</r:expr> and <r:expr eval="false">Y[posY]</r:expr>
+very differently. Indeed, we may want to leave the code as
+<r:expr eval="false">X[i,k]</r:expr> and <r:expr eval="false">Y[j,k]</r:expr>
+and leave the compiler to understand what this actually means and map it to a
+computation, e.g <r:expr eval="false">X[ i + nx * j]</r:expr> or
+<r:expr eval="false">REAL(VECTOR_ELT(X, j))[i]</r:expr>.
+This is something that can be determined at compile time. 
+We can generate code for different inputs. 
+The latter access assumes the variable is numeric. 
+We can add extra code to handle different types for the columns
+in an effort to avoid copying any data to a different type.
+Indeed, if the data are sufficiently large, it may be
+prudent to compile this <r/> code specifically  for
+a particular data set, knowing the types of its columns.
+</para>
 </section>
 </article>
