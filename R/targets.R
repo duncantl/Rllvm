@@ -1,7 +1,7 @@
-LLVMVersion = c(major = 3, minor = 2)
+LLVMVersion = c(major = 3, minor = 3)
 
 
-LLVMTargets = strsplit('X86 Sparc PowerPC ARM Mips CellSPU XCore MSP430 CppBackend MBlaze NVPTX Hexagon', '[[:space:]]+')[[1]]
+LLVMTargets = strsplit('X86 Sparc PowerPC AArch64 ARM Mips XCore MSP430 CppBackend MBlaze NVPTX Hexagon', '[[:space:]]+')[[1]]
 
 getLLVMTargets =
 function()
