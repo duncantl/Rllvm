@@ -4,7 +4,15 @@ Routine <- Function <-
 function(name, retType, paramTypes = list(),  module, varArgs = FALSE, ...)
 {
 
+  # check if any are structures and need a byval
+  isStruct = sapply(paramTypes, isStructType)
+  if(any(isStruct))
+    paramTypes[isStruct] = lapply(paramTypes[isStruct], pointerType)
+
   fun = .Call("R_createFunction", module, as.character(name), retType, paramTypes, as.logical(varArgs))
+
+  if(any(isStruct))
+     lapply(which(isStruct), function(i) setParamAttributes(fun[[i]], FuncAttributes["ByVal"]))
   
   if(length(names(paramTypes)))
      names(fun) = names(paramTypes)
@@ -132,9 +140,31 @@ setAs("Function", "function",
 
 
 getFuncAttributes =
-function(func)
+function(func, simplify = TRUE)
 {
-   .Call("R_Function_getAttributes", func)
+  ans = .Call("R_Function_getAttributes", func)
+  if(simplify)
+    lapply(ans, function(x) x[x])
+  else
+    ans
+}
+
+
+setMethod("[[", c("Function", "numeric"),
+          function(x, i, j, ...) {
+            .Call("R_Function_getParam", x, as.integer(i) - 1L)
+          })
+
+setParamAttributes =
+function(which, values, fun)
+{
+   if(is.numeric(which))
+       which = fun[[which]]
+
+   if(!is(which, "Argument"))
+     stop("need an Argument object to set the attributes")
+   
+  .Call("R_Function_setParamAttributes", fun, as.integer(which) - 1L, as.integer(values))
 }
 
   

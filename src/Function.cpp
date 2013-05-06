@@ -146,7 +146,65 @@ R_Function_getReturnType(SEXP r_func)
 }
 
 
-#if 0
+
+SEXP
+R_Argument_setAttrs(llvm::Argument *arg, SEXP r_vals)
+{
+        /* now have the parameter, so set the values. */
+  llvm::AttrBuilder builder;
+  for(int i = 0 ; i < (unsigned) Rf_length(r_vals); i++)  
+      builder.addAttribute( (llvm::Attributes::AttrVal) INTEGER(r_vals)[i] );
+
+  llvm::Attributes attrs = llvm::Attributes::get(llvm::getGlobalContext() , builder);
+  arg->addAttr(attrs);
+
+  return(ScalarString(mkChar(attrs.getAsString().data())));
+}
+
+
+/* Kill this off now that we can get the Argument back. */
+extern "C"
+SEXP
+R_Function_setParamAttributes(SEXP r_func,  SEXP r_whichParam, SEXP r_vals)
+{
+     llvm::Function *func = GET_REF(r_func, Function);
+     unsigned i, num = INTEGER(r_whichParam)[0];
+     llvm::Function::ArgumentListType &args = func->getArgumentList();
+
+     if(num >= args.size()) {
+         PROBLEM "incorrect parameter number, should be less than %d", (int)args.size()
+             ERROR;
+     }
+
+     llvm::Function::ArgumentListType::iterator arg = args.begin();
+     for(i = 0 ; i < num; i++, arg++) {  }
+
+     return(R_Argument_setAttrs(arg, r_vals));
+}
+
+extern "C"
+SEXP
+R_Argument_setAttributes(SEXP r_arg, SEXP r_vals)
+{
+     llvm::Argument *arg = GET_REF(r_arg, Argument);
+     return(R_Argument_setAttrs(arg, r_vals));
+}
+
+
+extern "C"
+SEXP
+R_Function_getParam(SEXP r_func,  SEXP r_whichParam)
+{
+     llvm::Function *func = GET_REF(r_func, Function);
+     unsigned i, num = INTEGER(r_whichParam)[0];
+     llvm::Function::ArgumentListType &args = func->getArgumentList();
+     llvm::Function::ArgumentListType::iterator arg = args.begin();
+     for(i = 0 ; i < num; i++, arg++) {  }
+     return(R_createRef(arg, "Argument"));
+}
+
+
+#if 1
 extern "C"
 SEXP
 R_Function_setAttributes(SEXP r_func, SEXP r_vals)
@@ -160,7 +218,8 @@ R_Function_setAttributes(SEXP r_func, SEXP r_vals)
 }
 #endif
 
-#if 0
+
+#if 1
 extern "C"
 SEXP
 R_Function_getAttributes(SEXP r_func)
@@ -168,16 +227,26 @@ R_Function_getAttributes(SEXP r_func)
      llvm::Function *func = GET_REF(r_func, Function);
      const llvm::AttrListPtr attrs = func->getAttributes();
      unsigned n = attrs.getNumSlots();
-     SEXP ans = NEW_CHARACTER(n); //ScalarInteger(n);  // NEW_INTEGER(n);
+ fprintf(stderr, "num slots = %d, num = %d\n", n, attrs.getNumAttrs());
+     SEXP names = NEW_CHARACTER(n); 
+     SEXP ans = NEW_LIST(n); 
      PROTECT(ans);
-#if 0
-     for(int i = 0; i < n; i++) {
+     PROTECT(names);
+#if 1
+     for(unsigned i = 0; i < n; i++) {
 //         INTEGER(ans)[i] = (int) attrs.getAttributesAtIndex(i);
-         std::string str = att
-         SET_STRING_ELT(ans, i, 
+// Get as string for now. Should get the vector of the attribute 'bits' 
+//  enum AttrVal.
+// or logical vector with on and offs for each of the possible settings.
+         llvm::AttributeWithIndex attr;
+         attr = attrs.getSlot(i);
+         std::string str = attr.Attrs.getAsString();
+         SET_STRING_ELT(names, i,  str.data() ? mkChar(str.data()) : R_NaString);
+         SET_VECTOR_ELT(ans, i, R_getFunctionAttributes_logical(attr.Attrs));
      }
 #endif
-     UNPROTECT(1);
+     SET_NAMES(ans, names);
+     UNPROTECT(2);
      return(ans);
 }
 #endif
