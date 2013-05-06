@@ -149,10 +149,10 @@ function(X, Y, nx = nrow(X), ny = nrow(Y), p = ncol(X),  ans = numeric(nx * ny))
   ctr = 1L
   ans = numeric(nx * ny)  # want to do this.
   for(i in 1:nx) {
-    posX = i
     for(j in 1:ny) {
-       total = 0.0
+       posX = i  # this should be in the i loop. But get wrong answer
        posY = j
+       total = 0.0
        for(k in 1:p) {
           total = total + (X[posX]  - Y[posY])^2
           posX = posX + nx
@@ -163,9 +163,16 @@ function(X, Y, nx = nrow(X), ny = nrow(Y), p = ncol(X),  ans = numeric(nx * ny))
     }
   }
   ans
-#  matrix(ans, nx, ny, byrow = TRUE)
 }
 ]]></r:function>
+We'd like to conclude this with
+<r:code>
+matrix(ans, nx, ny, byrow = TRUE)
+</r:code>
+However, we'll leave this to <r/> code that calls this function.
+Similarly, such a wrapper function can provide the values for
+the <r:arg>nx</r:arg>, <r:arg>ny</r:arg> and <r:arg>p</r:arg>
+parameters.
 </para>
 
 
@@ -216,8 +223,8 @@ Now let's consider compiling the <r/> function above:
 <r:code id="compile">
 library(RLLVMCompile)
 mod = Module()
-#declareFunction(list(VoidType, Int32Type), "printInt", mod)
-#llvmAddSymbol("printInt")
+declareFunction(list(VoidType, Int32Type), "printInt", mod)
+llvmAddSymbol("printInt")
 distc = compileFunction(dist, REALSXPType, list(DoublePtrType, DoublePtrType, Int32Type, Int32Type, Int32Type, REALSXPType), module = mod)
 </r:code>
 
