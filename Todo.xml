@@ -14,8 +14,11 @@ See varargs.R
 Currently, runFunction in LLVM doesn't support this.
 Assertion: "This doesn't support passing arguments through varargs (yet)!"
 </item>
-<item>
+
+<item status="done">
 Move createProxy to RLLVMCompile or declareFunction from there to Rllvm.
+<br/>
+Moved declareFunction to Rllvm.
 </item>
 
 <item status="done">

@@ -25,5 +25,6 @@ Collate: classDefs.R manual_generics.R BinaryOpEnums.R Function.R	block.R module
          generics.R instruction.R manual_instruction.R mkFun.R intrinsic.R
          IntrinsicEnums.R sexpTypes.R utils.R targets.R 
          simpleFunction.R PassManager.R llvm.R createProxy.R
+         declareFunction.R
 
 

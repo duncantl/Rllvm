@@ -340,3 +340,4 @@ export(getFirstNonPHI)
 
 export(llvmStartMultiThreaded, llvmStopMultiThreaded)
 
+export(declareFunction)
