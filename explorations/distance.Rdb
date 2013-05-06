@@ -144,7 +144,7 @@ we loop over the elements of the matrices starting
 The code is 
 <r:function><![CDATA[
 dist = 
-function(X, Y, nx = nrow(X), ny = nrow(Y), p = ncol(X),  ans = numeric(nx * ny))
+function(X, Y, nx = nrow(X), ny = nrow(Y), p = ncol(X))
 {
   ctr = 1L
   ans = numeric(nx * ny)  # want to do this.
@@ -225,7 +225,7 @@ library(RLLVMCompile)
 mod = Module()
 declareFunction(list(VoidType, Int32Type), "printInt", mod)
 llvmAddSymbol("printInt")
-distc = compileFunction(dist, REALSXPType, list(DoublePtrType, DoublePtrType, Int32Type, Int32Type, Int32Type, REALSXPType), module = mod)
+distc = compileFunction(dist, REALSXPType, list(DoublePtrType, DoublePtrType, Int32Type, Int32Type, Int32Type), module = mod)
 </r:code>
 
 <r:test id="run">
@@ -236,7 +236,7 @@ A = matrix(rnorm(15), 3,5)
 B = matrix(rnorm(20), 4,5)
 
 ee = ExecutionEngine(distc)
-ans = .llvm(distc, A, B, nrow(A), nrow(B), ncol(A), numeric(nrow(A) * nrow(B)), .ee = ee)
+ans = .llvm(distc, A, B, nrow(A), nrow(B), ncol(A), .ee = ee)
 ans = matrix(ans, nrow(A), nrow(B), byrow = TRUE)
 true = as.matrix(stats::dist(rbind(A, B)))[ 1:nrow(A), - (1:nrow(A))]
 all(ans == true) 
@@ -250,7 +250,7 @@ A = matrix(rnorm(n1 * p), n1, p)
 B = matrix(rnorm(n2 * p), n2, p)
 
 lf = function(A, B, .ee = ExecutionEngine(distc)) {
-   matrix(.llvm(distc, A, B, nrow(A), nrow(B), ncol(A), numeric(nrow(A) * nrow(B)), .ee = .ee), nrow(A), nrow(B), byrow = TRUE)
+   matrix(.llvm(distc, A, B, nrow(A), nrow(B), ncol(A), .ee = .ee), nrow(A), nrow(B), byrow = TRUE)
 }
 
 rm(dist)
