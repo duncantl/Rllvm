@@ -314,6 +314,14 @@ tmp = c(interp[i], cmp[i], fastInterp[i], tt[i])
 m = matrix(c(tmp, interp[i]/tmp), length(tmp), ,
         dimnames = list(c("Interpeted", "Byte Compiled", "Vectorized", "Rllvm"), c("Time", "Speedup")))
 m
+
+
+</r:code>
+<r:code>
+res = structure(m, session = sessionInfo(), system = Sys.info(), when = Sys.time(), n = n)
+id = sprintf("rw2d.tm.1e7_%s", Sys.info()["sysname"])
+assign(id, res, globalenv())
+save( list = id, file = sprintf("%s.rda", id))
 </r:code>
 
 On a Macbook Pro (April 29th 2013) - elapsed time.
