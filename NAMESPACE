@@ -338,6 +338,11 @@ exportClass(FunctionType)
 
 export(getFirstNonPHI)
 
-export(llvmStartMultiThreaded, llvmStopMultiThreaded)
+export(llvmShutdown, llvmStartMultiThreaded, llvmStopMultiThreaded)
 
 export(declareFunction)
+
+export(setParamAttributes)
+exportClass("Argument")
+
+

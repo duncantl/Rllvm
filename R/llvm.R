@@ -1,7 +1,7 @@
 llvmShutdown =
 function()
 {
-  stop("not implemented")
+#  stop("not implemented")
   .C("R_llvm_shutdown")
 }
 

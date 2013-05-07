@@ -1,5 +1,11 @@
 Version 0.5-0
 
+	*  get function attributes
+
+	*  Set and get attributes on parameters
+
+	*  Access parameters as Argument objects, e.g. fun[[1]]
+
 	*  createLocalVariable() allows the instruction to be inserted
 	   before the terminator of the current block.
 

@@ -5,7 +5,19 @@
 <topic>
 <title>Things To Note</title>
 <items>
+
 <item>
+When we read IR back into R, lose the specific SEXP type information on the function.
+</item>
+
+<item>
+How to handle a struct as a parameter.
+Have to match the ABI.
+Does it depend on the nature of the elements of the struct.
+</item>
+
+<item status="low">
+[Needs to be implemented in LLVM]
 Allow calling varargs functions directly.
 See varargs.R
 <r:code>
@@ -15,27 +27,15 @@ Currently, runFunction in LLVM doesn't support this.
 Assertion: "This doesn't support passing arguments through varargs (yet)!"
 </item>
 
-<item status="done">
-Move createProxy to RLLVMCompile or declareFunction from there to Rllvm.
-<br/>
-Moved declareFunction to Rllvm.
-</item>
 
-<item status="done">
-Find out how to call a routine that is dynamically loaded from another .so
-We are using addGlobalMapping(), but that doesn't seem to be working
-See RLLVMCompile/tests/dynLoadCall.R
-<br/>
-Already working. I just broke it when allowing strings as arguments to get NativeSymbolInfo values.
-</item>
 <item>
 When a parameter type is one of the SEXP types, then coerce the input to that type.
+Perhaps too much overhead. Also, we just have the generic SEXPType 
+at this point.  Could create derived C++ classes to represent the different types
+or a single one that had the SEXP type(of). Then the types wouldn't necessarily be unique.
+But can make it so. Just use a static method to get it for the different sexp types.
 </item>
 
-<item>
-Find out how to create and export INTSXPType (=getSEXPType("INT")) in the onLoad()
-function. The struct class is not available then apparently.
-</item>
 
 <item>
 Add a finalizer routine to a Module and when we garbage collect it, 
@@ -50,7 +50,14 @@ Possibly for Module also, e.g. to show the names of the elements, perhaps their 
 
 <item>
 get attributes for a Function object. 
-How do we work with the AttrListPtr.
+See funcAttributes.R.
+Problem with a spurious number appearing at end 'nocapture align 1073741824'.
+Are we setting these on the functions when we are supposed to be setting on a parameter.
+If we just set NoUnwind, then things are fine.
+really make sense.
+Resulting IR cannot be read.
+<br/>
+[Done] How do we work with the AttrListPtr.
 </item>
 
 <item>
@@ -83,10 +90,13 @@ Can we get the address of the function from the execution engine?
 <item>
 The getGlobalVariable() functions and the setting of these values
 don't behave as expected. The get() function gets the initial value.
-The set values don't set the variable it already exists.
+The set values don't set the variable if it already exists.
 This will change in the future.
 The get value doesn't get the new value, just the initialization value.
 See tests/clone2.R
+<br/>
+This is probably just a mistaken understanding/analysis of the outcomes.
+Need to use the same Execution Engine to see the changes.
 </item>
 
 <item status="high">
@@ -100,6 +110,8 @@ mod[["status"]] = TRUE
 </r:code>
 doesn't set the value if the variable has already been created.
 It only sets it the first time.
+<br/>
+
 </item>
 
 </items>
@@ -483,6 +495,31 @@ Where is the default value of mod coming from? .RData
 <item status="done">
 When passed an argument that is supposed to be a pointer,
 if it is not an externalptr, but isS4, look for a @ref slot.
+</item>
+
+
+<item status="done">
+Move createProxy to RLLVMCompile or declareFunction from there to Rllvm.
+<br/>
+Moved declareFunction to Rllvm.
+</item>
+
+<item status="done">
+Find out how to call a routine that is dynamically loaded from another .so
+We are using addGlobalMapping(), but that doesn't seem to be working
+See RLLVMCompile/tests/dynLoadCall.R
+<br/>
+Already working. I just broke it when allowing strings as arguments to get NativeSymbolInfo values.
+</item>
+
+<item status="done">
+Find out how to create and export INTSXPType (=getSEXPType("INT")) in the onLoad()
+function. The struct class is not available then apparently.
+</item>
+
+<item status="done">
+save module's IR to a string. Done already?
+Yes, showModule( , TRUE)
 </item>
 
 </items>

@@ -1,0 +1,121 @@
+; ModuleID = '2013-05-06 10:06:16'
+
+%SEXPStruct = type { i32 }
+
+declare void @printInt(i32)
+
+define %SEXPStruct* @dist(double* %X, double* %Y, i32 %nx, i32 %ny, i32 %p) {
+entry:
+  %ctr = alloca i32
+  store i32 1, i32* %ctr
+  %"nx * ny" = mul i32 %nx, %ny
+  %0 = call %SEXPStruct* @Rf_allocVector(i32 14, i32 %"nx * ny")
+  %ans = alloca %SEXPStruct*
+  store %SEXPStruct* %0, %SEXPStruct** %ans
+  %i = alloca i32
+  %.llen = alloca i32
+  store i32 1, i32* %i
+  store i32 %nx, i32* %.llen
+  %j = alloca i32
+  %.llen2 = alloca i32
+  %posX = alloca i32
+  %posY = alloca i32
+  %total = alloca double
+  %k = alloca i32
+  %.llen4 = alloca i32
+  br label %"cond.for (i in 1:nx) {"
+
+"cond.for (i in 1:nx) {":                         ; preds = %"next.for (j in 1:ny) {", %entry
+  %1 = load i32* %i
+  %2 = load i32* %.llen
+  %3 = icmp sle i32 %1, %2
+  br i1 %3, label %"body.for (i in 1:nx) {", label %"next.for (i in 1:nx) {"
+
+"body.for (i in 1:nx) {":                         ; preds = %"cond.for (i in 1:nx) {"
+  store i32 1, i32* %j
+  store i32 %ny, i32* %.llen2
+  br label %"cond.for (j in 1:ny) {"
+
+"next.for (i in 1:nx) {":                         ; preds = %"cond.for (i in 1:nx) {"
+  %4 = load %SEXPStruct** %ans
+  ret %SEXPStruct* %4
+
+"cond.for (j in 1:ny) {":                         ; preds = %"next.for (k in 1:p) {", %"body.for (i in 1:nx) {"
+  %5 = load i32* %j
+  %6 = load i32* %.llen2
+  %7 = icmp sle i32 %5, %6
+  %8 = load i32* %i
+  br i1 %7, label %"body.for (j in 1:ny) {", label %"next.for (j in 1:ny) {"
+
+"body.for (j in 1:ny) {":                         ; preds = %"cond.for (j in 1:ny) {"
+  store i32 %8, i32* %posX
+  %9 = load i32* %j
+  store i32 %9, i32* %posY
+  store double 0.000000e+00, double* %total
+  store i32 1, i32* %k
+  store i32 %p, i32* %.llen4
+  br label %"cond.for (k in 1:p) {"
+
+"next.for (j in 1:ny) {":                         ; preds = %"cond.for (j in 1:ny) {"
+  %10 = add i32 %8, 1
+  store i32 %10, i32* %i
+  br label %"cond.for (i in 1:nx) {"
+
+"cond.for (k in 1:p) {":                          ; preds = %"body.for (k in 1:p) {", %"body.for (j in 1:ny) {"
+  %11 = load i32* %k
+  %12 = load i32* %.llen4
+  %13 = icmp sle i32 %11, %12
+  %14 = load double* %total
+  br i1 %13, label %"body.for (k in 1:p) {", label %"next.for (k in 1:p) {"
+
+"body.for (k in 1:p) {":                          ; preds = %"cond.for (k in 1:p) {"
+  %15 = load i32* %posX
+  %"posX - 1L" = sub i32 %15, 1
+  %16 = sext i32 %"posX - 1L" to i64
+  %17 = getelementptr double* %X, i64 %16
+  %18 = load double* %17
+  %19 = load i32* %posY
+  %"posY - 1L" = sub i32 %19, 1
+  %20 = sext i32 %"posY - 1L" to i64
+  %21 = getelementptr double* %Y, i64 %20
+  %22 = load double* %21
+  %"X[posX] - Y[posY]" = fsub double %18, %22
+  %23 = call double @pow(double %"X[posX] - Y[posY]", double 2.000000e+00)
+  %"total + (X[posX] - Y[posY])^2" = fadd double %14, %23
+  store double %"total + (X[posX] - Y[posY])^2", double* %total
+  %24 = load i32* %posX
+  %"posX + nx" = add i32 %24, %nx
+  store i32 %"posX + nx", i32* %posX
+  %25 = load i32* %posY
+  %"posY + ny" = add i32 %25, %ny
+  store i32 %"posY + ny", i32* %posY
+  %26 = load i32* %k
+  %27 = add i32 %26, 1
+  store i32 %27, i32* %k
+  br label %"cond.for (k in 1:p) {"
+
+"next.for (k in 1:p) {":                          ; preds = %"cond.for (k in 1:p) {"
+  %28 = call double @sqrt(double %14)
+  %29 = load %SEXPStruct** %ans
+  %30 = call double* @REAL(%SEXPStruct* %29)
+  %31 = load i32* %ctr
+  %"ctr - 1L" = sub i32 %31, 1
+  %32 = sext i32 %"ctr - 1L" to i64
+  %33 = getelementptr double* %30, i64 %32
+  store double %28, double* %33
+  %34 = load i32* %ctr
+  %"ctr + 1L" = add i32 %34, 1
+  store i32 %"ctr + 1L", i32* %ctr
+  %35 = load i32* %j
+  %36 = add i32 %35, 1
+  store i32 %36, i32* %j
+  br label %"cond.for (j in 1:ny) {"
+}
+
+declare double @sqrt(double)
+
+declare %SEXPStruct* @Rf_allocVector(i32, i32)
+
+declare double @pow(double, double)
+
+declare double* @REAL(%SEXPStruct*)

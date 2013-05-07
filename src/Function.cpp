@@ -198,7 +198,13 @@ R_Function_getParam(SEXP r_func,  SEXP r_whichParam)
      llvm::Function *func = GET_REF(r_func, Function);
      unsigned i, num = INTEGER(r_whichParam)[0];
      llvm::Function::ArgumentListType &args = func->getArgumentList();
+     if(num >= args.size()) {
+         PROBLEM "invalid parameter index, only %d parameters", (int) args.size()
+             ERROR;
+     }
+
      llvm::Function::ArgumentListType::iterator arg = args.begin();
+
      for(i = 0 ; i < num; i++, arg++) {  }
      return(R_createRef(arg, "Argument"));
 }

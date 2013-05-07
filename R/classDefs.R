@@ -9,6 +9,9 @@ setClass("ExecutionEngine", contains = "RC++Reference")
 setClass("Value", contains = "RC++Reference")
 setClass("BasicBlock", contains = "Value")
 
+
+setClass("Argument", contains = "Value")
+
 setClass("PassManagerBase", contains = "RC++Reference")
 setClass("FunctionPassManager", contains = "PassManagerBase")
 setClass("PassManager", contains = "PassManagerBase")

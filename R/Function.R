@@ -3,7 +3,9 @@
 Routine <- Function <-
 function(name, retType, paramTypes = list(),  module, varArgs = FALSE, ...)
 {
-
+  if(!is.list(paramTypes))  # in case just a single type.
+      paramTypes = list(paramTypes)
+  
   # check if any are structures and need a byval
   isStruct = sapply(paramTypes, isStructType)
   if(any(isStruct))
@@ -156,15 +158,12 @@ setMethod("[[", c("Function", "numeric"),
           })
 
 setParamAttributes =
-function(which, values, fun)
+function(arg, values)
 {
-   if(is.numeric(which))
-       which = fun[[which]]
-
-   if(!is(which, "Argument"))
+   if(!is(arg, "Argument"))
      stop("need an Argument object to set the attributes")
    
-  .Call("R_Function_setParamAttributes", fun, as.integer(which) - 1L, as.integer(values))
+  .Call("R_Argument_setAttributes", arg, as.integer(values))
 }
 
   
