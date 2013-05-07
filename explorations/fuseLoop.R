@@ -39,11 +39,11 @@ f2 <- function(x, mu, sigma, len = length(x))
    total
 }
 
-doublePointer = pointerType(DoubleType) 
+
 if(TRUE) {
   mod = Module("fuse")
   d = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE, mod = mod, name = "Dnorm", optimize = FALSE)
-  fc = compileFunction(f2, DoubleType, list(doublePointer, DoubleType, DoubleType, Int32Type), name = "f", mod = mod, optimize = FALSE)
+  fc = compileFunction(f2, DoubleType, list(DoublePtrType, DoubleType, DoubleType, Int32Type), name = "f", mod = mod, optimize = FALSE)
   ee = ExecutionEngine(mod, CodeGenOpt_Aggressive)
   Optimize(mod)
 }
@@ -52,8 +52,7 @@ if(FALSE) {
   # note tested!
   mod = Module("fuse")
   d = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE, mod = mod)
-  ptrDouble = pointerType(DoubleType)
-  fc = compileFunction(f, DoubleType, list(ptrDouble, DoubleType, DoubleType), .insertReturn = TRUE, mod = mod)
+  fc = compileFunction(f, DoubleType, list(DoublePtrType, DoubleType, DoubleType), .insertReturn = TRUE, mod = mod)
 }
 
 
@@ -65,18 +64,22 @@ if(FALSE) {
 }
 
 if(FALSE) {
-  x = rnorm(1e5)  #XXXX 1e6 causes a segfault!!!
+  n = 1e7
+  x = rnorm(n)  # 1e6 causes a segfault. Not any more - problem with reallocating local variables inside loop!
   a = .llvm(fc, x, 0, 1, length(x))
 
    # Note no check for NAs, etc. .... 
-  tm.a = system.time(replicate(20, .llvm(fc, x, 0, 1, length(x), .ee = ee)))
-  tm.b = system.time(replicate(20, sum(log(dnorm(x)))))
+#  tm.a = system.time(replicate(20, .llvm(fc, x, 0, 1, length(x), .ee = ee)))
+#  tm.b = system.time(replicate(20, sum(log(dnorm(x)))))
 
 
   tm.a = replicate(20, system.time(.llvm(fc, x, 0, 1, length(x), .ee = ee)))
   tm.b = replicate(20, system.time(sum(log(dnorm(x)))))
   res = structure(list(llvm = tm.a, r = tm.b), info = sessionInfo(), when = Sys.time())
-  save(res, file = "fuseLoop_osx.rda")
+  id = sprintf("fuseLoop.tm.%s_%s", n, Sys.info()["sysname"])
+  assign(id, res, globalenv())
+  save(list = id, file = sprintf("%s.rda", id)  )
+#  save(res, file = "fuseLoop_osx.rda")
 }
 
 
