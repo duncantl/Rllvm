@@ -21,13 +21,42 @@ ee = ExecutionEngine(as(fc, "Module"), "Aggressive")
 
 time =   
 function(n)
-  rbind(ll = system.time(replicate(200, .llvm(fc, n, .ee = ee)))/10,
-        fibc = system.time(replicate(20, fibc(n))),
-        fib = system.time(replicate(20, fib(n))))[, 1:3]
+  rbind(LLVM = system.time(replicate(200, .llvm(fc, n, .ee = ee)))/10,
+        "Byte-compiled" = system.time(replicate(20, fibc(n))),
+        "Interpreted R" = system.time(replicate(20, fib(n))))[, 1:3]
 
 tm.30 = time(30)
 
+
+
 apply(tm.30, 2, function(x) x/min(x))
+
+res = structure(tm.30, session = sessionInfo(), system = Sys.info(), when = Sys.time())
+id = sprintf("fib.tm.30_%s", Sys.info()["sysname"])
+assign(id, res, globalenv())
+save( list = id, file = sprintf("%s.rda", id))
+
+
+####################
+ffib =
+  # vectorized closed form version of Fibonacci
+function(n)
+{
+  if(n == 0 || n == 1)
+    return(n)
+
+  psi =  (1+sqrt(5))/2
+  (psi^n - (1-psi)^n)/sqrt(5)
+}
+ffib(0:30)
+
+fib_v = 
+function(n)
+  sapply(n, fib)
+
+#fibv_c = compileFunction(fib_v, INTSXPType, INTSXPType, as(fc, "Module"))
+
+
 
 # OS X
 

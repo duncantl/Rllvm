@@ -14,7 +14,7 @@
 </author>
 </articleinfo>
 
-<section>
+<section id="setup">
 <title></title>
 
 <para>
@@ -43,7 +43,7 @@ function(n = 100) {
       }
     }
     list(x = xpos, y = ypos)
-  }
+}
 </r:code>
 
 We have seen how to write loops, get elements from pointers and do conditional branching
@@ -240,9 +240,9 @@ n = 1e7
 We run the interpreted version 5 times and take the medians of the
 three different measurements (self, system and elapsed):
 <r:code>
-#interp = system.time({rw2d1(n)})
-interp = replicate(5, system.time({rw2d1(n)}))
-interp = apply(interp, 1, median)
+interp = system.time({rw2d1(n)})
+#interp = replicate(2, system.time({rw2d1(n)}))
+#interp = apply(interp, 1, median)
 </r:code>
 </para>
 
@@ -261,11 +261,11 @@ tt = system.time({ doit(n)}) # second time runs faster
 </r:code>
 
 
-<r:test><![CDATA[
+<r:test>
 z = doit(100000)
 table(diff(z$x))
 table(diff(z$y))
-]]></r:test>
+</r:test>
 These should be 50% 0 and 25% for each of -1 and 1.
 
 
