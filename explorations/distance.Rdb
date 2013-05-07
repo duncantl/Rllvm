@@ -243,9 +243,9 @@ all(ans == true)
 </r:test>
 
 <r:test id="test">
-p = 40
-n1 = 8000 
-n2 = 3100
+p = 40L
+n1 = 8000L
+n2 = 1000L
 A = matrix(rnorm(n1 * p), n1, p)
 B = matrix(rnorm(n2 * p), n2, p)
 
@@ -262,6 +262,12 @@ rf = function(A, B) {
 tm.ll = system.time(a <- lf(A, B, ee))
 tm.r = system.time(b <- rf(A, B))
 all.equal(a, b)  # mismatch on dimnames should be only issue.
+
+res = structure(list(llvm = tm.ll, r.dist = tm.r), 
+                 session = sessionInfo(), when = Sys.time(), system = Sys.info())
+id = sprintf("distance.tm.%d:%d:%d_%s", n1, n2, p, Sys.info()["sysname"])
+assign(id, res, globalenv())
+save(list = id, file = sprintf("%s.rda", id))
 ]]>
 <r:output><![CDATA[ 
  # p = 40, n1 = 8000, n2 = 3100, 
