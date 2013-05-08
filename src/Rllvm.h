@@ -90,5 +90,6 @@ extern llvm::Twine makeTwine(SEXP);
       return(R_createRef(ans, #ReturnType));		\
    }
 
+#if 0
 SEXP R_getFunctionAttributes_logical(llvm::Attributes attr);
-
+#endif

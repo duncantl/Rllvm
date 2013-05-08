@@ -1,6 +1,6 @@
-LLVM_CONFIG=/usr/local/bin/llvm-config
+LLVM_CONFIG=/home/duncan/llvm/build/Debug+Asserts/bin/llvm-config
 
-PKG_CPPFLAGS= -DLLVM_VERSION=3 -DLLVM_MINOR_VERSION=2 $(shell $(LLVM_CONFIG) --cxxflags | sed -e 's/-O[0-9]//g') -fexceptions -DLLVM_VERSION_NUMER=3.2
+PKG_CPPFLAGS= -DLLVM_VERSION=3 -DLLVM_MINOR_VERSION=4 $(shell $(LLVM_CONFIG) --cxxflags | sed -e 's/-O[0-9]//g') -fexceptions -DLLVM_VERSION_NUMER=3.4
 ALL_LIBS:= $(shell $(LLVM_CONFIG) --ldflags) $(ALL_LIBS)
 PKG_LIBS=$(shell $(LLVM_CONFIG) --ldflags --libs)
 SHLIB_CXXLDFLAGS:=$(shell $(LLVM_CONFIG) --ldflags) $(SHLIB_CXXLDFLAGS)
