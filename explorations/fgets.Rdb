@@ -46,7 +46,8 @@ mod = Module("fgets")
 ee = ExecutionEngine(mod)
 
 stringType = pointerType(getIntegerType(8L, getContext(mod)))
-FILEType = pointerType(Int32Type) # an opaque struct type?
+#FILEType = pointerType(Int32Type) # an opaque struct type?
+FILEType = pointerType(structType(list(o=Int32Type))) # an opaque struct type?
 
 .str = createGlobalVariable(".str", mod, val = string(1000), linkage = PrivateLinkage)
 
@@ -319,10 +320,6 @@ library that act as proxies to the handful of routines we want.
 <para>
 Before we generate the code, let's describe the native routines.
 <r:code eval="false">
-INTSXPType = getSEXPType("INT")
-STRSXPType = getSEXPType("STR")
-SEXPType = getSEXPType("SEXP")
-
 declareFunction( list(Int32Type, SEXPType ), "Rf_length", mod) 
 declareFunction( list(Int32PtrType, INTSXPType), "INTEGER", mod)
 
@@ -361,8 +358,6 @@ function(lineSkip, file)
 {
   sapply(lineSkip, readTo, file)
 }
-INTSXPType = getSEXPType("INT")
-STRSXPType = getSEXPType("STR")
 readSelectedLines.c = compileFunction(readSelectedLines, STRSXPType, list(INTSXPType, FILEType), mod)
 </r:code>
 
@@ -481,7 +476,7 @@ tmr.1e3
  90.595   0.921  91.521 
 </r:output>
 </r:test>
-Curiously, these are getting faster across each run.
+Curiously, these are getting faster across each run. Is this caching of the file system?
 </para>
 <para>
 Now let's compare these with our LLVM-compiled code:
@@ -512,16 +507,47 @@ lineSkips = as.integer(diff(c(0L, lineNums)))
 readTo = 
 function(numLines, con)
  readLines(con, numLines)[numLines]
+
 con = file(targetFile, "r"); tmr.1e6 = system.time(readSelectedLines(lineSkips, con))
 
 tm.1e5 = replicate(10, { ff = CFILE(targetFile); system.time(.llvm(mod$readSelectedLines, lineSkips, ff))})
 library(FastCSVSample)
 tmf.1e5 = replicate(10, system.time(.Call("R_csv_sample", targetFile, lineNums)))
+
+o = rbind("readLines" = tmr.1e6[3], "LLVM" = median(tm.1e5[3,]), "FastCSVSample" = median(tmf.1e5[3,]))n
+max(o)/o
+
+
+res = structure(list("readLines" = tmr.1e6, "LLVM" = tm.1e5, "FastCSVSample" = tmr.1e6),
+                   N = N, session = sessionInfo(), system = Sys.info(), when = Sys.time())
+id = sprintf("sampleCSV.tm_%s", N)
+assign(id, res, globalenv())
+save( list = id, file = sprintf("%s.rda", id))
 <r:output><![CDATA[
-LLVM - now segfaulting (since compiling R with -O3)
+OS X  
+               elapsed
+readLines      1.00000
+LLVM          21.09119
+FastCSVSample 22.97533
+
+R code
+   user  system elapsed 
+ 68.008   0.882  68.926 
+
+LLVM  apply(tm.1e5, 1, median)[1:3]
+ user.self   sys.self    elapsed 
+    2.8465     0.4165     3.2680 
+
+apply(tmf.1e5, 1, median)[1:3]
+user.self  sys.self   elapsed 
+   2.5865    0.4145    3.0000 
+
+
+LLVM - now segfaulting (since compiling R with -O3). Fixed now because of re-allocating variables within loop
 R code
    user  system elapsed 
 108.074   1.007 109.086 
+
 
 FastCSVSample
 user.self  sys.self   elapsed 

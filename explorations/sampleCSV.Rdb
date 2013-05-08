@@ -17,13 +17,12 @@
 
 
 <para>
-The basic sequence we want to explain and implement is
-to create our own version of fgets which uses a Module-level
-global variable to store the last line.
-Then we will use this to implement the readUpTo function.
-Given the readUpTo function, we can implement the sampleCSV
-by sampling the indices, sorting  them and then calling readUpTo
-in a loop.
+The basic sequence we want to explain and implement is to create our
+own version of fgets which uses a Module-level global variable to
+store the last line.  Then we will use this to implement the readUpTo
+function.  Given the readUpTo function, we can implement the sampleCSV
+by sampling the indices, sorting them and then calling readUpTo in a
+loop.
 </para>
 
 
@@ -90,13 +89,14 @@ lineType = pointerType(Int8Type)
 #ir = IRBuilder()
 # createGlobalString(ir, "empty string")
 var = createGlobalVariable("line", mod, lineType)
+names(mod) # check it is present
 </r:code>
 
-<r:code>
+<r:code eval="false">
 val = createStringConstant("this is a string", getGlobalContext(), NULL)
 </r:code>
 
-<r:code>
+<r:code eval="false">
 mod = Module("sampleCSV")
 val = createStringConstant("this is a string", getGlobalContext(), NULL)
 var = createGlobalVariable("line", mod, val = val)
@@ -106,7 +106,7 @@ getElementType(getType(var))
 
 
 To find out if the different types are the same, let's look:
-<r:code>
+<r:code eval="false">
 a = getType(var)
 b = getType(val)
 
@@ -122,7 +122,7 @@ getTypeID(getElementType(getType(mod[["line"]])))
 </r:code>
 
 
-<r:code>
+<r:code eval="false">
 setInitializer(var, val)
 </r:code>
 </para>
@@ -154,18 +154,18 @@ Why Int32Type? Because that is how big a pointer is on an OS X machine - 32 bits
 How do we describe a string type.
 A sequence of characters and a character is an integer. So we can define the type
 as 
-<r:code>
+<r:code eval="false">
 stringType = pointerType(Int8Type)
 </r:code>
+but it is already built in to <omg:pkg>Rllvm</omg:pkg> as <r:var>StringType</r:var>
 Why Int8Type? Because the characters are simple 8 bit integers (in our simple world with no Unicode).
 </para>
 
 <para>
 So we can declare this function with 
 <r:code>
-mod = Module("sampleCSV")
-Fgets = Function("Fgets", stringType, list(FILEType), module = mod)
-setLinkage(Fgets, ExternalLinkage)
+Fgets = Function("Fgets", StringType, list(FILEType), module = mod)
+#setLinkage(Fgets, ExternalLinkage)
 </r:code>
 </para>
 

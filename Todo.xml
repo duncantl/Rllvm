@@ -5,7 +5,10 @@
 <topic>
 <title>Things To Note</title>
 <items>
-
+<item>
+Make declareFunction accept a Type, list(Type, Type) 
+rather than just a single list() with the return type and parameter types.
+</item>
 <item>
 When we read IR back into R, lose the specific SEXP type information on the function.
 </item>

@@ -31,7 +31,7 @@ tm.30 = time(30)
 
 apply(tm.30, 2, function(x) x/min(x))
 
-res = structure(tm.30, session = sessionInfo(), system = Sys.info(), when = Sys.time())
+res = structure(tm.30, session = sessionInfo(), system = Sys.info(), when = Sys.time(), n = n)
 id = sprintf("fib.tm.30_%s", Sys.info()["sysname"])
 assign(id, res, globalenv())
 save( list = id, file = sprintf("%s.rda", id))

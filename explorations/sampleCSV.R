@@ -62,3 +62,7 @@ function(con, to)
    ans
 }
 
+
+Fgets  =
+function(file)
+  fgets(ptr, 1000L, file)
