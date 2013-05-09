@@ -147,6 +147,27 @@ R_Function_getReturnType(SEXP r_func)
 
 
 
+extern "C"
+SEXP
+R_Function_getParam(SEXP r_func,  SEXP r_whichParam)
+{
+     llvm::Function *func = GET_REF(r_func, Function);
+     unsigned i, num = INTEGER(r_whichParam)[0];
+     llvm::Function::ArgumentListType &args = func->getArgumentList();
+     if(num >= args.size()) {
+         PROBLEM "invalid parameter index, only %d parameters", (int) args.size()
+             ERROR;
+     }
+
+     llvm::Function::ArgumentListType::iterator arg = args.begin();
+
+     for(i = 0 ; i < num; i++, arg++) {  }
+     return(R_createRef(arg, "Argument"));
+}
+
+
+#ifdef COMPILE_ATTRIBUTES
+
 SEXP
 R_Argument_setAttrs(llvm::Argument *arg, SEXP r_vals)
 {
@@ -193,26 +214,6 @@ R_Argument_setAttributes(SEXP r_arg, SEXP r_vals)
 
 extern "C"
 SEXP
-R_Function_getParam(SEXP r_func,  SEXP r_whichParam)
-{
-     llvm::Function *func = GET_REF(r_func, Function);
-     unsigned i, num = INTEGER(r_whichParam)[0];
-     llvm::Function::ArgumentListType &args = func->getArgumentList();
-     if(num >= args.size()) {
-         PROBLEM "invalid parameter index, only %d parameters", (int) args.size()
-             ERROR;
-     }
-
-     llvm::Function::ArgumentListType::iterator arg = args.begin();
-
-     for(i = 0 ; i < num; i++, arg++) {  }
-     return(R_createRef(arg, "Argument"));
-}
-
-
-#if 1
-extern "C"
-SEXP
 R_Function_setAttributes(SEXP r_func, SEXP r_vals)
 {
      llvm::Function *func = GET_REF(r_func, Function);
@@ -222,10 +223,9 @@ R_Function_setAttributes(SEXP r_func, SEXP r_vals)
      return(ScalarLogical(TRUE));
 
 }
-#endif
 
 
-#if 1
+
 extern "C"
 SEXP
 R_Function_getAttributes(SEXP r_func)
@@ -256,3 +256,5 @@ R_Function_getAttributes(SEXP r_func)
      return(ans);
 }
 #endif
+
+
