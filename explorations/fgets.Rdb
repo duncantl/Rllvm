@@ -508,19 +508,19 @@ readTo =
 function(numLines, con)
  readLines(con, numLines)[numLines]
 
-con = file(targetFile, "r"); tmr.1e6 = system.time(readSelectedLines(lineSkips, con))
+con = file(targetFile, "r"); tmr.1e5 = system.time(readSelectedLines(lineSkips, con))
 
 tm.1e5 = replicate(10, { ff = CFILE(targetFile); system.time(.llvm(mod$readSelectedLines, lineSkips, ff))})
 library(FastCSVSample)
 tmf.1e5 = replicate(10, system.time(.Call("R_csv_sample", targetFile, lineNums)))
 
-o = rbind("readLines" = tmr.1e6[3], "LLVM" = median(tm.1e5[3,]), "FastCSVSample" = median(tmf.1e5[3,]))n
+o = rbind("readLines" = tmr.1e5[3], "LLVM" = median(tm.1e5[3,]), "FastCSVSample" = median(tmf.1e5[3,]))
 max(o)/o
 
 
-res = structure(list("readLines" = tmr.1e6, "LLVM" = tm.1e5, "FastCSVSample" = tmr.1e6),
+res = structure(list("readLines" = tmr.1e5, "LLVM" = tm.1e5, "FastCSVSample" = tmr.1e5),
                    N = N, session = sessionInfo(), system = Sys.info(), when = Sys.time())
-id = sprintf("sampleCSV.tm_%s", N)
+id = sprintf("sampleCSV.tm_%s_%s_%s", N, Sys.info()["nodename"], Sys.info()["sysname"])
 assign(id, res, globalenv())
 save( list = id, file = sprintf("%s.rda", id))
 <r:output><![CDATA[
