@@ -18,6 +18,7 @@ ee = ExecutionEngine(as(fc, "Module"), "Aggressive")
 
 .llvm(fc, 20, .ee = ee)
 
+n = 30
 
 time =   
 function(n)
@@ -25,14 +26,14 @@ function(n)
         "Byte-compiled" = system.time(replicate(20, fibc(n))),
         "Interpreted R" = system.time(replicate(20, fib(n))))[, 1:3]
 
-tm.30 = time(30)
+tm.30 = time(n)
 
 
 
 apply(tm.30, 2, function(x) x/min(x))
 
 res = structure(tm.30, session = sessionInfo(), system = Sys.info(), when = Sys.time(), n = n)
-id = sprintf("fib.tm.30_%s", Sys.info()["sysname"])
+id = sprintf("fib.tm.30_%s_%s_gcc", Sys.info()["nodename"], Sys.info()["sysname"])
 assign(id, res, globalenv())
 save( list = id, file = sprintf("%s.rda", id))
 

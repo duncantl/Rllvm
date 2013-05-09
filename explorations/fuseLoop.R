@@ -76,7 +76,7 @@ if(TRUE) {
   tm.a = replicate(20, system.time(.llvm(fc, x, 0, 1, length(x), .ee = ee)))
   tm.b = replicate(20, system.time(sum(log(dnorm(x)))))
   res = structure(list(llvm = tm.a, r = tm.b), session = sessionInfo(), when = Sys.time(), system = Sys.info())
-  id = sprintf("fuseLoop.tm.%s_%s_%s", n, Sys.info()["nodename"], Sys.info()["sysname"])
+  id = sprintf("fuseLoop.tm.%s_%s_%s_gcc", n, Sys.info()["nodename"], Sys.info()["sysname"])
   assign(id, res, globalenv())
   save(list = id, file = sprintf("%s.rda", id)  )
 #  save(res, file = "fuseLoop_osx.rda")
