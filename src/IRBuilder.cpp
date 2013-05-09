@@ -520,6 +520,7 @@ R_IRBuilder_CreateGlobalString(SEXP r_builder, SEXP r_val, SEXP r_id)
     llvm::IRBuilder<> *builder;
     llvm::Value *ans;
 
+    builder = GET_REF(r_builder, IRBuilder<>);
     ans = builder->CreateGlobalString(llvm::StringRef(strdup(CHAR(STRING_ELT(r_val, 0)))));
 
     if(Rf_length(r_id))
@@ -582,7 +583,7 @@ extern "C"
 SEXP
 R_IRBuilder_CreateUnreachable(SEXP r_builder, SEXP r_id)
 {
-    llvm::IRBuilder<> *builder;
+    llvm::IRBuilder<> *builder = GET_REF(r_builder, IRBuilder<>);
     llvm::UnreachableInst *ans = builder->CreateUnreachable();
     return(R_createRef(ans, "UnreachableInst"));
 }
@@ -802,12 +803,12 @@ R_IRBuilder_CreateInvoke(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_normal,
     llvm::Value *callee = GET_REF(r_fun, Value);
 
     int nargs = Rf_length(r_args);
-    llvm::CallInst *ans;
+    llvm::InvokeInst *ans;
     std::vector<llvm::Value *> args; // does this disappear and we lose the elements?
     for(int i = 0; i < nargs; i++)
         args.push_back(GET_REF(VECTOR_ELT(r_args, i), Value));
 
-    builder->CreateInvoke(callee, normal, unwind, args);
+    ans = builder->CreateInvoke(callee, normal, unwind, args);
 
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
