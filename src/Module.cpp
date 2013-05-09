@@ -445,7 +445,7 @@ SEXP
 R_Module_setTargetTriple(SEXP r_mod, SEXP r_triple)
 {
     llvm::Module *mod = GET_REF(r_mod, Module);     
-    llvm::LLVMContext &ctx = mod->getContext();
+//    llvm::LLVMContext &ctx = mod->getContext();
 
     mod->setTargetTriple(llvm::Triple::normalize(CHAR(STRING_ELT(r_triple, 0))));
     return(ScalarLogical(TRUE));
