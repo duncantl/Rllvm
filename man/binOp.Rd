@@ -52,7 +52,6 @@ Duncan Temple Lang
 \seealso{
 \code{\link{IRBuilder}}
 }
-\examples{
-}
+%\examples{}
 \keyword{programming}
 

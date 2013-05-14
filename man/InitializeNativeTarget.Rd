@@ -1,5 +1,12 @@
 \name{InitializeNativeTarget}
 \alias{InitializeNativeTarget}
+\alias{llvmShutdown}
+\alias{llvmStartMultiThreaded}
+\alias{llvmStopMultiThreaded}
+\alias{llvmVersion}
+
+\alias{getLLVMTargets}
+
 \title{Initialize the LLVM engine for JIT operations}
 \description{
   If one is to use any of LLVM's JIT operations in
@@ -9,6 +16,11 @@
 }
 \usage{
 InitializeNativeTarget()
+llvmShutdown()
+llvmStartMultiThreaded()
+llvmStopMultiThreaded()
+llvmVersion()
+getLLVMTargets()
 }
 %- maybe also 'usage' for other objects documented here.
 \value{
@@ -21,11 +33,7 @@ InitializeNativeTarget()
 Duncan Temple Lang
 }
 
-\seealso{
-
-}
-\examples{
-
-}
+%\seealso{}
+%\examples{}
 \keyword{programming}
 

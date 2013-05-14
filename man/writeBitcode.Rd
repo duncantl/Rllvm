@@ -17,7 +17,7 @@ readBitcode(src, context = NULL)
      vector.}
   \item{src}{the name of the file from which to read the bitcode, or
     alternatively a \code{raw} vector containing the bitcode.}
-  \item{context}{an \code{\link{LLVMContext}} object or the default
+  \item{context}{an \code{\link{LLVMContext-class}} object or the default
     global context}
 }
 \value{
@@ -36,9 +36,7 @@ Duncan Temple Lang
 \seealso{
 \code{\link{Module}}
 }
-\examples{
-
-}
+%\examples{}
 \keyword{programming}
 \concept{compilation}
 

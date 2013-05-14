@@ -1,5 +1,12 @@
 \name{getGlobalContext}
 \alias{getGlobalContext}
+
+\alias{getContext,Constant-method}
+\alias{getContext,Type-method}
+\alias{getContext,Value-method}
+\alias{getDataLayout,Module-method}
+\alias{getDataLayout,TargetMachine-method}
+
 \title{Retrieve the default LLVM context}
 \description{
   An LLVM context is used to manage data within the
@@ -10,9 +17,7 @@
 \usage{
 getGlobalContext()
 }
-\details{
 
-}
 \value{
 An object of class \code{Context-class}.
 }
@@ -23,11 +28,7 @@ An object of class \code{Context-class}.
 Duncan Temple Lang
 }
 
-\seealso{
-
-}
-\examples{
-
-}
+%\seealso{}
+%\examples{}
 \keyword{programming}
 

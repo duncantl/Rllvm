@@ -6,6 +6,12 @@
 <title>Things To Note</title>
 <items>
 <item>
+See how to generate C++ from the IR, and PTX.
+</item>
+<item>
+reinforced random walk, BML,
+</item>
+<item>
 Make declareFunction accept a Type, list(Type, Type) 
 rather than just a single list() with the return type and parameter types.
 </item>

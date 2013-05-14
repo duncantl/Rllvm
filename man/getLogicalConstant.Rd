@@ -6,10 +6,19 @@
 \alias{createFloatingPointConstant}
 \alias{createDoubleConstant}
 \alias{createIntegerConstant}
+\alias{createStringConstant}
 \alias{createIntegerConstant,character-method}
 \alias{createIntegerConstant,integer-method}
+\alias{createIntegerConstant,numeric-method}
 
-\alias{setTailCall}
+\alias{constantAggregateZero}
+\alias{ConstantAggregateZero-class}
+
+\alias{coerce,integer,Value-method}
+\alias{coerce,logical,Value-method}
+\alias{coerce,numeric,Value-method}
+
+\alias{setTailCall} %???? why is this here
 
 \title{Create constants in native code}
 \description{
@@ -35,21 +44,16 @@ createFloatingPointConstant(val, context, type)
   \item{\dots}{additional parameters for the specific methods}
 }
 
-\value{
-
-}
+%\value{}
 \references{
+    LLVM Documentation \url{http://llvm.org/docs/}
 }
 \author{
 Duncan Temple Lang
 }
 
-\seealso{
-
-}
-\examples{
-
-}
+%\seealso{}
+%\examples{}
 
 \keyword{programming}
 

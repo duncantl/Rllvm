@@ -1,5 +1,6 @@
 \name{parseIR}
 \alias{parseIR}
+\alias{parseAssembly}
 \title{Read LLVM Code in the Intermediate Representation (IR) Language}
 \description{
   This function is used for de-serializing LLVM code in intermediate
@@ -13,13 +14,17 @@
 \usage{
 parseIR(content, context = NULL,
          asText = is(content, "AsIs") || !file.exists(content))
+parseAssembly(code, module = NULL, context = NULL,
+                asText = !file.exists(code)) 
 }
 \arguments{
-  \item{content}{the name of a file containing the IR content, or the
+  \item{content,code}{the name of a file containing the IR content, or the
     actual IR content as a character vector. Content can be identified
     via the \code{I()} function to mark it "AsIs".}
   \item{context}{the LLVM context in which to parse the code and create
     the Module. By default, we use the global context}
+  \item{module}{the module into which to create the code objects. This
+    will be created if not specified.}
   \item{asText}{a logical value that indicates whether \code{content} is
   the name of a file (\code{FALSE}) or the actual content of the IR code
 (\code{TRUE})}
@@ -40,8 +45,8 @@ Duncan Temple Lang
 
 InitializeNativeTarget()
 
-
-ff = "experiments/add.ll"
+\dontrun{  % format not quite correct due to different versions
+ff = system.file("IR", "add.ll", package = "Rllvm")
 
  # Read directly from a file
 m = parseIR(ff)
@@ -62,6 +67,7 @@ ll = readLines(ff)
 
 m = parseIR(ll, asText = TRUE)
 
+
   # Now actually create the code as a string
 ll = 'define i32 @bar() nounwind readnone ssp {
 entry:
@@ -72,5 +78,5 @@ entry:
  Optimize(m,)
  run(getModuleFunctions(m)$bar)
 }
-\keyword{}
-\keyword{}
+}
+\keyword{programming}

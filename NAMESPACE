@@ -1,6 +1,7 @@
 useDynLib(Rllvm)
 
 import(methods)
+import(RAutoGenRunTime)
 
 exportClasses(
   AllocaInst,

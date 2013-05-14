@@ -21,5 +21,4 @@ if(require(RLLVMCompile)) {
   fc = compileFunction(f, DoubleType, mod = mod, name = "g")  
 
   names(mod)
-  
 }

@@ -12,7 +12,26 @@
 \alias{Int8Type}
 \alias{isBasicType}
 \alias{LabelType}
+\alias{StringType}
 \alias{pointerType}
+\alias{CHARSXPType}
+\alias{INTSXPType}
+\alias{LGLSXPType}
+\alias{REALSXPType}
+\alias{STRSXPType}
+\alias{VECSXPType}
+\alias{SEXPType}
+
+
+\alias{CHARSXPType-class}
+\alias{INTSXPType-class}
+\alias{LGLSXPType-class}
+\alias{REALSXPType-class}
+\alias{STRSXPType-class}
+\alias{VECSXPType-class}
+\alias{SEXPType-class}
+
+
 
 \docType{data}
 \title{Objects representing different LLVM common Types}
@@ -29,10 +48,9 @@
 <externalptr> 
 }
 
-\source{
-}
+%\source{}
 \references{
+    LLVM Documentation \url{http://llvm.org/docs/}
 }
-\examples{
-}
+%\examples{}
 \keyword{datasets}

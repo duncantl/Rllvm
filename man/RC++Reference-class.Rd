@@ -31,6 +31,10 @@
 \alias{UnionType-class}
 \alias{User-class}
 \alias{Value-class}
+\alias{Argument-class}
+\alias{FunctionType-class}
+\alias{BinaryOperator-class}
+
 
 \alias{setName}
 \alias{getName}
@@ -56,21 +60,12 @@ Objects can be created by calls of the form \code{new("RC++Reference", ...)}.
 No methods defined with class "RC++Reference" in the signature.
 }
 \references{
-%%  ~~put references to the literature/web site here~~
+  LLVM Documentation \url{http://llvm.org/docs/}
 }
 \author{
 Duncan Temple Lang
 }
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%%  ~~objects to See Also as \code{\link{~~fun~~}}, ~~~
-%%  ~~or \code{\linkS4class{CLASSNAME}} for links to other classes ~~~
-}
+%\seealso{}
 \examples{
 showClass("RC++Reference")
 }

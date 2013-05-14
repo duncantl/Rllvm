@@ -12,12 +12,6 @@ getRReference(SEXP val)
 }
 
 
-extern "C"
-void
-printi(int val)
-{
-    fprintf(stdout, "%d\n", val);
-}
 
 
 #if 0
@@ -65,5 +59,5 @@ extern "C"
 void
 printInt(int i)
 {
-    fprintf(stderr, "%d\n", i);
+    REprintf("%d\n", i);
 }

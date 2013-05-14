@@ -1,6 +1,10 @@
 \name{llvmAddSymbol}
 \alias{llvmAddSymbol}
 \alias{llvmLoadDLL}
+
+\alias{coerce,character,NativeSymbol-method}
+\alias{coerce,NativeSymbolInfo,NativeSymbol-method}
+
 \title{Resolving external symbols}
 \description{
   These functions allows us to help the dynamic
@@ -43,9 +47,7 @@ Duncan Temple Lang
 \seealso{
 \code{\link[base]{getNativeSymbolInfo}}
 }
-\examples{
-
-}
+%\examples{}
 \keyword{programming}
 \keyword{interface}
 

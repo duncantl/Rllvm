@@ -14,4 +14,4 @@ foo = structType(list(i = Int32Type, d = DoubleType), "foo")
 getName(foo)
 elTypes = getElementTypes(foo)
 
-gvar = createGlobalVariable("S", NULL, mod, foo)
+gvar = createGlobalVariable("S", mod, foo)

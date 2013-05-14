@@ -24,6 +24,30 @@
 \alias{setInsertPoint}
 \alias{$,IRBuilder-method}
 \alias{coerce,IRBuilder,LLVMContext-method}
+\alias{createBranch}
+\alias{createCast}
+\alias{createCondBranch}
+\alias{createExtractElement}
+\alias{createFCmp}
+\alias{createFNeg}
+\alias{createGlobalString}
+\alias{createInsertElement}
+\alias{createIntCast}
+\alias{createSelect}
+\alias{createStructGEP}
+\alias{createTargetMachine}
+\alias{createUnreachable}
+\alias{createUnwind}
+\alias{createZExt}
+
+\alias{getTrue}
+\alias{getFalse}
+
+\alias{getInsertBlock}
+
+\alias{coerce,IRBuilder,BasicBlock-method}
+\alias{coerce,IRBuilder,Function-method}
+
 \title{Create an IR builder object for LLVM construction}
 \description{
   This function and class allow us to create and use
@@ -38,25 +62,17 @@ IRBuilder(block = getGlobalContext())
     by default. This can be reset using \code{setInsertPoint}.
    Alternatively, this can be an LLVMContext object.}
 }
-\details{
-}
-\value{
 
-}
+%\value{}
 \references{
-
+  LLVM Documentation \url{http://llvm.org/docs/}
 }
 \author{
 Duncan Temple Lang
 }
-\note{
-}
 
-\seealso{
-}
-\examples{
-
-}
+%\seealso{}
+%\examples{}
 
 \keyword{programming}
 

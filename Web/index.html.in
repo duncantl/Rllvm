@@ -7,7 +7,7 @@
 <body>
 <h1>The Rllvm Package</h1>
 <p align=right><a href="https://github.com/duncantl/Rllvm">Rllvm on github</a></p>
-<p align=right><a href="@TAR_FILE@">@TAR_FILE@</a> (@DATE@)</p>
+<p align=right><a href="@TAR_FILE@">@TAR_FILE@</a></p>
 <p align=left><img src="../new.jpg"/><a href="JSM2012/frames.html">JSM2012 Talk</a></p>
 <!--<p align=right><a href="philosophy.html">Manual</a></p> -->
 
@@ -116,6 +116,16 @@ and developed as explorations of that API.
           <a href="store2.R">store2.R</a>	 
         
 
+     <dt>
+     <li> <img src="../new.jpg"/><a href="timings.html">Comparison of Timings</a>
+	 for 5 different problems.
+	 
+     <dd> The problems and approaches are described
+	  in examples in the package in explorations/ and tests/.
+	 These not only show that we can outperform R's
+	 interpreter, but also outperform R's vectorized code
+	 by changing the 
+	 
 <dt>
 <li> <a href="FAQ.html">FAQ</a>
 <dd>
@@ -147,7 +157,7 @@ This is distributed under the GPL2 License.
 <address><a href="http://www.stat.ucdavis.edu/~duncan">Duncan Temple Lang</a>
 <a href=mailto:duncan@wald.ucdavis.edu>&lt;duncan@wald.ucdavis.edu&gt;</a></address>
 <!-- hhmts start -->
-Last modified: Sun Aug  5 20:34:49 PDT 2012
+Last modified: Tue May 14 06:06:08 PDT 2013
 <!-- hhmts end -->
 
 </body> </html>

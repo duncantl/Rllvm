@@ -272,7 +272,7 @@ createSwitch  =
   # Should create the block first so that you can connect it to other blocks.
   # Method to query the destination block?
   #
-function(builder, value, dest = BasicBlock(as(builder, "Function")), ..., numCases = max(length(cases), 3L), branchWeights = 0L, id = character())
+function(builder, value, dest = Block(as(builder, "Function")), ..., numCases = max(length(cases), 3L), branchWeights = 0L, id = character())
 {
   cases = list(...)
   inst = .Call("R_IRBuilder_CreateSwitch", builder, value, dest, as.integer(numCases), as.character(id))
@@ -439,4 +439,11 @@ function(builder, value, field)
      stop("not a field index")
 
   .Call("R_IRBuilder_CreateStructGEP",  builder, value, as.integer(field))
+}
+
+
+getStructFieldIndex =
+function(field, type)
+{
+  stop("cannot get struct field by name")
 }

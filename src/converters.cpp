@@ -137,7 +137,7 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
    llvm::Type::TypeID ty;
 
    if(!type) {
-       fprintf(stderr, "var arg %d\n", TYPEOF(rval));
+       REprintf("var arg %d\n", TYPEOF(rval));
        rv->IntVal = INTEGER(rval)[0];
 
        return(rv);

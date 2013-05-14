@@ -1,6 +1,9 @@
 \name{getPassManager}
 \alias{getPassManager}
+\alias{passManager}
+\alias{addPass}
 \alias{FunctionPassManager-class}
+
 \title{Create an LLVM pass manager}
 \description{
   This function returns an instance of an LLVM
@@ -11,7 +14,8 @@
   
 }
 \usage{
-getPassManager(module, execEngine = ExecutionEngine(module))
+getPassManager(module, execEngine = ExecutionEngine(module), level = 3L)
+passManager(module, functionManager = !missing(module)) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,6 +26,9 @@ getPassManager(module, execEngine = ExecutionEngine(module))
     needed for optimization.
     This can be \code{NULL} in which case the data layout element/step of the pass
     manager is omitted.}
+  \item{level}{optimization level}
+  \item{functionManager}{whether to create a \code{FunctionPassManager} object or a
+   just a \code{PassManager}}
 }
 \value{
  An object of class \code{FunctionPassManager}.

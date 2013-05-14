@@ -54,20 +54,15 @@ createICmp(builder, op, lhs, rhs, id = character())
   \item{lhs,rhs}{the value objects for the two operands}
   \item{id}{an optional name for the instruction.}
 }
-\value{
-
-}
+%\value{}
 \references{
+    LLVM Documentation \url{http://llvm.org/docs/}
 }
 \author{
 Duncan Temple Lang
 }
 
-\seealso{
-
-}
-\examples{
-
-}
+%\seealso{}
+%\examples{}
 \keyword{programming}
 

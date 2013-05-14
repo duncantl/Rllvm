@@ -8,7 +8,7 @@
   in an LLVM module.
 }
 \usage{
-createGlobalVariable(id, mod, type = guessType(val), val = NULL,
+createGlobalVariable(id, mod, type = getType(val), val = NULL,
                      constant = FALSE, linkage = ExternalLinkage,
                       threadLocal = FALSE)
 }
@@ -32,17 +32,13 @@ createGlobalVariable(id, mod, type = guessType(val), val = NULL,
 An object of class \code{GlobalVariable}.
 }
 \references{
-
+  LLVM Documentation \url{http://llvm.org/docs/}
 }
 \author{
 Duncan Temple Lang
 }
 
-\seealso{
-
-}
-\examples{
-
-}
+%\seealso{}
+%\examples{}
 \keyword{programming}
 

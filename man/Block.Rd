@@ -1,6 +1,15 @@
 \name{Block}
 \alias{Block}
 \alias{Block-class}
+
+\alias{getBlockInstructions}
+\alias{getFirstNonPHI}
+\alias{getTerminator}
+\alias{getParent,BasicBlock-method}
+\alias{getContext,BasicBlock-method}
+
+\alias{coerce,BasicBlock,LLVMContext-method}
+
 \title{Create an LLVM block}
 \description{
   Blocks are labelled collections of statements/commands
@@ -33,6 +42,7 @@ Block(fun, id = character(), context = getGlobalContext(), n = 1)
 An object of class \code{Block}.
 }
 \references{
+  LLVM Documentation \url{http://llvm.org/docs/}
 }
 \author{
 Duncan Temple Lang
@@ -41,8 +51,6 @@ Duncan Temple Lang
 \seealso{
  \code{\link{IRBuilder}}
 }
-\examples{
-
-}
+%\examples{}
 \keyword{programming}
 

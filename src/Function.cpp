@@ -166,7 +166,7 @@ R_Function_getParam(SEXP r_func,  SEXP r_whichParam)
 }
 
 
-#ifdef COMPILE_ATTRIBUTES
+#if 1
 
 SEXP
 R_Argument_setAttrs(llvm::Argument *arg, SEXP r_vals)
@@ -233,7 +233,7 @@ R_Function_getAttributes(SEXP r_func)
      llvm::Function *func = GET_REF(r_func, Function);
      const llvm::AttrListPtr attrs = func->getAttributes();
      unsigned n = attrs.getNumSlots();
- fprintf(stderr, "num slots = %d, num = %d\n", n, attrs.getNumAttrs());
+// fprintf(stderr, "num slots = %d, num = %d\n", n, attrs.getNumAttrs());
      SEXP names = NEW_CHARACTER(n); 
      SEXP ans = NEW_LIST(n); 
      PROTECT(ans);
