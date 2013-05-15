@@ -79,6 +79,15 @@ Duncan Temple Lang
 \seealso{
 \code{\link{Block}}, \code{\link{IRBuilder}}
 }
-%\examples{}
+\examples{
+
+
+# This shows how we can use LLVM to call an existing routine.
+m = Module()
+ee = ExecutionEngine(m)
+Rf_PrintValue = declareFunction(list(VoidType, SEXPType),  "Rf_PrintValue", m)
+llvmAddSymbol("Rf_PrintValue")
+.llvm(Rf_PrintValue, 1:10)
+}
 \keyword{programming}
 
