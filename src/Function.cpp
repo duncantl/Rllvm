@@ -258,28 +258,8 @@ R_Function_getAttributes(SEXP r_func)
 #else
      // have to assign in declaration's initialization.
      const llvm::AttrListPtr attrs = func->getAttributes();
-
-     unsigned n = attrs.getNumSlots();
-     SEXP names = NEW_CHARACTER(n); 
-     SEXP ans = NEW_LIST(n); 
-     PROTECT(ans);
-     PROTECT(names);
-
-     for(unsigned i = 0; i < n; i++) {
-//         INTEGER(ans)[i] = (int) attrs.getAttributesAtIndex(i);
-// Get as string for now. Should get the vector of the attribute 'bits' 
-//  enum AttrVal.
-// or logical vector with on and offs for each of the possible settings.
-         llvm::AttributeWithIndex attr;
-         attr = attrs.getSlot(i);
-         std::string str = attr.Attrs.getAsString();
-         SET_STRING_ELT(names, i,  str.data() ? mkChar(str.data()) : R_NaString);
-         SET_VECTOR_ELT(ans, i, R_getFunctionAttributes_logical(attr.Attrs));
-     }
-
-     SET_NAMES(ans, names);
-     UNPROTECT(2);
-     return(ans);
+     llvm::Attributes fnattrs = attrs.getFnAttributes();
+     return(R_getFunctionAttributes_logical(fnattrs));
 #endif
 }
 
