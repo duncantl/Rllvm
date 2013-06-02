@@ -1,0 +1,131 @@
+\documentclass[article]{jss}
+\usepackage{comment}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shadows,trees}
+\usepackage{fancyvrb}
+\usepackage{cprotect}
+
+\usepackage[firstpage]{draftwatermark}
+\SetWatermarkLightness{.95}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% almost as usual
+\author{Duncan Temple Lang\\University of California at Davis}
+\title{The \Rpkg{Rllvm} package: generating fast code in \R{} by compiling with \llvm.}
+
+%% for pretty printing and a nice hypersummary also set:
+\Plainauthor{Duncan Temple Lang}
+\Plaintitle{The Rllvm package: generating fast code in R by compiling with LLVM.}
+\Shorttitle{Rllvm}
+
+%% an abstract and keywords
+\Abstract{ 
+
+
+} 
+\Keywords{\R, \Rpkg{Rllvm} package, compiled code}
+\Plainkeywords{R, RCIndex} %% without formatting
+%% at least one keyword must be supplied
+
+%% publication information
+%% NOTE: Typically, this can be left commented and will be filled out by the technical editor
+%% \Volume{13}
+%% \Issue{9}
+%% \Month{September}
+%% \Year{2004}
+%% \Submitdate{2004-09-29}
+%% \Acceptdate{2004-09-29}
+
+%% The address of (at least) one author should be given
+%% in the following format:
+\Address{
+  Duncan Temple Lang\\
+  4210 Math Sciences Building, \\
+  University of California at Davis \\
+  One Shields Avenue\\
+  Davis, CA 95616\\
+  E-mail: \email{duncan@r-project.org}\\
+  URL: \url{http://www.omegahat.org}
+}
+
+
+\usepackage[T1]{fontenc} 
+\catcode`\_=12
+
+\input{jssMacros}
+
+\begin{document}
+
+
+\section{Overview \& Motivation}\label{sec:Introduction}
+
+
+The potential readers of this paper are people who are interested in
+exploring how to create machine code directly within R for either
+compiling R code or for developing domain specific languages in R.
+We are using this to compile simple functions in R for speed 
+and also to get them to run on the GPU to take advantage 
+of massively parallel architectures.
+
+This is more of a manual about how to program with the \Rpkg{Rllvm}
+package than what we can do with it our how we compile \R{} code.  We
+will explain some of this using example code from the
+\Rpkg{RLLVMCompile} package. However, this is not a paper that
+describes that package and its compilation approach.
+
+In many respects, this article is an overview of what the \llvm{}
+API provides for applications which use it. We describe the concepts,
+classes and methods in that API, but in terms of how we manipulate these
+in \R.
+
+We will show how we can call existing \C{} routines using a
+combination of \RClang and \Rllvm.  We also show how we can compile
+simple functions such as the fibonacci sequence.  Similarly, we'll
+show how to compile simple loops which can remove the need to write
+vectorized code.  We'll show how to write a simple DSL, e.g. map a
+BUGS hierarchical model to a sampler. (Too ambitious.)
+
+
+We'll show how we can generate code for different input types
+and so think of the high-level code as a template.
+(This is done for the sort routine in C code in qsort.c by redefining the
+type NUMERIC.
+
+Show how to make code use multiple cores directly, with shared data?
+
+Some readers may say the examples are unrealistic as \R{} already has
+fast code to implement, e.g., \Rfunc{sum} and so on.  The point is not
+to compete with those existing functions that are implemented in
+C. Rather, the point is to say that we could implement them in \R{}
+code, make them more flexible so that they can run on multiple
+processors, take advantage of contextual information, e.g. no \na's,
+reusing memory. The examples are intentionally simple to focus on how
+we generate the equivalent machine code.
+
+
+\section{The basic steps of generating machine code}
+%LLVM Concepts
+
+We start with some parsed code.  To illustrate, consider computing the
+sum of the elements of a vector. %better example that R doesn't
+already do. A distribution function that can't be vectorized?%
+% How about a bootstrap or call to replicate() and reuse the memory.
+% Compile the loop to not need the vector to be expanded, but use a counter
+% Call R's internal functions. Since a primitive
+
+We need to create two routines.
+
+
+\section{}
+
+% Sharing code with other systems.
+\section{}
+
+
+\section{Future Work}
+
+
+\end{document}

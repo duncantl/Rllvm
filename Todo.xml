@@ -5,18 +5,80 @@
 <topic>
 <title>Things To Note</title>
 <items>
+
 <item>
-See how to generate C++ from the IR, and PTX.
+Ways to get the specific instruction type,
+e.g. when getOperand(), just get back generic Value object.
+Could use dynamic casts and exhaustively find one that works!
 </item>
+
 <item>
-reinforced random walk, BML,
+Build on Windows
 </item>
+
+<item>
+Fix getting function attributes for 3.2
+(Getting back a list with an element for each attribute,
+but each has the entire set.
+Working on the slots.)
+</item>
+
+<item>
+[Basically done but ... and test with 3.2 (not working)]
+[need to update enums  - AttrKind for FuncAttributes]
+[configuration done]
+
+sort out the changes to the Attributes and AttributeSet.
+Determine in configure what we are dealing with and
+set NEW_LLVM_ATTRIBUTES_SETUP appropriately
+and export to Makevars.in.
+<br/>
+Things compile now for 3.3, but don't work. tests/funcAttributes.R
+For add.ll, settings on foo are returning correctly from query.
+But setting is not working.  It is if we update the enum  values.
+</item>
+
+<item status="done">
+Problem reading llvm header files with RCIndex.
+Issue is with cstddef file not found and when we point it to
+one of the ones on a mac, we get errors.
+<br/>
+Need the -xc++ argument for  libclang to force C++.
+</item>
+
+<item>
+update the enums for 3.3. The TypeIDs were off.
+</item>
+
+<item>
+See how to generate C++ from the IR, and also  PTX.
+</item>
+
+
+<item>
+reinforced random walk, BML examples
+</item>
+
 <item>
 Make declareFunction accept a Type, list(Type, Type) 
 rather than just a single list() with the return type and parameter types.
 </item>
+
 <item>
 When we read IR back into R, lose the specific SEXP type information on the function.
+</item>
+
+
+<item>
+When a parameter type is one of the SEXP types, then coerce the input to that type.
+Perhaps too much overhead. Also, we just have the generic SEXPType 
+at this point.  Could create derived C++ classes to represent the different types
+or a single one that had the SEXP type(of). Then the types wouldn't necessarily be unique.
+But can make it so. Just use a static method to get it for the different sexp types.
+<br/>
+Try to find a way to get the different SEXP types as their own
+types but compatible with the generic SEXP type.
+Could cast.
 </item>
 
 <item>
@@ -38,22 +100,16 @@ Assertion: "This doesn't support passing arguments through varargs (yet)!"
 
 
 <item>
-When a parameter type is one of the SEXP types, then coerce the input to that type.
-Perhaps too much overhead. Also, we just have the generic SEXPType 
-at this point.  Could create derived C++ classes to represent the different types
-or a single one that had the SEXP type(of). Then the types wouldn't necessarily be unique.
-But can make it so. Just use a static method to get it for the different sexp types.
-</item>
-
-
-<item>
 Add a finalizer routine to a Module and when we garbage collect it, 
 then we can call it.
 This can release global variables in the module, e.g. regular expressions.
+Have to ensure that no elements of the module are still assigned in R.
+Maybe borrow code from RCIndex for reference counting.
 </item>
 
-<item>
+<item status="finish">
 R print method for Function to show the signature. 
+<r:func>getTypeName</r:func>.
 Possibly for Module also, e.g. to show the names of the elements, perhaps their type.
 </item>
 
@@ -94,9 +150,36 @@ How do we get the code back from LLVM so that we can pass it to CUDA?
 How do we run the code on the GPU?
 Can we use cuModuleLoadData?
 Can we get the address of the function from the execution engine?
+<br/>
+See libNVVM.
 </item>
 
-<item>
+
+<item status="done">
+Should use the pointer for the global variable to set it,
+just like we do when we get it. We need the type.
+<r:code>
+library(Rllvm)
+InitializeNativeTarget()
+mod = Module("global")
+mod[["status"]] = TRUE
+showModule(mod)
+</r:code>
+doesn't set the value if the variable has already been created.
+It only sets it the first time.
+Actually it creates a new variable with a 1 added to the name!
+<r:code>
+library(Rllvm)
+InitializeNativeTarget()
+mod = Module("global")
+mod[["status"]] = TRUE
+showModule(mod)
+setInitializer(mod[["status"]], createLogicalConstant(FALSE))
+showModule(mod)
+mod[["status"]] = TRUE
+</r:code>
+<br/>
+
 The getGlobalVariable() functions and the setting of these values
 don't behave as expected. The get() function gets the initial value.
 The set values don't set the variable if it already exists.
@@ -106,25 +189,12 @@ See tests/clone2.R
 <br/>
 This is probably just a mistaken understanding/analysis of the outcomes.
 Need to use the same Execution Engine to see the changes.
-</item>
-
-<item status="high">
-Should use the pointer for the global variable to set it,
-just like we do when we get it. We need the type.
-<r:code>
-library(Rllvm)
-InitializeNativeTarget()
-mod = Module("global")
-mod[["status"]] = TRUE
-</r:code>
-doesn't set the value if the variable has already been created.
-It only sets it the first time.
-<br/>
 
 </item>
 
 </items>
 </topic>
+
 <topic>
 <title>Main</title>
 <items>
@@ -194,6 +264,8 @@ Example of accessing a struct.
 Example of working with an existing struct type in C
 and compile code to operate on it.
 Issues with ensuring alignment and padding if compiled by another compiler.
+<br/>
+See examples of working with a pointer to a libclang CXCursor.
 </item>
 
 <item>
@@ -246,7 +318,7 @@ C code to erase from parent for BasicBlock and Instruction.
 
 
 
-<item>
+<item pkg="RGCCTranslationUnit">
 In the TU, ExecutionEngine create method has an NA for the type of one of the parameters.
 The type is there and the name of the type is also there, just not shown.
 <r:code>
@@ -257,8 +329,8 @@ rm = resolveType(m, tu)
 </r:code>
 </item>
 
-<item>
-In TU
+<item status="low" pkg="RGCCTranslationUnit">
+In TU  (RGCCTranslationUnit)
 <r:code>
 m = getClassMethods(k[["llvm::BasicBlock"]])
 <r:error>
@@ -266,12 +338,17 @@ Error in getClass("GCC::Node::offset_type") :
   "GCC::Node::offset_type" is not a defined class
 </r:error>
 </r:code>
+<br/>
+Do this in RClang now.
 </item>
 
-<item>
+<item status="done">
 getOperand() method.
 It would be nice to be able to do to the LLVM instructions
-what we can do to R language objects.
+what we can do to R language objects. ???
+Walk them ?
+<br/>
+And add  [[ method.
 </item>
 
 <item>

@@ -35,7 +35,32 @@ function(block)
     .Call("R_BasicBlock_getBlockInstructions", block)
 }
 
+
+setMethod("[", c("BasicBlock", "missing", "missing"),
+           function(x, i, j, ...) {
+             getBlockInstructions(x)
+           })
+
+setMethod("[", c("BasicBlock", "numeric"),
+           function(x, i, j, ...) {
+             getBlockInstructions(x)[i]
+           })
+
+setMethod("[[", c("BasicBlock", "numeric"),
+           function(x, i, j, ...) {
+             getBlockInstructions(x)[[i]]
+           })
+
 setMethod("getParent", "BasicBlock",
           function(x, ...)
           .Call("R_BasicBlock_getParent", x))
 
+
+if(!isGeneric("sapply"))
+  setGeneric("sapply",
+               function (X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE)
+                 standardGeneric("sapply"))
+
+setMethod("sapply", "BasicBlock",
+          function (X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE)
+             sapply(getBlockInstructions(X), FUN, ..., simplify = simplify, USE.NAMES = USE.NAMES))

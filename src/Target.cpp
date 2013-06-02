@@ -3,9 +3,12 @@
 #include <llvm/Target/TargetLibraryInfo.h>
 #include <llvm/Target/TargetMachine.h>
 
-// Don't need this and not in same place on Linux setup.
-//  #include <llvm/DataLayout.h> 
-
+// Don't need this - do now - and not in same place on Linux setup.
+#ifdef LLVM_DATALAYOUT_H_IN_IR
+#include <llvm/IR/DataLayout.h>
+#else
+#include <llvm/DataLayout.h> 
+#endif
 
 extern "C"
 SEXP
@@ -62,3 +65,13 @@ R_TargetMachine_getDataLayout(SEXP r_tm)
     const llvm::DataLayout *ans = tm->getDataLayout();
     return(R_createRef(ans, "DataLayout"));
 }
+
+extern "C"
+SEXP
+R_DataLayout_getStringRepresentation(SEXP r_dl)
+{
+    llvm::DataLayout *dl = GET_REF(r_dl, DataLayout);
+    std::string str = dl->getStringRepresentation();
+    return(str.data() ? mkString(str.data()) : R_NaString);
+}
+

@@ -49,6 +49,11 @@ setTargetTriple(m, tri)
 getTargetTriple(m)
 </r:code>
 
+
+<r:code>
+layout = "e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
+</r:code>
+
 <r:code>
 trgt = lookupTarget(tri)
 </r:code>
@@ -85,6 +90,21 @@ compileFunction(Dnorm, DoubleType, replicate(3, DoubleType), module = m, optimiz
 The target library info is an object that contains many fundamental routines
 for run-time, e.g. exp, cosf, atan, alloc and delete.
 </para>
+
+
+
+<para>
+Look at translate.cpp in libNVVM.
+
+<r:code>
+setDataLayout(module, layoutStr)
+trgtData = TargetData(layoutStr)
+
+# get the bitcode back as PTX
+# bitCodeToPtx via libNVVM
+</r:code>
+</para>
+
 
 
 </section>

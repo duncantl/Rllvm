@@ -7,6 +7,7 @@
 <articleinfo>
 
 <ignore>
+To run this code directly from this document, evaluate the code below
 <r:code>
 library(XML)
 xmlSource("fgets.Rdb", verbose = TRUE)

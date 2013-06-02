@@ -38,6 +38,15 @@ R_InitializeNVPTXTarget()
     LLVMInitializeNVPTXTargetMC();
     LLVMInitializeNVPTXAsmPrinter();
 }
+
+extern "C"
+void
+R_InitializeCppBackendTarget()
+{
+    LLVMInitializeCppBackendTarget();
+    LLVMInitializeCppBackendTargetInfo();
+    LLVMInitializeCppBackendTargetMC();
+}
 #endif
 
 extern "C"

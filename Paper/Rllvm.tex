@@ -1,0 +1,593 @@
+\documentclass[article]{jss}
+\usepackage{comment}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shadows,trees}
+\usepackage{fancyvrb}
+\usepackage{cprotect}
+\usepackage{listings}
+
+\usepackage[firstpage]{draftwatermark}
+\SetWatermarkLightness{.95}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+% To finish
+% Memory management
+% using different backends, e.g. PTX, C++
+% assertions terminating R.  (compile without debug-assertions)
+%  show() method for the parameters.
+% make parseIR() and readBitcode() consisitent
+
+
+
+%% almost as usual
+\author{Duncan Temple Lang\\University of California at Davis}
+\title{The \Rpkg{Rllvm} package: generating fast code in \R{} by compiling with \llvm.}
+
+%% for pretty printing and a nice hypersummary also set:
+\Plainauthor{Duncan Temple Lang}
+\Plaintitle{The Rllvm package: generating fast code in R by compiling with LLVM.}
+\Shorttitle{Rllvm}
+
+%% an abstract and keywords
+\Abstract{ 
+
+
+} 
+\Keywords{\R, \Rpkg{Rllvm} package, compiled code}
+\Plainkeywords{R, RCIndex} %% without formatting
+%% at least one keyword must be supplied
+
+%% publication information
+%% NOTE: Typically, this can be left commented and will be filled out by the technical editor
+%% \Volume{13}
+%% \Issue{9}
+%% \Month{September}
+%% \Year{2004}
+%% \Submitdate{2004-09-29}
+%% \Acceptdate{2004-09-29}
+
+%% The address of (at least) one author should be given
+%% in the following format:
+\Address{
+  Duncan Temple Lang\\
+  4210 Math Sciences Building, \\
+  University of California at Davis \\
+  One Shields Avenue\\
+  Davis, CA 95616\\
+  E-mail: \email{duncan@r-project.org}\\
+  URL: \url{http://www.omegahat.org}
+}
+
+
+\usepackage[T1]{fontenc} 
+\catcode`\_=12
+
+\input{jssMacros}
+\def\RClang{\Rpkg{RCIndex}}
+\def\Rllvm{\Rpkg{Rllvm}}
+\def\IR{intermediate representation}
+\def\Ins#1{\textbf{#1}}
+
+\begin{document}
+
+
+\section{Overview and Motivation}\label{sec:Introduction}
+
+The potential readers of this paper are people who are interested in
+exploring how to create machine code directly within R for either
+compiling R code or for developing domain specific languages in R.
+We are using this to compile simple functions in R for speed 
+and also to get them to run on the GPU to take advantage 
+of massively parallel architectures.
+
+This is more of a manual about how to program with the
+\Rpkg{Rllvm}~\cite{bib:Rllvm} package than what we can do with it our
+how we compile \R{}~\cite{bib:R} code.  We will explain some of this
+using example code from the \Rpkg{RLLVMCompile}~\cite{bib:RLLVMCompile} package. However, this
+is not a paper that describes that package and its compilation
+approach.
+
+In many respects, this article is an overview of what the \llvm~\cite{bib:llvm}
+API provides for applications which use it. We describe the concepts,
+classes and methods in that API, but in terms of how we manipulate these
+in \R.
+
+We will show how we can call existing \C{} routines using a
+combination of \RClang{} and \Rllvm.  We also show how we can compile
+simple functions such as the fibonacci sequence.  Similarly, we'll
+show how to compile simple loops which can remove the need to write
+vectorized code.  We'll show how to write a simple DSL, e.g. map a
+BUGS hierarchical model to a sampler. (Too ambitious.)
+
+
+We'll show how we can generate code for different input types
+and so think of the high-level code as a template.
+(This is done for the sort routine in C code in qsort.c by redefining the
+type NUMERIC.
+
+Show how to make code use multiple cores directly, with shared data?
+
+Some readers may say the examples are unrealistic as \R{} already has
+fast code to implement, e.g., \Rfunc{sum} and so on.  The point is not
+to compete with those existing functions that are implemented in
+C. Rather, the point is to say that we could implement them in \R{}
+code, make them more flexible so that they can run on multiple
+processors, take advantage of contextual information, e.g. no \na's,
+reusing memory. The examples are intentionally simple to focus on how
+we generate the equivalent machine code.
+
+
+The purpose of writing this article is to hopefully encourage and
+enable some \R{} programmers to experiment with improving \R's
+efficiency by experimenting with different compilation strategies,
+either for \R{} code or other domain specific languages (DSLs) within
+R.
+
+We'll use examples from the ``Writing R extensions manual'' also used
+in the \Rpkg{Rcpp}~\cite{bib:Rcpp} package to facilitate comparison.
+
+
+The focus of the paper is generating native code in \R{} using \llvm.
+However, before we do this, we have to understand the essential
+concepts of \llvm.  Therefore, we start by exploring \llvm{} by
+working with previously generated code. %We will see how we can We may
+%not regulary need all of these tools for querying \llvm{} objects when
+%we generate code, but they allow us to 
+
+
+\section[LLVM Concepts]{\llvm concepts}
+% Start with a very simple approach which is to read existing
+% IR code into R and call it.
+
+Perhaps the easiest way to start exploring the \R{} interface to
+\llvm{} is to to load some previously compiled native routines into an
+\R{} session and call them from \R. 
+We can generate the code for these routines in various different ways,
+but perhaps the simplest to understand is to create the \IR{} code
+from manually written \C{} code using \clang{} and
+\ShFlag{-emit-llvm}. We use the shell command
+\begin{ShCode}
+clang -S -emit-llvm -o fib.ll fib.c
+\end{ShCode}
+Similarly, we could generate the code as binary ``bitcode''
+using
+\begin{ShCode}
+clang  -emit-llvm fib.c -c -o fib.bc
+\end{ShCode}
+Later, we will see how to create this code within \R{} itself.
+However, for now, it is  only important that we have this code.
+Our purpose in this section is to get up and running with \llvm{}
+in \R{} in order to introduce some of the essential high-level concepts.
+
+% what about compiling as a .so!
+
+\subsection{Modules}
+We can read the code in \file{fib.bc} into \R{} using
+%XXX file is not in this directory
+%XXX use a module that has more than one routine.
+% mod = readBitcode("../../explorations/fib.bc")  
+\begin{RCode}
+mod = readBitcode("fib.bc")  
+\end{RCode}
+The result is an object of class \Rclass{Module}.  This is a reference
+to the corresponding \Cpp{} class in the \llvm{} API.  A module is a
+container for a collection of routines, global variables and generally
+related compiled elements.  We can have multiple separate modules in
+an \R{} session simultaneously.  We can even clone a module to create
+two separate instances of it.
+
+In some ways, we can think of a \Rclass{Module} in \R{} like a \Rclass{list}.
+We can query the names of its elements with 
+\begin{RCode}
+names(mod)
+\end{RCode}
+%XXX change to reflect two or more routines.
+\begin{ROutput}
+[1] "fib"  
+\end{ROutput}
+
+We can access any of the elements in the module using the
+\Rdollar{} operator, e.g. 
+\begin{RCode}
+mod$fib  
+\end{RCode}
+%$
+This returns a reference to the native object in the \llvm{} module.
+In this case, we have a reference to a \Rclass{Function} object.
+This represents the routine we can call from \R.
+
+We can query the number and type of the arguments of the routine
+with 
+\begin{RCode}
+getParameters(mod$fib)  
+\end{RCode}
+%$
+This tells us that there is a single parameter which should be
+an integer value.
+
+\subsection{Invoking a routine}
+
+We can call this routine using the \Rfunc{.llvm} function:
+\begin{RCode}
+.llvm(mod$fib, 30)  
+\end{RCode}
+%$
+% Following is not true with binary code, only ll code.
+%We should note  that the first time we run this routine,  \llvm{} 
+%XXX reading fib.ll has #0 in it. and attributes #0. Need to remove
+%these.
+The intent is that the \Rfunc{.llvm} is similar to the \Rfunc{.C} and
+\Rfunc{.Call} routines in \R.  We specify the routine to invoke and
+pass it any arguments.  Unlike the \Rfunc{.C} and \Rfunc{.Call}
+interfaces generally, \Rfunc{.llvm} knows the types of the parameters
+and so can coerce the arguments from the \R{} call to the appropriate
+type to pass to the routine.
+In this example, \Rfunc{.llvm} coerces the value $30$ from 
+its inherent \Rclass{numeric} type to an integer, consistent with the
+native type expected by the \Cfunc{fib} routine.
+
+
+\subsection{Execution Engine}
+
+Each time we invoke this routine, \Rllvm creates a new, what is called
+an, \Rclass{ExecutionEngine}. We improve matters by creating 
+a single execution engine object and using this in each call
+to \Rfunc{.llvm}. We do this via a call to \Rfunc{ExecutionEngine},
+passing it the module on which we want it operate. % can have morethan
+                                % one module. XXX Make this add the module
+\begin{RCode}
+ee = ExecutionEngine(mod)  
+\end{RCode}
+We can then pass this via \Rfunc{.llvm}'s \Rarg{.ee} parameter, e.g.
+\begin{RCode}
+.llvm(mod$fib, 30, .ee = ee)  
+\end{RCode}
+%$
+The overhead of creating a new execution engine each time can be quite
+significant.  Therefore, it is good to explicitly create and pass
+one in each call to \Rfunc{.llvm}. %XXX check this 
+
+
+While the content doesn't matter to us for invoking the routine, the
+\file{fib.ll} file contains the code shown in figure~\ref{fig:IRCodeDisplay}
+intermediate representation (IR) form and is low-level code that
+describes the routine and its instructions.  The content is similar in
+nature to assembler code. This is why it is called low-level.
+\begin{figure}
+% show ../explorations/fib.ll
+\lstinputlisting{../explorations/fib.ll} This is what is called  
+  \caption{This is the code for the fibonacci function
+in \llvm's intermediate representation (IR) form.
+This shows the module and the routine named \texttt{@fib}.
+The type information of the parameters and return value is also show.
+The body of the routine consists of several blocks, each identified
+by a label, e.g. \texttt{entry:} and \texttt{if.then}.
+Each block contains instructions that do the work of the routine.
+The final instruction in each block is either a branch (\Ins{op})
+to another block of instructions, or an explicit return (\Ins{ret})
+instruction to exit the call to this routine.
+}\label{fig:IRCodeDisplay}
+\end{figure}
+
+% return type.
+The \Rfunc{.llvm} function queries the routine we are calling and
+determines both the types of the parameters and also the return type.
+It does this with \Rfunc{getReturnType}.  This returns an explicit
+\Rclass{Type} object. These are vitally important in \llvm{} and
+so we'll take the opportunity to understand them a little better.
+
+\input{types}
+
+
+
+\subsection{Block}
+A \Rclass{Block} is a container for one or more related instructions.
+These instructions are evaluated in order sequentially.  The final
+instruction must be either a branch to jump to another block of
+instructions, or an explicit return instruction.
+
+We can get the entire set of instructions within  a block
+with \Rfunc{getBlockInstructions}.
+Similarly, since a block is a container, we can also treat it like a list in \R.  We
+can ask how many instructions it contains with \Rfunc{length} and
+access the instructions by subsetting the block, e.g.
+\begin{RCode}
+ block[ ]  
+ block[[2]]
+\end{RCode}
+
+We can retrieve the terminator instruction directly with
+\Rfunc{getTerminator}.
+
+\section{Instructions}
+We have seen the hierarchy of modules containing routines which
+contain blocks.  Instructions are the elements that perform the
+operations in a routine.  There are many different types of
+instructions such as to call another routine,
+add two real-valued numbers, assign/store
+a value to a variable, load the value of a variable,
+access an element in an array or via a pointer,
+compare two values (e.g. $<$, $>$, $ge$)
+branch to another block, cast a value to a different type, and so on.
+
+Let's look at the \texttt{if.then} block in the
+\Cfunc{fib} routine:
+\begin{RCode}
+b = getBlocks(mod$fib)$if.end
+\end{RCode}
+This contains nine instructions.
+The first three appear as 
+\begin{Verbatim}
+  %3 = load i32* %n.addr, align 4
+  %sub = sub nsw i32 %3, 1
+  %call = call i32 @fib(i32 %sub)  
+\end{Verbatim}
+in the intermediate form in figure~\ref{fig:IRCodeDisplay}.
+The first retrives the value from the variable n.addr, which 
+is the address of the parameter named \Carg{n}.
+The second subtracts $1$ from this value.
+The final instruction calls the \Cfunc{fib} routine with this value.
+
+Every instruction has a operation code (opcode) which identifies
+the kind of operation. We can retrieve this with \Rfunc{getOpcode},
+e.g.
+\begin{RCode}
+sapply(b[1:3], getOpcode)
+\end{RCode}
+\begin{ROutput}
+load  sub call 
+  27   10   48   
+\end{ROutput}
+As with types, the value of \Rfunc{getOpcode} is the value of the
+\C{} enumerated constant and the name gives the symbolic name.
+
+
+Every instruction has a type that tells us about its result. 
+We can query this with \Rfunc{getType}. This returns a
+\Rclass{Type} object which we discussed in section~\ref{sec:Types}.
+
+Different types of instructions will have different contents,
+i.e. elements that make up the instruction.
+These are the operands.
+We can query the number of operands in an instruction with \Rfunc{getNumOperands}
+and then can access individual operands with the  list subsetting
+operator, e.g.
+\begin{RCode}
+b[[2]][1]]
+b[[2]][2]]
+\end{RCode}
+When we create instructions, we will call a particular
+function corresponding to the specific kind of instruction
+we want, passing it the inputs it requires.
+
+
+This completes the brief overview of the essential elements of \llvm.
+We have seen modules, routines/functions, types, blocks and
+instructions.  We also saw the execution engine and how to 
+invoke a routine created by \llvm.
+% intermediate form and bit code.
+
+
+\section{The basic steps of generating machine code}
+
+We start with some parsed code.  To illustrate, consider computing the
+sum of the elements of a vector. %better example that R doesn't
+already do. A distribution function that can't be vectorized?%
+% How about a bootstrap or call to replicate() and reuse the memory.
+% Compile the loop to not need the vector to be expanded, but use a counter
+% Call R's internal functions. Since a primitive
+
+We need to create two routines corresponding to the \R{} functions.
+
+
+
+%\section{Function class}
+% parameters and attributes.
+
+
+
+\subsection{IRBuilder}
+To create working code with \llvm, we create instructions and add them
+to a particular block.  The simplest way to do this is to use an
+\Rclass{IRBuilder}.  This both creates the different types
+instructions and inserts them into its current block.  We create an
+\Rclass{IRBuilder} object with the constructor function of the same
+name, i.e. \Rfunc{IRBuilder}.  Generally, we pass it the initial block
+of a newly created \Rclass{Function} object.
+
+This takes 
+\begin{RCode}
+mod = Module()
+fun = Function("moveCars", Int32Type, list(Int32PtrType, Int32Type, Int32Type), mod)
+start = Block(fun, "entry")
+ir = IRBuilder(block)  
+\end{RCode}
+
+With the \Rclass{IRBuilder} created, we can now create instructions.
+For example, to create a local variable named \Cvar{i}, we might
+call
+\begin{RCode}
+iv = createLocalVariable(ir, Int32Type, "i")  
+\end{RCode}
+We'll explore creating instructions generally in the next
+section. 
+
+Because the \Rclass{IRBuilder} is used to create almost all
+instructions, it is the first argument in the functions
+that create instructions.
+Some programmers may find it convenient or helpful to 
+think of the instruction constructor functions
+as ``methods'' of the \Rclass{IRBuilder} object and
+to use the form
+\begin{RCode}
+ir$createStore(var, value)
+\end{RCode}
+to call these functions.
+%$
+This is the same as
+\begin{RCode}
+createStore(ir, var, value)
+\end{RCode}
+
+We could explicitly create the instruction separately and add it to
+the relevant \Rclass{Block}.  The \Rclass{IRBuilder} combines these
+two steps for us, using the currently active block and adding the
+instruction to the end of that block.  When we want to generate
+instructions for a different block, we set the active block in the
+\Rclass{IRBuilder} using the \Rfunc{setInsertBlock} function.
+For example, 
+\begin{RCode}
+ret = Block(fun, "return")
+setInsertBlock(ir, ret)
+\end{RCode}
+
+Typically, we set the active block, generate all of the code for it
+and then move to another block.  However, there are ocassions where we
+have to switch between blocks. For this, it is convenient to retrieve
+the current block with \Rfunc{getInsertBlock} so that we can switch
+back to it at a later point.
+
+We often work at the level of blocks. However, we can specify
+individual instructions as the current insertion point
+with \Rfunc{setInsertPoint}.%XXX make this so.
+
+%Getting and inserting the insertion point.
+
+%?Accessing the blocks (should we use [[ ]], by index, name?). Of a
+%function or the ir builder?
+
+
+% Constants
+
+\subsection{Creating Instructions}
+
+
+
+\subsection{Branching}
+% Doesn't need its own section.
+We have already mentioned that every block has to have a terminator
+and that it must be a return or a branch to another block.  We create
+a branch with \Rfunc{createBranch}, passing it the \Rclass{IRBuilder}
+and the block to which we want to jump. This adds the branch
+instruction at the end of the current block in the \Rclass{IRBuilder}.
+
+
+\subsection{Intermediate Representation and viewing the code}
+% Seen this above
+
+\Rfunc{showModule}
+
+write code to file.
+read it into R.
+
+\Rfunc{verifyModule}
+
+%\section{Verifying the generated code}
+
+
+
+\section[Connecting LLVM and existing native routines]{Connecting \llvm{} and existing native routines}
+% Registering native symbols.
+
+\subsection{Optimization}
+Passes, pass manager
+
+
+
+\subsection{Global Variables}
+
+%clone the module, create new ones with different execution engines.
+
+\section[General LLVM functionality]{General \llvm{} functionality}
+
+In addition to the specific functions for generating code,
+there are some simple functions in \Rllvm{} that
+allow us to control the \llvm{} and also find the
+version information.
+We can determine the version of the \llvm{} libraries
+with which the \R{} package is compiled with
+\begin{RCode}
+llvmVersion()  
+\end{RCode}
+This can be important to determine what features are available
+and what forms of code we can read.
+
+
+We can also determine the different targets 
+for which we can generate  code via the \Rfunc{getLLVMTargets}
+function. This information is determined at installation time
+and returned as a character vector  via 
+\begin{RCode}
+getLLVMTargets()
+\end{RCode}
+\begin{ROutput}
+ [1] "X86"        "Sparc"      "PowerPC"    "ARM"        "Mips"      
+ [6] "CellSPU"    "XCore"      "MSP430"     "CppBackend" "MBlaze"    
+[11] "NVPTX"      "Hexagon"     
+\end{ROutput}
+Here we see that we can generate code for various different CPUs
+and also \Cpp{} and \code{PTX} code for  Nividia GPUs (Graphics
+Processor Units).
+
+Other general top-level functions include 
+shutdown, start/stop multi-threaded.
+
+\section{Examples and Case Studies}
+
+% Different back-ends
+
+% Sharing code with other systems.
+\section[Exporting compiled R functions to other languages]{Exporting compiled \R{} functions to other languages}
+
+We started the technical part of this paper by importing either \IR{}
+or bitcode into \R.  In this section, we will see how we can easily
+export code we generate in \R{} and so make it available to other
+systems such as \Python{} or \Matlab.  Once we compile one or more
+routines in an \llvm{} module, we can write the module to either its
+\IR{} or bitcode representation.  Just as we could read these into
+\R{} with \Rfunc{parseIR} and \Rfunc{readBitcode}, these other systems
+can read this code and invoke it directly.  This allows us to
+potentially compile \R{} code directly to a form \llvm{} understands
+and export it to another system which also understands this \llvm{}
+representation.
+
+
+\section{Related Work}
+Luke Tierney has developed a byte-code compiler for \R{} code
+and extended the \R{} interpreter to evaluate that byte-code.
+
+There are several projects the are implementing \R{} on the \Java{}
+virtual machine.  These use just-in-time compilation to improve the
+performance of code.
+
+The \Rpkg{Rcpp} package and its related packages allow \R{}
+programmers to write native code in \Cpp{} using classes and a
+high-level syntax afforded by \Cpp{}.  These make the native code seem
+more \R{}-like and easier to write.
+
+\Rllvm{} differs from all of these as it does not directly attempt to
+make \R{} code go faster. Instead, it is a general, infrastructural
+tool with which I and others can try to make \R{} and other code
+efficient, among other things. \Rpkg{RLLVMCompile} is an \R{} package
+that implements a simple compilation strategy for some \R{} idioms.
+
+\section{Future Work}
+
+We have manually created the bindings from \R{} to the \llvm{} API. We
+created interfaces to the important classes and methods. As a result,
+we plan to complete the bindings for the remaining aspects of the API.
+We expect to do this primarily using an automated mechanism using the
+\RClang{} package.
+
+Debugging.
+Associating with the original code.
+%lldb
+
+
+\bibliography{rllvm}
+\end{document}

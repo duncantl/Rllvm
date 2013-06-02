@@ -100,7 +100,14 @@ setMethod("[[<-", c("Module", "character", "missing"),
            function(x, i, j, ..., value) {
              # use the context of the module
              # if(isBasicType(value))
-             val = as(value, "Value")
+
+             val = as(value, "Value")             
+             if(i %in% names(x)) {
+                 # should we do this on the execution engine if the module is associated with one?
+               warning("use setInitializer() to change the value of a global variable in a module")
+               setInitializer(x[[i]], val)
+               return(x)
+             }
              createGlobalVariable(i, x, val = val)
              x
            })

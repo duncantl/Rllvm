@@ -61,6 +61,18 @@ R_IRBuilder_SetInsertPoint(SEXP r_builder, SEXP r_block)
     return(R_NilValue);
 } 
 
+extern "C"
+SEXP
+R_IRBuilder_SetInsertPointInstruction(SEXP r_builder, SEXP r_block)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Instruction *ins = GET_REF(r_block, Instruction);
+    builder->SetInsertPoint(ins);
+
+    return(R_NilValue);
+} 
+
 
 extern "C"
 SEXP

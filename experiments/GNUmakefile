@@ -1,5 +1,9 @@
+ifndef CLANG
+ CLANG=clang
+endif
+
 CC=llvm-gcc
-CC=clang
+CC=$(CLANG)
 
 %.bc: %.c
 	$(CC) $(OPT_LEVEL) -emit-llvm $< -c -o $@
@@ -11,7 +15,7 @@ CC=clang
 	llc -march=cpp $< -o $@
 
 %.ll: %.c GNUmakefile
-	clang -S -emit-llvm -o $@ $<
+	$(CLANG) -S -emit-llvm -o $@ $<
 
 %.bc: %.ll
 	llvm-as $<

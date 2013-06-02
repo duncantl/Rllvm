@@ -21,3 +21,8 @@ The opt command line executable is for passing IR code through the LLVM optimize
 
 Activating Different Targets
  For example, the NVPTX
+
+
+A call instruction is represented as 
+  arg1, arg2, ...,  called routine
+This the order of the opernds.

@@ -145,8 +145,11 @@ getFuncAttributes =
 function(func, simplify = TRUE)
 {
   ans = .Call("R_Function_getAttributes", func)
+  if(length(ans) == 0)
+    return(logical())
+  
   if(simplify)
-    lapply(ans, function(x) x[x])
+    ans[ans]
   else
     ans
 }
@@ -174,13 +177,34 @@ function(func, ..., .attrs = list(...))
    .Call("R_Function_setAttributes", func, vals)
 }
 
+
+
+# See inst/TU/clang.R
+#  dput(enums$AttrKind@values)
+#
 FuncAttributes =
+if(all(.llvmVersion >= c(3, 3))) {
+#  >= 3.3 of llvm
+ structure(0:34, .Names = c("None", "Alignment", "AlwaysInline", 
+"ByVal", "InlineHint", "InReg", "MinSize", "Naked", "Nest", "NoAlias", 
+"NoBuiltin", "NoCapture", "NoDuplicate", "NoImplicitFloat", "NoInline", 
+"NonLazyBind", "NoRedZone", "NoReturn", "NoUnwind", "OptimizeForSize", 
+"ReadNone", "ReadOnly", "ReturnsTwice", "SExt", "StackAlignment", 
+"StackProtect", "StackProtectReq", "StackProtectStrong", "StructRet", 
+"SanitizeAddress", "SanitizeThread", "SanitizeMemory", "UWTable", 
+"ZExt", "EndAttrKinds")) 
+
+} else {
+# <= 3.2 of llvm
 structure(1:27, .Names = c("AddressSafety", "Alignment", "AlwaysInline",
                   "ByVal", "InlineHint", "InReg", "MinSize", "Naked", "Nest", "NoAlias",
                   "NoCapture", "NoImplicitFloat", "NoInline", "NonLazyBind", "NoRedZone",
                   "NoReturn", "NoUnwind", "OptimizeForSize", "ReadNone", "ReadOnly",
                   "ReturnsTwice", "SExt", "StackAlignment", "StackProtect", "StackProtectReq",
                   "StructRet", "UWTable"))
+}
+
+
 matchFuncAttributes =
 function(vals)
 {

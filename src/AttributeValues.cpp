@@ -3,22 +3,43 @@ static int x;
 #else
 
 #include "Rllvm.h"
-#include <llvm/Attributes.h>
-
+//#include <llvm/Attributes.h>
+#ifdef NEW_LLVM_ATTRIBUTES_SETUP
+#define LLVM_ATTR_KIND(val) llvm::Attribute::val
 #define SET_EL(val) \
-    LOGICAL(ans)[i] = attr.hasAttribute(llvm::Attributes::val); \
+    LOGICAL(ans)[i] = attr.hasAttribute(llvm::AttributeSet::FunctionIndex, llvm::Attribute::val); \
     SET_STRING_ELT(names, i++, mkChar(#val));
+#else
+#define LLVM_ATTR_KIND(val) llvm::Attributes::val
+#define SET_EL(val) \
+    LOGICAL(ans)[i] = attr.hasAttribute(LLVM_ATTR_KIND(val));   \
+    SET_STRING_ELT(names, i++, mkChar(#val));
+#endif
+
+
 
 SEXP
-R_getFunctionAttributes_logical(llvm::Attributes attr)
+R_getFunctionAttributes_logical(
+#ifdef NEW_LLVM_ATTRIBUTES_SETUP
+    llvm::AttributeSet attr
+#else
+    llvm::Attributes attr
+#endif
+   )
 {
     SEXP ans, names;
-    int i = 0, n = 28;
+       /* Get the number correct. */
+    int i = 0, n = 28;      
+#ifdef NEW_LLVM_ATTRIBUTES_SETUP
+    n = 27;
+#endif
 
     PROTECT(ans = NEW_LOGICAL(n));
     PROTECT(names = NEW_CHARACTER(n));
 
+#ifndef NEW_LLVM_ATTRIBUTES_SETUP
    SET_EL(   AddressSafety)         
+#endif
    SET_EL(   Alignment)             
    SET_EL(   AlwaysInline)          
    SET_EL(   ByVal)                 

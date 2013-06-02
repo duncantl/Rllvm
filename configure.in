@@ -38,6 +38,26 @@ fi
 
 
 
+AC_COMPILE_IFELSE([
+#include <llvm/IR/Attributes.h>
+void foo() {
+  int i = (int) llvm::Attribute::NoUnwind;
+}
+], [echo "New Attribute setup (> 3.2)"; NEW_LLVM_ATTRIBUTES_SETUP="-DNEW_LLVM_ATTRIBUTES_SETUP=1"], 
+   [echo "Using old Attributes (<= 3.2)"; NEW_LLVM_ATTRIBUTES_SETUP=""];)
+
+
+AC_COMPILE_IFELSE([
+#include <llvm/IR/Attributes.h>
+void foo() {
+  int i = (int) llvm::Attribute::NoUnwind;
+}
+], [echo "DataLayout.h in IR/"; LLVM_DATALAYOUT_H_IN_IR="-DLLVM_DATALAYOUT_H_IN_IR=1"], 
+   [echo "Using old Attributes (<= 3.2)"; LLVM_DATALAYOUT_H_IN_IR=""];)
+
+
+
+
 LLVM_TARGETS="`${LLVM_CONFIG} --targets-built`"
 
 echo "version: $LLVM_VERSION, minor = $LLVM_MINOR_VERSION"
@@ -46,6 +66,8 @@ AC_SUBST(LLVM_VERSION_NUMBER)
 AC_SUBST(LLVM_VERSION)
 AC_SUBST(LLVM_MINOR_VERSION)
 AC_SUBST(LLVM_TARGETS)
+AC_SUBST(NEW_LLVM_ATTRIBUTES_SETUP)
+AC_SUBST(LLVM_DATALAYOUT_H_IN_IR)
 
 echo ""
 echo "*** llvm-config ${LLVM_CONFIG}"
@@ -57,4 +79,5 @@ fi
 
 AC_OUTPUT(src/Makevars)
 AC_OUTPUT(R/targets.R)
+AC_OUTPUT(R/llvmVersion.R)
 chmod  -w R/targets.R

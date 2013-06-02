@@ -80,6 +80,14 @@ function()
   .C("R_InitializeNativeTarget")
 }
 
+InitializeCppBackendTarget =
+function()
+  .C("R_InitializeCppBackendTarget")
+
+InitializeNVPTXTarget =
+function()
+  .C("R_InitializeNVPTXTarget")
+
 
 
 getPointerToFunction =

@@ -95,6 +95,10 @@ function(elTypes, name = NA, context = NULL, isPacked = NA, rawPointer = FALSE, 
 }
 
 
+getStructTypeName =
+  function(obj)
+    .Call("R_StructType_getName", obj)
+
 setMethod("getName", "StructType",
           function(obj, name)
              .Call("R_StructType_getName", obj))

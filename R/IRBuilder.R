@@ -8,11 +8,21 @@ function(block = getGlobalContext())
      .Call("R_new_IRBuilder", block)
 }
 
-setInsertPoint =
+setInsertBlock = 
 function(builder, block)
 {
   .Call("R_IRBuilder_SetInsertPoint", builder, block)
 }
+
+setInsertPoint =
+function(builder, instruction)
+{
+  if(is(instruction, "BasicBlock"))
+     setInsertBlock(builder, instruction)
+
+  .Call("R_IRBuilder_SetInsertPointInstruction", builder, as(block, "Instruction") )
+}
+         
 
 
 

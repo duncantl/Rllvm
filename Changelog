@@ -1,5 +1,12 @@
 Version 0.5-0
 
+	*  show() methods for Module, Function, Type to make the
+	   objects more informative when displayed.
+
+	*  export getBlocks() function.
+
+	*  sapply() method for iterating over a block
+
 	*  get function attributes
 
 	*  Set and get attributes on parameters
@@ -20,7 +27,7 @@ Version 0.5-0
 
 	*  Retrieve global variable arrays as R objects.
 
-	*  createStructGEP().
+	*  createStructGEP() function.
 
         *  ExecutionEngine() supports specifying optimization level.
 

@@ -166,7 +166,12 @@ R_Function_getParam(SEXP r_func,  SEXP r_whichParam)
 }
 
 
-#if 1
+// See http://llvm.org/docs/ReleaseNotes.html
+#ifdef NEW_LLVM_ATTRIBUTES_SETUP
+typedef llvm::Attribute::AttrKind AttrKind;
+#else
+typedef llvm::Attributes::AttrVal AttrKind;
+#endif
 
 SEXP
 R_Argument_setAttrs(llvm::Argument *arg, SEXP r_vals)
@@ -174,13 +179,29 @@ R_Argument_setAttrs(llvm::Argument *arg, SEXP r_vals)
         /* now have the parameter, so set the values. */
   llvm::AttrBuilder builder;
   for(int i = 0 ; i < (unsigned) Rf_length(r_vals); i++)  
-      builder.addAttribute( (llvm::Attributes::AttrVal) INTEGER(r_vals)[i] );
+      builder.addAttribute( (AttrKind) INTEGER(r_vals)[i] );
 
-  llvm::Attributes attrs = llvm::Attributes::get(llvm::getGlobalContext() , builder);
+
+#ifdef  NEW_LLVM_ATTRIBUTES_SETUP
+  /* The 1 here appears to be the position/index of the argument. They start at 1 and move up. 
+     We need to know which one it is. Same for getting the string below for the return.
+     Shall we determine the index in this routine or require the caller to specify it.
+   */
+  llvm::AttributeSet attrs = llvm::AttributeSet::get(llvm::getGlobalContext(), 1/*!!!!*/, builder);
+#else
+  llvm::Attributes attrs;
+  attrs = llvm::Attributes::get(llvm::getGlobalContext() , builder);
+#endif
   arg->addAttr(attrs);
 
+#ifdef  NEW_LLVM_ATTRIBUTES_SETUP
+  std::string str = attrs.getAsString(0);          /*XXX WHat should the Idx argument be? */
+  return(str.data() ? mkString(str.data()) : R_NaString);
+#else
   return(ScalarString(mkChar(attrs.getAsString().data())));
+#endif
 }
+
 
 
 /* Kill this off now that we can get the Argument back. */
@@ -218,27 +239,32 @@ R_Function_setAttributes(SEXP r_func, SEXP r_vals)
 {
      llvm::Function *func = GET_REF(r_func, Function);
      for(int i = 0; i < Rf_length(r_vals); i++) {
-         func->addFnAttr((llvm::Attributes::AttrVal)  INTEGER(r_vals)[i]);
+         func->addFnAttr( (AttrKind)  INTEGER(r_vals)[i]);
      }
      return(ScalarLogical(TRUE));
 
 }
-
-
 
 extern "C"
 SEXP
 R_Function_getAttributes(SEXP r_func)
 {
      llvm::Function *func = GET_REF(r_func, Function);
+
+#ifdef  NEW_LLVM_ATTRIBUTES_SETUP
+     llvm::AttributeSet attrs;
+     attrs = func->getAttributes();
+     return(R_getFunctionAttributes_logical(attrs));
+#else
+     // have to assign in declaration's initialization.
      const llvm::AttrListPtr attrs = func->getAttributes();
+
      unsigned n = attrs.getNumSlots();
-// fprintf(stderr, "num slots = %d, num = %d\n", n, attrs.getNumAttrs());
      SEXP names = NEW_CHARACTER(n); 
      SEXP ans = NEW_LIST(n); 
      PROTECT(ans);
      PROTECT(names);
-#if 1
+
      for(unsigned i = 0; i < n; i++) {
 //         INTEGER(ans)[i] = (int) attrs.getAttributesAtIndex(i);
 // Get as string for now. Should get the vector of the attribute 'bits' 
@@ -250,11 +276,16 @@ R_Function_getAttributes(SEXP r_func)
          SET_STRING_ELT(names, i,  str.data() ? mkChar(str.data()) : R_NaString);
          SET_VECTOR_ELT(ans, i, R_getFunctionAttributes_logical(attr.Attrs));
      }
-#endif
+
      SET_NAMES(ans, names);
      UNPROTECT(2);
      return(ans);
-}
 #endif
+}
+
+
+
+
+
 
 

@@ -1,0 +1,131 @@
+\subsection{Types}\label{sec:Types}
+Like \C/\Cpp, \llvm{} instructions need to know the types of the data
+on which they operate.  The instructions are specific to particular
+types.  Similarly, we need to specify the types of parameters, local
+variables and the return type of a routine.
+Therefore, %in order to compile code with \llvm{}, 
+we need to know the types of variables and parameters.  This is quite different
+from \R's dynamic, run-time type information.
+
+The \llvm{} API and \Rllvm{} provide numerous facilities for working with types.
+Firstly, we have an \R{} variable for each of the basic or primitive
+types.  These are \Rvar{Int32Type} corresponding to a $4$-byte
+integer, \Rvar{DoubleType} for a $8$-byte real valued number,
+\Rvar{FloatType} for a $4$-byte real valued number.  Thes correspond
+to \Ctype{int}, \Ctype{double} and \Ctype{float} types in \C. There
+are other variants of integers such as \Rvar{Int8Type},
+\Rvar{Int1Type} and \Rvar{Int64Type}.  \Rvar{Int1Type} is a single
+bit. \Rvar{Int8Type} is a one byte integer which also
+corresponds to a single character type.
+The \Rvar{StringType} variable represents
+a string, which is a sequence of characters.
+
+We can create aggregate types, or structures, using
+the \Rfunc{structType} function.
+We specify the types of each of the elements in the order
+they are to be arranged. 
+\begin{RCode}
+studentType = structType(list(id = StringType,
+                              age = Int8Type,
+                              gpa = DoubleType,
+                             ),  "Student")  
+\end{RCode}
+Here we have both names for the elements and also for the aggregate
+type (\Ctype{Student}).  \llvm{} doesn't actually care about
+these. However, in \R{}, we typically do need this information and so
+we store it in the type object returned by \Rfunc{structType}..
+
+
+We often need pointer types.  There is an \R{} variable for a pointer
+type for each of the primitive types. \Rvar{DoublePtrType} is a
+pointer to a \Ctype{double}, \Rvar{Int32PtrType} for 32 bit integers,
+and so on.  We can create a type that is a pointer to  any other
+type using \Rfunc{pointerType}.
+For example, to define a pointer to our \Ctype{Student}  type above,
+we use
+\begin{RCode}
+studentPtrType = pointerType( studentType )  
+\end{RCode}
+To create a pointer to a pointer to a \Ctype{Student} type,
+we can use either of 
+\begin{RCode}
+studentPtrType = pointerType( studentPtrType )  
+studentPtPtrType = pointerType( pointerType( studentType )  )
+\end{RCode}
+
+
+We can define array types  by specifying the
+type of each element and the number of elements.
+For example, to create an array of 10 \Ctype{double} values,
+we can use
+\begin{RCode}
+arrayType(DoubleType, 10)  
+\end{RCode}
+or for an array 100 \Ctype{Student} elements
+\begin{RCode}
+arrayType(studentType, 100)    
+\end{RCode}
+
+
+Every type object has an identifier which tells us the nature of the
+type.  We can obtain this with \Rfunc{getTypeID} and this 
+returns a value such as 
+\begin{ROutput}
+IntegerTyID 
+         10   
+\end{ROutput}
+The name indicates that this is an integer type.
+The value $10$  corresponds to a \C-level enumeration for the type kinds.
+
+
+There are numerous functions in \Rllvm{} to query 
+aspects of an existing type.
+\Rfunc{getElementType} returns the target type of a pointer.
+Similarly, \Rfunc{getArrayType}
+\Rfunc{getElementTypes} returns the types of fields in a structure type.
+
+Predicate functions such as \Rfunc{isVoidType}, \Rfunc{isPointerType}
+and \Rfunc{isStringType} query whether the specified type corresponds
+to a particular type.  \Rfunc{sameType} is usef for comparing if two
+types are really the same. This is useful because sometimes we compare
+types represented as \R{} objects and pointers to \llvm{} types.
+\Rfunc{sameType} hides these details and allows us to compare two
+types easily.
+
+
+Essentialy, ever element in \llvm{} corresponding to an instruction or
+a variable or parameter has a type. We can query it with
+\Rfunc{getType}.
+
+
+
+\paragraph{\llvm{} types corresponding to \R{} data types}
+When we compile \R{} code, we often want to be able to operate on \R's
+own data types, e.g. \Rclass{logical}, \Rclass{integer},
+\Rclass{numeric}, \Rclass{complex}, \Rclass{character} and \Rclass{list}.
+(There are others.)  These are different varieties of \R's
+\Ctype{SEXP} (Symbolic Expression) type.  \Rllvm{} defines types
+corresponding to these in the variables \Rvar{LGLSXPType},
+\Rvar{INTSXPType}, \Rvar{REALSXPType}, \Rvar{CPLXSXPType} and
+\Rvar{VECSXPType}, corresponding to the names of the enumerated
+constants describing each type in \R's \C{} code.  There is also the
+generic \Rvar{SEXPType}, meaning any \R{} type.  Currently, all of
+these types are the same and are generic \R{} types.  This means we
+cannot distinguish between them at the \llvm{} level. This is
+important so that the code we generate doesn't differentiate between
+them.  We encourage using the more specific types when writing \R{}
+code so that it is clear what is intended, i.e.  an integer via
+\Rvar{INTSXPType} rather than a \Rvar{REALSXPType}.  In the near
+future, we hope to make these separate types at the \llvm-level so
+that we can tell them apart.
+
+% 
+% Perhaps a table of the basic types.
+
+
+%Basic types
+%array types
+%pointers
+%structs
+
+%SEXP types.

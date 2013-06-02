@@ -146,7 +146,8 @@ pointerType,
 run, .llvm, .llvmCallFunction,
 SDiv,
 setInsertPoint,
-getInsertBlock,       
+setInsertBlock,              
+getInsertBlock,
 setName,
 setTailCall,
 Shl,
@@ -346,4 +347,12 @@ export(declareFunction)
 export(setParamAttributes)
 exportClass("Argument")
 
+
+
+export(getNumOperands, getOperand)
+
+export(getBlocks)
+
+export(sapply)
+exportMethods(sapply)
 

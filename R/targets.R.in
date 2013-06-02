@@ -53,3 +53,11 @@ function(triple)
 setMethod("getDataLayout", "TargetMachine",
            function(from, ...)
              .Call("R_TargetMachine_getDataLayout", from))
+
+
+
+getStringRepresentation =
+function(obj)
+{
+  .Call("R_DataLayout_getStringRepresentation", as(obj, "DataLayout"))
+}
