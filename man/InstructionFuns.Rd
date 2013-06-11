@@ -29,7 +29,9 @@
 
 \alias{coerce,Instruction,LLVMContext-method}
 
-
+\alias{getNumOperands}
+\alias{getOperand}
+\alias{[[,Instruction,numeric,ANY-method}
 
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Miscellaneous functions operating on LLVM Instruction objects}

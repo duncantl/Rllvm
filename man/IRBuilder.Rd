@@ -44,6 +44,8 @@
 \alias{getFalse}
 
 \alias{getInsertBlock}
+\alias{setInsertBlock}
+\alias{setInsertPoint}
 
 \alias{coerce,IRBuilder,BasicBlock-method}
 \alias{coerce,IRBuilder,Function-method}

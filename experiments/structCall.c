@@ -3,6 +3,20 @@ typedef struct {
     double d;
 } CXCursor;
 
+typedef struct {
+    int i[10];
+    CXCursor cur;
+    double d;
+} Tmp;
+
+
+void
+foo(Tmp t)
+{
+    t.i[7] = 1;
+}
+
+
 int bar(CXCursor b)
 {
     return(b.i);

@@ -3,7 +3,7 @@ Version: 0.5-0
 Title: Interface to llvm for dynamically compiling native code.
 Author: Duncan Temple Lang, Vince Buffalo
 SystemRequirements: llvm (>= 2.7)
-Maintainer: Duncan Temple Lang <duncan@wald.ucdavis.edu>
+Maintainer: Duncan Temple Lang <duncan@r-project.org>
 Description: This package is currently an interface to some of the
     functionality in the llvm toolkit for programmaticall constructing native code.
     This allows us to build "compilers" in R and use llvm's optmization and JIT techniques

@@ -7,6 +7,16 @@
 <items>
 
 <item>
+test getCppClasses().  Use inst/TU/clang.R.  Failing in assigning params
+for Links.
+</item>
+
+<item>
+Setting attribute on an argument requires now to specify the
+index of the argument, first arugment starting at 1 in C++.
+</item>
+
+<item>
 Ways to get the specific instruction type,
 e.g. when getOperand(), just get back generic Value object.
 Could use dynamic casts and exhaustively find one that works!
@@ -16,38 +26,15 @@ Could use dynamic casts and exhaustively find one that works!
 Build on Windows
 </item>
 
-<item>
-Fix getting function attributes for 3.2
-(Getting back a list with an element for each attribute,
-but each has the entire set.
-Working on the slots.)
-</item>
 
 <item>
-[Basically done but ... and test with 3.2 (not working)]
-[need to update enums  - AttrKind for FuncAttributes]
-[configuration done]
-
-sort out the changes to the Attributes and AttributeSet.
-Determine in configure what we are dealing with and
-set NEW_LLVM_ATTRIBUTES_SETUP appropriately
-and export to Makevars.in.
+update the enums for 3.3. The TypeIDs were off. Manually fixed.
 <br/>
-Things compile now for 3.3, but don't work. tests/funcAttributes.R
-For add.ll, settings on foo are returning correctly from query.
-But setting is not working.  It is if we update the enum  values.
-</item>
-
-<item status="done">
-Problem reading llvm header files with RCIndex.
-Issue is with cstddef file not found and when we point it to
-one of the ones on a mac, we get errors.
+Need to make the old ones for llvm 3.2 available for installation.
 <br/>
-Need the -xc++ argument for  libclang to force C++.
-</item>
-
-<item>
-update the enums for 3.3. The TypeIDs were off.
+BinaryOps, FuncAttributes, ICmpInst.Predicate (in ICmpEnums.R)
+CastOps (Trunc, ZExt, etc.), IntrinsicIDs, TypeIDEnums,
+LinkageType , CodeGenOpt, {VoidType, etc.} in typeDefs.R
 </item>
 
 <item>
@@ -191,6 +178,38 @@ This is probably just a mistaken understanding/analysis of the outcomes.
 Need to use the same Execution Engine to see the changes.
 
 </item>
+
+<item status="done">
+Fix getting function attributes for 3.2
+(Getting back a list with an element for each attribute,
+but each has the entire set.
+Working on the slots.)
+</item>
+
+<item status="done">
+[Basically done but ... and test with 3.2]
+[need to update enums  - AttrKind for FuncAttributes]
+[configuration done]
+
+sort out the changes to the Attributes and AttributeSet.
+Determine in configure what we are dealing with and
+set NEW_LLVM_ATTRIBUTES_SETUP appropriately
+and export to Makevars.in.
+<br/>
+Things compile now for 3.3, but don't work. tests/funcAttributes.R
+For add.ll, settings on foo are returning correctly from query.
+But setting is not working.  It is if we update the enum  values.
+</item>
+
+<item status="done">
+Problem reading llvm header files with RCIndex.
+Issue is with cstddef file not found and when we point it to
+one of the ones on a mac, we get errors.
+<br/>
+Need the -xc++ argument for  libclang to force C++.
+</item>
+
+
 
 </items>
 </topic>

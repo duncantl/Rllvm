@@ -19,8 +19,8 @@ function(builder, instruction)
 {
   if(is(instruction, "BasicBlock"))
      setInsertBlock(builder, instruction)
-
-  .Call("R_IRBuilder_SetInsertPointInstruction", builder, as(block, "Instruction") )
+  else
+     .Call("R_IRBuilder_SetInsertPointInstruction", builder, as(instruction, "Instruction") )
 }
          
 
