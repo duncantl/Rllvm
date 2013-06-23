@@ -37,7 +37,29 @@ R_Target_createTargetMachine(SEXP r_target, SEXP r_triple, SEXP r_cpu, SEXP r_fe
     if(Rf_length(r_opts))
         opts = GET_REF(r_opts, TargetOptions);
     else  {
-        opts = &defaultOpts; //XXX initialize these.
+        /* taken from Halide's CodeGen.cpp */
+        defaultOpts.LessPreciseFPMADOption = true;
+        defaultOpts.NoFramePointerElim = false;
+        defaultOpts.NoFramePointerElimNonLeaf = false;
+        defaultOpts.AllowFPOpFusion = llvm::FPOpFusion::Fast;
+        defaultOpts.UnsafeFPMath = true;
+        defaultOpts.NoInfsFPMath = true;
+        defaultOpts.NoNaNsFPMath = true;
+        defaultOpts.HonorSignDependentRoundingFPMathOption = false;
+        defaultOpts.UseSoftFloat = false;
+        defaultOpts.FloatABIType = llvm::FloatABI::Soft;
+        defaultOpts.NoZerosInBSS = false;
+        defaultOpts.GuaranteedTailCallOpt = false;
+        defaultOpts.DisableTailCalls = false;
+        defaultOpts.StackAlignmentOverride = 32;
+        defaultOpts.RealignStack = true;
+        defaultOpts.TrapFuncName = "";
+        defaultOpts.PositionIndependentExecutable = true;
+        defaultOpts.EnableSegmentedStacks = false;
+        defaultOpts.UseInitArray = false;
+        defaultOpts.SSPBufferSize = 0;
+
+        opts = &defaultOpts; 
     }
 
     ans = tgt->createTargetMachine(triple, std::string(CHAR(STRING_ELT(r_cpu, 0))),
@@ -75,3 +97,102 @@ R_DataLayout_getStringRepresentation(SEXP r_dl)
     return(str.data() ? mkString(str.data()) : R_NaString);
 }
 
+
+
+extern "C"
+SEXP
+R_TargetMachine_addAnalysisPasses(SEXP r_targetMachine, SEXP r_passManager)
+{
+    llvm::TargetMachine *targetMachine = GET_REF(r_targetMachine, TargetMachine);
+    llvm::PassManager *passManager = GET_REF(r_passManager, PassManager);
+    targetMachine->addAnalysisPasses(*passManager);
+
+    return(R_NilValue);
+}
+
+extern "C"
+SEXP
+R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SEXP r_out, SEXP r_fileType)
+{
+    llvm::TargetMachine *targetMachine = GET_REF(r_targetMachine, TargetMachine);
+    llvm::PassManager *passManager = GET_REF(r_passManager, PassManager);
+    llvm::formatted_raw_ostream *out;
+    out = GET_REF(r_out, formatted_raw_ostream);
+
+    bool ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
+
+    return(ScalarLogical(ans == true));
+}
+
+extern "C"
+SEXP
+R_Target_getName(SEXP r_target)
+{
+    llvm::Target *target = GET_REF(r_target, Target);
+    std::string str = target->getName();
+    return(mkString(str.data()));
+}
+
+
+extern "C"
+SEXP
+R_new_raw_string_ostream(SEXP r_str)
+{
+    std::string *str;
+    if(TYPEOF(r_str) == STRSXP)
+        str = new std::string(CHAR(STRING_ELT(r_str, 0)));
+    else
+        str = (std::string *) getRReference(r_str);
+
+    llvm::raw_string_ostream *ans = new llvm::raw_string_ostream(*str);
+    return(R_createRef(ans, "raw_string_ostream"));
+}
+
+extern "C"
+SEXP
+R_new_formatted_raw_ostream(SEXP r_stream, SEXP r_delete)
+{
+
+    llvm::raw_ostream *stream =  GET_REF(r_stream, raw_ostream);
+    llvm::formatted_raw_ostream *ans = new llvm::formatted_raw_ostream(*stream, LOGICAL(r_delete)[0]);
+    return(R_createRef(ans, "formatted_raw_ostream"));
+}
+
+extern "C"
+SEXP
+R_new_raw_fd_ostream(SEXP r_filename)
+{
+    std::string err;
+    llvm::raw_fd_ostream *ans;
+    ans = new llvm::raw_fd_ostream(CHAR(STRING_ELT(r_filename, 0)), err);
+    if(!err.empty()) {
+        PROBLEM "%s", err.c_str()
+        ERROR;
+    }
+    return(R_createRef(ans, "raw_fd_ostream"));
+}
+
+extern "C"
+SEXP
+R_raw_ostream_close(SEXP r_stream, SEXP r_delete)
+{
+
+    llvm::raw_fd_ostream *stream =  GET_REF(r_stream, raw_fd_ostream);
+    stream->close();
+    return(R_NilValue);
+}
+
+
+
+/* Show the registered targets. One has to initialize them first.
+   InitializeNVPTXTarget()
+   InitializeCppBackendTarget()
+ */
+extern "C"
+SEXP
+R_printRegisteredTargetsForVersion()
+{
+    llvm::TargetRegistry::printRegisteredTargetsForVersion();
+    
+    return(R_NilValue);
+}

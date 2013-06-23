@@ -1,10 +1,19 @@
 Rllvm.pdf:
 
+JSS_DIR=$(HOME)/Projects/JSS/JSSstyle
+
 Rllvm.pdf: Rllvm.tex rllvm.bib  GNUmakefile jssMacros.tex
-	-pdflatex $(<F)
-	-pdflatex $(<F)
+	-$(run-tex)
+	-$(run-tex)
+#	-pdflatex $(<F)
 	-bibtex Rllvm
-	-pdflatex $(<F)
+	-$(run-tex)
+#	-pdflatex $(<F)
 
 clean:
 	-rm  Rllvm.{aux,log,out,blg}
+
+
+define run-tex
+ (export TEXINPUTS=$(JSS_DIR):$(TEXINPUTS):: ; pdflatex $(<F))
+endef

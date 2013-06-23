@@ -126,6 +126,8 @@ ICMP_ULE,
 ICMP_ULT,
 ICmpInst.Predicate,
 InitializeNativeTarget,
+InitializeNVPTXTarget,
+InitializeCppBackendTarget,       
 Int16Type,
 Int1Type,
 Int32PtrType,
@@ -355,4 +357,11 @@ export(getBlocks)
 
 export(sapply)
 exportMethods(sapply)
+
+
+exportClasses(raw_string_ostream, formatted_raw_ostream)
+
+
+export(addAnalysisPasses, addPassesToEmitFile)
+export(rawFDOstream, formattedRawOstream, stringRawOstream)
 

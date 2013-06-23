@@ -1,24 +1,25 @@
 
 typedef struct {
+    char c;
     int i;
     double d;
     double vals[10];
 } Foo;
 
-Foo f;
+Foo g;
 
-int
+Foo 
 foo(int i, double d)
 {
     Foo f;
     f.i = i;
     f.d = d;
     f.vals[0] = d;
-    return(0);
+    return(f);
 }
 
 void
 global()
 {
-    f.i = 7;
+    g.i = 7;
 }

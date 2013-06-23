@@ -39,6 +39,8 @@ LinkageType , CodeGenOpt, {VoidType, etc.} in typeDefs.R
 
 <item>
 See how to generate C++ from the IR, and also  PTX.
+
+http://llvm.org/docs/NVPTXUsage.html
 </item>
 
 

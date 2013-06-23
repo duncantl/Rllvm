@@ -9,11 +9,27 @@ typedef struct {
     double d;
 } Tmp;
 
+typedef struct {
+    char c1;
+    char c2;
+    short s;
+    int i;
+    double d;
+} Bar;
+
+
 
 void
 foo(Tmp t)
 {
     t.i[7] = 1;
+}
+
+Bar
+setBar(Bar b)
+{
+    b.c1 = 0;
+    return(b);
 }
 
 

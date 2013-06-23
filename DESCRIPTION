@@ -30,5 +30,5 @@ Collate: llvmVersion.R classDefs.R manual_generics.R BinaryOpEnums.R Function.R 
          IntrinsicEnums.R sexpTypes.R utils.R targets.R 
          simpleFunction.R PassManager.R llvm.R 
          declareFunction.R typeName.R
-
+         ostream.R targetMachine.R
 

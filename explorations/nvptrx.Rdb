@@ -44,7 +44,8 @@ library(Rllvm)
 m = Module("ptx")
 
 .C("R_InitializeNVPTXTarget")
-tri = "nvptx64--"
+tri = "nvptx64"
+
 setTargetTriple(m, tri)
 getTargetTriple(m)
 </r:code>
@@ -72,7 +73,16 @@ dataLayout = getDataLayout(machine)
 Now create a pass manager object and add the data layout to it.
 <r:code>
 pm = passManager(m)
+addPass(pm, trgtLibInfo)
+.Call("R_PassManager_addAnalysisPasses", pm)
 addPass(pm, dataLayout)
+
+
+out = .Call("R_new_raw_string_ostream", "")
+out = .Call("R_new_formatted_raw_ostream", out, FALSE)
+.Call("R_TargetMachine_addPassesToEmitFile", machine, pm, out, 1L)
+
+run(pm, m)
 </r:code>
 
 </para>
@@ -95,6 +105,7 @@ for run-time, e.g. exp, cosf, atan, alloc and delete.
 
 <para>
 Look at translate.cpp in libNVVM.
+CodeGen.cpp in Halide.
 
 <r:code>
 setDataLayout(module, layoutStr)

@@ -25,4 +25,4 @@ Activating Different Targets
 
 A call instruction is represented as 
   arg1, arg2, ...,  called routine
-This the order of the opernds.
+This the order of the operands.

@@ -68,6 +68,16 @@ R_optimizeFunction(SEXP r_func, SEXP r_passMgr)
 }
 
 
+extern "C"
+SEXP
+R_PassManager_run(SEXP r_passMgr, SEXP r_module)
+{
+  llvm::PassManager *mgr = GET_REF(r_passMgr, PassManager);
+  llvm::Module *module = GET_REF(r_module, Module);
+  mgr->run(*module);
+  return(ScalarLogical(TRUE));
+}
+
 
 #include <llvm/PassManager.h>
 
@@ -80,6 +90,10 @@ R_PassManagerBase_Add(SEXP r_mgr, SEXP r_pass)
     mgr->add(pass);
     return(ScalarLogical(TRUE));
 }
+
+
+
+
 
 
 extern "C"

@@ -36,7 +36,16 @@
 %% an abstract and keywords
 \Abstract{ 
 
-
+The \Rpkg{Rllvm} package is an \R{} interface to the Low-Level Virtual
+Machine (LLVM).  This is a compiler toolkit for generating native code
+for different computational devices (e.g. CPUs and GPUs).  These tools
+in \R{} allow us to explore compiling both \R{} code and also
+domain-specific languages (DSLs).  They also allow us to exchange code
+with other systems using an intermediate representation of the native
+code.  This paper describes the computational model and functionality
+provided by \Rpkg{Rllvm} and illustrates these with examples of
+low-level compilation.  We leave discussion of  more general
+strategies for compiling \R{} code to \Rpkg{RLLVMCompile}.
 } 
 \Keywords{\R, \Rpkg{Rllvm} package, compiled code}
 \Plainkeywords{R, RCIndex} %% without formatting
@@ -312,7 +321,7 @@ instructions such as to call another routine,
 add two real-valued numbers, assign/store
 a value to a variable, load the value of a variable,
 access an element in an array or via a pointer,
-compare two values (e.g. $<$, $>$, $ge$)
+compare two values (e.g. $<$, $>$, $\ge$)
 branch to another block, cast a value to a different type, and so on.
 
 Let's look at the \texttt{if.then} block in the
@@ -465,7 +474,7 @@ with \Rfunc{setInsertPoint}.%XXX make this so.
 % Constants
 
 \subsection{Creating Instructions}
-
+There are many 
 
 
 \subsection{Branching}
