@@ -585,6 +585,32 @@ tool with which I and others can try to make \R{} and other code
 efficient, among other things. \Rpkg{RLLVMCompile} is an \R{} package
 that implements a simple compilation strategy for some \R{} idioms.
 
+The \Rpkg{r2c} package is an initial prototype of translating \R{}
+code directly \C. In some ways, it is similar to \Rpkg{Rllvm} in that
+it is compiling \R{} code. One difference is that the
+translator/compiler is written in \C{} code.  This makes makes is
+somewhat more difficult to adapt and extend.  The package generates
+\C{} code and then calls a system compiler such as \gcc{} or \clang{}
+to compile that code and so the user has a a choice of compiler.
+\Rllvm{} is specific to \llvm{}.  While \llvm's IR code is
+human-readable and portable and can be read on different machines in
+different languages (e.g. \R, \Python), it is not a completely stable
+and standardized format. Accordingly, exchanging \C{} code may be more
+effective.  We can also use the regular system-level tools such as the
+debugger to explore the generated code.  However, the \Rllvm{}
+approach does allow us to use third-party, higher-level
+representations representations of the compiled instructions than
+string manipulation, e.g. the \Rclass{Module}, \Rclass{Function},
+\Rclass{BasicBlock} and \Rclass{Instruction} objects.  We can query
+and modify these in a more structured manner than string manipulation.
+We are also hopeful that we will transparently benefit from any future
+developments in the \llvm{} project.  Furthermore, while \llvm{} is
+low-level, this potentially gives us greater control over the code we
+generate.
+% Different backends.
+
+
+
 \section{Future Work}
 
 We have manually created the bindings from \R{} to the \llvm{} API. We

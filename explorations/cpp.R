@@ -35,6 +35,6 @@ if(addPassesToEmitFile(machine, pm, out, 0L))
 print(pm)
 print(m@ref)
 run(pm, m)
-.Call("R_raw_ostream_close", stream)
+#.Call("R_raw_ostream_close", stream)
 
 

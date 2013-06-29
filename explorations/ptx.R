@@ -1,5 +1,5 @@
 library(Rllvm)
-m = Module("ptx")
+m = parseIR("experiments/fib.ll")
 
 InitializeNVPTXTarget()
 tri = "nvptx64"
@@ -19,7 +19,7 @@ addPass(pm, dataLayout)
 
 
 #out = .Call("R_new_raw_string_ostream", "")
-out = formattedRawOstream("/tmp/foo.cpp")
-addPassesToEmitFile(machine, pm, out, 1L)
+out = formattedRawOstream("/tmp/foo.ptx")
+addPassesToEmitFile(machine, pm, out, 0L)
 
 run(pm, m)

@@ -4,6 +4,9 @@ src/Makevars
 *.bc
 *.llcpp
 a.out.dSYM
+R/llvmVersion.R
+R/targets.R
+
 
 
 
