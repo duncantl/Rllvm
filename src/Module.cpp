@@ -450,3 +450,15 @@ R_Module_setTargetTriple(SEXP r_mod, SEXP r_triple)
     mod->setTargetTriple(llvm::Triple::normalize(CHAR(STRING_ELT(r_triple, 0))));
     return(ScalarLogical(TRUE));
 }
+
+
+extern "C"
+SEXP
+R_Module_getNamedMetadata(SEXP r_mod, SEXP r_id)
+{
+  llvm::Module *mod = GET_REF(r_mod, Module);     
+  llvm::NamedMDNode *node = mod->getNamedMetadata(makeTwine(r_id));
+  if(!node)
+      return(R_NilValue);
+  return(R_createRef(node, "NamedMDNode"));
+}

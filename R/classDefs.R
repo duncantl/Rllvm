@@ -52,6 +52,12 @@ setClass("SwitchInst", contains = "Instruction")
 
 
 
+setClass("NamedMDNode", contains = "RC++Reference")
+setClass("MDNode", contains = "Value")
+setClass("MDString", contains = "Value")
+
+
+
 setClass("Type", contains = "RC++Reference")
 setClass("DerivedType", contains = "Type")
 setClass("CompositeType", contains = "DerivedType")

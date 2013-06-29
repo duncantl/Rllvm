@@ -1,5 +1,5 @@
 Package: Rllvm
-Version: 0.5-0
+Version: 0.6-0
 Title: Interface to llvm for dynamically compiling native code.
 Author: Duncan Temple Lang, Vince Buffalo
 SystemRequirements: llvm (>= 2.7)
@@ -31,4 +31,5 @@ Collate: llvmVersion.R classDefs.R manual_generics.R BinaryOpEnums.R Function.R 
          simpleFunction.R PassManager.R llvm.R 
          declareFunction.R typeName.R
          ostream.R targetMachine.R
+         metadata.R
 

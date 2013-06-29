@@ -365,3 +365,9 @@ exportClasses(raw_string_ostream, formatted_raw_ostream)
 export(addAnalysisPasses, addPassesToEmitFile)
 export(rawFDOstream, formattedRawOstream, stringRawOstream)
 
+
+
+exportClasses(MDNode, MDString, NamedMDNode)
+export(setMetadata, getMetadata)
+export(getNumOperands, getOperands)
+
