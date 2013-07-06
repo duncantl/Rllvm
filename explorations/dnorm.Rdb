@@ -1,0 +1,760 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:omg="http://www.omegahat.org"
+	 xmlns:c="http://www.C.org">
+
+<articleinfo>
+
+<title>Compiling <r:func>dnorm</r:func> manually</title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<invisible>
+<r:code>
+library(Rllvm)
+</r:code>
+</invisible>
+
+<section>
+<title>Generating code to compute the normal density</title>
+
+<para>
+This walks the reader through the steps to compile a scalar
+version of the <r:func>dnorm</r:func> function to compute
+the normal density at a value.
+Later we will explore how to create a vectorized version of this.
+</para>
+<para>
+We should note that, of course, the <r/> version of this
+function is already compiled and vectorized.
+Also, we can use <omg:pkg>RLLVMCompile</omg:pkg> to directly generate
+the LLVM version of the code for us. This is just an example 
+of how we can generate byte-code programmatically, either manually or
+with a compiler.
+</para>
+
+
+<para>
+It may be be helpful to see the <c/> code we will emulate 
+when defining our <llvm/> implementation.
+This is 
+<c:code>
+<xi:include href="dnorm.c" parse="text"/>
+</c:code>
+We declare the parameters and the return type of the function.  The
+body computes the standardized value of the input and assigns it to a
+temporary variable.  Next, we square this value for use in the call to
+the <c:func>exp</c:func> routine and again assign it to local
+temporary variable.  Finally, we compute the two terms in the density
+function (pdf) and return the result.
+</para>
+
+
+<para>
+We want a routine that takes a 
+scalar numeric value <r:var>x</r:var> giving the value at which to
+evaluate the normal density, and two scalar numeric 
+parameters defining the normal density, i.e. the mean and standard deviation.
+The function should return a scalar numeric value, i.e. a <r:var>DoubleType</r:var>.
+We define this function in <llvm/> with
+<r:code eval="false">
+fun = Function("dnorm", DoubleType, 
+                list(x = DoubleType, mean = DoubleType, sd = DoubleType))
+</r:code>
+This creates the <r:class>Function</r:class> object.
+The first argument is the name of the new routine.
+The second argument is the return type. The <r:func>list</r:func>
+argument describes the three parameters for the routine.
+We have given the names, although this is not necessary. 
+The  <r:pkg>Rllvm</r:pkg> package allows us to access the
+parameters more easily if we give them names.
+</para>
+
+<para>
+In addition to creating the <r:class>Function</r:class>, our call to <r:func>Function</r:func> also 
+created a new <r:class>Module</r:class> to house it.
+We could have created the  <r:class>Module</r:class> separately
+and passed it as an argument in the call to <r:func>Function</r:func>.
+We might want to do this if we want to control how the <r:class>Module</r:class>
+is created or if we want to combine multiple <r:class>Function</r:class>
+objects in the same <r:class>Module</r:class>. 
+For the latter, we can access the <r:class>Module</r:class> from the new <r:class>Function</r:class> object, e.g.,
+<r:code eval="false">
+mod = as(fun, "Module")
+</r:code>
+So we can then add new <r:class>Function</r:class> objects using that object.
+</para>
+
+
+<para>
+We now have the skeleton of our routine.
+We can now add instructions to provide the body.
+To do this, we create an <r:class>IRBuilder</r:class> to facilitate
+creating the instructions.
+Before this, we create the first block for the  initial instructions
+and pass that to the <r:class>IRBuilder</r:class>. We do this with
+<r:code eval="false">
+ir = IRBuilder(Block(fun, "entry"))
+</r:code>
+Note that we have given a name for the <r:class>Block</r:class>
+which will appear when we display the <llvm/> IR code and help
+us to understand that code.
+</para>
+
+
+<para>
+We can now starting add our instructions.
+One of the first steps in most routines is 
+to create local variables that contain the values of the parameters.
+<q>Why?</q>
+We can do this for the parameter named <r:arg>x</r:arg> 
+with the following code:
+<r:code eval="false">
+params = getParameters(fun)
+var  = ir$createLocalVariable(getType(params$x), "x")
+ir$createStore(params$x, var)
+</r:code>
+We access the list of parameter objects with <r:func>getParameters</r:func>
+from the <r:class>Function</r:class>.
+Each of these is a <r:class>Value</r:class> object from which we can query the
+type and possibly the name.
+We extract the  first  parameter, by name or position. 
+</para>
+<para>
+The next two expressions in our code
+illustrates how we create instructions.
+We are using the <r:class>IRBuilder</r:class> to create
+a local variable and an assignment/store instructions.
+The instructions are added to the currently active block  in the
+<r:class>IRBuilder</r:class> object.
+The form <r:expr>ir$createLocalVariable(...)</r:expr>
+is equivalent to <r:expr>createLocalVariable(ir, ...)</r:expr>
+</para>
+
+<para>
+We are now ready to add the actual computations to the body of the routine.
+However, it seems like we have already dealt with many details, and only
+mapping one of the parameters to a local variable.
+The <omg:pkg>Rllvm</omg:pkg> package provides a convenience function to do this for us.
+<r:func>simpleFunction</r:func> creates the <r:class>Function</r:class>,
+<r:class>BasicBlock</r:class> and <r:class>IRBuilder</r:class>
+and creates the local variables for us.
+in a single call.
+We specify the same collection of inputs as for <r:func>Function</r:func>,
+but get the additional steps done for us.
+So we can do all of the above with 
+<r:code>
+sfun = simpleFunction("dnorm", DoubleType,
+                      .types = list(x = DoubleType, mean = DoubleType, sd = DoubleType))
+</r:code>
+We can specify the parameters individually (via the \<dots/>) or
+as a single <r:func>list</r:func> via the <r:arg>.types</r:arg> parameter.
+</para>
+<para>
+The return value of <r:func>simpleFunction</r:func> is not 
+a <r:class>Function</r:class>, but a list containing the different
+elements created in the call.
+These include the <r:class>Function</r:class> object, the <r:class>IRBuilder</r:class>,
+the initial <r:class>BasicBlock</r:class> and also the list of local variables
+corresponding to the parameters.
+We'll assign the <r:class>IRBuilder</r:class> object to <r:var>ir</r:var>, for ease of use.
+</para>
+<invisible>
+<r:code>
+ir = sfun$ir
+</r:code>
+</invisible>
+
+<para>
+We now focus on performing the computations.
+We'll first compute <r:expr>(x - mean)/sd</r:expr>.
+Then we can multiply this by itself to get the square of the value.
+We first subtract <r:var>mean</r:var> from <r:var>x</r:var>.
+To do this, we have to load the values from each variable.
+We do this with
+<r:code>
+x = ir$createLoad(sfun$vars$x)
+mean = ir$createLoad(sfun$vars$mean)
+</r:code>
+Here we are using <r/> variables to temporarily store the instructions to load the <llvm/>
+values. 
+We can now subtract these.
+We create a binary operation instruction.
+The <r:func>binOp</r:func> function does this and allows us to specify
+the two operands and also the particular binary operation.
+Since we are working with two real-valued numbers, we use 
+the <r:var>FSub</r:var> operation. This is an integer value in 
+<r/> that corresponds to an enumerated constant in the <llvm/> <cpp/> API.
+There are others such as <r:var>FAdd</r:var> and <r:func>FMul</r:func>
+and also values for integer operations (e.g. <r:var>Add</r:var>, <r:var>Sub</r:var>).
+So we create  the subtraction instruction with
+<r:code>
+delta = ir$binOp(FSub, x, mean)
+</r:code>
+Again, we assign this to an <r/> variable so we can use it when creating another instruction.
+</para>
+<para>
+Next we divide the centered value by <r:var>sd</r:var>.
+Again, we have to load the value of this local variable with
+<r:code>
+sd = ir$createLoad(sfun$vars$sd)
+</r:code>
+Given this, we can use <r:func>binOp</r:func> to perform the division
+with 
+<r:code>
+scaled = ir$binOp(FDiv,  delta, sd)
+</r:code>
+</para>
+<para>
+We want to store the standardized value in a local variable, say <r:var>tmp</r:var>.
+We first have to define this variable and with
+<r:code>
+tmp = ir$createLocalVariable(DoubleType, "tmp")
+</r:code>
+Here we know the type of the variable. We could also have calculated it from
+the <r:class>Value</r:class> object in <r:var>scale</r:var> via <r:expr>getType(scale)</r:expr>.
+To store the value in this variable, we create the instruction
+<r:code>
+ir$createStore(scaled, tmp)
+</r:code>
+</para>
+
+
+<para>
+Our next step is to square the value of <r:var>tmp</r:var>.
+We could call the <c:func>pow</c:func> routine, however, it is easier and more
+efficient to simply multiply the value by itself.
+We load it twice and call <r:func>binOp</r:func> again, e.g.
+<r:code>
+ir$createStore(ir$binOp(FMul, ir$createLoad(tmp), ir$createLoad(tmp)), tmp)
+</r:code>
+Here, we also stored the result back into the <r:var>tmp</r:var> variable
+in the <llvm/> code. 
+(The <r/> variables used to store the instructions and
+the <llvm/> variables can be confusing.)
+</para>
+
+
+<para>
+We can now compute the actual result as a 
+<r:expr>1/(sd * sqrt(2 * pi)) * exp( - .5 * tmp)</r:expr>
+This is a binary operation (multiplication)
+in which each operand is also a complex expression.
+</para>
+
+<para>
+Let's compute <r:expr>1/(sd * sqrt(2*pi))</r:expr>.  This is a binary
+operation (/) with a constant (1) and another expression.  We can
+compute the denominator first since the numerator is a simple constant
+value.  We can replace <r:expr>sqrt(2*pi)</r:expr> with 2.506628275
+since this is a constant/invariant, i.e. does not depend on the inputs.
+So we compute the numerator with
+<r:code>
+numerator = ir$binOp(FMul, 
+                     ir$createLoad(sfun$vars$sd),
+                     ir$createConstant(sqrt(2*pi)))
+</r:code>
+We can now compute the constant in the density function
+with 
+<r:code>
+term1 = ir$binOp(FDiv, ir$createConstant(1), numerator)
+</r:code>
+Note that here we are exploiting  the fact
+that the expression <r:expr>1</r:expr> in <r/> yields
+a <r:class>numeric</r:class> or real-value in <r/>
+and not an integer value. <r:func>createConstant</r:func>
+uses the type of the <r/> value to create 
+the constant with type <r:var>DoubleType</r:var>.
+We can use the <r:arg>type</r:arg> parameter to specify the
+desired type.
+</para>
+<para>
+We now focus on the second term in our result
+<r:expr>exp(-.5 * tmp)</r:expr>
+This is a call to the routine <c:func>exp</c:func>
+and takes a single argument.
+We'll compute that argument first in order to have it available
+to make the call.
+At this point, we can readily see that this is a  binary operation
+and we create it with
+<r:code>
+exponent = ir$binOp(FMul, ir$createConstant(-.5), ir$createLoad(tmp))
+</r:code>
+Here we assign the instruction to the <r/> variable <r:var>exponent</r:var>,
+but not to any <llvm/> variable.
+</para>
+<para>
+We can invoke the <c:func>exp</c:func> routine by creating
+a "call" instruction with <r:func>createCall</r:func>.
+Before we do this, we need to have a reference to the routine we are
+invoking. 
+To do this, we have declare the routine and its signature in our
+<r:class>Module</r:class>.
+This allows <llvm/> to understand the routine and verify how we use it
+when it compiles the code.
+We declare the function using the <r:func>Function</r:func> we saw
+earlier:
+<r:code>
+llvm.exp = Function("exp", DoubleType, DoubleType,  module = sfun$mod)
+</r:code>
+This  is just a declaration. We won't define the body of this routine.
+It is a  built-in  routine and  <llvm/> will be able to provide the implementation.
+We can now create the call to <c:func>exp</c:func> with
+<r:code>
+term2 = ir$createCall(llvm.exp, exponent)
+</r:code>
+</para>
+
+<para>
+We now have the two terms in our result. All that remains is to 
+multiply the two operands stored in the <r/> variables
+ <r:var>term1</r:var> and  <r:var>term2</r:var>.
+Again, this is simple:
+<r:code>
+ans = ir$binOp(FMul, term1, term2)
+</r:code>
+To return this value, we use <r:func>createReturn</r:func>.
+This takes the value we just computed
+<r:code>
+ir$createReturn(ans)
+</r:code>
+</para>
+
+
+<section>
+<title>Calling the routine</title>
+
+<para>
+We can test this routine works as we intend.
+<r:test>
+.llvm(sfun$fun, 1, 0, 1) - dnorm(1, 0, 1)
+.llvm(sfun$fun, 0, 0, 1) - dnorm(0, 0, 1)
+.llvm(sfun$fun, -1, 2, 1) - dnorm(-1, 2, 1)
+</r:test>
+</para>
+
+</section>
+
+
+<section>
+<title>Vectorizing the <c:func>dnorm</c:func> routine</title>
+<altTitle>Vectorizing the dnorm() routine</altTitle>
+
+<para>
+We now turn our attention to creating a vectorized version of the
+<c:func>dnorm</c:func> routine.  We have two choices as to how to do
+this.  We can assume the existence of our scalar version that we
+created above and write another routine that loops over the elements
+and calls that scalar routine.  Alternatively, we could write a
+routine that loops over the input vector and then performs the
+computations inline within the body of the loop/iteration.  Since we
+have already defined the routine above, we'll start with the former
+approach and focus on creating the loop using <llvm/>.  We may also be
+able to "encourage" <llvm/> to inline to <c:func>dnorm</c:func>
+calculations when it optimizes the code.
+</para>
+
+<note><para>
+Note that neither approach aims to emulate 
+the capability of <r/>'s <r:func>dnorm</r:func> function
+to allow vectors of values for the <r:arg>mean</r:arg> and <r:arg>sd</r:arg>
+and parameters. We could do this, but it would be distracting here
+as it involves other details.
+Similarly, we don't support computing the log of the density.
+</para></note>
+
+<para>
+The code we want to generate mimics the <c/> code
+<c:code><![CDATA[
+void
+v_dnorm(double *x, int n, double mean, double sd)
+{
+    int i;
+    for(i = 0; i < n; i++) {
+	x[i] = dnorm([i], mean, sd);
+    }
+}
+]]></c:code>
+We pass a pointer to a collection of <c:arg>n</c:arg>
+<c:type>double</c:type> elements. We also have to provide
+the number of elements as the <c/> code cannot determine
+this.  We also pass the <c:arg>mean</c:arg> and <c:arg>sd</c:arg>
+values. This implementation puts the results back into the
+input array/vector. This keeps things simple and is convenient when we
+call this from <r/> with an <r/> vector.
+However, it is trivial to add another parameter to collect
+the outputs.
+Since we return the results in the input array, we have defined
+the function to return no explicit value, i.e. <c:type>void</c:type>.
+</para>
+
+<para>
+We could pass a <c:type>SEXP</c:type>, the <c/>-level type
+for all <r/> objects. If we did this, we could determine
+the number of elements using the <c:func>Rf_length</c:func> 
+routine <r/> provides. However, for now, we will keep this as simple as possible
+and deal with basic <c/> types.
+</para>
+
+
+<para>
+To define this routine, we start by calling <r:func>simpleFunction</r:func>
+again. This time, we already have our module so we pass this to <r:func>simpleFunction</r:func>
+so that we define our routine in the same module as <c:func>dnorm</c:func>:
+<r:code>
+vfun = simpleFunction("v_dnorm", VoidType, 
+                      x = DoublePtrType, n = Int32Type, 
+                      mean = DoubleType, sd = DoubleType,
+                      mod = sfun$module)
+ir = vfun$ir
+</r:code>
+</para>
+<para>
+Before we start to generate instructions, let us determine
+our strategy and the basic structure of the <llvm/> code.
+We need a local variable for <c:var>i</c:var> and to initialize
+it to 0.
+We need to test the condition of the loop to see
+if we should evaluate the body of the loop for this value of 
+<c:var>i</c:var>, or if we should terminate the loop.
+When we evaluate the body of the loop, we need to return to test
+the condition of the loop. This is the iteration.
+So we need several blocks:
+<ol>
+<li> to create and initialize <c:var>i</c:var>,</li>
+<li> to test the condition of the loop,</li>
+<li> evaluate the body of the loop, and increment <c:var>i</c:var> at the end</li>
+</ol>
+We could create these blocks in <r/> now and use them later. However,
+we'll create them as we need them.
+</para>
+<para>
+<r:func>simpleFunction</r:func> created our initial block with local variables
+referencing the parameters. 
+We can create our <c:var>i</c:var> in this block and  assign it the value 0 with
+<r:code>
+i = ir$createLocalVariable(Int32Type, "i")
+ir$createStore(ir$createConstant(0L), i)
+</r:code>
+</para>
+<para>
+The next step is to branch to the test of the loop condition.
+To do this, we need to create a new block and add an instruction to
+branch to it.
+<r:code>
+conditionBlock = Block(vfun$fun, "loop.condition")
+ir$createBranch(conditionBlock)
+</r:code>
+Finally, we need to 
+ make this new block the active one for the <r:class>IRBuilder</r:class>
+so that new instructions will be added it to it:
+<r:code>
+ir$setInsertBlock(conditionBlock)
+</r:code>
+We can now build the computations to test the loop condition
+and jump to the body or simply return from the <c:func>v_dnorm</c:func>
+routine.
+</para>
+<para>
+Testing the loop condition is quite simple.
+We want to evaluate <r:expr>i &lt; n</r:expr>.
+This is a binary comparison of two integer values.
+We use <r:func>createICmp</r:func> to perform this.
+Like the <r:func>binOp</r:func> function, this allows us to 
+specify which comparison to make (e.g. <r:var>ICMP_EQ</r:var>, <r:var>ICMP_SLT</r:var> for equality  and less than),
+along with the two operands.
+We create first have to load these operands. We can do this with
+<r:code>
+ok = ir$createICmp(ICMP_SLT, ir$createLoad(i), ir$createLoad(vfun$vars$n))
+</r:code>
+We assign this to the <r/> variable <r:var>ok</r:var> as a convenient
+name.  We then use this to determine to which block to branch.  We
+will use <r:func>createCondBr</r:func> to create a conditional branch.
+This takes our condition value (<r:var>ok</r:var>) and the two blocks
+to which to branch depending on that value.  So before we create the
+conditional branch instruction, we need to create the two new blocks.
+One is the body of the loop. The other should be the final block of
+the routine that returns from the routine.  Alternatively, this
+loop-condition block could conditionally branch to the body if the
+condition is true, or else explicitly return from this routine.
+We'll use the former to illustrate <r:func>createCondBr</r:func>.
+So we create two new <r:class>BasicBlock</r:class> objects:
+<r:code>
+bodyBlock = Block(vfun$fun, "for.body")
+returnBlock = Block(vfun$fun, "return")
+</r:code>
+We can then create the conditional branch with
+<r:code>
+ir$createCondBr(ok, bodyBlock, returnBlock)
+</r:code>
+</para>
+<para>
+Before we turn our attention to the body of the loop,
+we can complete the <r:var>returnBlock</r:var> now.
+This is a simple call to <c:keyword>return</c:keyword>
+and we can add this with
+<r:code>
+ir$setInsertBlock(returnBlock)
+ir$createReturn()
+</r:code>
+Note that we first made this the active block.
+We add a return instruction with no value. This is because
+our return does not return an explicit value.
+</para>
+
+
+
+<para>
+We now focus on the body of the loop.
+We make this the active block
+<r:code>
+ir$setInsertBlock(bodyBlock)
+</r:code>
+As we mentioned, we could inline the computations that
+we created for our <c:func>dnorm</c:func> routine we created earlier.
+However, it will be simpler to just call that routine. 
+To do so, we need three arguments: <r:expr>x[i]</r:expr>, <r:arg>mean</r:arg> and <r:arg>sd</r:arg>.
+We can load the latter two via <r:func>createLoad</r:func> and <r:expr>vfun$vars</r:expr>.
+The first argument is a little more complicated. This is the i-th element of 
+our array/vector. We access it via a pointer to a <c:type>double</c:type>.
+To get this value, we use a <quote>Get Element Pointer</quote> (GEP) instruction.
+This is apparently somewhat confusing to <llvm/> programmers. However it is well
+documented and described. The basic idea is that we pass
+the pointer value and the (modified) index to get access to the i-th element.
+However, we have to ensure the value of i is in appropriate form by casting it to 
+a 64-bit index.
+To do this, we create two indices.
+<r:code>
+idx = ir$createSExt(ir$createLoad(i), 64L)
+</r:code>
+Now, we can access the element
+<r:code>
+print(vfun$vars$x)
+xload = ir$createLoad(vfun$vars$x)
+el = ir$createGEP(xload, idx)
+</r:code>
+</para>
+<para>
+We now have the three arguments to the <c:func>dnorm</c:func> routine.
+We create the call instruction with
+<r:code>
+call = ir$createCall(sfun$fun, 
+                     ir$createLoad(el), 
+                     ir$createLoad(vfun$vars$mean), 
+                     ir$createLoad(vfun$vars$sd))
+</r:code>
+</para>
+<para>
+Before finishing with this call, we have to assign the
+result of the call back to <r:expr>x[i]</r:expr>.
+This is similar to accessing the element, but here
+we assign to it.
+Again, we need a GEP instruction to access the element of the array
+<r:code>
+idx = ir$createSExt(ir$createLoad(i), 64L)
+xp = ir$createLoad(vfun$vars$x)
+el = ir$createGEP(xp, idx)
+</r:code>
+We can now assign the result to it using a store instruction:
+<r:code>
+ir$createStore(call, el)
+</r:code>
+</para>
+
+
+<para>
+We now have to increment the value <c:var>i</c:var> and
+then branch back to the loop-condition test block.
+We can do both of these in this block or alternatively
+create a new block to do this.
+In this case, it seems unnecessary to create this new block.
+So we increment <c:var>i</c:var> with
+<r:code>
+inc = ir$binOp(Add, ir$createLoad(i), ir$createConstant(1L))
+ir$createStore(inc, i)
+</r:code>
+We branch back to the loop-condition test with
+<r:code>
+ir$createBranch(conditionBlock)
+</r:code>
+</para>
+
+
+<para>
+This is quite low-level and involved,
+but is actually quite simple when we see the different pieces.
+Again, we started by creating a local variable (<c:var>i</c:var>) and initializing it.
+We created three blocks - one the simple return, another to test the condition for the
+loop, and the last one to implement the body of the loop.
+We saw  how to add instructions to branch to a different block,
+both unconditionally and conditionally.
+We saw how to do logical comparisons (of integers) with <r:func>createICmp</r:func>.
+The most complex aspect of this was accessing the i-th element of an array
+via a pointer. This required the introduction of the GEP instruction.
+</para>
+
+
+<section>
+<title>Testing the vectorized version</title>
+
+<para>
+Before we can test this version, we have to know how
+we can pass a pointer to a <c:type>double</c:type> to an <llvm/>
+routine from <r/>.
+There are two ways. One is to have access to a <c/> pointer to a collection
+of <c:type>double</c:type> values as an <r/> <r:class>externalptr</r:class>.
+The much simpler way is to pass a <r:class>numeric</r:class> vector as an
+argument and  <r:func>.llvm</r:func> understands to pass the address of the
+(contiguous) elements to the routine.
+So we can test our routine with
+<r:test>
+mod = vfun$mod
+x = rnorm(10)
+dx = .llvm(mod$v_dnorm, x, length(x), 0, 1)
+</r:test>
+When we look at <r:var>dx</r:var>, we see it contains the value <r:null/>.
+This is because <r:func>.llvm</r:func> returns the value returned by the routine
+we called. Since <c:func>v_dnorm</c:func> returns <c:type>void</c:type>, 
+we get <r:null/> in <r/>.
+We want the updated values in the first argument. To get these, in addition to
+the value returned by the routine, we use the <r:arg>.all</r:arg> parameter
+in <r:func>.llvm</r:func>. Like the <r:func>.C</r:func> interface, this
+returns all the inputs to the routine (and the return value of the routine).
+So 
+<r:test>
+dx = .llvm(mod$v_dnorm, x, length(x), 0, 1, .all = TRUE)
+dx[[1]]
+</r:test>
+gives us the results.
+We can compare those with the values computed by <r/>'s <r:func>dnorm</r:func>
+<r:test>
+dx[[1]] == dnorm(x, 0, 1)
+</r:test>
+</para>
+</section>
+
+</section>
+
+
+<section eval="false">
+<title>Timing the different versions</title>
+
+<para>
+Some readers might be interested in comparing  how fast
+the <llvm/> code is compared to either 
+the compiled <r:func>dnorm</r:func> or an interpreted version of the function.
+We first compile the code in our new module and associate it
+with an execution engine:
+<r:test>
+module = vfun$module
+ee = ExecutionEngine(module, CodeGenOpt_Aggressive)
+Optimize(module, ee)
+</r:test>
+</para>
+<para>
+We can then invoke the functions with
+<r:test>
+.llvm(module$dnorm, 0, 0, 1, .ee = ee)
+
+x = rnorm(1000)
+ans = .llvm(module$v_dnorm, x, length(x), 0, 1, .ee = ee, .all = TRUE)[[1]]
+</r:test>
+</para>
+
+<para>
+To test  how long the native <r/> and the <llvm/> version take, we time
+the following 
+<r:test>
+x = rnorm(1e6)
+tm.llvm = system.time(.llvm(module$v_dnorm, x, length(x), 0, 1, .ee = ee, .all = TRUE)[[1]])
+tm.native = system.time(dnorm(x, 0, 1))
+</r:test>
+</para>
+
+<para>
+
+<r:function><![CDATA[
+scalarDnorm.r = function(x, mean= 0, sd = 1) {
+    tmp = (x - mean)/sd
+    (1/(sd*2.5066282746310002416)) * exp(-.5 * tmp * tmp)
+}
+Dnorm.r = function(x, mean = 0, sd = 1)
+  sapply(x, scalarDnorm.r, mean, sd)
+]]></r:function>
+We do a quick test to verify we have the functions correct:
+<r:test>
+x = rnorm(10)
+all.equal(Dnorm.r(x, 2, 3), dnorm(x, 2, 3))
+</r:test>
+</para>
+<para>
+These functions use <r:func>sapply</r:func> and so <r:func>lapply</r:func>
+and this loop is done in <c/>. So this should be reasonably quick
+relative to a <r:keyword>for</r:keyword> loop in <r/>.
+However, it is still slow:
+<r:test>
+x = rnorm(1e6)
+tm.r = system.time(Dnorm.r(x, 0, 1))
+</r:test>
+
+<r:test>
+tm = rbind(tm.r, tm.llvm, tm.native)[, 1:3]
+<r:output><![CDATA[
+tm.r         12.781    0.073  13.022
+tm.llvm       0.042    0.017   0.059
+tm.native     0.042    0.000   0.042
+]]></r:output>
+</r:test>
+
+<r:test>
+tm[,3]/tm[3,3]
+<r:output><![CDATA[
+      tm.r    tm.llvm  tm.native 
+310.047619   1.404762   1.000000 
+]]></r:output>
+</r:test>
+
+As we increase the sample size, the relative performance of the native version  and the <llvm/>
+version grows. However, the <r/> version becomes very slow.
+
+<r:test>
+x = rnorm(1e7)
+tm.llvm = system.time(.llvm(module$v_dnorm, x, length(x), 0, 1, .ee = ee, .all = TRUE)[[1]])
+tm.native = system.time(dnorm(x, 0, 1))
+tm.r = system.time(Dnorm.r(x, 0, 1))
+</r:test>
+<r:test>
+tm = rbind(tm.r, tm.llvm, tm.native)[, 1:3]
+tm[,3]/tm[3,3]
+<r:output><![CDATA[
+      tm.r    tm.llvm  tm.native 
+611.098901   1.881319   1.000000 
+]]></r:output>
+</r:test>
+
+
+
+</para>
+
+
+</section>
+
+
+<ignore>
+<para>
+We break down the expression into the different binary operators
+and calls to functions (i.e. <r:func>sqrt</r:func>).
+We start with <r:expr>2*pi</r:expr> and create the instruction
+to compute this with
+</para>
+</ignore>
+
+
+</section>
+</article>

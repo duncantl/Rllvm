@@ -43,3 +43,48 @@ setMethod('mayHaveSideEffects', 'Instruction',
 setMethod('isSafeToSpeculativelyExecute', 'Instruction',
                   function(x, ...)
                      .Call('R_Instruction_isSafeToSpeculativelyExecute', x, PACKAGE = 'Rllvm'))
+
+
+
+insertBefore =
+function(inst, to)
+{
+  if(!isNativeNull(getParent(inst)))
+    eraseFromParent(inst, FALSE)
+  
+ .Call("R_Instruction_insertBefore", as(inst, "Instruction"), as(to, "Instruction"))
+}
+
+
+insertAfter =
+function(inst, to)
+{
+  if(!isNativeNull(getParent(inst)))
+    eraseFromParent(inst, FALSE)
+  
+ .Call("R_Instruction_insertAfter", as(inst, "Instruction"), as(to, "Instruction"))
+}
+
+
+moveBefore =
+function(inst, to)
+{
+ .Call("R_Instruction_moveBefore", as(inst, "Instruction"), as(to, "Instruction"))
+}
+
+
+setGeneric("removeFromParent", 
+           function(inst, ...)
+             standardGeneric("removeFromParent"))
+
+setMethod("removeFromParent", "Instruction",
+           function(inst, ...)          
+          .Call("R_Instruction_eraseFromParent", "Instruction", FALSE))
+
+setMethod("removeFromParent", "BasicBlock",
+          function(inst, ...)
+          .Call("R_BasicBlock_eraseFromParent", inst, FALSE))
+
+setMethod("eraseFromParent", "Instruction",
+          function(x, delete = TRUE, ...)  
+            .Call("R_Instruction_eraseFromParent", x, as(delete, "logical")))

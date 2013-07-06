@@ -109,10 +109,6 @@ R_getFunctionArgs(SEXP r_func)
     const llvm::FunctionType *fty = fun->getFunctionType();
 
     n = fty->getNumParams();
-#if 0
-    while(it++)// != it.end())
-        n++;
-#endif
 
     SEXP ans;
     PROTECT(ans = NEW_LIST(n));
@@ -120,7 +116,7 @@ R_getFunctionArgs(SEXP r_func)
     llvm::Value *el;
     for(int i = 0; i < n ; i++, it++) {
         el = it;
-        SET_VECTOR_ELT(ans, i, R_createRef(el, "Value"));
+        SET_VECTOR_ELT(ans, i, R_createRef(el, "Argument"));
     }
     UNPROTECT(1);
     return(ans);

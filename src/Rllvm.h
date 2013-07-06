@@ -70,9 +70,9 @@ extern llvm::Twine makeTwine(SEXP);
    SEXP \
    R_##TYPE##_eraseFromParent(SEXP r_block, SEXP r_delete) \
    { \
-       llvm::TYPE  *block = GET_REF(r_block, TYPE);	\
+      llvm::TYPE  *block = GET_REF(r_block, TYPE);	\
       if(block) \
-          LOGICAL(r_delete)[0] ? block->eraseFromParent() :  block->removeFromParent(); \
+          LOGICAL(r_delete)[0] ? block->eraseFromParent() : block->removeFromParent(); \
       return(ScalarLogical(block != NULL));				\
    }
 

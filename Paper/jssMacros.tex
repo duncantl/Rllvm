@@ -1,3 +1,8 @@
+\definecolor{rcolor}{RGB}{0,0,0}
+
+\def\Snull{\texttt{NULL}}
+\def\Cnull{\textsl{NULL}}
+
 \def\llvm{LLVM}
 \def\C{\proglang{C}}
 \def\perl{\proglang{PERL}}
@@ -10,12 +15,14 @@
 \def\Splus{\proglang{S-PLUS}}
 \def\llvm{\proglang{LLVM}}
 \def\Rpkg#1{\pkg{#1}}
+\def\OmgPackage#1{\pkg{#1}}
 \def\Rfunc#1{\textsl{#1()}}
 \def\Rop#1{\texttt{#1}}
 \def\Rdollar{\texttt{\$}}
 \def\Rvar#1{\textsl{#1}}
 \def\Rel#1{\textbf{#1}}
 \def\Cfunc#1{\textit{#1()}}
+\def\Croutine#1{\textit{#1()}}
 \def\Cvar#1{\textit{#1}}
 \def\file#1{\textbf{#1}}
 \def\dir#1{\textbf{#1}/}
@@ -23,6 +30,7 @@
 \def\Rclass#1{\textit{#1}}
 \def\Rslot#1{\textbf{#1}}
 \def\Rarg#1{\textbf{#1}}
+\def\Sarg#1{\textbf{#1}}
 \def\Roption#1{\dquote{\textsl{#1}}}
 \def\Rkeyword#1{\textbf{\textsl{#1}}}
 \def\Cppkeyword#1{\textbf{#1}}
@@ -49,6 +57,9 @@
 \def\ClangTypeKind#1{\textsl{#1}}
 
 \DefineVerbatimEnvironment{RCode}{Verbatim}{fontshape=sl}
+\DefineVerbatimEnvironment{Rcode}{Verbatim}{fontshape=sl}
+\DefineVerbatimEnvironment{Rtest}{Verbatim}{fontshape=sl}
+\DefineVerbatimEnvironment{Rfunction}{Verbatim}{fontshape=sl}
 \DefineVerbatimEnvironment{CCode}{Verbatim}{fontshape=tt}
 \DefineVerbatimEnvironment{ShCode}{Verbatim}{fontshape=it}
 \DefineVerbatimEnvironment{ROutput}{Verbatim}{fontshape=bf}
@@ -57,3 +68,5 @@
 
 \def\Matlab{\proglang{MATLAB}}
 
+
+\def\lib#1{\textbf{lib#1}}

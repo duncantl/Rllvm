@@ -62,3 +62,10 @@ int Main()
     a.d = f(&a);
     return(bar(a));
 }
+
+
+int visitor(CXCursor cur, CXCursor parent)
+{
+    bar(cur);
+    return(0);
+}

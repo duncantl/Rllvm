@@ -256,7 +256,7 @@ export(getOpcode)
 
 export(getParent)
 export(getBlockInstructions)
-export(eraseFromParent)
+export(eraseFromParent, removeFromParent)
 
 exportMethods("[[<-") # module
 
@@ -352,6 +352,7 @@ exportClass("Argument")
 
 
 export(getNumOperands, getOperand)
+exportMethods(getNumOperands, getOperand)
 
 export(getBlocks)
 
@@ -370,4 +371,10 @@ export(rawFDOstream, formattedRawOstream, stringRawOstream)
 exportClasses(MDNode, MDString, NamedMDNode)
 export(setMetadata, getMetadata)
 export(getNumOperands, getOperands)
+
+exportMethods(length)
+
+export(LLVMAttributes)
+
+export(insertBefore, insertAfter, moveBefore)
 

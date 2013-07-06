@@ -17,6 +17,9 @@ setMethod("setMetadata",
 setMethod("setMetadata",
           c("NamedMDNode"),
           function(x, id, values, context = getContext(x), ...) {
+            if(!is.list(values))
+              values = list(values)
+            
             w = base::sapply(values, is, "Value")
             if(!all(w)) 
               values[!w] = lapply(values[!w], makeMetadataValue, context = context)
@@ -45,14 +48,15 @@ setMethod("makeMetadataValue",
              createIntegerConstant(value, context))
 
 setMethod("makeMetadataValue",
+          "numeric",
+           function(value, context = getGlobalContext(), ...)
+             createFloatingPointConstant(value, context))
+
+setMethod("makeMetadataValue",
           "character",
            function(value, context = getGlobalContext(), ...)
             mdString(value, context))
 
-
-setGeneric("getOperands",
-           function(x, ...)
-             standardGeneric("getOperands"))
 
 setMethod("getOperands", "NamedMDNode",
            function(x, ...)
@@ -64,9 +68,6 @@ setMethod("getOperands", "MDNode",
 
 
 
-setGeneric("getNumOperands",
-           function(x, ...)
-             standardGeneric("getNumOperands"))
 
 setMethod("getNumOperands", "NamedMDNode",
            function(x, ...)
@@ -75,3 +76,43 @@ setMethod("getNumOperands", "NamedMDNode",
 setMethod("getNumOperands", "MDNode",
            function(x, ...)
             .Call("R_MDNode_getNumOperands", x))
+
+
+# Make these lighter-weight by not getting all the operands.
+# C++ code
+setMethod("length", "NamedMDNode",
+          function(x)
+           length(getOperands(x)))
+
+setMethod("[[", c("NamedMDNode", "numeric"),
+           function(x, i, j, ...) {
+             getOperands(x)[[i]]
+           })
+setMethod("[", c("NamedMDNode", "numeric"),
+           function(x, i, j, ...) {
+             getOperands(x)[i]
+           })
+
+setMethod("[", c("NamedMDNode", "missing"),
+           function(x, i, j, ...) {
+             getOperands(x)[]
+           })
+
+
+setMethod("length", "MDNode",
+          function(x)
+           length(getOperands(x)))
+
+setMethod("[[", c("MDNode", "numeric"),
+           function(x, i, j, ...) {
+             getOperands(x)[[i]]
+           })
+setMethod("[", c("MDNode", "numeric"),
+           function(x, i, j, ...) {
+             getOperands(x)[i]
+           })
+
+setMethod("[", c("MDNode", "missing"),
+           function(x, i, j, ...) {
+             getOperands(x)[]
+           })

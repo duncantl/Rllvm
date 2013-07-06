@@ -2,6 +2,10 @@ Version 0.6-0
 
 	*  added setMetadata(), getMetadata() and getNumOperands() & getOperands()
 
+	*  eraseFromParent(), removeFromParent()
+
+	*  insertBefore(), insertAfter(), moveBefore()
+
 Version 0.5-0
 
 	*  show() methods for Module, Function, Type to make the

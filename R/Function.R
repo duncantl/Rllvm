@@ -1,7 +1,7 @@
 #
 
 Routine <- Function <-
-function(name, retType, paramTypes = list(),  module, varArgs = FALSE, ...)
+function(name, retType, paramTypes = list(), module = Module(), varArgs = FALSE, ...)
 {
   if(!is.list(paramTypes))  # in case just a single type.
       paramTypes = list(paramTypes)
@@ -14,7 +14,7 @@ function(name, retType, paramTypes = list(),  module, varArgs = FALSE, ...)
   fun = .Call("R_createFunction", module, as.character(name), retType, paramTypes, as.logical(varArgs))
 
   if(any(isStruct))
-     lapply(which(isStruct), function(i) setParamAttributes(fun[[i]], FuncAttributes["ByVal"]))
+     lapply(which(isStruct), function(i) setParamAttributes(fun[[i]], FuncAttributes["ByVal"])) #??? Why a func attribute on a parameter?
   
   if(length(names(paramTypes)))
      names(fun) = names(paramTypes)
@@ -71,16 +71,25 @@ function(fun, addNames = TRUE)
    ans
 }
 
+setMethod("[[", c("Function", "numeric"),
+          function(x, i, j, ...) {
+            .Call("R_Function_getParam", x, as.integer(i) - 1L)
+          })
+
+
 setMethod("$", "Function",
            function(x, name) {
-             getParameters(x)[[name]]
+             i = pmatch(name, names(x))
+             if(is.na(i))
+               stop("no such parameter in the LLVM routine")
+             x[[i]]
            })
 
 
 setLinkage =
 function(obj, val)
 {
-  .Call("R_Function_setLinkage", obj, as.integer(val))
+  .Call("R_Function_setLinkage", as(obj, "Function"), as.integer(val))
 }
 
 
@@ -155,16 +164,14 @@ function(func, simplify = TRUE)
 }
 
 
-setMethod("[[", c("Function", "numeric"),
-          function(x, i, j, ...) {
-            .Call("R_Function_getParam", x, as.integer(i) - 1L)
-          })
 
 setParamAttributes =
 function(arg, values)
 {
    if(!is(arg, "Argument"))
      stop("need an Argument object to set the attributes")
+   
+  values = matchFuncAttributes(unlist(values))
    
   .Call("R_Argument_setAttributes", arg, as.integer(values))
 }
@@ -182,7 +189,7 @@ function(func, ..., .attrs = list(...))
 # See inst/TU/clang.R
 #  dput(enums$AttrKind@values)
 #
-FuncAttributes =
+LLVMAttributes = FuncAttributes =
 if(all(.llvmVersion >= c(3, 3))) {
 #  >= 3.3 of llvm
  structure(0:34, .Names = c("None", "Alignment", "AlwaysInline", 

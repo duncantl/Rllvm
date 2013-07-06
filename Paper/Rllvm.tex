@@ -6,6 +6,7 @@
 \usepackage{fancyvrb}
 \usepackage{cprotect}
 \usepackage{listings}
+\usepackage{spverbatim}
 
 \usepackage[firstpage]{draftwatermark}
 \SetWatermarkLightness{.95}
@@ -81,6 +82,7 @@ strategies for compiling \R{} code to \Rpkg{RLLVMCompile}.
 \def\Rllvm{\Rpkg{Rllvm}}
 \def\IR{intermediate representation}
 \def\Ins#1{\textbf{#1}}
+\def\LLVMAttr#1{\texttt{#1}}
 
 \begin{document}
 
@@ -239,6 +241,13 @@ type to pass to the routine.
 In this example, \Rfunc{.llvm} coerces the value $30$ from 
 its inherent \Rclass{numeric} type to an integer, consistent with the
 native type expected by the \Cfunc{fib} routine.
+
+Rather than calling \Rfunc{.llvm} directly each time we want to invoke
+a particular routine, we can create an \R{} function that provides a
+simpler interface.  The function \Rfunc{makeRFunction} does this for
+us by querying the \llvm{} routine for its parameters and creating a
+simple proxy.
+
 
 
 \subsection{Execution Engine}
@@ -548,22 +557,354 @@ shutdown, start/stop multi-threaded.
 
 \section{Examples and Case Studies}
 
+\input{../explorations/dnorm}
+
+
+\section{Linking to other routines}
+In generating an \llvm{} routine, we sometimes call another routine
+that is available in a library or \R{} itself. In order for \llvm{} to
+be able to access this routine, we have to provide it with the address
+of the routine.  We do this with \Cfunc{llvmAddSymbol}.  We can pass
+it either the name of the external routine or we can explicitly
+resolve the address with \Rfunc{getNativeSymbolInfo} and then pass its
+result.
+For example, suppose we define a routine that uses the 
+\C{} routine \Cfunc{fgets} for reading a line from a file.
+We register this routine with \llvm{} via
+\begin{RCode}
+llvmAddSymbol('fgets')
+\end{RCode}
+If the routine was in a dynamically loaded library, we could be
+more specific and resolve it as
+\begin{RCode}
+dll = dyn.load('code.so')
+info = getNativeSymbolInfo('fgets', dll)
+\end{RCode}
+and then pass \Rvar{info} to \Rfunc{llvmAddSymbol}.
+
+We can also use \Rfunc{llvmAddSymbol} to register a variable, and not
+just routines.
+
+%If we don't need DLL in \R{}, we can skip \Rfunc{dyn.load} and use
+%\Rfunc{llvmLoadDLL} to load the compiled code directly into \llvm.
+
+
+There are situations in which we want to generate an \llvm{} routine
+and then pass it as an argument to another routine outside of the
+\llvm{} compilation, e.g. to a routine in a DLL.  These are
+function/routine pointers and are simply references to the routine.
+They are similar to the function we pass to the \R{} functions
+\Rfunc{lapply} or \Rfunc{by}.  They are used generally as callbacks
+for asynchronous event handlers, to compare two elements in a general
+sorting routine, and in numerical optimization routines to specify the
+mathematical function and its gradient to be maximized.
+
+To obtain the address of the \llvm{} routine, we use
+\Rfunc{getPointerToFunction}.  We specify both the \Rclass{Function}
+object identifying the \llvm{} routine and also the
+\Rclass{ExecutionEngine} which hosts the particular instance of the
+routine. 
+A typical sequence of commands is 
+\begin{RCode}
+mod = Module()
+f = Function(....)
+# commands to define the body of f
+ee = ExecutionEngine(mod)
+getPointerToFunction(f, ee)
+\end{RCode}
+It is essential that the routine be associated with an
+\Rclass{ExecutionEngine} so that it is compiled and instantiated.
+
+
+%XXXXFinish example of optimization.
+
+In some circumstances, we don't have a reference to the
+\Rclass{Function} object. In these cases, we can access it with
+\Rfunc{findFunction}, e.g.
+\begin{RCode}
+findFunction("dnorm", ee)
+\end{RCode}
+and then pass this to \Rfunc{getPointerToFunction}.
+
+We can also get the address of a global variable in an execution
+engine with \Rfunc{getPointerToGlobal}.
+
+
+\section{Compiling the IR code}
+% getPassManager
+% passManager           
+% addPass, addAnalysisPasses
+% addPassesToEmitFile, stringRawOstream, rawFDOstream, formattedRawOstream
+
+
+\section{Attributes on Routines and Parameters}
+While the instructions define what a routine does, we can also provide
+information to the \llvm{} compiler about both routines and individual
+parameters to help it optimize the code.  We do this by setting
+attributes on routines and/or parameters.  These attributes for
+routines include characteristics such as inlining the code
+(\LLVMAttr{AlwaysInline}, \LLVMAttr{InlineHint} and \LLVMAttr{NoInline}), whether the routine may throw
+an exception or not (\LLVMAttr{NoUnwind}), whether to check memory access in the
+routine (\verb+sanitize_memory+).
+The entire set of possible attributes is available from the variable
+\Rexpr{LLVMAttributes}. (This includes attributes
+for both routines and parameters.)
+%and whether the routine is likely to
+%be called often (cold) and so influnce branch prediction.
+We set an attribute on a routine with \Rfunc{setFuncAttributes}.
+For example, 
+\begin{RCode}
+setFuncAttributes(sfun$fun, 
+                  c("NoUnwind", "StackProtectReq", "ReadOnly"))
+\end{RCode}
+Specifying the values by name is short-hand for using the actual
+constants in \Rvar{FuncAttributes}.
+%$ % http://llvm.org/docs/LangRef.html#function-attributes
+We can also query the attributes for a routine with
+\Rfunc{getFuncAttributes}.
+
+We can set attributes for any parameter and the
+return type of a routine. % http://llvm.org/docs/LangRef.html#parameter-attributes
+We do this with objects of class \Rclass{Argument}.
+We get such an object via either the \Rfunc{getParameters} or 
+by subsetting the \Rclass{Function} object by name or index.
+Again, the actual values (or names) for the attributes are found in
+\Rvar{LLVMAttributes}.
+For example, we can set attributes on the pointer parameter \Cvar{x}
+with
+\begin{RCode}
+v_dnorm = vfun$fun
+setParamAttributes(v_dnorm$x, c('NoAlias', 'NoCapture'))
+\end{RCode}
+
+% What about querying the parameter attributes
+
+\section{Metadata}
+For the most part, the code we generate executes as we define it.
+However, there are circumstances when we want or need to add metadata
+to the code.  We can add debugging information or information that a
+particular optimization pass might understand.  A very concrete
+example of metadata is when we generate a routine for use as a kernel
+routine to be run on a GPU (Graphical Processing Unit).
+When we use \lib{nvvm} to transform the \llvm{} IR code to 
+the GPU's PTX format, we need to identify the routine as being a
+kernel routine that can be launched by a host. 
+We do this via metadata on the routine.
+We can specify this using the \Rfunc{setMetadata} function.
+We have to use a name for the particular metadata that others are
+expecting and will query.  This is just a convention.
+For a PTX kernel, the identifier is \texttt{nvvm.annotation}.
+We set the metadata on the \Rclass{Module} containing the 
+kernel routine and we specify the routine which is a kernel
+along with the kernel identifier string and the literal value 1 as an
+integer.
+We do this as
+\begin{RCode}
+m = Module()
+fc = Function("foo", VoidType, list(a = FloatType), m)
+setMetadata(m, "nvvm.annotation", list(fc, "kernel", 1L))
+\end{RCode}
+Each element of the metadata is a \Rclass{Value}.
+\Rfunc{setMetadata} converts \R{} objects to \Rclass{Value}
+objects as necessary. However, we can create this separately
+if we need more control over how they are created,
+and then use them in a call to \Rfunc{setMetadata}.
+For example, the type of a string in the metadata 
+is a special identifier -- \texttt{MetadataTyID}.
+If we wanted an explicit string, we could create and set the metadata
+with, for example,
+\begin{RCode}
+setMetadata(m, 'test', createStringConstant('my string'))
+\end{RCode}
+
+We can query metadata with \Rfunc{getMetadata}, e.g. 
+\begin{RCode}
+md = getMetadata(m, "nvvm.annotation")
+\end{RCode}
+The result is an object of clas \Rclass{NamedMDNode}.
+This is a container of \Rclass{MDNode} objects
+with as many elements as there are separate settings
+for that particular identifier. In this case, there
+is only one entry.
+We can treat the \Rclass{NamedMDNode} object as if it were a list in
+\R{} and query its \Rfunc{length} and subset it in the usual way, e.g.
+\begin{RCode}
+nv = md[[1]]
+\end{RCode}
+
+A \Rclass{MDNode} is also a container and again we can treat it as a
+list. In this case, \Rvar{nv} contains the three elements we
+set previously.  We can access these via the usual subsetting
+operations. Each element is \Rclass{Value} object and we can query
+it using the functions we have discussed throughout this paper.
+
+
+
+\section{Different targets}
 % Different back-ends
+
+\section{Navigating the instruction hierarchy}
+In many situations, we create (and insert) the blocks and instructions
+in the appropriate order and end up with the code we want.  We can
+then compile the module and use the routines.  However, it can be
+useful to be able to find and query individual instructions, remove an
+instruction, or insert a new instruction at a specific point.  This
+may be necessary if we use an \R{} function to generate a routine and
+we want to modify it after it has been created.  For example, we may
+want to add debugging or logging information or replace a call in the
+routine with a call to a different implementation.
+
+We have seen that there is a container hierarchy of a \Rclass{Module}
+containing one or more \Rclass{Function} objects, and each
+\Rclass{Function} has one or more \Rclass{BasicBlock} objects which
+contain the \Rclass{Instruction} objects.
+We can retrieve an \Rclass{Function} object from a \Rclass{Module}
+using \Rexpr{module\$functionName}.
+%$
+We can get a \Rclass{Function}'s \Rclass{BasicBlock}s with
+\Rfunc{getBlocks}.  This returns a list of the block objects.
+The names for the list come from the names of the blocks.
+We can also query the name of a block with \Rfunc{getName}
+so that we can find the block(s) of interest.
+
+We can retrieve the list of \Rclass{Instruction} objects
+within a block via \Rfunc{getBlockInstructions} or using
+the syntactic abbreviation \Rexpr{block[]}.
+The latter treats the \Rclass{BasicBlock} as a list and retrieves
+all of its elements.  We can use this subsetting approach to access
+individual \Rclass{Instruction} elements within the block, 
+e.g. \Rexpr{block[[3]]}.
+
+\Rfunc{getBlockInstructions} (and the subsetting method)
+will, by default, coerce each generic instruction to the more specific
+class for that instruction.
+This ensures that we can use  methods defined for these
+sub-classes of \Rclass{Instruction} but which do not apply for
+the generic \Rclass{Instruction} class.
+The coercion uses \Rfunc{getOpcode} to determine the name of the ``op code'' of 
+the \Rclass{Instruction} to identify the corresponding class name.
+
+\begin{comment}
+Each element returned appears in \R{} as a generic
+\Rclass{Instruction} object. 
+This means that we can 
+We can determine the nature of an
+instruction by examing its ``op code'' with the function
+\Rfunc{getOpcode}.  This returns a named integer value. The name tells
+is the human-readable type while the integer is the enumeration
+constant used in \Cpp.
+For example, in our \Cfunc{v_dnorm} routine,
+we can retrieve the op codes for the instructions
+in the block  that implements the body of the \Ckeyword{for} loop with
+\begin{RCode}
+block = getBlocks(vfun$fun)[['for.body']]
+sapply(block[], getOpcode)
+\end{RCode}
+The result is
+\begin{ROutput}
+         load          sext          load getelementptr 
+           27            35            27            29 
+         load          load          load          call 
+           27            27            27            48 
+         load          sext          load getelementptr 
+           27            35            27            29 
+        store          load           add         store 
+           28            27             8            28 
+           br 
+            2 
+\end{ROutput} 
+%$
+We can coerce the generic \Rclass{Instruction} object to a more 
+specific class using \Rfunc{as}.
+For example, the fourth instruction has an op code 
+named \texttt{getelementptr}. This corresponds to the
+\Rclass{GetElementPtrInst} class in \R.
+\begin{RCode}
+as(b[[4]], 'GetElementPtrInst')
+\end{RCode}
+\end{comment}
+
+
+Rather than getting all the instructions in a block, we sometimes want
+just the terminator.  For instance, we may want to add a new block and
+change where this block branches to.  The function
+\Rfunc{getTerminator} finds the terminator instruction in a block, if
+the \Rclass{BasicBlock} has a terminator.  This is typically the last
+instruction in a block but may not be.
+
+
+Once we have an instruction object, we can query its contents. There
+are numerous different types of instructions and they have different
+properties and characteristics and so we will query them in
+class-specific ways.  However, all instructions have the concept of
+operands, i.e. elements that make up the instruction.  We can retrieve
+the entire set of operands with \Rfunc{getOperands} or use the
+subsetting operator to retrieve an individual operand, e.g.
+\Rexpr{ins[[2]]}.  We can determine the number of operands with
+\Rfunc{getNumOperands} or simply with the overloaded \Rfunc{length}
+method.  This allows us to treat an \Rclass{Instruction} as if it were
+a list.
+
+
+While we typically add instructions via the \Rclass{IRBuilder}, we can
+also manipulate them directly.  We can remove an instruction from a
+block with \Rfunc{eraseFromParent}.  We can also insert an instruction
+before or after another instruction with the functions
+\Rfunc{insertBefore} and \Rfunc{insertAfter}, respectively.  We can
+also use \Rfunc{moveBefore} to change the location of an existing
+instruction.
+
+When creating instructions with the \Rclass{IRBuilder}, each new
+instruction is added after the current instruction in the current
+block.  We can set the current block with \Rfunc{setInsertBlock} and
+then new instructions are added to the end of this block.  We can use
+\Rfunc{setInsertPoint} to specify the instruction after which new
+instructions will be added.  These functions to specify the insertion
+point and to reposition instructions give us a lot of flexibility to
+organize code, both proactively and retroactively.
+
+
+In addition to being able to traverse down the hierarchy of
+\Rclass{BasicBlock}s and \Rclass{Instruction}s, we can also move up
+the hierarchy with the \Rfunc{getParent} function.  This allows us to
+retrieve a reference to an \Rclass{Instruction}'s \Rclass{BasicBlock}
+and a \Rclass{BasicBlock}'s parent \Rclass{Module}.
+
+
+
+\section[Querying LLVM]{Querying \llvm}
+It is sometimes useful to be able to query and deploy aspects
+of the \llvm{} API itself.
+For instance,  we can determine the version with 
+\Rfunc{llvmVersion}.
+We can also determine which backend-targets were enabled
+when the \llvm{} distribution was compiled and installed.
+We do this with \Rfunc{getLLVMTargets}, which returns 
+a character vector naming the different targets, e.g.
+\begin{ROutput}
+ [1] "X86"        "Sparc"      "PowerPC"    "AArch64"   
+ [5] "ARM"        "Mips"       "XCore"      "MSP430"    
+ [9] "CppBackend" "MBlaze"     "NVPTX"      "Hexagon"  
+\end{ROutput}
+We can enable any of these backends with a call to 
+\Rfunc{Initialize*Target} where \texttt{*} is replaced
+with the name of the target, e.g. \texttt{NVPTX}.
+
 
 % Sharing code with other systems.
 \section[Exporting compiled R functions to other languages]{Exporting compiled \R{} functions to other languages}
 
 We started the technical part of this paper by importing either \IR{}
-or bitcode into \R.  In this section, we will see how we can easily
-export code we generate in \R{} and so make it available to other
-systems such as \Python{} or \Matlab.  Once we compile one or more
-routines in an \llvm{} module, we can write the module to either its
-\IR{} or bitcode representation.  Just as we could read these into
-\R{} with \Rfunc{parseIR} and \Rfunc{readBitcode}, these other systems
-can read this code and invoke it directly.  This allows us to
-potentially compile \R{} code directly to a form \llvm{} understands
-and export it to another system which also understands this \llvm{}
-representation.
+or bitcode into \R.  We can easily
+export \llvm{} code we generate in \R{} and so make it available to other
+systems such as \Python{} or \Matlab. Similarly, we can import \llvm{}
+code generated in those systems. Once we compile one or more routines
+in an \llvm{} module, we can write the module to either its \IR{} or
+bitcode representation.  Just as we could read these into \R{} with
+\Rfunc{parseIR} and \Rfunc{readBitcode}, these other systems can read
+this code and invoke it directly.  This allows us to potentially
+compile \R{} code directly to a form \llvm{} understands and export it
+to another system which also understands this \llvm{} representation.
 
 
 \section{Related Work}

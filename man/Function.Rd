@@ -50,7 +50,7 @@
   word \code{function}.
 }
 \usage{
-Function(name, retType, paramTypes = list(), module, varArgs = FALSE, ...)
+Function(name, retType, paramTypes = list(), module = Module(), varArgs = FALSE, ...)
 }
 \arguments{
   \item{name}{a string giving the name of the function}

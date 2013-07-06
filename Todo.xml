@@ -7,6 +7,36 @@
 <items>
 
 <item>
+Query parameters on Argument.
+</item>
+
+<item>
+Remove an attribute on a Argument or Function.
+removeAttr() method in Argument.
+</item>
+
+<item>
+Methods to create the Instruction classes  that were missing.
+<r:output><![CDATA[
+ [1] "IndirectBrInst"     "ResumeInst"         "UnreachableInst"   
+ [4] "FenceInst"          "AtomicCmpXchgInst"  "AtomicRMWInst"     
+ [7] "TruncInst"          "ZExtInst"           "FPToUIInst"        
+[10] "FPToSIInst"         "UIToFPInst"         "SIToFPInst"        
+[13] "FPTruncInst"        "FPExtInst"          "PtrToIntInst"      
+[16] "IntToPtrInst"       "BitCastInst"        "ICmpInst"          
+[19] "FCmpInst"           "PHINode"            "SelectInst"        
+[22] "VAArgInst"          "ExtractElementInst" "InsertElementInst" 
+[25] "ShuffleVectorInst"  "ExtractValueInst"   "InsertValueInst"   
+[28] "LandingPadInst"    
+]]></r:output>
+</item>
+
+<item status="done">
+Do we need the specific methods for getOperands, etc.??
+Don't think so!
+</item>
+
+<item>
 test getCppClasses().  Use inst/TU/clang.R.  Failing in assigning params
 for Links.
 </item>

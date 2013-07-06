@@ -43,3 +43,17 @@ setGeneric('mayHaveSideEffects',
 setGeneric('isSafeToSpeculativelyExecute', 
                   function(x, ...)
                          standardGeneric('isSafeToSpeculativelyExecute'))
+
+
+
+setGeneric("getNumOperands",
+           function(x, ...)
+             standardGeneric("getNumOperands"))
+
+setGeneric("getOperands",
+           function(x, ...)
+             standardGeneric("getOperands"))
+
+setGeneric("getOperand",
+           function(instruction, index)
+             standardGeneric("getOperand"))

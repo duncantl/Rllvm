@@ -1,0 +1,108 @@
+# source("../funcGroups.R")
+# group(setdiff(llvmFuns, unique(xpathSApply(doc, "//r:func", xmlValue))))
+
+[need example] findFunction
+
+Related to .llvm
+ [done] makeRFunction()
+ [ignore] run()
+
+Context
+ getContext(), getGlobalContext()
+
+[ignore] llvmLoadDLL
+[done] llvmAddSymbol
+
+[finish] findFunction to get address of routine in an ExecutionEngine and can pass that to 
+  a regular C routine.
+  Example of compiling a routine and passing that to a routine.
+     sort is one example
+     numerical optimization
+
+% Mention in exporting/importing IR code with other languages.
+I/O of code
+{write,read}BitCode, parseIR, parseAssembly
+
+Pass manager
+ getPassManager
+ passManager           
+ addPass, addAnalysisPasses
+
+ addPassesToEmitFile, stringRawOstream, rawFDOstream, formattedRawOstream
+
+Different targets:
+  getLLVMTargets
+  getTargetTriple 
+  {g,s}etDataLayout
+  lookupTarget
+  targetLibraryInfo
+  InitializeNVPTXTarget, InitializeCppBackendTarget
+
+
+System-level commands
+[done] llvmVersion
+ InitializeNativeTarget - should this be in back-ends
+
+setAlignment
+
+Explain module instance is specific to an execution engine
+
+
+Module
+ Optimize
+ showModule
+ verifyModule
+ declareFunction
+ getModuleFunctions, getModuleGlobals
+ global variables, initializer
+    getGlobalVariables
+    getGlobalValue
+    setInitializer
+
+
+
+Types
+ getType(any Value object)
+
+ pointerType, arrayType, structType, vectorType
+ getIntegerType
+ getTypeID
+ isBasicType, isArrayType, isPointerType, ...
+ sameType
+ getElementType
+
+
+Walk the instructions and blocks
+[done] getOperands, getOperand, getNumOperands
+getCalledFunction and other class-specific functions
+
+[not really very important] is* functions for querying type of instruction
+
+[done] getParent, 
+
+[done]getBlocks
+ getName(getBlocks(module$v_dnorm)[[2]])
+ setName(getBlocks(module$dnorm)[[1]], "entry")
+
+[done] block[] or getBlockInstructions
+[done] getOpcode
+[done] getTerminator
+
+may* Functions
+
+[done] setInsertPoint, setInsertBlock
+[done] eraseFromParent, insertBefore, insertAfter, moveBefore
+
+
+Attributes
+ [done] {set,get}FuncAttributes
+ [done]setParamAttributes  
+implement getParamAttributes
+
+[done] Metadata
+ {get,set}Metadata
+ hasMetadata (and hasMetadataOtherThanDebugLoc)
+
+   e.g. declare a function a kernel for PTX.
+
+

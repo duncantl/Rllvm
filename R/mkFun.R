@@ -7,7 +7,7 @@ makeRFunction =
   #
   # See if we can deal with default values.
   #
-function(func)
+function(func, .ee = ExecutionEngine(as(func, "Module")))
 {
   params = getParameters(func)
   i = is.na(params@names) | params@names == ""
@@ -19,14 +19,17 @@ function(func)
   
   f = function() {}
   formals(f) = parms
+  formals(f)[["..."]] = parms[[1]]
   
   e = quote(.args <- a)
   al = quote(list())
   for(i in 1:length(params@names))
      al[[1 + i]] = as.name(params@names[i])
   e[[3]] = al
+
+  
   body(f)[[2]] = e 
   
-  body(f)[[3]] =  quote(run(func, .args = .args))
+  body(f)[[3]] =  substitute(run(func, .args = .args, .ee = .ee, ...), list(func = func, .ee = .ee))
   f
 }

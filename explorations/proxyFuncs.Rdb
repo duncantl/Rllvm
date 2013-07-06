@@ -305,7 +305,7 @@ names(funs)
 f = funs$fib
 </r:code>
 This element is a <r:class>FunctionDecl</r:class> object.
-This is currently an <s3/> class which is  list
+This is currently an <s3/> class which is a list
 with elements for the return type, parameters and the function definition
 node.  These are all <r:class>CXCursor</r:class> objects. 
 </para>

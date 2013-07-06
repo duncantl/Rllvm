@@ -46,9 +46,41 @@ setClass("StoreInst", contains = "Instruction")
 setClass("LoadInst", contains = "Instruction")
 
 setClass("GetElementPtrInst", contains = "Instruction")
-setClass("PtrDiff", contains = "Instruction")
+setClass("PtrDiff", contains = "Value")  # was Instruction, but looks incorrect.
 
 setClass("SwitchInst", contains = "Instruction")
+
+setClass('IndirectBrInst', contains = 'TerminatorInst')
+setClass('ResumeInst', contains = 'TerminatorInst')
+setClass('UnreachableInst', contains = 'TerminatorInst')
+setClass('FenceInst', contains = 'Instruction')
+setClass('AtomicCmpXchgInst', contains = 'Instruction')
+setClass('AtomicRMWInst', contains = 'Instruction')
+setClass('TruncInst', contains = 'CastInst')
+setClass('ZExtInst', contains = 'CastInst')
+setClass('FPToUIInst', contains = 'CastInst')
+setClass('FPToSIInst', contains = 'CastInst')
+setClass('UIToFPInst', contains = 'CastInst')
+setClass('SIToFPInst', contains = 'CastInst')
+setClass('FPTruncInst', contains = 'CastInst')
+setClass('FPExtInst', contains = 'CastInst')
+setClass('PtrToIntInst', contains = 'CastInst')
+setClass('IntToPtrInst', contains = 'CastInst')
+setClass('BitCastInst', contains = 'CastInst')
+setClass('CmpInst', contains = 'Instruction')
+setClass('ICmpInst', contains = 'CmpInst')
+setClass('FCmpInst', contains = 'CmpInst')
+setClass('PHINode', contains = 'Instruction')
+setClass('SelectInst', contains = 'Instruction')
+setClass('VAArgInst', contains = 'UnaryInstruction')
+setClass('ExtractElementInst', contains = 'Instruction')
+setClass('InsertElementInst', contains = 'Instruction')
+setClass('ShuffleVectorInst', contains = 'Instruction')
+setClass('ExtractValueInst', contains = 'UnaryInstruction')
+setClass('InsertValueInst', contains = 'Instruction')
+setClass('LandingPadInst', contains = 'Instruction')
+
+
 
 
 

@@ -11,6 +11,12 @@ els = getOperands(o[[1]])
 names(els)
 
 
+# just exploring. These mean nothing.
+setMetadata(m, "Rtypes", list("numeric", "integer", "logical"))
+setMetadata(m, "Rvectors", list("numeric", 200L, "integer", 200L, "logical", 1L))
+setMetadata(m, "Rvectors", list("abc", 2)) # numeric
+
+
 
 if(FALSE) {
 library(RLLVMCompile)

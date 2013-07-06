@@ -181,3 +181,40 @@ MAKE_SET_ALIGNMENT(StoreInst)
 MAKE_SET_ALIGNMENT(LoadInst)
 MAKE_SET_ALIGNMENT(AllocaInst)
 
+
+
+
+extern "C"
+SEXP
+R_Instruction_insertBefore(SEXP r_base, SEXP r_inst)
+{
+    llvm::Instruction *base = GET_REF(r_base, Instruction);
+    llvm::Instruction *inst = GET_REF(r_inst, Instruction);
+    base->insertBefore(inst);
+    return(R_NilValue);
+}
+
+extern "C"
+SEXP
+R_Instruction_insertAfter(SEXP r_base, SEXP r_inst)
+{
+    llvm::Instruction *base = GET_REF(r_base, Instruction);
+    llvm::Instruction *inst = GET_REF(r_inst, Instruction);
+    base->insertAfter(inst);
+    return(R_NilValue);
+}
+
+extern "C"
+SEXP
+R_Instruction_moveBefore(SEXP r_base, SEXP r_inst)
+{
+    llvm::Instruction *base = GET_REF(r_base, Instruction);
+    llvm::Instruction *inst = GET_REF(r_inst, Instruction);
+fprintf(stderr, "moveBefore:  %p, %p\n", base, inst);
+    base->moveBefore(inst);
+    return(R_NilValue);
+}
+
+
+
+

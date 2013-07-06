@@ -18,6 +18,8 @@ R_InitializeNativeTarget()
 }
 
 
+#if 0
+/* why did we define this here when it creates a routine that does nothing. */
 #define LLVM_TARGET(target) \
     void inline Initialize##target##Target() { \
     }
@@ -25,7 +27,7 @@ R_InitializeNativeTarget()
 #include <llvm/Config/Targets.def>
 
 #undef LLVM_TARGET
-
+#endif
 
 
 #if 1
