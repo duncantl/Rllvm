@@ -32,6 +32,11 @@ irbuilder.class = readCppClass(llvm$IRBuilder)
 enums = getEnums(tu)
 
 
+
+
+cc = getEnums("~/llvm-devel/include/llvm/IR/CallingConv.h", args = "-xc++")
+cat(makeEnumClass(cc$ID, "CallingConv"), sep = "\n", file = "../../R/CallingConvEnum.R")
+
 #klasses = getCppClasses(tu)
 
 
