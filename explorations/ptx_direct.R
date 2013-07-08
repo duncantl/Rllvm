@@ -1,16 +1,17 @@
 library(Rllvm)
 
-#InitializeAllTargets()
-#InitializeAllTargetMCs()
-#InitializeAllAsmPrinters()
-#InitializeAllAsmParsers()
+m = Module("ptx kernel")
+#fun = Function("kern", VoidType, module = m)
+fun = simpleFunction("kern", VoidType, mod = m)
 
-#.Call("R_initPassRegistry", NULL)
+fun$ir$createLocalVariable(Int32Type, "i")
+ir$createReturn()
 
-m = parseIR("~/Projects/GPUs/Rnvvm/inst/sampleCode/simple-gpu64.ll")
 
-#  setMetadata(m, "nvvm.annotation", list(m$fib, "kernel", 1L))
+
+setMetadata(m, "nvvm.annotation", list(m$kern, "kernel", 1L))
 #Rllvm:::setCallingConv(m$simple, as(71L, "CallingConv"))
+
 
 
 InitializeNVPTXTarget()

@@ -249,7 +249,7 @@ in which each operand is also a complex expression.
 </para>
 
 <para>
-Let's compute <r:expr>1/(sd * sqrt(2*pi))</r:expr>.  This is a binary
+Let's generate the code to compute <r:expr>1/(sd * sqrt(2*pi))</r:expr>.  This is a binary
 operation (/) with a constant (1) and another expression.  We can
 compute the denominator first since the numerator is a simple constant
 value.  We can replace <r:expr>sqrt(2*pi)</r:expr> with 2.506628275

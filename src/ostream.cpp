@@ -44,6 +44,15 @@ R_setFinalizer_formatted_raw_ostream(SEXP r_stream)
     return(R_NilValue);
 }
 
+extern "C"
+SEXP
+R_flush_formatted_raw_ostream(SEXP r_stream)
+{
+    llvm::formatted_raw_ostream *stream = GET_REF(r_stream, formatted_raw_ostream);
+    stream->flush();
+    return(R_NilValue);
+}
+
 
 extern "C"
 SEXP

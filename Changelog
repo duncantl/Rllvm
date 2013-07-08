@@ -8,6 +8,8 @@ Version 0.6-0
 
 	*  isa() for Instruction classes.
 
+	*  More support for raw and formatted ostreams
+
 Version 0.5-0
 
 	*  show() methods for Module, Function, Type to make the

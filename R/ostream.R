@@ -1,4 +1,7 @@
 rawFDOstream =
+  # add a finalizer?
+  # If so, have to ensure the container (e.g. formatted_raw_ostream)
+  #  keeps a hold of it.
 function(filename)
 {
   f = path.expand(filename)
@@ -29,3 +32,8 @@ function(value = "")
 setAs("raw_string_ostream", "character",
         function(from)
           .Call("R_raw_string_ostream_str", from))
+
+
+flush.formatted_raw_ostream =
+function(con)
+  .Call("R_flush_formatted_raw_ostream", con)

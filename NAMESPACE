@@ -389,4 +389,7 @@ export(InitializeAllTargets, InitializeAllTargetMCs, InitializeAllAsmPrinters, I
 
 export(getDefaultTargetTriple)
 
+S3method(flush, formatted_raw_ostream)
+
+
 
