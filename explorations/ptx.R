@@ -7,7 +7,7 @@ library(Rllvm)
 
 #.Call("R_initPassRegistry", NULL)
 
-m = parseIR("~/Projects/GPUs/Rnvvm/inst/sampleCode/simple-gpu64.ll")
+m = parseIR("simple-gpu64.ll")
 
 #  setMetadata(m, "nvvm.annotation", list(m$fib, "kernel", 1L))
 #Rllvm:::setCallingConv(m$simple, as(71L, "CallingConv"))
