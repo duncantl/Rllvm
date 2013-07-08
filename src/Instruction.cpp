@@ -152,9 +152,9 @@ R_Instruction_getOperand(SEXP r_inst, SEXP r_i)
 	llvm::Instruction *inst = GET_REF(r_inst, Instruction);
 	if(!inst) return(R_NilValue);
         llvm::Value *el;
-        int i = INTEGER(r_i)[0] - 1;
-        if(i >= inst->getNumOperands()) {
-            PROBLEM "index of operand too large"
+        unsigned i = INTEGER(r_i)[0] - 1;
+        if(i < 0 || i >= inst->getNumOperands()) {
+            PROBLEM "index of operand is incorrect"
                 ERROR;
         }
 
@@ -210,7 +210,7 @@ R_Instruction_moveBefore(SEXP r_base, SEXP r_inst)
 {
     llvm::Instruction *base = GET_REF(r_base, Instruction);
     llvm::Instruction *inst = GET_REF(r_inst, Instruction);
-fprintf(stderr, "moveBefore:  %p, %p\n", base, inst);
+
     base->moveBefore(inst);
     return(R_NilValue);
 }

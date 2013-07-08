@@ -43,9 +43,9 @@ function(target, triple, cpu, features = "", options = list())
 }
 
 lookupTarget =
-function(triple)
+function(triple, arch = character())
 {
-  .Call("R_TargetRegistry_lookupTarget", as.character(triple))
+  .Call("R_TargetRegistry_lookupTarget", as.character(triple), as.character(arch))
 }
 
 

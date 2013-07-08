@@ -228,3 +228,12 @@ function(vals)
 
 
 
+setClass("CallingConv", contains = "integer")
+
+setCallingConv =
+function(fun, conv)
+  .Call("R_Function_setCallingConv", as(fun, "Function"), as(conv, "CallingConv"))
+
+getCallingConv =
+function(fun)
+  as(.Call("R_Function_setCallingConv", as(fun, "Function")), "CallingConv")

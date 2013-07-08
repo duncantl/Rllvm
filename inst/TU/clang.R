@@ -46,10 +46,17 @@ baseClass = sapply(insClass, function(x)  gsub("class ", "", sapply(x@superClass
 
 instClasses = getAllDescendantClasses(insClass, , baseClass, namespace = "llvm")
 
-code = c("CHAR(STRING_ELT"
+insClass = insClass[ gsub("llvm::", "", instClasses) ]
+
+#code = c("CHAR(STRING_ELT"
 sprintf('if(strcmp(targetClass, "%s") == 0)\n\tans = static_cast<%s*>(ptr);', gsub("llvm::", "", instClasses), instClasses)
 
 
+
+classof = sprintf('%s if(strcmp(targetClass, "%s") == 0)\n\tans = %s::classof(val);',
+                   c("", rep("else", length(instClasses) -1)), gsub("llvm::", "", instClasses), instClasses)
+
+cat(classof, sep = "\n", file = "../../src/auto_classof.h")
 
  ###########
 

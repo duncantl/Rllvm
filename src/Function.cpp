@@ -178,7 +178,7 @@ R_Argument_setAttrs(llvm::Argument *arg, SEXP r_vals)
 {
         /* now have the parameter, so set the values. */
   llvm::AttrBuilder builder;
-  for(int i = 0 ; i < (unsigned) Rf_length(r_vals); i++)  
+  for(unsigned i = 0 ; i < (unsigned) Rf_length(r_vals); i++)  
       builder.addAttribute( (AttrKind) INTEGER(r_vals)[i] );
 
 

@@ -378,3 +378,15 @@ export(LLVMAttributes)
 
 export(insertBefore, insertAfter, moveBefore)
 
+export(isa)
+
+export(setCallingConv, getCallingConv)
+export(InitializeAllTargets, InitializeAllTargetMCs, InitializeAllAsmPrinters, InitializeAllAsmParsers)
+
+
+#Temporary
+#export(llc)
+
+export(getDefaultTargetTriple)
+
+

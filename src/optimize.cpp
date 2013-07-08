@@ -93,9 +93,6 @@ R_PassManagerBase_Add(SEXP r_mgr, SEXP r_pass)
 
 
 
-
-
-
 extern "C"
 SEXP
 R_PassManager_new(SEXP r_mod, SEXP r_fnMgr)

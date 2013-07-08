@@ -21,7 +21,7 @@ Context
 
 % Mention in exporting/importing IR code with other languages.
 I/O of code
-{write,read}BitCode, parseIR, parseAssembly
+[done] {write,read}BitCode, parseIR, parseAssembly
 
 Pass manager
  getPassManager

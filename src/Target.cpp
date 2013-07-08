@@ -12,12 +12,20 @@
 
 extern "C"
 SEXP
-R_TargetRegistry_lookupTarget(SEXP r_triple)
+R_TargetRegistry_lookupTarget(SEXP r_triple, SEXP r_arch)
 {
     std::string err;
     const llvm::Target *ans;
-    std::string triple(CHAR(STRING_ELT(r_triple, 0)));
-    ans = llvm::TargetRegistry::lookupTarget(triple, err);
+
+    if(Rf_length(r_arch)) {
+        std::string arch(CHAR(STRING_ELT(r_arch, 0)));
+        llvm::Triple triple(makeTwine(r_triple));
+        ans = llvm::TargetRegistry::lookupTarget(arch, triple, err);
+    } else {
+        std::string triple(CHAR(STRING_ELT(r_triple, 0)));
+        ans = llvm::TargetRegistry::lookupTarget(triple, err);
+    }
+
     return(R_createRef(ans, "Target"));
 }
 
@@ -120,7 +128,7 @@ R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SE
     out = GET_REF(r_out, formatted_raw_ostream);
 
     bool ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
-
+    /* ans is true if addPasses... failed */
     return(ScalarLogical(ans == true));
 }
 
@@ -145,6 +153,10 @@ R_new_raw_string_ostream(SEXP r_str)
         str = (std::string *) getRReference(r_str);
 
     llvm::raw_string_ostream *ans = new llvm::raw_string_ostream(*str);
+    if(!ans) {
+        PROBLEM "error creating string stream"
+        ERROR;
+    }
     return(R_createRef(ans, "raw_string_ostream"));
 }
 
@@ -157,6 +169,23 @@ R_new_formatted_raw_ostream(SEXP r_stream, SEXP r_delete)
     llvm::formatted_raw_ostream *ans = new llvm::formatted_raw_ostream(*stream, LOGICAL(r_delete)[0]);
     return(R_createRef(ans, "formatted_raw_ostream"));
 }
+
+void
+R_formatted_raw_ostream_finalizer(SEXP obj)
+{
+    llvm::formatted_raw_ostream *stream = (llvm::formatted_raw_ostream *) R_ExternalPtrAddr(obj);
+    delete stream;
+}
+
+extern "C"
+SEXP
+R_setFinalizer_formatted_raw_ostream(SEXP r_stream)
+{
+//    llvm::formatted_raw_ostream *stream = GET_REF(r_stream, formatted_raw_ostream);
+    R_RegisterCFinalizer(r_stream, R_formatted_raw_ostream_finalizer);
+    return(R_NilValue);
+}
+
 
 extern "C"
 SEXP
@@ -171,6 +200,17 @@ R_new_raw_fd_ostream(SEXP r_filename)
     }
     return(R_createRef(ans, "raw_fd_ostream"));
 }
+
+
+extern "C"
+SEXP
+R_raw_string_ostream_str(SEXP r_stream)
+{
+    llvm::raw_string_ostream *stream = GET_REF(r_stream, raw_string_ostream);
+    std::string str = stream->str();
+    return(mkString(str.c_str() ? str.c_str() : ""));
+}
+
 
 extern "C"
 SEXP
@@ -195,4 +235,37 @@ R_printRegisteredTargetsForVersion()
     llvm::TargetRegistry::printRegisteredTargetsForVersion();
     
     return(R_NilValue);
+}
+
+
+#include <llvm/Support/TargetSelect.h>
+
+
+#define MAKE_InitializeAll(suffix) \
+ extern "C" \
+ SEXP \
+ R_InitializeAll##suffix() \
+ { \
+     llvm::InitializeAll ## suffix (); \
+     return(R_NilValue); \
+ } 
+
+MAKE_InitializeAll(TargetInfos)
+MAKE_InitializeAll(Targets)
+MAKE_InitializeAll(TargetMCs)
+MAKE_InitializeAll(AsmPrinters)
+MAKE_InitializeAll(AsmParsers)
+MAKE_InitializeAll(Disassemblers)
+
+
+
+
+
+#include <llvm/Support/Host.h>
+extern "C"
+SEXP
+R_getDefaultTargetTriple()
+{
+    std::string tri = llvm::sys::getDefaultTargetTriple();
+    return(mkString(tri.c_str()));
 }

@@ -51,12 +51,6 @@ R_InitializeCppBackendTarget()
 }
 #endif
 
-extern "C"
-void
-R_InitializeAllTargetInfos()
-{
-    llvm::InitializeAllTargetInfos();
-}
 
 extern "C"
 SEXP

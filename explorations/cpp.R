@@ -10,7 +10,7 @@ if(FALSE) {
  ir$createReturn(createIntegerConstant(1L)) 
  verifyModule(m)
 } else
- m = parseIR("experiments/fib.ll")
+ m = parseIR("../experiments/fib.ll")
 
 ############
 InitializeCppBackendTarget()

@@ -241,7 +241,14 @@ setTriple = setTargetTriple =
 function(m, str)
 {
    .Call("R_Module_setTargetTriple", m, as.character(str))
-}   
+}
+
+
+getDefaultTargetTriple =
+function()
+{
+  .Call("R_getDefaultTargetTriple")
+}
 
 
 setMethod("getDataLayout", "Module",

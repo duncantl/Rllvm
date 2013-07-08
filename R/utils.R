@@ -26,3 +26,15 @@ function(msg, class)
    structure(list(msg = paste(msg, collapse = " ")), class = c(class,  c("simpleError", "error", "condition")))
 }
 
+
+
+
+llc =
+function(file, args, march = "nvptx64", out = NA)
+{
+ # "/Users/duncan/Projects/GPUs/Rnvvm/inst/sampleCode/simple-gpu64.ll",
+  args = c("Rllc", args, paste0("-march=", march), path.expand(file))
+  if(!is.na(out))
+    args = c(args,  "-o", out)
+  .C("R_llc", length(args), args)[[1]]
+}
