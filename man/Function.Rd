@@ -40,6 +40,10 @@
 \alias{coerce,Function,function-method}
 \alias{[[,Function,numeric,ANY-method}
 
+\alias{getParent,Function-method}
+
+\alias{LLVMAttributes}
+
 \title{Create an LLVM function/routine}
 \description{
   This function and class creates a template
@@ -51,6 +55,7 @@
 }
 \usage{
 Function(name, retType, paramTypes = list(), module = Module(), varArgs = FALSE, ...)
+getParent(x, ...)
 }
 \arguments{
   \item{name}{a string giving the name of the function}

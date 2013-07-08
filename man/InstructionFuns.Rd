@@ -31,7 +31,22 @@
 
 \alias{getNumOperands}
 \alias{getOperand}
+\alias{getOperands}
+\alias{getNumOperands,Instruction-method}
+\alias{getOperand,Instruction-method}
+\alias{getOperands,Instruction-method}
 \alias{[[,Instruction,numeric,ANY-method}
+
+\alias{length,Instruction-method}
+
+\alias{eraseFromParent,Instruction-method}
+\alias{removeFromParent,Instruction-method}
+
+\alias{removeFromParent}
+
+\alias{insertBefore}
+\alias{insertAfter}
+\alias{moveBefore}
 
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Miscellaneous functions operating on LLVM Instruction objects}

@@ -14,6 +14,9 @@
 \alias{[,BasicBlock,numeric,ANY-method}
 \alias{[[,BasicBlock,numeric,ANY-method}
 \alias{sapply,BasicBlock-method}
+\alias{length,BasicBlock-method}
+
+\alias{removeFromParent,BasicBlock-method}
 
 
 

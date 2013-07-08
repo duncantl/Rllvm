@@ -5,6 +5,14 @@
 \alias{llvmStopMultiThreaded}
 \alias{llvmVersion}
 
+\alias{InitializeAllAsmParsers}
+\alias{InitializeAllAsmPrinters}
+\alias{InitializeAllTargets}
+\alias{InitializeAllTargetMCs}
+
+\alias{InitializeNVPTXTarget}
+\alias{InitializeCppBackendTarget}
+
 \alias{getLLVMTargets}
 
 \title{Initialize the LLVM engine for JIT operations}
@@ -21,6 +29,14 @@ llvmStartMultiThreaded()
 llvmStopMultiThreaded()
 llvmVersion()
 getLLVMTargets()
+
+InitalizeAllAsmParsers()
+InitalizeAllAsmPrinters()
+InitalizeAllTargets()
+InitalizeAllTargetMCs()
+
+InitializeNVPTXTarget()
+InitializeCppBackendTarget()
 }
 %- maybe also 'usage' for other objects documented here.
 \value{
