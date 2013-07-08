@@ -17,7 +17,7 @@ getOpcode(x, ...)
 \references{
   LLVM Documentation \url{http://llvm.org/docs/}
 }
-\author{DTL}
+\author{Duncan Temple Lang}
 
 %\seealso{}
 %\examples{}

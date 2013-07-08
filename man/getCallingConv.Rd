@@ -33,5 +33,11 @@ Duncan Temple Lang
 \examples{
  f = Function("foo", Int32Type, list(x = Int32Type, y = DoubleType))
  getCallingConv(f)
+
+ setCallingConv(f, 'Fast')
+
+ f = Function("kernel", VoidType, list(n = Int32Type, x = FloatPtrType, out = FloatPtrType))
+ setCallingConv(f, 'PTX_Kernel')
+ showModule(f)
 }
 \keyword{programming}
