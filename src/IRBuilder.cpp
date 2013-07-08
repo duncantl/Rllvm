@@ -92,6 +92,10 @@ R_IRBuilder_CreateRetVoid(SEXP r_builder)
 {
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
+    if(!builder) {
+        PROBLEM "invalid IRBuilder"
+        ERROR;
+    }
     llvm::ReturnInst *ret = builder->CreateRetVoid();
     return(R_createRef(ret, "ReturnInst"));
 } 
