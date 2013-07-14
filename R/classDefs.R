@@ -179,7 +179,7 @@ setClass("ImmutablePass", contains = "Pass")
 setClass("DataLayout", contains = "ImmutablePass") 
 
 setGeneric("getDataLayout", function(from, ...) standardGeneric("getDataLayout"))
-setGeneric("setDataLayout", function(from, ...) standardGeneric("setDataLayout"))
+setGeneric("setDataLayout", function(x, value, ...) standardGeneric("setDataLayout"))
 
 
 

@@ -318,6 +318,8 @@ export(getTargetTriple, setTargetTriple)
 export(createTargetMachine, targetLibraryInfo, lookupTarget)
 
 export(getDataLayout, setDataLayout)
+exportMethods(getDataLayout, setDataLayout)
+
 
 export(addPass)
 export(passManager)

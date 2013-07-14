@@ -255,6 +255,7 @@ setMethod("getDataLayout", "Module",
            function(from, ...)
              .Call("R_Module_getDataLayout", from))
 
-
-          
-  
+setMethod("setDataLayout", "Module",
+          function(x, value,  ...) {
+	   .Call("R_Module_setDataLayout", x, as(value, "character"))
+          })
