@@ -22,7 +22,7 @@ setGeneric("Optimize",
                 standardGeneric("Optimize"))
 
 setMethod("Optimize",   "Module",
-          function(obj, execEngine = NULL, mgr = getPassManager(obj, execEngine, level), level = 3L...)
+          function(obj, execEngine = NULL, mgr = getPassManager(obj, execEngine, level), level = 3L, ...)
           {
                # should we run optimize on the module. Could it do better in the larger context.
             fun = getModuleFunctions(obj)

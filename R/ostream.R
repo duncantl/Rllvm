@@ -35,7 +35,7 @@ function(value = "")
 
 setAs("raw_string_ostream", "character",
         function(from) {
-          flush(stream)
+#          flush(stream)
           .Call("R_raw_string_ostream_str", from)
         })
 
