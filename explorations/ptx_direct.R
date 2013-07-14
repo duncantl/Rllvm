@@ -1,17 +1,32 @@
 library(Rllvm)
 
 m = Module("ptx kernel")
-#fun = Function("kern", VoidType, module = m)
-fun = simpleFunction("kern", VoidType, mod = m)
+fun = simpleFunction("kern", VoidType, n = Int32Type, out = Int32PtrType, mod = m)
+ir = fun$ir
+fun = fun$fun
+setMetadata(m, "nvvm.annotation", list(fun, "kernel", 1L))
 
-fun$ir$createLocalVariable(Int32Type, "i")
+dimFunNames = c("llvm.nvvm.read.ptx.sreg.ctaid.x",
+         "llvm.nvvm.read.ptx.sreg.ntid.x",
+         "llvm.nvvm.read.ptx.sreg.tid.x",
+         "llvm.ptx.read.nctaid.x")
+dimFuns = 
+  lapply(dimFunNames,
+        function(id) {
+          Function(id, Int32Type, module = m)
+        })
+names(dimFuns) = dimFunNames
+
+blockId = ir$createCall(dimFuns[["llvm.nvvm.read.ptx.sreg.ctaid.x"]])
+blockDim = ir$createCall(dimFuns[["llvm.nvvm.read.ptx.sreg.ntid.x"]])
+mul = ir$binOp(Mul, blockId, blockDim)
+threadId = ir$createCall(dimFuns[["llvm.nvvm.read.ptx.sreg.tid.x"]])
+idx = ir$binOp(Add, mul, threadId)
+
+params = getParameters(fun)
+ir$createGEP(params$out, ir$createSExt(idx, 64L))
+
 ir$createReturn()
-
-
-
-setMetadata(m, "nvvm.annotation", list(m$kern, "kernel", 1L))
-#Rllvm:::setCallingConv(m$simple, as(71L, "CallingConv"))
-
 
 
 InitializeNVPTXTarget()
@@ -20,10 +35,7 @@ arch = "nvptx64"
 tri <- getDefaultTargetTriple() 
 setTargetTriple(m, tri)
 
-
-#Used to be trgt = lookupTarget("nvptx64")
 trgt = lookupTarget(tri, arch)
-      # sm_20 is the CPU type and can be sm_20, sm_30 or a variety of others understood by the NVPTX backend
 machine = createTargetMachine(trgt, tri, "sm_20") 
 
 # Now add the passes to generate the code.
@@ -39,11 +51,7 @@ dataLayout = getDataLayout(machine)
 addPass(pm, dataLayout)
 
 
-# We'll write the code to a string stream rather than a file
-
-#out = .Call("R_new_raw_string_ostream", "")
-#stream = rawFDOstream("/tmp/foo.ptx")
-
+  # We'll write the code to a string stream rather than a file
 stream = stringRawOstream()
 out = formattedRawOstream(stream)
 
@@ -52,12 +60,6 @@ if(addPassesToEmitFile(machine, pm, out, 0L))
 
 run(pm, m)
 
- # Garbage collect out so that the buffer is flushed
-#rm(out); gc()
-#.Call("R_flush_formatted_raw_ostream", out)
 flush(out)
 code = as(stream, "character")
 print(nchar(code))
-
-#.Call("R_raw_ostream_close", stream, FALSE)
-# cat("File size:", file.info("/tmp/foo.ptx")[1, "size"], "\n")
