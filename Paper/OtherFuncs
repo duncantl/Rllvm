@@ -31,12 +31,12 @@ Pass manager
  addPassesToEmitFile, stringRawOstream, rawFDOstream, formattedRawOstream
 
 Different targets:
-  getLLVMTargets
+  [done] getLLVMTargets
   getTargetTriple 
   {g,s}etDataLayout
   lookupTarget
   targetLibraryInfo
-  InitializeNVPTXTarget, InitializeCppBackendTarget
+  [done] InitializeNVPTXTarget, InitializeCppBackendTarget
 
 
 System-level commands
@@ -45,7 +45,7 @@ System-level commands
 
 setAlignment
 
-Explain module instance is specific to an execution engine
+[Done] Explain module instance is specific to an execution engine
 
 
 Module
@@ -54,7 +54,8 @@ Module
  verifyModule
  declareFunction
  getModuleFunctions, getModuleGlobals
- global variables, initializer
+
+ [done] global variables, initializer
     getGlobalVariables
     getGlobalValue
     setInitializer

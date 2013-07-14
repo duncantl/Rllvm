@@ -9,10 +9,14 @@ function(filename)
 }
 
 formattedRawOstream =
-function(stream, delete = FALSE, finalize = TRUE)
+function(stream = character(), delete = FALSE, finalize = TRUE)
 {
-  if(is.character(stream))
-    stream = rawFDOstream(stream)
+  if(is.character(stream)) {
+    if(length(stream) && !is(stream, "AsIs"))
+       stream = rawFDOstream(stream)
+    else
+       stream = rawStringOstream(stream)
+  }
 
   ans = .Call("R_new_formatted_raw_ostream", stream, as.logical(delete))
 
@@ -23,15 +27,17 @@ function(stream, delete = FALSE, finalize = TRUE)
   ans
 }
 
-stringRawOstream =
+rawStringOstream =
 function(value = "")
 {
    .Call("R_new_raw_string_ostream", as.character(value))
 }
 
 setAs("raw_string_ostream", "character",
-        function(from)
-          .Call("R_raw_string_ostream_str", from))
+        function(from) {
+          flush(stream)
+          .Call("R_raw_string_ostream_str", from)
+        })
 
 
 flush.formatted_raw_ostream =

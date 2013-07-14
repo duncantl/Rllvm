@@ -22,18 +22,19 @@ setGeneric("Optimize",
                 standardGeneric("Optimize"))
 
 setMethod("Optimize",   "Module",
-          function(obj, execEngine = NULL, ...)
+          function(obj, execEngine = NULL, mgr = getPassManager(obj, execEngine, level), level = 3L...)
           {
                # should we run optimize on the module. Could it do better in the larger context.
             fun = getModuleFunctions(obj)
-            mgr = getPassManager(obj, execEngine)
             lapply(fun, Optimize, mgr)
+            
             TRUE
           })
 
 setMethod("Optimize",
             c("Function"), # "FunctionPassManager"),  # the llvm Function object
-            function(obj, passManager = getPassManager(getModule(obj)), ...) {
+            function(obj, execEngine = ExecutionEngine(as(obj, "Module")),
+                      passManager = getPassManager(getModule(obj), execEngine, level = level), level = 3L, ...) {
               .Call("R_optimizeFunction", obj, passManager)
             })
 

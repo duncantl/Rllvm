@@ -6,7 +6,7 @@ R_new_raw_string_ostream(SEXP r_str)
 {
     std::string *str;
     if(TYPEOF(r_str) == STRSXP)
-        str = new std::string(CHAR(STRING_ELT(r_str, 0)));
+        str = new std::string(Rf_length(r_str) ? CHAR(STRING_ELT(r_str, 0)) : "");
     else
         str = (std::string *) getRReference(r_str);
 
