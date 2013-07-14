@@ -43,7 +43,7 @@ addPass(pm, dataLayout)
 #out = .Call("R_new_raw_string_ostream", "")
 #stream = rawFDOstream("/tmp/foo.ptx")
 
-stream = stringRawOstream()
+stream = rawStringOstream()
 out = formattedRawOstream(stream)
 
 if(addPassesToEmitFile(machine, pm, out, 0L))
@@ -54,7 +54,7 @@ run(pm, m)
  # Garbage collect out so that the buffer is flushed
 #rm(out); gc()
 #.Call("R_flush_formatted_raw_ostream", out)
-flush(out)
+#flush(out)
 code = as(stream, "character")
 print(nchar(code))
 
