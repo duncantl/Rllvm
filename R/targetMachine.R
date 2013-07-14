@@ -7,6 +7,9 @@ function(machine, passManager)
 addPassesToEmitFile =
 function(machine, passManager, outStream, fileType = 0L)
 {
-  .Call("R_TargetMachine_addPassesToEmitFile", machine, passManager, outStream, as.integer(fileType))
+ ans = .Call("R_TargetMachine_addPassesToEmitFile", machine, passManager, outStream, as.integer(fileType))
+ if(ans)
+    stop("failed in addPassesToEmitFile.  Is this type of file supported by the manager?")
+ ans
 }
 

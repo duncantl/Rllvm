@@ -1,5 +1,12 @@
 library(RCIndex)
 
+TypeMap = list('llvm::Twine' = list(convertRValue = function(var, rvar, ..., type, typeMap = NULL) { sprintf("%s = makeTwine(%s);", var, rvar)}),
+               'llvm::StringRef' = list(convertRValue = function(var, rvar, ..., type, typeMap = NULL){
+                  sprintf("var = llvm::StringRef(CHAR(STRING_ELT(%s, 0)));", var, rvar)
+               })
+              )
+
+
 # The -xc++ is critical to get c++ parsing and the header files.
 # Otherwise get errors about not finding cstddef.
 #
@@ -26,16 +33,24 @@ o$Module
 }
 
 mod.class = readCppClass(llvm$Module)
-
 irbuilder.class = readCppClass(llvm$IRBuilder)
+
+
 
 enums = getEnums(tu)
 
 
+# Could do this directly with
+#cc = getEnums("~/llvm-devel/include/llvm/IR/CallingConv.h", args = "-xc++")
+#cat(makeEnumClass(cc$ID, "CallingConv"), sep = "\n", file = "../../R/CallingConvEnum.R")
+
+cat(makeEnumClass(enums$ID, "CallingConv"), sep = "\n", file = "../../R/CallingConvEnum.R")
 
 
-cc = getEnums("~/llvm-devel/include/llvm/IR/CallingConv.h", args = "-xc++")
-cat(makeEnumClass(cc$ID, "CallingConv"), sep = "\n", file = "../../R/CallingConvEnum.R")
+
+triple = readCppClass(llvm$Triple)
+m = createCppMethod(triple@methods$normalize, typeMap = TypeMap)
+
 
 #klasses = getCppClasses(tu)
 

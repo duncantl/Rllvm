@@ -89,24 +89,42 @@ strategies for compiling \R{} code to \Rpkg{RLLVMCompile}.
 
 \section{Overview and Motivation}\label{sec:Introduction}
 
-The potential readers of this paper are people who are interested in
+High-level languages such as \R{} generally improve human efficiency
+in writing code, but suffer from slower performance of the code
+relative to low-level compiled/native code.  The ideal situation is to
+be able to develop code in a high-level, interpreted/dynamic language
+but to convert that code into native machine code that executes very
+quickly. There are several different projects exploring approaches to
+compiling \R{} code, most of them using just-in-time compilation
+within the interpreter.  In this paper, we'll explore low-level
+\R-level tools that allow us to generate native code directly within
+\R.  This allows us to develop compilation strategies within \R{} for
+\R{} code or any other language.  We describe the \Rpkg{Rllvm} package
+which is an interface to the Low-level Virtual Machine (\llvm).
+\llvm{} is a compiler toolkit, that is a \Cpp{} library that allows us
+to build compilers for arbitrary languages.
+
+
+The target readers of this paper are people who are interested in
 exploring how to create machine code directly within R for either
-compiling R code or for developing domain specific languages in R.
-We are using this to compile simple functions in R for speed 
-and also to get them to run on the GPU to take advantage 
-of massively parallel architectures.
+compiling R code or for developing domain specific languages in R.  We
+are using this to compile simple functions in R for speed and also to
+get them to run on the GPU to take advantage of massively parallel
+architectures.
 
 This is more of a manual about how to program with the
-\Rpkg{Rllvm}~\cite{bib:Rllvm} package than what we can do with it our
-how we compile \R{}~\cite{bib:R} code.  We will explain some of this
-using example code from the \Rpkg{RLLVMCompile}~\cite{bib:RLLVMCompile} package. However, this
-is not a paper that describes that package and its compilation
-approach.
+\Rpkg{Rllvm}~\cite{bib:Rllvm} package and how to generate native code
+in \R.  We do not focus on how to compile arbitrary \R{} code.  We
+leave that to a paper on the
+\Rpkg{RLLVMCompile}~\cite{bib:RLLVMCompile} package.  In this paper,
+we will use examples that compile \R{} code, but the intent is to
+illustrate \Rpkg{Rllvm}.
 
 In many respects, this article is an overview of what the \llvm~\cite{bib:llvm}
 API provides for applications which use it. We describe the concepts,
 classes and methods in that API, but in terms of how we manipulate these
 in \R.
+We'll show how to create
 
 We will show how we can call existing \C{} routines using a
 combination of \RClang{} and \Rllvm.  We also show how we can compile
@@ -121,7 +139,7 @@ and so think of the high-level code as a template.
 (This is done for the sort routine in C code in qsort.c by redefining the
 type NUMERIC.
 
-Show how to make code use multiple cores directly, with shared data?
+%Show how to make code use multiple cores directly, with shared data?
 
 Some readers may say the examples are unrealistic as \R{} already has
 fast code to implement, e.g., \Rfunc{sum} and so on.  The point is not
@@ -139,14 +157,28 @@ efficiency by experimenting with different compilation strategies,
 either for \R{} code or other domain specific languages (DSLs) within
 R.
 
+
+\begin{comment}
 We'll use examples from the ``Writing R extensions manual'' also used
 in the \Rpkg{Rcpp}~\cite{bib:Rcpp} package to facilitate comparison.
+\end{comment}
 
 
 The focus of the paper is generating native code in \R{} using \llvm.
 However, before we do this, we have to understand the essential
-concepts of \llvm.  Therefore, we start by exploring \llvm{} by
-working with previously generated code. %We will see how we can We may
+elements and concepts of \llvm.  Therefore, we start by exploring
+\llvm{} by working with previously generated code that is available in
+\llvm's intermediate representation (IR) form.  We then turn our focus
+to generating code in \ref{sec:GeneratingCode}.  This provides an
+overview of the basic functionality and classes.  In
+\ref{sec:Examples}, we illustrate all of these concepts in an example
+to create a native version of the Normal density function.
+We follow this with a description some additional functionality
+in \Rpkg{Rllvm}.
+
+
+
+%We will see how we can We may
 %not regulary need all of these tools for querying \llvm{} objects when
 %we generate code, but they allow us to 
 
@@ -482,8 +514,8 @@ with \Rfunc{setInsertPoint}.%XXX make this so.
 
 % Constants
 
-\subsection{Creating Instructions}
-There are many 
+%\subsection{Creating Instructions}
+
 
 
 \subsection{Branching}
@@ -493,76 +525,159 @@ and that it must be a return or a branch to another block.  We create
 a branch with \Rfunc{createBranch}, passing it the \Rclass{IRBuilder}
 and the block to which we want to jump. This adds the branch
 instruction at the end of the current block in the \Rclass{IRBuilder}.
+In many cases, we use a conditional branch.
+This takes a condition value and two blocks.
+If the condition evaluates to true when the instructions are
+evaluated,
+the code jumps to the first block. Otherwise, control is transferred to the second block.
+We create this with \Rfunc{createCondBranch}.
 
 
 \subsection{Intermediate Representation and viewing the code}
 % Seen this above
+When we have a module, either by reading it from a file or creating it
+and its contents ourselves as we'll see below, we can query it in
+different ways.  We have seen how to find the names of the routines or
+non-local variables it contains with a \Rfunc{names} method.
+We also saw how to access routines so that we could invoke them.
+We can also see the IR code in the module with \Rfunc{showModule}.
+This displays the entire contents of the module -- all its routines,
+their blocks and individual instructions and also any metadata in
+the module.
 
-\Rfunc{showModule}
-
-write code to file.
-read it into R.
-
-\Rfunc{verifyModule}
+It is useful to be able to validate a module and ensure that the code
+is valid.  The function \Rfunc{verifyModule} does this
+and returns \Rtrue{} if the code is valid.
 
 %\section{Verifying the generated code}
 
 
 
-\section[Connecting LLVM and existing native routines]{Connecting \llvm{} and existing native routines}
+% See below.
+%\section[Connecting LLVM and existing native routines]{Connecting \llvm{} and existing native routines}
 % Registering native symbols.
 
-\subsection{Optimization}
-Passes, pass manager
+\subsection{Optimizing code}
+%Passes, pass manager
+Before we invoke any of the generated routines, we have to compile
+them. This happens automatically when we call \Rfunc{.llvm} or
+\Rfunc{run}.  However, we can explicitly compile the routines in a
+module.  The function \Rfunc{Optimize} compiles the code.  We can
+compile an individual routine (\Rfunc{Function}) or we can compile the
+entire module.  It is advisable to create the execution engine with
+which you will invoke the routines and to explicitly provide
+this when calling \Rfunc{Optimize}.
+We can also specify the compilation level to control
+how much optimization is performed.
+
 
 
 
 \subsection{Global Variables}
-
-%clone the module, create new ones with different execution engines.
-
-\section[General LLVM functionality]{General \llvm{} functionality}
-
-In addition to the specific functions for generating code,
-there are some simple functions in \Rllvm{} that
-allow us to control the \llvm{} and also find the
-version information.
-We can determine the version of the \llvm{} libraries
-with which the \R{} package is compiled with
+We can create global, or more precisely, module-level 
+variables with \Rfunc{createGlobalVariable}.
+We specify the name of the variable, the module in which it is
+to be located and the type.
+We can also specify the intial value for the variable.
+(The type is taken from this initial value if the \Rarg{type}
+parameter is not specified in the call.)
+For example, to create an integer variable named \Cvar{counter}
+and a character array with $1000$ elements named \Cvar{line},
+we could use
 \begin{RCode}
-llvmVersion()  
+mod = Module()
+createGlobalVariable('counter', mod, type = Int32Type, 
+                      val = createIntegerConstant(0L))
+createGlobalVariable('line', mod, val = string(1000))
 \end{RCode}
-This can be important to determine what features are available
-and what forms of code we can read.
-
-
-We can also determine the different targets 
-for which we can generate  code via the \Rfunc{getLLVMTargets}
-function. This information is determined at installation time
-and returned as a character vector  via 
+We can also use element assignment as if the 
+\Rclass{Module} was a list and use something like
 \begin{RCode}
-getLLVMTargets()
+mod[['counter']] = 0L
 \end{RCode}
-\begin{ROutput}
- [1] "X86"        "Sparc"      "PowerPC"    "ARM"        "Mips"      
- [6] "CellSPU"    "XCore"      "MSP430"     "CppBackend" "MBlaze"    
-[11] "NVPTX"      "Hexagon"     
-\end{ROutput}
-Here we see that we can generate code for various different CPUs
-and also \Cpp{} and \code{PTX} code for  Nividia GPUs (Graphics
-Processor Units).
+This is merely syntactic convenience. Note
+that \Rfunc{createGlobalVariable} inferred the type
 
-Other general top-level functions include 
-shutdown, start/stop multi-threaded.
+We can specify the intial value of an existing 
+global variable with  \Rfunc{setInitializer}.
+This allows us to create the variable in one command
+and intialize it in a separate command.
+For example,
+\begin{RCode}
+var = createGlobalVariable("bob", mod, Int32Type)
+setInitializer(var, 2L)
+\end{RCode}
 
-\section{Examples and Case Studies}
+Note that if we create a global variable with the name of an existing
+variable in the \Rclass{Module}, \llvm{} will modify the name of the
+new variable (by adding a number to it).  This doesn't really affect
+us as we won't refer to the variable by name in our code. Instead, we
+use the object returned by \Rfunc{createGlobalVariable}.
+
+
+We can retrieve a reference to a global variable with
+\Rfunc{getGlobalVariable} or with the \Rop{[[} syntax, e.g.
+\begin{RCode}
+getGlobalVariable(mod, "counter")
+mod[['counter']]
+\end{RCode}
+This is actually a reference or pointer to the integer.
+We can verify this with
+\begin{RCode}
+getType(mod[["counter"]])
+\end{RCode}
+which yields a \texttt{PointerTyID} type.
+
+If we want the actual value of the global variable, 
+we can use \Rfunc{getGlobalValue} on the reference
+returned by \Rfunc{getGlobalVariable}.
+Alternatively, we can use
+\begin{RCode}
+mod[['counter', value = TRUE]]
+\end{RCode}
+In both cases, we need an \Rclass{ExecutionEngine} object 
+in which to interpret the module and the global variables.
+The subset method will provide a default value, if necessary,
+but this is expensive.
+We can provide an engine in the call as
+\begin{RCode}
+mod[['counter', value = TRUE, ee = engine]]
+\end{RCode}
+where \Rvar{engine} is an \Rclass{ExecutionEngine} object.
+
+Note that \Rop{\$} is used to retrieve routines from a \Rclass{Module}
+which \Rop{[[} used for accessing variables.
+%$
+
+It can be important to understand that a global variable in a
+\Rclass{Module} needs to be instantiated within a particular
+\Rclass{ExecutionEngine}.  If we access a global variable without an
+explicit \Rclass{ExecutionEngine}, \Rpkg{Rllvm} will create a new
+instance of the global variable and then discard it.  This can be
+confusing. However, it can also be useful.  It provides a way for us
+to create closures in compiled code without using fully global
+variables.  We can create a \Rclass{Module} which has one more
+routines that access shared non-local variables that are in the
+\Rclass{Module}.  We can then create separate instances of that
+\Rclass{Module} each with a different \Rclass{ExecutionEngine}.  Each
+\Rclass{ExecutionEngine} will have duplicate code, but each will have
+its own separate copy of the non-local variables.  This allows them to
+operate independently of each other but still maintain state across
+calls within a module.
+
+%\section{Examples and Case Studies}
 
 \input{../explorations/dnorm}
 
 
 \section{Linking to other routines}
 In generating an \llvm{} routine, we sometimes call another routine
-that is available in a library or \R{} itself. In order for \llvm{} to
+that is available in a library or \R{} itself. 
+To make a call to this routine, we first have to provide \llvm{}
+with the signature of the routine.
+We can use \Rfunc{declareFuncion}
+
+In order for \llvm{} to
 be able to access this routine, we have to provide it with the address
 of the routine.  We do this with \Cfunc{llvmAddSymbol}.  We can pass
 it either the name of the external routine or we can explicitly
@@ -873,12 +988,16 @@ and a \Rclass{BasicBlock}'s parent \Rclass{Module}.
 
 
 \section[Querying LLVM]{Querying \llvm}
-It is sometimes useful to be able to query and deploy aspects
-of the \llvm{} API itself.
-For instance,  we can determine the version with 
-\Rfunc{llvmVersion}.
+It is sometimes useful to be able to query and deploy aspects of the
+\llvm{} API itself.  For instance, we can determine the version with
+\Rfunc{llvmVersion}.  This can be important to determine what features
+are available and what forms of code we can read.
+
+
 We can also determine which backend-targets were enabled
-when the \llvm{} distribution was compiled and installed.
+when the \llvm{} distribution was compiled and installed
+and for which we can generate  code via the \Rfunc{getLLVMTargets}
+function.
 We do this with \Rfunc{getLLVMTargets}, which returns 
 a character vector naming the different targets, e.g.
 \begin{ROutput}
@@ -886,9 +1005,138 @@ a character vector naming the different targets, e.g.
  [5] "ARM"        "Mips"       "XCore"      "MSP430"    
  [9] "CppBackend" "MBlaze"     "NVPTX"      "Hexagon"  
 \end{ROutput}
+Here we see that we can generate code for various different CPUs
+and also \Cpp{} and \code{PTX} code for  Nividia GPUs (Graphics
+Processor Units).
 We can enable any of these backends with a call to 
 \Rfunc{Initialize*Target} where \texttt{*} is replaced
 with the name of the target, e.g. \texttt{NVPTX}.
+
+%Other general top-level functions include shutdown, start/stop multi-threaded.
+
+
+
+
+\section{Generating code for different backends}
+Up to this point, we have described generating routines
+that we can then invoke on the same machine, even in the
+same \R{} session.
+As we saw in the previous section, however, \llvm{}
+has support for different targets or back-ends.
+We can generate  code for these different targets.
+The basic mechanism is the same for the different targets.
+For example, we might compile a routine to run on a GPU.
+The target here is \code{NVPTX} - the NVIDA Parallel Thread Execution.
+
+To generate code for a backend, we start with a \Rclass{Module} containing the code we generated
+to define our routines and any global variables.
+We first initialize our target. For NVPTX, we call 
+\Rfunc{InitializeNVPTXTarget}.
+
+To generate the code for this target, we need to create
+an object that knows about this target. This is a combination
+of an architecture, environment, operating system, etc.
+Some of these are described by what is called a \Rclass{Triple}.
+We get the target triple object via 
+\begin{RCode}
+tri = getDefaultTargetTriple() 
+\end{RCode}
+Next, we combine the triple and the architecture to 
+get the target object:
+\begin{RCode}
+trgt = lookupTarget(tri, 'nvptx64')
+\end{RCode}
+This returns an object of class \Rclass{Target}.  This is an abstract
+layer that provides methods/routines specific to this particular
+architecture and triple for constructing objects that will create the
+code.  We use this to create what \llvm{} terms a
+\Rclass{TargetMachine}.
+We call \Rfunc{createTargetMachine} for this,
+passing it the \Rclass{Target}, the triple and
+and string identifying the type of processor (i.e. CPU).
+In the case of a GPU, different processors have different
+capabilities and we need to tell the code generator 
+which capabilities we have. We'll use \texttt{sm_20}
+to indicate 
+\begin{RCode}
+machine = createTargetMachine(trgt, tri, "sm_20") 
+\end{RCode}
+
+
+Onece we have the abstract target machine object, 
+we create a \Rclass{PassManager} which will generate the
+code for our target.
+We call the \Rfunc{PassManager} function to create an instance
+of this pass manager, passing it the module we want to compile.
+We add three different \Rclass{Pass} steps.
+The first provides information about what library routines
+are available for this target.
+We create this library information description for the target with
+\Rfunc{targetLibraryInfo}, passing it the target triple.
+We then add it to the pass manager. The two steps are 
+\begin{RCode}
+trgtLibInfo = targetLibraryInfo(tri)
+addPass(pm, trgtLibInfo)
+\end{RCode}
+
+Next we add a a sequence of passes that analyze the code.
+\begin{RCode}
+addAnalysisPasses(machine, pm)
+\end{RCode}
+
+The final pass we add describes the
+data layout characteristics of the target machine.
+We retrieve the data layout from the target machine and
+then call \Rfunc{addPass}
+\begin{RCode}
+dataLayout = getDataLayout(machine)
+addPass(pm, dataLayout)
+\end{RCode}
+
+
+Before we run these passes on our module, we want to also tell the
+pass manager where to write the code.  We can write to either a file
+or to memory by creating different types of streams.  The function
+\Rfunc{rawFDOstream} creates a stream to write to a file.
+Alternatively, we create an in-memory stream with
+\Rfunc{rawStringOstream}. 
+Regardless of the type of stream, we create a higher-level
+stream that formats the generated code. 
+We call \Rfunc{formattedRawOstream} with our lower-level raw stream.
+Once we have the formatted stream, we call
+\Rfunc{addPassesToEmitFile} to have the pass manager write the code
+this stream.
+So the sequence of calls is similar to 
+\begin{RCode}
+stream = rawStringOstream()
+fstream = formattedRawOstream(stream)
+status = addPassesToEmitFile(machine, pm, fstream, 0L)
+\end{RCode}
+Note that we explicitly create the in-memory stream and assign it to
+an \R{} variable. This allow us to retrieve the generated code later.
+If we are writing to a file, we can create the stream without
+assigning it to an \R{} variable as the code will be written directly
+to that file.
+Regardless of the type of stream, it is (currently) important to explicitly
+assign the formatted stream to a variable so that it is not garbage
+collected until after the code has been generated.
+
+We now have specified the entire sequence of passes.  We can apply
+them to the code by calling the \Rfunc{run} method for the
+\Rclass{PassManager} and \Rclass{module}:
+\begin{RCode}
+run(pm, m)
+\end{RCode}
+
+Assuming there are no errors when applying the passes, 
+we can access the generated code from our in-memory stream
+with 
+\begin{RCode}
+as(stream, 'character')
+\end{RCode}
+If we are writing to a file, it is important to call
+\Rfunc{flush} on the stream or to implictly call \Rfunc{flush}
+by garbage collecting the formatted stream (\Rvar{fstream} above).
 
 
 % Sharing code with other systems.

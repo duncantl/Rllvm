@@ -30,7 +30,8 @@ function(id, mod, type = getType(val), val = NULL, # guessType(val),
           type = arrayType(getIntegerType(8L, getContext(mod)), nchar(txt) + 1L)  # getType(val) ??
           alignment = 1L
        }
-    }
+     } else if(is(val, "numeric"))
+         val = createConstant(, val, type, getContext(mod))
 
     if(!is(val, "Constant"))
       stop("val must be an object of class Constant")
@@ -63,7 +64,12 @@ function(val)
 setInitializer =
 function(var, value)
 {
-  if(!is(value, "Constant"))
+  if(!is(value, "Constant"))  {
+    type = getElementType(getType(var))
+    value = createConstant(, value, type, context = getContext(as(var, "Module")))
+  }
+  
+  if(!is(value, "Constant")) 
     stop("Need a Constant value")
 
   if(!is(var, "GlobalVariable"))

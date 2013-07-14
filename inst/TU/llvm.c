@@ -45,9 +45,13 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/CallingConv.h>
 
+#include <llvm/ADT/Triple.h>
+
 #include <algorithm>
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
+
+#include <llvm/IR/CallingConv.h>
 
 #endif
 
@@ -55,6 +59,7 @@
 llvm::Module *m;
 llvm::BasicBlock *bl;
 llvm::IRBuilder<> *b;
-llvm::FunctionPassManager *mgr;
+llvm::FunctionPassManager *fmgr;
+llvm::PassManager *mgr;
 llvm::ExecutionEngine *eng;
 
