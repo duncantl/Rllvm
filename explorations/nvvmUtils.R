@@ -1,4 +1,7 @@
 fixPTXCodeForNVVM =
+  # This removes the attributes with the id #0
+  # which appear for the declared routines corresponding
+  # to the PTXRegister accessor intrinsics.
 function(code) 
 {
   k = strsplit(code, "\\n")[[1]]
@@ -10,10 +13,14 @@ function(code)
 # Some of the routines we can call in our code that access the thread, block, grid
 # indices and dimensions.
 PTXRegisterRoutineNames = 
- c("llvm.nvvm.read.ptx.sreg.ctaid.x",
-   "llvm.nvvm.read.ptx.sreg.ntid.x",
-   "llvm.nvvm.read.ptx.sreg.tid.x",
-   "llvm.ptx.read.nctaid.x")
+ c(blockIdx = "llvm.nvvm.read.ptx.sreg.ctaid",
+   blockDim = "llvm.nvvm.read.ptx.sreg.ntid",
+   threadIdx = "llvm.nvvm.read.ptx.sreg.tid",
+   gridDim = "llvm.ptx.read.nctaid")
+
+PTXRegisterRoutineNames =
+  structure(as(t(outer(PTXRegisterRoutineNames, c("x", "y", "z"), paste, sep = ".")), "character"),
+            names = t(outer(names(PTXRegisterRoutineNames), c("x", "y", "z"), paste, sep = ".")))
 
 PTXRegisterRoutines = NULL
 
@@ -33,9 +40,9 @@ function (id = Sys.time(), context = NULL, registerFuns = PTXRegisterRoutineName
 
 registerPTXRoutines =
 function(module, dimFunNames = PTXRegisterRoutineNames)
-{ 
+{
   PTXRegisterRoutines <<- structure(lapply(dimFunNames,
-                    function(id) {
-                        Function(id, Int32Type, module = module)
-                    }), names = dimFunNames)
+                                           function(id) {
+                                            Function(id, Int32Type, module = module)
+                                           }), names = dimFunNames)
 }

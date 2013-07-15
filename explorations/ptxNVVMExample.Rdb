@@ -1,0 +1,284 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:c="http://www.C.org"
+	 xmlns:omg="http://www.omegahat.org">
+
+<articleinfo>
+
+<title>Compiling GPU Kernels in <r/>
+<subtitle><omg:pkg>Rllvm</omg:pkg>,  <omg:pkg>Rnvvm</omg:pkg> and <omg:pkg>RCUDA</omg:pkg></subtitle>
+</title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+
+<para>
+The idea here is to create a very, very simple kernel to run on a GPU.
+We do this by creating individual instructions using
+<omg:pkg>Rllvm</omg:pkg>.  When we have defined the routine, we use
+the <lib>nvvm</lib> library via the <omg:pkg>Rnvvm</omg:pkg> package
+to transform the <llvm/> IR code to PTX code.  We can then load this
+PTX code into the <r/> session using the <omg:pkg>RCUDA</omg:pkg>
+package and invoke the kernel.  This simple example illustrates all of
+the steps we need to compile more complex <r/> code as GPU kernels
+that we can then run directly from the <r/> session.
+</para>
+
+
+<note><para> <lib>nvvm</lib> is available in the current release
+candidate version of the CUDA SDK, namely 5.5.
+<omg:pkg>Rllvm</omg:pkg>, <omg:pkg>RCUDA</omg:pkg> and
+<omg:pkg>Rnvvm</omg:pkg> are available from github and also the
+Omegahat repository.
+</para>
+</note>
+
+
+<section>
+<title>Generating the <llvm/> IR code</title>
+
+<para>
+We start by creating the <llvm/> instructions
+to define our kernel. 
+The kernel we want to implement is intentionally 
+very, very simple and corresponds to the CUDA code
+<c:code><![CDATA[
+void kern(int N, int *out)
+{
+   int idx = blockIdx.x * blockDim.x + threadIdx.x;
+   if(idx < N)
+     out[idx] = i;
+}
+]]></c:code>
+This takes an array of integer values and 
+each thread sets its (idx) element to <c:var>idx</c:var>
+and we end up with 0, 1, 2, ...., N - 1 in <c:var>out</c:var>.
+</para>
+
+<para>
+We could create the IR code by hand or generate this <c/> code
+and compile it. However, we want  to illustrate how to do this generally
+and  be able to compile <r/>-like code to a kernel. For this, 
+we use <omg:pkg>Rllvm</omg:pkg>.
+We load that library and also  some simple utility functions
+that will simplify our code generation and are generic
+for <llvm/> <r:class>Function</r:class>s that we will convert
+to PTX via <lib>nvvm</lib>.
+<r:code>
+library(Rllvm)
+source("nvvmUtils.R")
+</r:code>
+</para>
+<para>
+We can now start to create our kernel.
+We create a <r:class>Module</r:class>.
+Since we know we are targetting PTX code and <lib>nvvm</lib>,
+we call <r:func>ModuleForNVVM</r:func> to create an
+enhanced <r:class>Module</r:class>:
+<r:code>
+m = ModuleForNVVM("ptx kernel")
+</r:code>
+This function sets the data layout string on the module and also
+registers the special PTX register accessor routines so that we can
+use them in our code.  These are the routines that correspond to
+accessing the x, y, z components of <c:var>threadIdx</c:var>,
+<c:var>blockIdx</c:var>, <c:var>gridIdx</c:var>,
+<c:var>blockDim</c:var>, <c:var>gridDim</c:var>
+</para>
+
+<para>
+With the module created, we define our new <r:func>Function</r:func>
+which will become or GPU kernel.
+<r:code>
+fun = simpleFunction("kern", VoidType, n = Int32Type, out = Int32PtrType, mod = m)
+ir = fun$ir
+localVars = fun$vars
+fun = fun$fun
+</r:code>
+We have used <r:func>simpleFunction</r:func>
+in order to simplify creating the 
+<r:class>IRBuilder</r:class>, the
+initial <r:class>BasicBlock</r:class> and
+also to create local variables corresponding to the parameters.
+We could use <r:func>Function</r:func> directly.
+
+</para>
+<para>
+In order to be able to use this routine as a GPU kernel,
+we need to indicate that it is a kernel and not a device
+or host routine. We do this by
+adding metadata to the module that identifies this 
+as a kernel. 
+We do this with
+<r:code>
+  # declare that this is a PTX kernel
+setMetadata(m, "nvvm.annotations", list(fun, "kernel", 1L))
+</r:code>
+We can define multiple kernels in the same module.
+See <ulink url="http://llvm.org/docs/NVPTXUsage.html"/> for more information.
+
+</para>
+<para>
+We can now focus on implementing the routine.
+The first step is to create
+<c:code>
+   int idx = blockIdx.x * blockDim.x + threadIdx.x;
+</c:code>
+The idea is that we will compute the index for this thread
+and put that in a local variable <c:var>idx</c:var>.
+We create the right-hand side
+<r:code>
+blockId = ir$createCall(PTXRegisterRoutines[["llvm.nvvm.read.ptx.sreg.ctaid.x"]])
+blockDim = ir$createCall(PTXRegisterRoutines[["llvm.nvvm.read.ptx.sreg.ntid.x"]])
+mul = ir$binOp(Mul, blockId, blockDim)
+threadId = ir$createCall(PTXRegisterRoutines[["llvm.nvvm.read.ptx.sreg.tid.x"]])
+idx = ir$binOp(Add, mul, threadId)
+</r:code>
+The important aspect of this is that we are accessing
+<c:var>threadIdx.x</c:var>, for example, via
+the <r:var>PTXRegisterRoutines</r:var> and the oddly named elements
+<r:el>llvm.nvvm.read.ptx.sreg.tid.x</r:el>.
+When we build a compiler  for creating GPU kernels, 
+we'll allow the code to use <r:expr>threadIdx$x</r:expr> and
+map these expressions to calls to the corresponding register routine.
+
+</para>
+<para>
+We can now create the local variable and initialize
+it with the value of the right-hand side:
+<r:code>
+i = ir$createLocalVariable(Int32Type, "idx")
+ir$createStore(idx, i)
+</r:code>
+Note that we are using the term idx in different ways here.
+In the first expression, we are using it as the name 
+in the <llvm/> code. In the second expression, 
+we are referring to the <r/> variable assigned in the
+previous block of code that contains the addition of the two terms.
+</para>
+
+<para>
+Our next step is to check if the value of <c:var>idx</c:var>
+is less than our parameter <c:arg>N</c:arg>.
+To do this, we need to create different blocks and conditionally
+branch to the appropriate block.
+One block will assign the value to the appropriate element in  our array
+and jump to the end.
+The other block will simply exit the kernel routine.
+We create these blocks and the condition branch with 
+<r:code>
+set = Block(fun, "set")
+end = Block(fun, "return")
+
+cond = ir$createICmp(ICMP_SLT, i, localVars$n)
+ir$createCondBr(cond, set, end)
+</r:code>
+</para>
+
+<para>
+We now implement the block that assigns the
+value to the array.
+We ensure we are adding code to this block and then use
+a GEP instruction to access the relevant element of the array.
+<q>We need this assignment to be in the global address space (1), not local.
+libNVVM takes care of this for us. We might be able to do this directly
+without <lib>nvvm</lib>. But for now, <omg:pkg>Rnvvm</omg:pkg> does it</q>
+<r:code>
+ir$setInsertBlock(set)
+gep = ir$createGEP(ir$createLoad(localVars$out), ir$createSExt(ir$createLoad(i), 64L))
+ir$createStore(ir$createLoad(i), gep)
+ir$createBr(end)
+</r:code>
+The final command branches to the final block.
+We could have, alternatively, added an explicit return here.
+</para>
+
+<para>
+We can finish the code by adding a simple return 
+to the final block:
+<r:code>
+ir$setInsertBlock(end)
+ir$createReturn()
+</r:code>
+</para>
+<para>
+It is always a good idea to verify that the code in the module
+is valid:
+<r:code>
+verifyModule(m)
+</r:code>
+</para>
+
+</section>
+<section>
+<title>Converting the IR code to PTX</title>
+
+<para>
+The next step in getting the code onto the GPU
+is to convert the IR code to PTX code.
+We can do this directly with <llvm/>.
+(See <file>llvmPTXUtils.R</file> in this directory.)
+However, <lib>nvvm</lib> does additional processing that
+gets the code above to work.
+We can use <lib>nvvm</lib> in <r/> via the
+<omg:pkg>Rnvvm</omg:pkg> package.
+We get the IR code as a string 
+and fix it up to remove <llvm/>
+attributes that <lib>nvvm</lib> doesn't currently understand.
+(This may be due to  different versions of the <llvm/> IR format.)
+To convert the code, we use <r:func>generatePTX</r:func>:
+<r:code>
+library(Rnvvm)
+code = showModule(m, TRUE)
+code = fixPTXCodeForNVVM(code)
+ptx = generatePTX(code, isFile = FALSE)
+</r:code>
+The <r:func>generatePTX</r:func> function in the <omg:pkg>Rnvvm</omg:pkg>
+is a high-level function that uses the lower-level
+routines in the <lib>nvvm</lib> API.
+The result is a string containing the entire PTX code corresponding
+to our <llvm/> module. We now have what we need to load onto the GPU.
+</para>
+</section>
+<section>
+<title>Using the kernel on the GPU</title>
+<para>
+The final step is to load the PTX code and
+invoke it from <r/>.
+For this, we use the <omg:pkg>RCUDA</omg:pkg> package
+and <r:func>cuModuleLoadDataEx</r:func>
+<r:code>
+library(RCUDA)
+cuda.mod = cuModuleLoadDataEx(ptx)
+</r:code>
+</para>
+
+<para>
+We can now  invoke the kernel, passing it an array of integers
+and the number of elements it contains.
+We'll pass an <r/> vector  that has fewer  elements 
+than the number of GPU threads we run.
+This will exercise the condition in our code.
+We'll run 32 x 32 threads. We'll pass a vector
+with 100 fewer elements:
+<r:code>
+n = 32^2
+N = as.integer(n - 100L)
+</r:code>
+We invoke this with 
+<r:code>
+out = .gpu(cuda.mod$kern, N, ans = integer(N), outputs = "ans", gridDim = 1L, blockDim = c(32^2))
+</r:code>
+We test the result is as we expect with
+<r:test>
+stopifnot(identical(out, (1:N) - 1L))
+</r:test>
+</para>
+</section>
+</article>
