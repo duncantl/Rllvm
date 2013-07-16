@@ -23,7 +23,9 @@ The idea here is to create a very, very simple kernel to run on a GPU.
 We do this by creating individual instructions using
 <omg:pkg>Rllvm</omg:pkg>.  When we have defined the routine, we use
 the <lib>nvvm</lib> library via the <omg:pkg>Rnvvm</omg:pkg> package
-to transform the <llvm/> IR code to PTX code.  We can then load this
+to transform the <llvm/> IR code to PTX code. 
+We can also generate the PTX code directly within <llvm/>.
+We can then load this
 PTX code into the <r/> session using the <omg:pkg>RCUDA</omg:pkg>
 package and invoke the kernel.  This simple example illustrates all of
 the steps we need to compile more complex <r/> code as GPU kernels
@@ -53,7 +55,7 @@ void kern(int N, int *out)
 {
    int idx = blockIdx.x * blockDim.x + threadIdx.x;
    if(idx < N)
-     out[idx] = i;
+     out[idx] = idx;
 }
 ]]></c:code>
 This takes an array of integer values and 
@@ -286,19 +288,135 @@ stopifnot(identical(out, (1:N) - 1L))
 <section>
 <title>An alternative approach</title>
 <para>
-Instead of using <lib>NVVM</lib>, we can 
-directly create the PTX code via <llvm/> itself.
-We can have <llvm/> use a different backend
+We experienced a problem with <lib>NVVM</lib> when converting particular IR code
+to PTX. The problem manifested itself as 
+<r:error>
+Error: R_auto_nvvmCompileProgram NVVM_ERROR_COMPILATION ( NVVM_ERROR_COMPILATION )
+(0) Error: unsupported operation
+</r:error>
+We haven't fully explored the reason for the problem, but by
+experimenting with changes in the code, it appears the problem comes
+from computing potentially large indices from the thread, block, grid
+dimensions and indices to index an array. If we reduce the
+computations by removing a multiplicative term in the index, the code
+appears to work.  So this lead us to also pursue our original strategy
+which is to use <llvm/> to generate the PTX code from the IR code.
 </para>
+
+<para>
+
+<llvm/> provides several backends for which we can generate code from
+the common IR code.  There are different backends for different
+processor types.  There is also a backend for generating the <cpp/>
+code that can be used to create the IR code again.  (This is
+equivalent to the <r/> code we use to generate the IR.)  Another
+backend is NVPTX, or Nividia PTX.  Basically, given an <llvm/>
+<r:class>Module</r:class>, there are a series of steps in <llvm/> that
+allow us to emit the PTX code for that <r:class>Module</r:class> as a
+string. To facilitate switching between  using this approach or <r:func>generatePTX</r:func>
+in <omg:pkg>Rnvvm</omg:pkg>, we provide a <r:func>generatePTX</r:func> function
+in the <omg:pkg>Rllvm</omg:pkg> package.
+Currently, the inputs are slightly different, but this will change in the future
+as we integrate and move code in both <omg:pkg>Rnvvm</omg:pkg> and <omg:pkg>RLLVMCompile</omg:pkg>.
+</para>
+
+<para>
+<lib>NVVM</lib> does some code transformations as it generates the PTX
+code for us.  Some of these are necessary to obtain results and so we
+have to deal with these when generating the IR code from within <r/>
+before we generate the PTX code using only <llvm/>.  The most
+important of these relates to parameters which are used to transfer
+the results from the kernel back to the caller.  These are
+pointers/arrays which the kernel routine modifies,
+e.g. <c:arg>out</c:arg> in our kernel.  We must explicitly identify
+these as being in the global address space on the device and not local
+or shared variables. The multi-level memory system on a GPU is quite
+different from the flat memory used by a CPU.  Rather than specifying
+the parameter type as, say, <r:var>Int32PtrType</r:var>,
+we must create a pointer to the <r:var>Int32Type</r:var>
+that is in address space number 1.
+We do this with
+<r:code>
+ty = pointerType(Int32Type, addrspace = 1)
+</r:code>
+We can work with this as we would a regular pointer type.
+However, <llvm/> will generate PTX code that uses
+st.global-style operations when assigning to it.
+</para>
+
+
+<para>
+The code in <ulink
+url="https://github.com/duncantl/Rllvm/blob/master/explorations/ptx_direct_grid.R">explorations/ptx_direct_range.R</ulink>
+illustrates how to generate IR code from beginning to end.  We'll
+discuss how to generate this code via a higher-level compiler below.
+</para>
+
 </section>
 
 
 <section>
-<title>Next steps</title>
+<title>Next steps - High-level compilation</title>
 
 <para>
-The next step is to make the <omg:pkg>RLLVMCompile</omg:pkg> package
-capable of compiling <r/>-like code to 
+We clearly don't want to be writing <r/> code to 
+create each and every instruction. Instead,
+we want to be able to write the code for the kernel 
+in a higher-level language and have an <r/> function
+compile that to PTX, generating the IR code for the 
+different implicit instructions.
+We would like to be able to write our kernel as something like
+<r:code><![CDATA[
+kern =
+fnunction(N, out)
+{
+   idx = blockIdx$x * blockDim$x + threadIdx$x
+   if(idx < N)
+     out[idx] = idx
+}
+]]></r:code>
+This is simple <r/> code that won't run.
+There is no <r:var>blockIdx</r:var> or <r:var>blockDim</r:var>.
+However, we can compile it with the <omg:pkg>RLLVMCompile</omg:pkg>
+package.
+We have implemented a proof-of-concept for compiling
+a simple <r/>-like function as a GPU kernel routine.
+We can use this with 
+<r:code>
+globalInt32PtrType = pointerType(Int32Type, addrspace = 1)
+fun = compileGPUKernel(kern, list(N = Int32Type, x = globalInt32Type), 
+                       .zeroBased = c(idx = TRUE) 
+                      )
+</r:code>
+We then can convert the module to PTX, as above,  with
+<r:code>
+ptx = generatePTX(fun)
+</r:code>
+and load it onto the GPU with <r:func>loadModule</r:func>.
+</para>
+
+
+<para>
+The compiler recognizes expressions
+such as <r:expr eval="false">blockIdx$x</r:expr>
+and transforms those to calls to special intrinsic 
+functions. 
+We also extended the compiler to allow the user
+to specify which variables should be treated
+as-is for subsetting and not have 1 subtracted from their value.
+This is the <r:arg>.zeroBased</r:arg> parameter.
+We can also specify the types of local variables rather
+than relying on the compiler to use the type of their initial
+value. This allows us to 64-bit integers for some computations if we
+need.
+</para>
+
+<para>
+The compilation for GPU code in <r:func>compileGPUKernel</r:func> is
+very basic at present. It does illustrate how one can 
+customize the basic compilation mechanism and adapt it
+to different computational models.
+An example is in <ulink url="https://github.com/duncantl/RLLVMCompile/explorations/gpu.R">explorations/gpu.R</ulink>.
 </para>
 </section>
 

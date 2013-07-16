@@ -42,6 +42,10 @@ There are several examples, adapted from the LLVM tutorials
 and developed as explorations of that API. 
 <dl>
   <dt>
+  <li> <img src="../new.gif"> (July 16, 2013)  <a href="ptxNVVMExample.html">Compiling GPU kernels</a>      
+  <dd>
+  
+  <dt>
   <li><a href="tut1.R">compiling simple scalar arithmetic</a>
   <dd>
   This example comes from the          <a
@@ -157,7 +161,7 @@ This is distributed under the GPL2 License.
 <address><a href="http://www.stat.ucdavis.edu/~duncan">Duncan Temple Lang</a>
 <a href=mailto:duncan@wald.ucdavis.edu>&lt;duncan@wald.ucdavis.edu&gt;</a></address>
 <!-- hhmts start -->
-Last modified: Tue May 14 06:06:08 PDT 2013
+Last modified: Tue Jul 16 11:36:23 PDT 2013
 <!-- hhmts end -->
 
 </body> </html>
