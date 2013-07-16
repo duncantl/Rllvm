@@ -5,6 +5,7 @@ import(RAutoGenRunTime)
 
 export(llvmDump)
 exportMethods(llvmDump)
+export(generatePTX)
 
 exportClasses(
   AllocaInst,

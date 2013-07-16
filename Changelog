@@ -1,7 +1,10 @@
 Version 0.6-0
 
+	*  added generatePTX() to convert Module to PTX code. See Rnvvm and libNVVM 
+	   for other an additional approach.
+
 	*  added support specifying address space when creating pointer types
-	
+
 	*  added CreateFPTrunc()
 
 	*  added llvmDump() to examine instructions in IR form
