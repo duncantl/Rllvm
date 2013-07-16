@@ -398,4 +398,4 @@ export(getDefaultTargetTriple)
 
 S3method(flush, formatted_raw_ostream)
 
-export(createFPTrunc)
+export(createFPTrunc, createTrunc)

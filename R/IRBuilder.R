@@ -464,3 +464,10 @@ function(builder, value, type, id = "")
 {
   .Call("R_IRBuilder_CreateFPTrunc", as(builder, "IRBuilder"), as(value, "Value"), as(type, "Type"), as.character(id))
 }
+
+createTrunc = 
+function(builder, value, type, id = "")
+{
+  .Call("R_IRBuilder_CreateTrunc", as(builder, "IRBuilder"), as(value, "Value"), as(type, "Type"), as.character(id))
+}
+
