@@ -282,6 +282,17 @@ stopifnot(identical(out, (1:N) - 1L))
 </para>
 </section>
 
+
+<section>
+<title>An alternative approach</title>
+<para>
+Instead of using <lib>NVVM</lib>, we can 
+directly create the PTX code via <llvm/> itself.
+We can have <llvm/> use a different backend
+</para>
+</section>
+
+
 <section>
 <title>Next steps</title>
 
@@ -293,3 +304,4 @@ capable of compiling <r/>-like code to
 
 
 </article>
+

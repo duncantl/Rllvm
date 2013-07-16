@@ -1,7 +1,7 @@
 pointerType =
-function(elType, rawPointer = FALSE)
+function(elType, rawPointer = FALSE, addrspace = 0L)
 {
-   ans = .Call("R_pointerType", elType, as.logical(rawPointer))
+   ans = .Call("R_pointerType", elType, as.logical(rawPointer), as.integer(addrspace))
    if(rawPointer)
      new("PointerType", ref = ans)
    else

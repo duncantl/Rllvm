@@ -851,3 +851,22 @@ R_IRBuilder_CreateStructGEP(SEXP r_builder, SEXP r_value, SEXP r_index, SEXP r_i
 
     return(R_createRef(ans, "Value"));
 }
+
+
+extern "C"
+SEXP
+R_IRBuilder_CreateFPTrunc(SEXP r_builder, SEXP r_value, SEXP r_type, SEXP r_id)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *value = GET_REF(r_value, Value);
+    llvm::Type *type = GET_REF(r_type, Type);
+
+    llvm::Value *ans = builder->CreateFPTrunc(value, type);
+    if(Rf_length(r_id)) 
+        ans->setName(makeTwine(r_id));
+
+    return(R_createRef(ans, "FPTruncInst"));
+}
+
+

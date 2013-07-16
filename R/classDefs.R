@@ -183,3 +183,14 @@ setGeneric("setDataLayout", function(x, value, ...) standardGeneric("setDataLayo
 
 
 
+
+
+setGeneric("llvmDump", function(x, ...) standardGeneric("llvmDump"))
+
+setMethod("llvmDump", "Value",
+           function(x, ...) 
+               .Call("R_Value_dump", x))
+
+setMethod("llvmDump", "Type",
+           function(x, ...) 
+               .Call("R_Type_dump", x))
