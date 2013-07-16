@@ -5,6 +5,7 @@ import(RAutoGenRunTime)
 
 export(llvmDump)
 exportMethods(llvmDump)
+export(generatePTX)
 
 exportClasses(
   AllocaInst,
@@ -397,4 +398,4 @@ export(getDefaultTargetTriple)
 
 S3method(flush, formatted_raw_ostream)
 
-export(createFPTrunc)
+export(createFPTrunc, createTrunc)

@@ -1,4 +1,4 @@
-convertModuleToPTX =
+generatePTX = convertModuleToPTX =
 function(m)
 {
     InitializeNVPTXTarget()

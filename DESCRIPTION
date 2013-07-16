@@ -35,3 +35,4 @@ Collate: llvmVersion.R classDefs.R manual_generics.R BinaryOpEnums.R Function.R 
          opCodeClassMap.R
          classof.R initialize.R
          CallingConvEnum.R
+         llvmPTXUtils.R
