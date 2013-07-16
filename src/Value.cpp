@@ -52,3 +52,13 @@ R_Type_dump(SEXP r_val)
 }
 
 
+extern "C"
+SEXP
+R_Value_dump(SEXP r_val)
+{
+    llvm::Value *val = GET_REF(r_val, Value);
+    val->dump();
+    return(R_NilValue);
+}
+
+

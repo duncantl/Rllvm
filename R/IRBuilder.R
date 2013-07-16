@@ -426,7 +426,7 @@ createCast =
 function(builder, op, from, to, id = character())
 {
    if(is(op, "character"))
-     op = match(op, names(CastOps))
+     op = CastOps[match(op, names(CastOps))]
       
    if(is(op, "numeric"))
       stopifnot(is.na(op) || op %in% CastOps)
@@ -456,4 +456,11 @@ getStructFieldIndex =
 function(field, type)
 {
   stop("cannot get struct field by name")
+}
+
+
+createFPTrunc = 
+function(builder, value, type, id = "")
+{
+  .Call("R_IRBuilder_CreateFPTrunc", as(builder, "IRBuilder"), as(value, "Value"), as(type, "Type"), as.character(id))
 }

@@ -65,12 +65,16 @@ R_IntegerType_get(SEXP r_context, SEXP r_bits)
 
 extern "C"
 SEXP
-R_pointerType(SEXP r_type, SEXP r_noClass)
+R_pointerType(SEXP r_type, SEXP r_noClass, SEXP r_addrSpace)
 {
     llvm::Type *elType = GET_REF(r_type, Type);
 
     llvm::PointerType *ans;
-    ans = llvm::PointerType::get(elType, 0);
+    unsigned addrspace = 0;
+    if(Rf_length(r_addrSpace))
+      addrspace = INTEGER(r_addrSpace)[0];
+
+    ans = llvm::PointerType::get(elType, addrspace);
 
     return(LOGICAL(r_noClass)[0] ? 
              R_MakeExternalPtr((void *) ans, Rf_install("PointerType"), R_NilValue) :

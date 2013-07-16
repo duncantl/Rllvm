@@ -6,7 +6,10 @@ m = Module("ptx kernel")
 setDataLayout(m, "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64")
 
  # takes a number of elements and an array
-fun = simpleFunction("kern", VoidType, n = Int32Type, out = Int32PtrType, mod = m)
+#
+# Using addrspace = 1  gets the st.global at the end
+globalInt32PtrType = pointerType(Int32Type, , 1L)
+fun = simpleFunction("kern", VoidType, n = Int32Type, out = globalInt32PtrType, mod = m)
 
 ir = fun$ir
 localVars = fun$vars
@@ -42,16 +45,24 @@ idx = ir$binOp(Add, mul, threadId)
 
 i = ir$createLocalVariable(Int32Type, "i")
 ir$createStore(idx, i)
+# Can return a constant to check.
+#ir$createStore(createIntegerConstant(2L), i)
+
 
 #!!! Put in test that idx < N
 set = Block(fun, "set")
 end = Block(fun, "return")
 
-cond = ir$createICmp(ICMP_SLT, i, localVars$n)
+ii = ir$createLoad(i)
+params = getParameters(fun)
+cond = ir$createICmp(ICMP_SLT, ii, params$n)  # localVars$n)
 ir$createCondBr(cond, set, end)
 
 ir$setInsertBlock(set)
 #!!! We need this assignment to be in the global address space (1), not local.
+#genToGlobal = Function("llvm.nvvm.ptr.gen.to.global.p1i32.p0i32", Int32PtrType, Int32PtrType, module = m)
+#global = ir$createCall(genToGlobal, getParameters(fun)$out) # localVars$out)
+
 gep = ir$createGEP(ir$createLoad(localVars$out), ir$createSExt(ir$createLoad(i), 64L))
 ir$createStore(ir$createLoad(i), gep)
 ir$createBr(end)
@@ -61,16 +72,16 @@ ir$createReturn()
 
 verifyModule(m)
 
+source("llvmPTXUtils.R")
+ptx = convertModuleToPTX(m)
 
-
-if(FALSE) {
-  library(RCUDA)
-  cuda.mod = cuModuleLoadDataEx(code)
-  N = as.integer(2^20)
-  ans = integer(N)
+library(RCUDA)
+cuda.mod = cuModuleLoadDataEx(ptx)
+N = as.integer(2^20)
+ans = integer(N)
+out = .gpu(cuda.mod$kern,  N, ans = ans, outputs = "ans", gridDim = c(2^7, 2^8), blockDim = c(32))
 #  out = .gpu(cuda.mod$kern,  N, ans = ans, outputs = "ans", gridBy = N)
-  out = .gpu(cuda.mod$kern,  N, ans = ans, outputs = "ans", gridDim = c(2^7, 2^8), blockDim = c(32))
-}
+
 
 if(FALSE) {
   library(Rnvvm)
