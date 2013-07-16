@@ -281,4 +281,15 @@ stopifnot(identical(out, (1:N) - 1L))
 </r:test>
 </para>
 </section>
+
+<section>
+<title>Next steps</title>
+
+<para>
+The next step is to make the <omg:pkg>RLLVMCompile</omg:pkg> package
+capable of compiling <r/>-like code to 
+</para>
+</section>
+
+
 </article>
