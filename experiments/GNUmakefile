@@ -27,3 +27,18 @@ stress.ll:
 
 %.tu: %.c
 	gcc $(CFLAGS) -fdump-translation-unit -c -o /dev/null $<
+
+
+RDB_TARGETS=$(wildcard *.Rdb)
+HTML_TARGETS=$(patsubst %.Rdb,%.html,$(RDB_TARGETS))
+html:  $(HTML_TARGETS)
+
+ifndef XDYN_DOCS
+ XDYN_DOCS=$(HOME)/Classes/StatComputing/XDynDocs/inst
+endif
+
+%.html: %.Rdb
+	$(MAKE) -f $(XDYN_DOCS)/Make/Makefile $@
+
+cleanHTML: 
+	-rm  $(HTML_TARGETS)
