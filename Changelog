@@ -1,3 +1,7 @@
+Version 0.6-1
+
+	*  Minor changes for LLVM 3.4 (fields in TargetOptions that were removed)
+
 Version 0.6-0
 
 	*  added generatePTX() to convert Module to PTX code. See Rnvvm and libNVVM 

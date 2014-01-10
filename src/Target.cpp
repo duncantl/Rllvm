@@ -48,7 +48,9 @@ R_Target_createTargetMachine(SEXP r_target, SEXP r_triple, SEXP r_cpu, SEXP r_fe
         /* taken from Halide's CodeGen.cpp */
         defaultOpts.LessPreciseFPMADOption = true;
         defaultOpts.NoFramePointerElim = false;
+#ifdef LLVM_HAS_NOFRAMEPOINTERELIMNONLEAF
         defaultOpts.NoFramePointerElimNonLeaf = false;
+#endif
         defaultOpts.AllowFPOpFusion = llvm::FPOpFusion::Fast;
         defaultOpts.UnsafeFPMath = true;
         defaultOpts.NoInfsFPMath = true;
@@ -60,12 +62,16 @@ R_Target_createTargetMachine(SEXP r_target, SEXP r_triple, SEXP r_cpu, SEXP r_fe
         defaultOpts.GuaranteedTailCallOpt = false;
         defaultOpts.DisableTailCalls = false;
         defaultOpts.StackAlignmentOverride = 32;
+#ifdef LLVM_HAS_REALIGNSTACK
         defaultOpts.RealignStack = true;
+#endif
         defaultOpts.TrapFuncName = "";
         defaultOpts.PositionIndependentExecutable = true;
         defaultOpts.EnableSegmentedStacks = false;
         defaultOpts.UseInitArray = false;
+#ifdef LLVM_HAS_SSPBUFFERSIZE
         defaultOpts.SSPBufferSize = 0;
+#endif
 
         opts = &defaultOpts; 
     }
