@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <article xmlns:r="http://www.r-project.org"
          xmlns:xi="http://www.w3.org/2003/XInclude"
-	 xmlns:c="http://www.C.org">
+	 xmlns:c="http://www.C.org"
+	 xmlns:omg="http://www.omegahat.org">
 
 <articleinfo>
 
@@ -50,11 +51,11 @@ for(i = 0; i < n; i++)
 ]]></c:code>
 
 It is reasonably clear that this can be implemented as
-<c:code>
+<c:code><![CDATA[
 total = 0
 for(i = 0; i < n; i++)
   total + = log(dnorm(x[i], mu, sigma));
-</c:code>
+]]></c:code>
 We avoid allocating the intermediate vector <c:var>tmp</c:var>
 and we only perform the loop once.
 </para>

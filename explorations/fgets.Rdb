@@ -10,7 +10,7 @@
 To run this code directly from this document, evaluate the code below
 <r:code>
 library(XML)
-xmlSource("fgets.Rdb", verbose = TRUE)
+#xmlSource("fgets.Rdb", verbose = TRUE)
 doc = xmlParse("fgets.Rdb")
 tt = getNodeSet(doc, "//section[@id = 'timings']//r:test | //r:function[@id = 'rfuns'] | //r:test[@id='makeInputs']")
 xmlSource(tt, verbose = TRUE, force = TRUE)
@@ -30,7 +30,7 @@ xmlSource(tt, verbose = TRUE, force = TRUE)
 <title>Overview</title>
 
 <para>
-We use this in our <doc href="sampleCSV.Rdb">sampleCSV()</doc>.
+We use this in our <ulink url="sampleCSV.Rdb">sampleCSV()</ulink>.
 </para>
 <para>
 We will use the <c/> routine <c:routine>fgets</c:routine> to read
@@ -567,7 +567,6 @@ that even with more samples, we are still reading approximately
 the same number of lines from the file in total.
 That is, the largest value of the line number doesn't
 change significantly as we take more sample lines.
-
 </para>
 
 </section>

@@ -1,4 +1,5 @@
-<article>
+<article
+	 xmlns:r="http://www.r-project.org">
 
 <r:code>
 mod = Module("sampleCSV")
