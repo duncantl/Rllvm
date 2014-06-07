@@ -20,18 +20,20 @@ LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -e 's/[[0-9]]\.//' | sed -e '
 CXXFLAGS=`${LLVM_CONFIG} --cxxflags`
 AC_LANG(C++)
 AC_COMPILE_IFELSE([
+AC_LANG_SOURCE(
 #include <llvm/LLVMContext.h>
 void foo() {
 }
-], [echo "Successfully include LLVMContext.h"], 
+)], [echo "Successfully include LLVMContext.h"], 
    [CHECK_IR_DIR=1])
 
 if test -z $CHECK_IR_DIR ; then
 AC_COMPILE_IFELSE([
+AC_LANG_SOURCE(
 #include <llvm/LLVMContext.h>
 void foo() {
 }
-], [echo "Successfully include LLVMContext.h"], 
+)], [echo "Successfully include LLVMContext.h"], 
    AC_MSG_FAILURE("cannot include llvm/LLVMContext.h. Check that you have a suitable version of llvm installed."))
 fi
 
@@ -39,20 +41,22 @@ fi
 
 
 AC_COMPILE_IFELSE([
+AC_LANG_SOURCE(
 #include <llvm/IR/Attributes.h>
 void foo() {
   int i = (int) llvm::Attribute::NoUnwind;
 }
-], [echo "New Attribute setup (> 3.2)"; NEW_LLVM_ATTRIBUTES_SETUP="-DNEW_LLVM_ATTRIBUTES_SETUP=1"], 
+)], [echo "New Attribute setup (> 3.2)"; NEW_LLVM_ATTRIBUTES_SETUP="-DNEW_LLVM_ATTRIBUTES_SETUP=1"], 
    [echo "Using old Attributes (<= 3.2)"; NEW_LLVM_ATTRIBUTES_SETUP=""];)
 
 
 AC_COMPILE_IFELSE([
+AC_LANG_SOURCE(
 #include <llvm/IR/Attributes.h>
 void foo() {
   int i = (int) llvm::Attribute::NoUnwind;
 }
-], [echo "DataLayout.h in IR/"; LLVM_DATALAYOUT_H_IN_IR="-DLLVM_DATALAYOUT_H_IN_IR=1"], 
+)], [echo "DataLayout.h in IR/"; LLVM_DATALAYOUT_H_IN_IR="-DLLVM_DATALAYOUT_H_IN_IR=1"], 
    [echo "Using old Attributes (<= 3.2)"; LLVM_DATALAYOUT_H_IN_IR=""];)
 
 
@@ -81,3 +85,6 @@ AC_OUTPUT(src/Makevars)
 AC_OUTPUT(R/targets.R)
 AC_OUTPUT(R/llvmVersion.R)
 chmod  -w R/targets.R
+
+
+echo "`${LLVM_CONFIG} --cflags --ldflags`"
