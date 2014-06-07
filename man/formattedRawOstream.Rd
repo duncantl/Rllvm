@@ -1,7 +1,7 @@
 \name{formattedRawOstream}
 \alias{formattedRawOstream}
 \alias{coerce,raw_string_ostream,character-method}
-\alias{stringRawOstream}
+\alias{rawStringOstream}
 \alias{rawFDOstream}
 
 \alias{raw_string_ostream-class}
@@ -14,7 +14,7 @@
 }
 \usage{
 formattedRawOstream(stream, delete = FALSE, finalize = TRUE)
-stringRawOstream(value = "")
+rawStringOstream(value = "")
 rawFDOstream(filename)
 }
 
@@ -36,7 +36,7 @@ Duncan Temple Lang
 }
 
 \seealso{
-\code{\link{PassManager}}
+\code{\link{getPassManager}}
 }
 \examples{
 

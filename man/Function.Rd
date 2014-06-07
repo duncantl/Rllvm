@@ -55,7 +55,6 @@
 }
 \usage{
 Function(name, retType, paramTypes = list(), module = Module(), varArgs = FALSE, ...)
-getParent(x, ...)
 }
 \arguments{
   \item{name}{a string giving the name of the function}
@@ -68,7 +67,9 @@ getParent(x, ...)
   \item{varArgs}{a logical value that indicates whether the routine
     has variadic arguments, i.e. passed to it via \dots (not the \dots
   in this function)}
-  \item{\dots}{additional inputs for this call (not for calling the routine)}
+  \item{\dots}{additional inputs for this call (not for calling the
+    routine)}
+%  \item{x}{the function object whose parent module we want to retrieve.}
 }
 
 \value{

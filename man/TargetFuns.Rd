@@ -35,7 +35,7 @@ Duncan Temple Lang
  print(tri)
 
  m = Module()
- setTargetTriple(tri)
+ setTargetTriple(m, tri)
 }
 \keyword{programming}
 

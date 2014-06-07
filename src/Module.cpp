@@ -129,7 +129,9 @@ R_verifyModule(SEXP r_module)
 {
     llvm::Module *module;
     module = (GET_REF(r_module, Module)); // llvm::cast<llvm::Module>
+#ifdef USE_EXCEPTIONS
     try {
+#endif
         std::string errors;
                                                  // was PrintMessageAction
         bool status = llvm::verifyModule(*module, llvm::ReturnStatusAction, &errors); 
@@ -137,10 +139,12 @@ R_verifyModule(SEXP r_module)
             PROBLEM "module verification: %s", errors.c_str()
                 ERROR;
         }
-    } catch(...) {
-        PROBLEM "Failed in verifying the module"
-            ERROR;
-    }
+#ifdef USE_EXCEPTIONS
+       } catch(...) {
+            PROBLEM "Failed in verifying the module"
+              ERROR;
+       }
+#endif
 
     return(ScalarLogical(TRUE));
 }

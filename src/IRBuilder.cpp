@@ -148,7 +148,7 @@ R_IRBuilder_CreateCall(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_id)
     llvm::CallInst *ans;
 
 #if USE_EXCEPTIONS
-try {
+  try {
 #endif
     if(nargs) {
 //XXX For LLVM > 2.*, use CreateCall(callee, ArayRef<llvm::Value*>)
@@ -390,7 +390,11 @@ R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id)
 
 
         llvm::ArrayRef<llvm::Value *> idxs = makeArrayRef(args);
+#ifdef USE_EXCEPTIONS
         try {	
+#endif
+
+
 #if 1
              ans = builder->CreateGEP(val, idxs);
 #else
@@ -399,18 +403,31 @@ R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id)
               ans = builder->Insert(ans, "");
 #endif
 
+#ifdef USE_EXCEPTIONS
         } catch(std::exception &e) {
             PROBLEM "failed to create GEP"
                 ERROR;
         }
+#endif
+
     } else {
         llvm::Value *idx = GET_REF(r_idx, Value);
+#ifdef USE_EXCEPTIONS
         try {	
+#endif
             ans = builder->CreateGEP(val, idx);
-        } catch(std::exception &e) {
+
+#ifdef USE_EXCEPTIONS
+        }  catch(std::exception &e) {
             PROBLEM "failed to create GEP"
                 ERROR;
         }
+#else
+	if(!ans) {
+            PROBLEM "failed to create GEP"
+                ERROR;
+	}
+#endif
     }
 
     if(Rf_length(r_id))

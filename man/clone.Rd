@@ -26,6 +26,7 @@
 \alias{mayThrow}
 \alias{mayWriteToMemory}
 \alias{setDataLayout}
+\alias{setDataLayout,Module-method}
 
 \title{Collection of generic functions for LLVM objects}
 \description{These are some of the generic functions for LLVM}
@@ -56,15 +57,18 @@ mayHaveSideEffects(x, ...)
 mayReadFromMemory(x, ...)
 mayThrow(x, ...)
 mayWriteToMemory(x, ...)
-setDataLayout(from, ...)
+setDataLayout(x, value, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x,obj}{the object to be queried}
+  \item{x,obj}{the object to be queried or whose data layout is to be
+set. Currently, there are only methods for\code{setDataLayout} for a  \code{Module}}
   \item{\dots}{additional arguments for methods}
   \item{delete}{a logical value indicating whether to not only remove
     from the parent but also destroy the object}
   \item{from}{the object whose data layout will be set}
+  \item{value}{a character string describing the data layout. See the
+    LLVM documentation for the \code{Module} class \url{http://llvm.org/docs/LangRef.html#data-layout}.}
 }
 %\value{}
 \references{

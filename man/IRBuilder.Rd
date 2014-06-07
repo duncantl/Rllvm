@@ -50,6 +50,9 @@
 \alias{coerce,IRBuilder,BasicBlock-method}
 \alias{coerce,IRBuilder,Function-method}
 
+\alias{createTrunc}
+\alias{createFPTrunc}
+
 \title{Create an IR builder object for LLVM construction}
 \description{
   This function and class allow us to create and use
@@ -99,46 +102,54 @@ getFalse(ir)
 getInsertBlock(builder)
 setInsertBlock(builder, block)
 setInsertPoint(builder, instruction)
+createTrunc(builder, value, type, id = "")
+createFPTrunc(builder, value, type, id = "")
 }
 \arguments{
   \item{block}{either a \code{Block} object to which instructions will be inserted/added
     by default. This can be reset using \code{setInsertPoint}.
     Alternatively, this can be an LLVMContext object.}
-\item{builder}{}
-\item{fun}{}
-\item{...}{}
-\item{.args}{}
-\item{id}{}
-\item{cond}{}
-\item{true}{}
-\item{false}{}
-\item{val}{}
-\item{index}{}
-\item{isVolatile}{}
-\item{type}{}
-\item{size}{}
-\item{beforeTerminator}{}
-\item{value}{}
-\item{ptr}{}
-\item{volatile}{}
-\item{instruction}{}
-\item{op}{}
-\item{from}{}
-\item{to}{}
-\item{vec}{}
-\item{idx}{}
-\item{lhs}{}
-\item{rhs}{}
-\item{elt}{}
-\item{isSigned}{}
-\item{field}{}
-\item{target}{}
-\item{triple}{}
-\item{cpu}{}
-\item{features}{}
-\item{options}{}
-\item{Z}{}
-\item{ir}{}  
+\item{builder, ir}{an instance of the \code{IRBuilder} class in LLVM that we use to create the instructions in the code.}
+\item{fun}{the LLVM \code{Function} object we are calling in \code{createCall}.}
+\item{...}{the arguments to the call in \code{createCall}.}
+\item{.args}{a list of the arguments to pass to the actual function call
+  being generated in the code to \code{createCall}. This is an
+  alternative to \dots so that we can pass a single object containing
+    the individual arguments rather than passing the arguments
+    individually in the call to \code{createCall}. (This is all a bit
+    meta, but that's because it is!)}
+\item{id}{a human-readable character string giving an identifier to use for identifying the instruction}
+\item{cond}{the \code{Value} instruction to use for the the condition in an LLVM if-else-statement created by \code{createCondBr}. }
+\item{true}{the \code{Block} to use for the body of the if-statement created with \code{createCondBr}}
+\item{false}{the \code{Block} to use for the else part of the if-statement  created with \code{createCondBr}}
+\item{val}{a \code{Value} object. This is used as the object in which to
+  get the  general element pointer (GEP) in \code{createGEP},  and the representation of the variable to load in \code{createLoad}.
+   It is also the \code{Value} objectto negate with \code{createNeg} and \code{createNot}. }
+\item{index}{a list of \code{Value} objects (or literal numbers) that
+  are used in \code{createGEP} to specify the indices to subset.}
+\item{isVolatile,volatile}{a logical value indicating whether the LLVM  object is to be treated as volatile, i.e. can change due to external commands.}
+\item{type}{an LLVM \code{Type} object that describes/represents a data type}
+\item{size}{the number of elements in this local array variable.}
+\item{beforeTerminator}{a logical value that indicates whether the new variable should be inserted before the terminator for the target block.}
+\item{value}{the \code{Value} that is to be returned}
+\item{ptr}{the \code{Value} to which the value will be stored in \code{createStore}.}
+\item{instruction}{the LLVM \code{Instruction} object after which new  instructions will be added when used in \code{setInsertPoint}.}
+\item{op}{the \code{Value} to be cast in \code{createCast}}
+\item{from}{the \code{Type} from which to cast the LLVM \code{Value} in \code{createCast}}
+\item{to}{the \code{Type} to which to cast the LLVM \code{Value} in \code{createCast}}
+\item{vec}{the object from which we want to extract a value in \code{createExtractElement}}
+\item{idx}{the \code{Value} representing the index of the element to use in \code{createExtractElement}}
+\item{lhs}{left hand side \code{Value} of floating-pointing comparison  in \code{createFCmp}}
+\item{rhs}{right hand side \code{Value} of floating-pointing comparison  in \code{createFCmp}}
+\item{elt}{the specification of the element in the object into which we  will sert a value via \code{createInsertElement}}
+\item{isSigned}{a logical value}
+\item{field}{a \code{integer} specifying the index that identifies the field in the \code{struct} data type  in \code{createStructGEP}}
+\item{target}{a \code{Target} object.}
+\item{triple}{a string representing the target machine type}
+\item{cpu}{a string describing the type of CPU}
+\item{features}{a string specifying the features.}
+\item{options}{a \code{list}}
+\item{Z}{a logical value}  
 }
 
 %\value{}

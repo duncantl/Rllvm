@@ -87,4 +87,4 @@ AC_OUTPUT(R/llvmVersion.R)
 chmod  -w R/targets.R
 
 
-echo "`${LLVM_CONFIG} --cflags --ldflags`"
+echo "`${LLVM_CONFIG} --cxxflags --ldflags`"
