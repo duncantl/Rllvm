@@ -47,9 +47,7 @@ getMetadata(module, id, ...)
     coerced to \code{MDNode} objects.}
   \item{\dots}{additional arguments for the methods}
 }
-\value{
-
-}
+%\value{}
 %\references{}
 \author{
 Duncan Temple Lang
@@ -60,7 +58,6 @@ Duncan Temple Lang
   \code{\link{Module}}
  \code{\link{Function}}  
 }
-\examples{
-}
+%\examples{}
 \keyword{programming}
 \concept{metadata}

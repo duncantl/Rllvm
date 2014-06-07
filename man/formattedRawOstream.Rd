@@ -10,7 +10,8 @@
 
 \title{Create and access LLVM output streams}
 \description{
-
+  These functions allow us to create and use LLVM output streams
+  for generating content, e.g. code.
 }
 \usage{
 formattedRawOstream(stream, delete = FALSE, finalize = TRUE)
@@ -27,10 +28,8 @@ rawFDOstream(filename)
  \item{value}{an initial string, typically empty}
  \item{filename}{the name of the file to which the contents should be written}
 }
-\value{
-
-}
-\references{}
+%\value{}
+%\references{}
 \author{
 Duncan Temple Lang
 }
@@ -38,8 +37,6 @@ Duncan Temple Lang
 \seealso{
 \code{\link{getPassManager}}
 }
-\examples{
-
-}
+%\examples{}
 \keyword{programming}
 \keyword{IO}
