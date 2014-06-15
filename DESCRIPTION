@@ -20,9 +20,11 @@ Description: This package is currently an interface to some of the
     e.g. fusing loops, avoiding memory usage.
 License: GPL-2
 Depends: R (>= 2.7.0), methods, RAutoGenRunTime
+#Suggests: RLLVMCompile
 URL: http://www.omegahat.org/Rllvm
      https://github.com/duncantl/Rllvm
-Note:  We hope to build on this to build a compiler for parts of the R language.
+Note:  We hope to build on this to build a compiler for parts of the R language. See the RLLVMCompile package
+       at http://www.omegahat.org/RLLVMCompile and  https://github.com/duncantl/RLLVMCompile/
 Collate: llvmVersion.R classDefs.R manual_generics.R BinaryOpEnums.R Function.R block.R module.R typeDefs.R
          ExecutionEngine.R IRBuilder.R onLoad.R ICmpEnums.R types.R constants.R
          externalLinkage.R globalVar.R value.R dso.R context.R TypeID.R

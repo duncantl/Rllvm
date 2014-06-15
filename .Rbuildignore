@@ -27,4 +27,4 @@ explorations/.*\.png
 explorations/globalString
 src/Rllc.cpp
 src/llc.cpp
-
+src/Makevars$

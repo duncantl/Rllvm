@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rm src/Makevars
+rm R/targets.R R/llvmVersion.R
