@@ -417,11 +417,14 @@ function(builder, type, numReservedVals)
 
 
 
-
-
+# Old version < 3.4
 CastOps = structure(33:44, .Names = c("Trunc", "ZExt", "SExt", "FPToUI",
                     "FPToSI", "UIToFP", "SIToFP", "FPTrunc", "FPExt", "PtrToInt",
                     "IntToPtr", "BitCast"))
+CastOps = structure(0:14, .Names = c("CastOpsBegin", "Trunc", "ZExt", "SExt", 
+"FPToUI", "FPToSI", "UIToFP", "SIToFP", "FPTrunc", "FPExt", "PtrToInt", 
+"IntToPtr", "BitCast", "AddrSpaceCast", "CastOpsEnd"))
+
 createCast =
 function(builder, op, from, to, id = character())
 {

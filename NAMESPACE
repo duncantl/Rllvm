@@ -1,7 +1,7 @@
 useDynLib(Rllvm)
 
-import(methods)
 import(RAutoGenRunTime)
+import(methods)
 
 export(llvmDump)
 exportMethods(llvmDump)

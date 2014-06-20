@@ -191,7 +191,8 @@ function(func, ..., .attrs = list(...))
 #
 LLVMAttributes = FuncAttributes =
 if(all(.llvmVersion >= c(3, 3))) {
-#  >= 3.3 of llvm
+#  >= 3.3 of llvm    
+ if(.llvmVersion[2] < 4)
  structure(0:34, .Names = c("None", "Alignment", "AlwaysInline", 
 "ByVal", "InlineHint", "InReg", "MinSize", "Naked", "Nest", "NoAlias", 
 "NoBuiltin", "NoCapture", "NoDuplicate", "NoImplicitFloat", "NoInline", 
@@ -199,8 +200,17 @@ if(all(.llvmVersion >= c(3, 3))) {
 "ReadNone", "ReadOnly", "ReturnsTwice", "SExt", "StackAlignment", 
 "StackProtect", "StackProtectReq", "StackProtectStrong", "StructRet", 
 "SanitizeAddress", "SanitizeThread", "SanitizeMemory", "UWTable", 
-"ZExt", "EndAttrKinds")) 
-
+"ZExt", "EndAttrKinds"))
+ else
+  structure(0:38, .Names = c("None", "Alignment", "AlwaysInline", 
+  "Builtin", "ByVal", "Cold", "InlineHint", "InReg", "MinSize", 
+  "Naked", "Nest", "NoAlias", "NoBuiltin", "NoCapture", "NoDuplicate", 
+  "NoImplicitFloat", "NoInline", "NonLazyBind", "NoRedZone", "NoReturn", 
+  "NoUnwind", "OptimizeForSize", "OptimizeNone", "ReadNone", "ReadOnly", 
+  "Returned", "ReturnsTwice", "SExt", "StackAlignment", "StackProtect", 
+  "StackProtectReq", "StackProtectStrong", "StructRet", "SanitizeAddress", 
+  "SanitizeThread", "SanitizeMemory", "UWTable", "ZExt", "EndAttrKinds"
+ ))    
 } else {
 # <= 3.2 of llvm
 structure(1:27, .Names = c("AddressSafety", "Alignment", "AlwaysInline",

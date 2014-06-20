@@ -398,7 +398,7 @@ R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id)
 #if 1
              ans = builder->CreateGEP(val, idxs);
 #else
- fprintf(stderr, "Calling GetElementPtrInst::Create()\n");
+	 fprintf(stderr, "Calling GetElementPtrInst::Create()\n");
               ans = llvm::GetElementPtrInst::Create(val, args); // idxs
               ans = builder->Insert(ans, "");
 #endif
@@ -408,6 +408,11 @@ R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id)
             PROBLEM "failed to create GEP"
                 ERROR;
         }
+#else
+	if(!ans) {
+            PROBLEM "failed to create GEP"
+                ERROR;
+	}
 #endif
 
     } else {
