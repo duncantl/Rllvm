@@ -251,6 +251,31 @@ Need the -xc++ argument for  libclang to force C++.
 <items>
 
 <item>
+Set alignment for parameters and arguments.
+</item>
+
+<item>
+Implement the set ByVal as a function 
+<br/>
+Done but decide name - now setArgByVal().
+</item>
+
+<item>
+parseIR() needs to give an error message saying what the problem is.
+Problem with the string only. That causes the entire message  not to be displayed.
+</item>
+
+
+<item>
+Reset a global variable in a module
+<br/>
+e.g. explorations/clangHandler.R - ctr
+<r:code>
+mod[["ctr", ee = ee]] = 0L
+</r:code>
+</item>
+
+<item>
 shutdown LLVM.
 </item>
 

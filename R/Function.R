@@ -176,6 +176,14 @@ function(arg, values)
   .Call("R_Argument_setAttributes", arg, as.integer(values))
 }
 
+
+hasByValAttr =
+    # Make this generic.
+function(x, ...)
+{
+  .Call("R_Argument_hasByValAttr", x)
+}
+
   
 setFuncAttributes =
 function(func, ..., .attrs = list(...))

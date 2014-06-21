@@ -153,7 +153,7 @@ R_Instruction_getOperand(SEXP r_inst, SEXP r_i)
 	if(!inst) return(R_NilValue);
         llvm::Value *el;
         unsigned i = INTEGER(r_i)[0] - 1;
-        if(i < 0 || i >= inst->getNumOperands()) {
+        if(i >= inst->getNumOperands()) {
             PROBLEM "index of operand is incorrect"
                 ERROR;
         }
