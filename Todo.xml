@@ -7,12 +7,18 @@
 <items>
 
 <item>
-Query parameters on Argument.
+Implement R functions to call the Argument has* methods.
+The C++ code exists.
+</item>
+
+<item>
+Query parameters (or attributes?) on Argument.
 </item>
 
 <item>
 Remove an attribute on a Argument or Function.
 removeAttr() method in Argument.
+Seems to need an AttributeList.
 </item>
 
 <item>
@@ -242,7 +248,6 @@ Need the -xc++ argument for  libclang to force C++.
 </item>
 
 
-
 </items>
 </topic>
 
@@ -254,15 +259,17 @@ Need the -xc++ argument for  libclang to force C++.
 Set alignment for parameters and arguments.
 </item>
 
-<item>
+<item status="done">
 Implement the set ByVal as a function 
 <br/>
 Done but decide name - now setArgByVal().
 </item>
 
-<item>
+<item status="done">
 parseIR() needs to give an error message saying what the problem is.
 Problem with the string only. That causes the entire message  not to be displayed.
+<br/>
+Now calls parseIRError().
 </item>
 
 
@@ -517,7 +524,7 @@ Need to specify the indices in the constructor.
 Call IRBuilder-&gt;CreateInBoundsGEP
 </item>
 
-<item status="fix"> [Close but not working]
+<item status="done">
 global variables. Get the value.  Write a routine to get them.  Can't
 we do this generically.
 <br/>
@@ -534,7 +541,7 @@ type = getType(mod[[id]])
 ty = getElementType(type)
 getGlobalValue(mod[[id]], ee)
 </r:code>
-See tests/globalGet.R
+See tests/globalGet.R.
 </item>
 
 <item>
@@ -542,6 +549,9 @@ When we specify the initializer for a global variable
 and it is an array, we have to make certain the length of the 
 array matches.  
 Ensure this in createGlobalVariable() when val is specified.
+<br/>
+How do we query the length of an array? 
+getNumElements().
 </item>
 
 <item>
@@ -549,11 +559,11 @@ function to create an opaque type, e.g. pointerType(opaqueType())
 </item>
 
 
-<item>
+<item status="done">
 dump a module to a buffer.
 or createPrintModulePass to our buffer.
 <br/>
-Is this just showModule()?
+Is this just showModule()? Yes.
 </item>
 
 <!-- "Dones" -->

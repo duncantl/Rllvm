@@ -76,6 +76,25 @@ R_Constant_getGetElementPtr( SEXP r_constant, SEXP r_index, SEXP r_inBounds) // 
 
 extern "C"
 SEXP
+R_GetElementPtrInst_isInBounds(SEXP r_gep)
+{
+    llvm::GetElementPtrInst *gep = GET_REF(r_gep, GetElementPtrInst);
+    return(ScalarLogical(gep->isInBounds()));
+}
+
+extern "C"
+SEXP
+R_GetElementPtrInst_setIsInBounds(SEXP r_gep, SEXP r_val)
+{
+    llvm::GetElementPtrInst *gep = GET_REF(r_gep, GetElementPtrInst);
+    bool old = gep->isInBounds();
+    gep->setIsInBounds(LOGICAL(r_val)[0]);
+    return(ScalarLogical(old));
+}
+
+
+extern "C"
+SEXP
 R_ConstantAggregateZero_get(SEXP r_type)
 {
     llvm::Type *type = GET_REF(r_type, Type);

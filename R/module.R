@@ -105,6 +105,7 @@ setMethod("[[<-", c("Module", "character", "missing"),
              val = as(value, "Value")             
              if(i %in% names(x)) {
                  # should we do this on the execution engine if the module is associated with one?
+                 #??? Do we want this warning still?
                warning("use setInitializer() to change the value of a global variable in a module")
                setInitializer(x[[i]], val)
                return(x)
