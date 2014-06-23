@@ -22,7 +22,7 @@ ctests
 \.git.*
 a.out.dSYM/.*
 \.dSYM.*
-\.tu
+\.tu$
 explorations/.*\.png
 explorations/globalString
 src/Rllc.cpp
