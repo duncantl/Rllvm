@@ -361,7 +361,6 @@ exportClass("Argument")
 export(getNumOperands, getOperand)
 exportMethods(getNumOperands, getOperand)
 
-export(getBlocks)
 
 export(sapply)
 exportMethods(sapply)
@@ -402,3 +401,13 @@ export(createFPTrunc, createTrunc)
 
 export(setArgByVal, hasByValAttr)
 
+export(byVal, "byVal<-")
+exportMethods(byVal, "byVal<-")
+
+export(isInBounds, "isInBounds<-")
+exportMethods(isInBounds, "isInBounds<-")
+
+
+export(parseIRError)
+
+export(getCondition)

@@ -169,6 +169,25 @@ function(builder, val, index, id = character())
   .Call("R_IRBuilder_CreateGEP", builder, val, index, as.character(id))
 }
 
+setGeneric("isInBounds", function(x, ...) standardGeneric("isInBounds"))
+setMethod("isInBounds", "Value",
+           function(x, ...) {
+              if(isa(p, "GetElementPtrInst"))
+                  .Call("R_GetElementPtrInst_isInBounds", x)
+              else
+                  stop("isInBounds applicable only for GetElementPtrInst")               
+           })
+
+setGeneric("isInBounds<-", function(x, ..., value) standardGeneric("isInBounds<-"))
+setMethod("isInBounds<-", "Value",
+           function(x, ..., value) {
+              if(isa(p, "GetElementPtrInst"))
+                 .Call("R_GetElementPtrInst_setIsInBounds", x, as.logical(value))
+              else
+                  stop("isInBounds applicable only for GetElementPtrInst")
+             x
+         })
+
 
 createLocalVariable =
   #XXX doesn't match method in IRBuilder.  Building myself. Be suspicious
@@ -393,6 +412,15 @@ function(content, context = NULL, asText = is(content, "AsIs") || !file.exists(c
       content = paste(as.character(content), collapse = "\n")
     
    .Call("R_llvm_ParseIRFile", content, as.logical(asText), context)
+}
+
+parseIRError =
+function(line, col, msg)
+{
+   e = simpleError(msg)
+   e$lineNum = line
+   e$colNum = col
+   stop( structure(e, class = c("ParseIRError", "LLVMError", class(e))))
 }
 
 

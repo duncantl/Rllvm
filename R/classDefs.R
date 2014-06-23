@@ -160,9 +160,6 @@ function(call, val = TRUE)
    .Call("R_CallInst_setTailCall", call, as.logical(val))
 }
 
-setArgByVal =
-function(call, paramNum)
-    .Call("R_CallInst_addAttribute", call, 1L, FuncAttributes["ByVal"])
 
 
 setGeneric("clone", function(x, ...) standardGeneric("clone"))
