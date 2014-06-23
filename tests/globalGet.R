@@ -7,7 +7,8 @@ mod = Module("global")
 id = "gv"
 
 one = createIntegerConstant(-101L)
-gvar = createGlobalVariable(id, one, mod, Int32Type)
+# The object structure is getting removed and only the externalptr is being seen by createGlobalVariable
+gvar = createGlobalVariable(id, val = one, mod = mod, type = Int32Type)
 
 mod[["l"]] = TRUE
 mod[["r"]] = pi
@@ -18,6 +19,7 @@ getGlobalValue(mod[[id]], ee)
 mod[[id, value = TRUE]]
 
 mod[["l", value = TRUE]]
+mod[["r", value = TRUE]]
 
 lapply(c("l", "r", "i"), 
           function(id)

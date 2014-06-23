@@ -206,6 +206,17 @@ R_IRBuilder_CreateCondBr(SEXP r_builder, SEXP r_cond, SEXP r_true, SEXP r_false)
 
 extern "C"
 SEXP
+R_BranchInst_getCondition(SEXP r_branch)
+{
+    llvm::BranchInst *branch;
+    branch = GET_REF(r_branch, BranchInst);
+    llvm::Value *ans = branch->getCondition();
+    return(R_createRef(ans, "Value"));    
+}
+
+
+extern "C"
+SEXP
 R_IRBuilder_CreateNot(SEXP r_builder, SEXP r_val)
 {
     llvm::IRBuilder<> *builder;
@@ -727,6 +738,20 @@ R_IRBuilder_getCurrentFunctionReturnType(SEXP r_builder)
 
 
 #if 1
+
+void
+raiseError(llvm::SMDiagnostic err)
+{
+    SEXP e, cur;
+    PROTECT(e = allocVector(LANGSXP, 4));
+    SETCAR(e, Rf_install("parseIRError")); cur = CDR(e);
+    SETCAR(cur, ScalarInteger(err.getLineNo())); cur = CDR(cur);
+    SETCAR(cur, ScalarInteger(err.getColumnNo())); cur = CDR(cur);
+    SETCAR(cur, ScalarString(mkChar(err.getMessage().data())));
+    Rf_eval(e, R_GlobalEnv);
+    UNPROTECT(1);
+}
+
 extern "C" 
 SEXP
 R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
@@ -750,10 +775,17 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
         mod = llvm::ParseIRFile(fn, err, *context);
     }
     if(!mod) {
-        PROBLEM "failed to parse IR: (line = %d, col = %d), %s", 
-            err.getLineNo(), err.getColumnNo(), 
-            err.getMessage().data()  // c_str()
+  raiseError(err);
+       char msg[1000];
+       sprintf(msg, "(%d)  %s", (int) strlen(err.getMessage().data()), err.getMessage().data());
+       msg[120] = '\0';
+//   Rprintf("%s", msg);
+   Rf_error(msg);
+        PROBLEM "failed to parse IR: (line = %d, col = %d) %s", 
+            err.getLineNo(), err.getColumnNo(), msg
+      //      err.getMessage().data()  // c_str()
            ERROR;
+
     }
     return(mod  ?  R_createRef(mod, "Module") : R_NilValue );
 }
