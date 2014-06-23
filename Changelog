@@ -1,4 +1,14 @@
-Version 0.6-1
+Version 0.7-0
+
+	*  getCondition() for BranchInst objects.
+
+	*  isInBounds() and isInBounds()<-
+
+	*  byVal() and byVal()<-
+
+	*  Better error handling for parserIR()
+
+	*  Update enum definitions for 3.4
 
 	*  Minor changes for LLVM 3.4 (fields in TargetOptions that were removed)
 
