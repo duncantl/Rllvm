@@ -3,11 +3,15 @@ SEXPTypes = new.env()
 SEXPType = LGLSXPType = INTSXPType = REALSXPType = STRSXPType = VECSXPType = CHARSXPType = NULL
 
 getSEXPType =
-function(type = "SEXP")
+function(type = "SEXP", useClass = FALSE)
 {
   if(length(ls(SEXPTypes)) == 0)
      makeSEXPTypes()
-  get(type, SEXPTypes)
+  ans = get(type, SEXPTypes)
+  if(useClass && is(ans, "externalptr")) {
+     new(sprintf("%sSXPType", type), ref = ans)
+  } else
+     ans
 }
 
 makeSEXPTypes =
@@ -37,7 +41,6 @@ function( rawPointer = FALSE)
       types[[i]] = tmp
    }
    
-
    .Call("R_setRLLVMTypes", ans, ids)
    # ans
    types

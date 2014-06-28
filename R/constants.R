@@ -75,3 +75,13 @@ function(type)
 {
    .Call("R_ConstantAggregateZero_get", as(type, "Type"))
 }
+
+
+
+setMethod("getValue", "ConstantInt",
+           function(x, ...)
+              .Call("R_ConstantInt_getValue", x))
+
+setMethod("getValue", "ConstantFP",
+           function(x, ...)
+              .Call("R_ConstantFP_getValue", x))
