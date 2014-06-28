@@ -123,6 +123,8 @@ setClass("ConstantFP", contains = "Constant")
 setClass("GlobalValue", contains = "Constant")
 setClass("GlobalVariable", contains = "GlobalValue")
 
+setClass("ConstantPointerNull", contains = "Constant")
+
 setClass("Function", contains = "GlobalValue")
 
 setClass("NativeFunctionPointer", contains = "RC++Reference")
@@ -195,3 +197,6 @@ setMethod("llvmDump", "Value",
 setMethod("llvmDump", "Type",
            function(x, ...) 
                .Call("R_Type_dump", x))
+
+
+setGeneric("getValue", function(x, ...) standardGeneric("getValue"))

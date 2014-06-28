@@ -15,6 +15,7 @@ exportClasses(
   CastInst,
   CompositeType,
   Constant,
+  ConstantPointerNull,
   ConstantFP,
   ConstantInt,
   ConstantAggregateZero,              
@@ -410,4 +411,6 @@ exportMethods(isInBounds, "isInBounds<-")
 
 export(parseIRError)
 
+# Document.
 export(getCondition)
+export(getValue)

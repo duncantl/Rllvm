@@ -24,7 +24,7 @@ function(..., .syms = list(...))
      w <- (ids == "")
    
    if(any(w))
-     names(.syms)[w] =  lapply(.syms[w], as, "character")
+     names(.syms)[w] = lapply(.syms[w], as, "character")
    
    .syms = lapply(.syms, as, "NativeSymbol")
 
@@ -44,5 +44,5 @@ setAs("character", "NativeSymbol",
 
 setAs("NativeSymbolInfo", "NativeSymbol",
         function(from)
-           from$adress)
+           from$address)
 
