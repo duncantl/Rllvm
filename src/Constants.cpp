@@ -103,3 +103,34 @@ R_ConstantAggregateZero_get(SEXP r_type)
     return(R_createRef(ans, "ConstantAggregateZero"));
 }
 
+
+extern "C"
+SEXP
+R_ConstantInt_getValue(SEXP r_ref)
+{
+    llvm::ConstantInt *cons = GET_REF(r_ref, ConstantInt);
+    int64_t val = cons->getSExtValue();
+    return(ScalarInteger((int) val)); //XXX Use R's 64 bit integer type.
+}
+
+
+extern "C"
+SEXP
+R_ConstantFP_getValue(SEXP r_ref)
+{
+    llvm::ConstantFP *cons = GET_REF(r_ref, ConstantFP);
+    const llvm::APFloat &lval = cons->getValueAPF();
+    double val = lval.convertToDouble();
+    return(ScalarReal(val)); 
+}
+
+
+extern "C"
+SEXP
+R_ConstantPointerNull_get(SEXP r_pointerType)
+{
+    llvm::ConstantPointerNull *ans;
+    llvm::PointerType *type = GET_REF(r_pointerType, PointerType);
+    ans = llvm::ConstantPointerNull::get(type);
+    return(R_createRef(ans, "ConstantPointerNull"));
+}
