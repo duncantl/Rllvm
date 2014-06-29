@@ -9,6 +9,17 @@ function(builder, val, type = NULL,
                      else
                         getGlobalContext())
 {
+
+  if(!is.null(type)) {
+
+       if(sameType(type, Int32Type))
+           val = as.integer(val)
+       else if(sameType(type, DoubleType))
+           val = as.numeric(val)
+       else if(sameType(type, StringType))
+           val = as.character(val)                
+  }
+    
   if(is.logical(val)) {
     return(createLogicalConstant(val, context))
   } else if(is.integer(val)) {
@@ -85,3 +96,10 @@ setMethod("getValue", "ConstantInt",
 setMethod("getValue", "ConstantFP",
            function(x, ...)
               .Call("R_ConstantFP_getValue", x))
+
+
+getNULLPointer =
+function(type)
+{
+  .Call("R_ConstantPointerNull_get", type)
+}
