@@ -1,5 +1,14 @@
 Version 0.7-0
 
+	*  getNULLPointer() function
+
+	*  createConstant() with a type converts the value to that.
+
+	*  getValue() and methods for different types of Constant types.
+
+	*  getNULLPointer() used, for example, when initializing
+   	   global variables that are pointers.
+
 	*  getCondition() for BranchInst objects.
 
 	*  isInBounds() and isInBounds()<-

@@ -414,3 +414,4 @@ export(parseIRError)
 # Document.
 export(getCondition)
 export(getValue)
+export(getNULLPointer)

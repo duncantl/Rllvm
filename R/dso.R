@@ -16,7 +16,7 @@ function(..., .syms = list(...))
 {
    if(length(.syms) == 0)
        return(list())
-      
+
    ids = names(.syms)
    if(length(ids) == 0)
      w = rep(TRUE, length(.syms))
@@ -24,7 +24,7 @@ function(..., .syms = list(...))
      w <- (ids == "")
    
    if(any(w))
-     names(.syms)[w] = lapply(.syms[w], as, "character")
+     names(.syms)[w] = lapply(.syms[w],  as, "character") 
    
    .syms = lapply(.syms, as, "NativeSymbol")
 
@@ -39,8 +39,11 @@ setOldClass("NativeSymbolInfo")
 
 setAs("character", "NativeSymbol",
         function(from)
-           getNativeSymbolInfo(from)$address)
+            getNativeSymbolInfo(from)$address)
 
+setAs("NativeSymbolInfo", "character",
+        function(from)
+           from$name)
 
 setAs("NativeSymbolInfo", "NativeSymbol",
         function(from)
