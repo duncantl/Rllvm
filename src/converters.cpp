@@ -251,6 +251,8 @@ SEXP
 convertNativeValuePtrToR(void *ptr, const llvm::Type *type)
 {
     SEXP ans = R_NilValue;
+    if(!ptr)
+        return(ans);
 
     llvm::Type::TypeID ty = type->getTypeID();
 
