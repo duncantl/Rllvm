@@ -13,3 +13,13 @@ setMethod("getType", "Value",
               ans
         })
 
+
+
+getLinkage =
+function(obj)
+{
+   ans = .Call("R_GlobalValue_getLinkage", obj)
+   # now match to known constants
+   i = match(ans, LinkageTypes)
+   LinkageTypes[i]
+}
