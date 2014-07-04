@@ -36,7 +36,30 @@ R_initPassRegistry(SEXP r_registry)
 
 
 
+#include  <llvm/Transforms/Scalar.h>
+extern "C"
+SEXP 
+R_createAggressiveDCEPass()
+{
+    llvm::FunctionPass *pass = llvm::createAggressiveDCEPass();
+    return(R_createRef(pass, "FunctionPass"));
+}
 
 
+extern "C"
+SEXP 
+R_createDeadCodeEliminationPass()
+{
+    llvm::FunctionPass *pass = llvm::createDeadCodeEliminationPass();
+    return(R_createRef(pass, "FunctionPass"));
+}
+
+extern "C"
+SEXP 
+R_createDeadStoreEliminationPass()
+{
+    llvm::FunctionPass *pass = llvm::createDeadStoreEliminationPass();
+    return(R_createRef(pass, "FunctionPass"));
+}
 
 

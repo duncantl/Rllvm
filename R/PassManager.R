@@ -24,3 +24,16 @@ setMethod("run", c("PassManager"),
            function(.x, mod, ...) {
              .Call("R_PassManager_run", .x, mod)
            })
+
+
+createDeadStoreEliminationPass =
+function()
+  .Call("R_createDeadStoreEliminationPass")
+
+createDeadCodeEliminationPass =
+function()
+  .Call("R_createDeadCodeEliminationPass")
+
+createAgressiveDCEPass =
+function()
+  .Call("R_createAgressiveDCEPass")    
