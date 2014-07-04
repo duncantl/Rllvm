@@ -32,6 +32,15 @@ R_GlobalValue_getParent(SEXP r_val)
     return(R_createRef(ans, "Module"));
 }
 
+extern "C"
+SEXP
+R_GlobalValue_getLinkage(SEXP r_val)
+{
+    llvm::GlobalValue *val = GET_REF(r_val, GlobalValue);
+    llvm::GlobalValue::LinkageTypes ans = val->getLinkage();
+    return(ScalarInteger(ans));
+}
+
 
 extern "C"
 SEXP
