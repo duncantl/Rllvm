@@ -57,7 +57,7 @@ function(val, context = getGlobalContext(), type = NULL, bitwidth = 32L, radix =
 setMethod("createIntegerConstant", c("integer"), .tmp)
 setMethod("createIntegerConstant", c("numeric"), .tmp)
 
-
+rm(.tmp)
 
 createFloatingPointConstant = createDoubleConstant =
 function(val, context = getGlobalContext(), type = DoubleType)
