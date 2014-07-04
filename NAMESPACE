@@ -43,6 +43,7 @@ exportClasses(
   User,
   Value,
   FunctionPassManager,
+  FunctionPass,
   BinaryOperator)
 
 exportMethods("$", "names", "names<-", "run", "setName", "getName", "$",
@@ -415,3 +416,12 @@ export(parseIRError)
 export(getCondition)
 export(getValue)
 export(getNULLPointer)
+
+
+export(isVarArg)
+
+
+export(createAgressiveDCEPass, createDeadCodeEliminationPass, createDeadStoreEliminationPass)
+
+export(shutdown)
+

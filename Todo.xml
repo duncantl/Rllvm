@@ -256,6 +256,24 @@ Need the -xc++ argument for  libclang to force C++.
 <items>
 
 <item>
+Shutdown and restart.
+See RLLVMCompile/tests/serialize.R
+</item>
+
+
+<item status="low">
+THIS WORKS now, but not certain why the type is wrong
+<br/>
+When trying to get value of a global variable in a module before it is set,
+<r:expr>m[[varName, ee = ee]]</r:expr> throws an error.
+It comes from getGlobalValue() which calls the C routine
+convertNativeValuePtrToR() and it thinks the type is an Array.
+See RLLVMCompile/explorations/callbacksSerialize.R and the <r:expr>m[[ ]]</r:expr> call before 
+invoking the LLVM routine.
+</item>
+
+
+<item>
 Set alignment for parameters and arguments.
 </item>
 

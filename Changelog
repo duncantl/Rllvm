@@ -1,5 +1,10 @@
 Version 0.7-0
 
+	*  Constructors for additional Pass objects -
+	      createAgressiveDCEPass(), reateDeadCodeEliminationPass(), createDeadStoreEliminationPass()
+
+	*  Function[[ name ]] method
+
 	*  getNULLPointer() function
 
 	*  createConstant() with a type converts the value to that.
@@ -23,7 +28,7 @@ Version 0.7-0
 
 Version 0.6-0
 
-	*  added generatePTX() to convert Module to PTX code. See Rnvvm and libNVVM 
+	*  added generatePTX() to convert Module to PTX code. See Rnvvm and libNVVM
 	   for other an additional approach.
 
 	*  added support specifying address space when creating pointer types
