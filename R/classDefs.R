@@ -178,6 +178,7 @@ setClass("TargetLibraryInfo", contains = "RC++Reference")
 
 setClass("PassRegistry", contains = "RC++Reference")
 setClass("Pass", contains = "RC++Reference")
+setClass("FunctionPass", contains = "RC++Reference")
 setClass("ImmutablePass", contains = "Pass")
 setClass("DataLayout", contains = "ImmutablePass") 
 
@@ -200,3 +201,23 @@ setMethod("llvmDump", "Type",
 
 
 setGeneric("getValue", function(x, ...) standardGeneric("getValue"))
+
+
+setMethod("getValue", "Value",
+           function(x, ...)
+              .Call("R_convertValueToR", x))
+
+setMethod("getValue", "MDNode",
+           function(x, ...) {
+             sapply(seq(1, length = getNumOperands(x)),
+                     function(i)
+                         getValue(x[[i]]))
+           })
+
+setMethod("getValue", "NamedMDNode",
+           function(x, ...) {
+             sapply(seq(1, length = getNumOperands(x)),
+                     function(i)
+                         getValue(x[[i]]))
+           })
+          

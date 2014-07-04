@@ -96,6 +96,8 @@ convertPointerToR(const llvm::GenericValue *val, const llvm::Type *type)
 }
 
 
+
+
 SEXP
 convertGenericValueToR(const llvm::GenericValue *val, const llvm::Type *type)
 {
@@ -127,6 +129,7 @@ convertGenericValueToR(const llvm::GenericValue *val, const llvm::Type *type)
 
     return(ans);
 }
+
 
 /* #include <llvm/DerivedTypes.h> */
 
@@ -294,4 +297,45 @@ R_convertNativeValuePtrToR(SEXP r_ptr, SEXP r_type)
     if(ty->getTypeID() == llvm::Type::PointerTyID)
         ptr = * ((void **) ptr);
     return(convertNativeValuePtrToR(ptr, ty));
+}
+
+
+
+
+
+extern "C"
+SEXP
+R_convertValueToR(SEXP r_val)
+{
+    llvm::Value *val = GET_REF(r_val, Value);
+    if(llvm::dyn_cast<llvm::Constant>(val)) {
+        if(llvm::dyn_cast<llvm::ConstantInt>(val)) {
+            llvm::ConstantInt *tmp = llvm::dyn_cast<llvm::ConstantInt>(val);
+            return(ScalarInteger(tmp->getSExtValue()));
+        } else if(llvm::dyn_cast<llvm::ConstantFP>(val)) {
+            llvm::ConstantFP *tmp = llvm::dyn_cast<llvm::ConstantFP>(val);
+            /* See Constants.cpp */
+            const llvm::APFloat &lval = tmp->getValueAPF();
+            double val = lval.convertToDouble();
+            return(ScalarReal(val)); 
+        } else if(llvm::dyn_cast<llvm::ConstantPointerNull>(val)) {
+            return(R_NilValue);
+        } else if(llvm::dyn_cast<llvm::ConstantArray>(val)) {
+            fprintf(stderr, "ConstantArray\n");
+        } else if(llvm::dyn_cast<llvm::ConstantDataSequential>(val)) {
+            fprintf(stderr, "ConstantDataSequential\n");
+        } else if(llvm::dyn_cast<llvm::ConstantDataArray>(val)) {
+            fprintf(stderr, "ConstantDataArray\n");
+        }
+    } else if(llvm::dyn_cast<llvm::MDString>(val)) {
+        llvm::MDString *tmp = llvm::dyn_cast<llvm::MDString>(val);
+        llvm::StringRef str = tmp->getString();
+        return(mkString(str.data()));
+    } else if(llvm::MDString::classof(val)) {
+            fprintf(stderr, "MDString via classof()\n");
+    }
+
+    PROBLEM  "don't know what the class is of the Value"
+        ERROR;
+    return(R_NilValue);
 }
