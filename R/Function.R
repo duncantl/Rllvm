@@ -76,14 +76,23 @@ setMethod("[[", c("Function", "numeric"),
             .Call("R_Function_getParam", x, as.integer(i) - 1L)
           })
 
+.xtmp =
+function(x, name) {
+    i = pmatch(name, names(x))
+    if(is.na(i))
+        stop("no such parameter in the LLVM routine")
+    x[[i]]
+}
 
-setMethod("$", "Function",
-           function(x, name) {
-             i = pmatch(name, names(x))
-             if(is.na(i))
-               stop("no such parameter in the LLVM routine")
-             x[[i]]
-           })
+setMethod("$", "Function", .xtmp)
+
+
+setMethod("[[", c("Function", "character"),
+          function(x, i, j, ...) {
+            .xtmp(x, i)
+          })
+.xtmp
+
 
 
 setLinkage =
@@ -247,3 +256,10 @@ function(fun, conv)
 getCallingConv =
 function(fun)
   as(.Call("R_Function_getCallingConv", as(fun, "Function")), "CallingConv")
+
+
+isVarArg =
+function(fun)
+{
+  .Call("R_Function_isVarArg", as(fun, "Function"))
+}

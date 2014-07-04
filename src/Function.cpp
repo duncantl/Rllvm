@@ -294,7 +294,13 @@ R_Function_getAttributes(SEXP r_func)
 
 
 
-
+extern "C"
+SEXP
+R_Function_isVarArg(SEXP r_func)
+{
+    llvm::Function *func = GET_REF(r_func, Function);
+    return(ScalarLogical(func->isVarArg()));
+}
 
 
 
