@@ -17,6 +17,14 @@ R_InitializeNativeTarget()
     llvm::InitializeNativeTarget();
 }
 
+#include <llvm/Support/ManagedStatic.h>
+extern "C"
+void
+R_LLVMShutdown()
+{
+    llvm::llvm_shutdown();
+}
+
 
 #if 0
 /* why did we define this here when it creates a routine that does nothing. */

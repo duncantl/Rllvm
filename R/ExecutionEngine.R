@@ -72,7 +72,12 @@ setMethod("run", "Function", .llvmCallFunction)
 
 
 .llvm = .llvmCallFunction
-               
+
+llvmShutdow = shutdown =
+function()
+{
+    .C("R_LLVMShutdown")
+}    
 
 InitializeNativeTarget =
 function()
