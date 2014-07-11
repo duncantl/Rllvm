@@ -68,8 +68,11 @@ function(builder, fun, ..., .args = list(...), id = character())
 
 
 createBr = createBranch =
-function(builder, block)
+function(builder, block, check = TRUE)
 {
+  if(identical(block, getInsertBlock(builder)))
+      warning("setting a branch to the same block. This often results in  an infinite loop!")
+  
   .Call("R_IRBuilder_CreateBr", builder, block)
 }
 
