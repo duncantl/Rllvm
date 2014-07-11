@@ -40,3 +40,4 @@ Collate: llvmVersion.R classDefs.R manual_generics.R BinaryOpEnums.R Function.R 
          llvmPTXUtils.R
          byVal.R
          getCondition.R
+         passConstructors.R 
