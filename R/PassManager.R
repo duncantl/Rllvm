@@ -26,6 +26,7 @@ setMethod("run", c("PassManager"),
            })
 
 
+if(FALSE) {
 createDeadStoreEliminationPass =
 function()
   .Call("R_createDeadStoreEliminationPass")
@@ -36,4 +37,14 @@ function()
 
 createAgressiveDCEPass =
 function()
-  .Call("R_createAgressiveDCEPass")    
+  .Call("R_createAgressiveDCEPass")
+
+createLICMPass =
+function()
+  .Call("R_createLICMPass")
+}
+
+
+
+
+
