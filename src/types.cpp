@@ -146,7 +146,7 @@ R_Type_getContext(SEXP r_type)
  extern "C" SEXP R_Type_is##typeName(SEXP r_type) {\
      llvm::Type *ty = GET_TYPE(r_type); \
      return(ScalarLogical(ty->is##typeName##Ty())); \
-  }
+}
 
 
 R_isType(Void)
