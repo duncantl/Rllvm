@@ -7,6 +7,10 @@
 <items>
 
 <item>
+accessor for a BranchInst object to be able to get the target block.
+</item>
+
+<item>
 Implement R functions to call the Argument has* methods.
 The C++ code exists.
 </item>
@@ -40,6 +44,12 @@ Methods to create the Instruction classes  that were missing.
 <item status="done">
 Do we need the specific methods for getOperands, etc.??
 Don't think so!
+</item>
+
+<item>
+Why does creating the passManager() with a module not 
+do the same thing as creating it with no module and then 
+call run(mgr, module)
 </item>
 
 <item>

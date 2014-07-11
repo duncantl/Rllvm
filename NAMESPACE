@@ -421,7 +421,37 @@ export(getNULLPointer)
 export(isVarArg)
 
 
-export(createAgressiveDCEPass, createDeadCodeEliminationPass, createDeadStoreEliminationPass)
+#export(createAggressiveDCEPass, createDeadCodeEliminationPass, createDeadStoreEliminationPass)
+
+export( createAggressiveDCEPass,
+  createDeadCodeEliminationPass,
+  createDeadStoreEliminationPass,
+  createInstructionCombiningPass,
+  createPromoteMemoryToRegisterPass,
+  createDemoteRegisterToMemoryPass,
+  createReassociatePass,
+  createCFGSimplificationPass,
+  createJumpThreadingPass,
+  createTailCallEliminationPass,
+  createFlattenCFGPass,
+  createMemCpyOptPass,
+  createCodeGenPreparePass,
+  createInstructionSimplifierPass,
+  createSinkingPass,
+  createStructurizeCFGPass,
+  createLoopSimplifyPass,
+  createLICMPass,
+  createSROAPass,
+  createScalarReplAggregatesPass,
+  createIndVarSimplifyPass,
+  createLoopStrengthReducePass,
+  createGlobalMergePass,
+  createLoopDeletionPass,
+  createCorrelatedValuePropagationPass,
+  createPartiallyInlineLibCallsPass )
 
 export(shutdown)
 
+
+export(onlyReadsMemory)
+exportMethods(onlyReadsMemory)
