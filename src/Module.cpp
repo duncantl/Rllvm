@@ -462,3 +462,31 @@ R_Module_getNamedMetadata(SEXP r_mod, SEXP r_id)
       return(R_NilValue);
   return(R_createRef(node, "NamedMDNode"));
 }
+
+extern "C"
+SEXP
+R_Module_getNamedMDList(SEXP r_mod)
+{
+  llvm::Module *mod = GET_REF(r_mod, Module);     
+  const llvm::Module::NamedMDListType &node = mod->getNamedMDList();
+  int n = node.size();
+  R_xlen_t i = 0;
+
+  if(n == 0)
+      return(R_NilValue);
+
+
+  SEXP rans, names;
+  PROTECT(rans = NEW_LIST(n));
+  PROTECT(names = NEW_CHARACTER(n));
+
+  for(llvm::iplist<const llvm::NamedMDNode>::iterator it = node.begin(); it != node.end(); it++, i++) {
+        const llvm::NamedMDNode *cur = &(*it);
+        SET_STRING_ELT(names, i, mkChar(cur->getName().data()));
+        SET_VECTOR_ELT(rans, i, R_createRef(cur, "NamedMDNode"));
+  }
+
+  SET_NAMES(rans, names);
+  UNPROTECT(2);
+  return(rans);
+}
