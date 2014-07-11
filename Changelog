@@ -1,5 +1,11 @@
 Version 0.7-0
 
+	*  .llvm() has a .duplicate argument that allows the caller to control which arguments are
+	   explicitly duplicated before the call. .llvm() guesses based on readonly variables and is
+	   conservative otherwise, leading potentially to unnecessary copies.
+
+	*  getMetadata(module) method to get all the metadata elements in the Modue.
+
 	*  Constructors for additional Pass objects -
 	      createAgressiveDCEPass(), reateDeadCodeEliminationPass(), createDeadStoreEliminationPass()
 
