@@ -45,7 +45,10 @@ getMetadata(module, id, ...)
     identifies which metadata field we want}
   \item{values}{a list of values to use as the metadata. These are
     coerced to \code{MDNode} objects.}
-  \item{\dots}{additional arguments for the methods}
+  \item{\dots}{additional arguments for the methods.
+    \code{create = TRUE/FALSE} controls whether we create the
+    metadata node regardless of whether it already exists.
+   }
 }
 %\value{}
 %\references{}
