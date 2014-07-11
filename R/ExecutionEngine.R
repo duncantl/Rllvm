@@ -44,6 +44,17 @@ function(engine, ...)
    .Call("R_ExecutionEngine_addModule", engine, mods)
 }
 
+
+needsDuplicate =
+function(arg)
+  !onlyReadsMemory(arg) && isPointerType(getType(arg)) 
+
+.duplicateArgs =
+function(fun)
+{
+  which(sapply(getFunctionArgs(fun), needsDuplicate))
+}
+
 # Use the name .x so that we don't conflict with routines with parameters named x
 # which  we want to name in our call, e.g for mutable parameters we want back.
 setGeneric("run",
@@ -51,7 +62,8 @@ setGeneric("run",
 	       standardGeneric("run"))
 
 .llvmCallFunction =
-function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .all = FALSE) 
+function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .all = FALSE,
+          .duplicate = .duplicateArgs(.x)) 
 {
   if(!is(.x, "Function"))
     stop("argument to .llvm must be a Function")
@@ -59,6 +71,10 @@ function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .a
 # If an argument is a Function, we probably want to treat it as a function pointer and so want
 # its address which can be obtained via getPointerToFunction() with the exec engine also.
 #  .args = lapply(.args, function(x) if(is(x, "Function")) getPointerToFunction(x, .ee)@ref else x)
+
+  if(length(.duplicate))
+    .args[.duplicate] =  lapply(.args[.duplicate], function(x) .Call('Rf_duplicate', x))
+
   
    ans = .Call("R_callFunction", .x, .args, .ee)
 
