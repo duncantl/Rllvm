@@ -71,6 +71,13 @@ function(fun, addNames = TRUE)
    ans
 }
 
+
+setMethod("[", c("Function", "numeric", "missing"),
+          function(x, i, j, ...) {
+#            lapply(i, function(idx) x[[idx]])
+              getFunctionArgs(x)
+          })
+
 setMethod("[[", c("Function", "numeric"),
           function(x, i, j, ...) {
             .Call("R_Function_getParam", x, as.integer(i) - 1L)
