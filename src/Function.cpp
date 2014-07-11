@@ -34,6 +34,9 @@ R_Function_onlyReadsMemory(SEXP r_func)
     return(ScalarLogical(func->onlyReadsMemory()));
 }
 
+
+
+
 extern "C"
 SEXP
 R_Function_setOnlyReadsMemory(SEXP r_func, SEXP r_val)
@@ -233,6 +236,18 @@ R_Argument_setAttributes(SEXP r_arg, SEXP r_vals)
 }
 
 
+extern "C"
+SEXP
+R_Argument_mutateType(SEXP r_arg, SEXP r_type)
+{
+     llvm::Argument *arg = GET_REF(r_arg, Argument);
+     llvm::Type *ty = GET_TYPE(r_type);
+     arg->mutateType(ty);
+     return(R_NilValue);
+}
+
+
+
 #define R_LLVM_ARG_HAS(name) \
 extern "C" \
 SEXP  \
@@ -249,6 +264,15 @@ R_LLVM_ARG_HAS(NoAlias)
 R_LLVM_ARG_HAS(NoCapture)
 R_LLVM_ARG_HAS(StructRet)
 //R_LLVM_ARG_HAS(InAlloca)
+
+
+extern "C"
+SEXP
+R_Argument_onlyReadsMemory(SEXP r_func)
+{
+    llvm::Argument *func = GET_REF(r_func, Argument);
+    return(ScalarLogical(func->onlyReadsMemory()));
+}
 
 #if 0
 extern "C"
