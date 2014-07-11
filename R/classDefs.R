@@ -221,3 +221,17 @@ setMethod("getValue", "NamedMDNode",
                          getValue(x[[i]]))
            })
           
+
+
+
+setGeneric("onlyReadsMemory",
+            function(x, ...)
+                standardGeneric("onlyReadsMemory"))
+
+
+setMethod("onlyReadsMemory", "Function",
+            function(x, ...)
+                .Call("R_Function_onlyReadsMemory", x))
+setMethod("onlyReadsMemory", "Argument",
+            function(x, ...)
+                .Call("R_Argument_onlyReadsMemory", x))
