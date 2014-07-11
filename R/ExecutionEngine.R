@@ -52,7 +52,10 @@ function(arg)
 .duplicateArgs =
 function(fun)
 {
-  which(sapply(getFunctionArgs(fun), needsDuplicate))
+  args = getFunctionArgs(fun)
+  if(length(args) == 0)
+      return(integer())
+  which(sapply(args, needsDuplicate))
 }
 
 # Use the name .x so that we don't conflict with routines with parameters named x
