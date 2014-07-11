@@ -17,7 +17,7 @@ function(...)
          types, 
          MoreArgs = list(ns = e))
 
-# The StructType class isn't available yet at this stage in loading the packge.
+# The StructType class isn't available yet at this stage in loading the package.
   tmp =  makeSEXPTypes(rawPointer = TRUE)
   mapply(utils::assignInNamespace,
           c("SEXPType", sprintf("%sSXPType", names(tmp)[-1])),
