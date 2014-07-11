@@ -1,3 +1,8 @@
+setMethod("show", "BasicBlock",
+          function(object) {
+             cat("[BasicBlock] %", getName(object), "\n", sep = "")
+          })
+
 Block =
 function(fun, id = character(), context = getGlobalContext(), n = 1)
 {
