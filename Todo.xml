@@ -47,6 +47,18 @@ Don't think so!
 </item>
 
 <item>
+Function[] returning too many values.
+In RLLVMCompile in source("BML2.R"), the code
+<r:code>
+          mapply(function(type, arg) {
+                      if(isPointerType(type))
+                         setParamAttributes(arg, LLVMAttributes["ReadOnly"])
+                   }, argTypes[k], llvm.fun[idx])
+</r:code>
+gives different lengths for argTypes[k] and llvm.fun[idx].
+</item>
+
+<item>
 Why does creating the passManager() with a module not 
 do the same thing as creating it with no module and then 
 call run(mgr, module)

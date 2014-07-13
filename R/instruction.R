@@ -65,6 +65,13 @@ function(inst, to)
  .Call("R_Instruction_insertAfter", as(inst, "Instruction"), as(to, "Instruction"))
 }
 
+insertAtEnd =
+function(inst, block)
+{
+   i = getBlockInstructions(block)
+   insertAfter(inst, i[[length(i)]])
+}
+
 
 moveBefore =
 function(inst, to)

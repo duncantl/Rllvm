@@ -26,7 +26,7 @@ setMethod("Optimize",   "Module",
           {
                # should we run optimize on the module. Could it do better in the larger context.
             fun = getModuleFunctions(obj)
-            lapply(fun, Optimize, mgr)
+            lapply(fun, Optimize, mgr, level = level, ...)
             
             TRUE
           })

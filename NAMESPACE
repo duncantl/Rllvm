@@ -44,7 +44,8 @@ exportClasses(
   Value,
   FunctionPassManager,
   FunctionPass,
-  BinaryOperator)
+  BinaryOperator,
+  SelectInst)
 
 exportMethods("$", "names", "names<-", "run", "setName", "getName", "$",
                createIntegerConstant, coerce)
@@ -413,7 +414,7 @@ exportMethods(isInBounds, "isInBounds<-")
 export(parseIRError)
 
 # Document.
-export(getCondition)
+export(getCondition, getSuccessor, getNumSuccessors, isConditional)
 export(getValue)
 export(getNULLPointer)
 
@@ -455,3 +456,6 @@ export(shutdown)
 
 export(onlyReadsMemory)
 exportMethods(onlyReadsMemory)
+
+export(insertAtEnd)
+

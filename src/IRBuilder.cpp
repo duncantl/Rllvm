@@ -214,6 +214,39 @@ R_BranchInst_getCondition(SEXP r_branch)
     return(R_createRef(ans, "Value"));    
 }
 
+extern "C"
+SEXP
+R_BranchInst_getNumSuccessors(SEXP r_branch)
+{
+    llvm::BranchInst *branch;
+    branch = GET_REF(r_branch, BranchInst);
+    return(ScalarInteger(branch->getNumSuccessors()));
+}
+
+extern "C"
+SEXP
+R_BranchInst_isConditional(SEXP r_branch)
+{
+    llvm::BranchInst *branch;
+    branch = GET_REF(r_branch, BranchInst);
+    return(ScalarLogical(branch->isConditional()));
+}
+
+extern "C"
+SEXP
+R_BranchInst_getSuccessor(SEXP r_branch, SEXP r_i)
+{
+    llvm::BranchInst *branch;
+    branch = GET_REF(r_branch, BranchInst);
+    if(INTEGER(r_i)[0] >= branch->getNumSuccessors()) {
+	PROBLEM "asking to retrieve a BranchInst successor beyond the actual number %d", branch->getNumSuccessors()
+	    ERROR;
+    }
+    return(R_createRef(branch->getSuccessor(INTEGER(r_i)[0], "BasicBlock")));
+}
+
+
+
 
 extern "C"
 SEXP

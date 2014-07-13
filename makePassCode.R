@@ -24,7 +24,9 @@ funPasses = c("createAggressiveDCEPass",
 "createGlobalMergePass",
 "createLoopDeletionPass",
 "createCorrelatedValuePropagationPass",
-"createPartiallyInlineLibCallsPass")
+"createPartiallyInlineLibCallsPass",
+
+"createCostModelAnalysisPass")
 
 
 mkPassFun =

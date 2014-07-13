@@ -1,5 +1,8 @@
 Version 0.7-0
 
+	*  insertAtEnd() function to put a instruction at the end of a block. The instruction should
+	   probably be a terminator.
+
 	*  .llvm() has a .duplicate argument that allows the caller to control which arguments are
 	   explicitly duplicated before the call. .llvm() guesses based on readonly variables and is
 	   conservative otherwise, leading potentially to unnecessary copies.
