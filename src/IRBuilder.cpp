@@ -242,7 +242,7 @@ R_BranchInst_getSuccessor(SEXP r_branch, SEXP r_i)
 	PROBLEM "asking to retrieve a BranchInst successor beyond the actual number %d", branch->getNumSuccessors()
 	    ERROR;
     }
-    return(R_createRef(branch->getSuccessor(INTEGER(r_i)[0], "BasicBlock")));
+    return(R_createRef(branch->getSuccessor(INTEGER(r_i)[0]), "BasicBlock"));
 }
 
 
