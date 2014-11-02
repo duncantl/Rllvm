@@ -35,6 +35,7 @@ R_llvm_shutdown()
     llvm::llvm_shutdown();
 }
 
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
 #include <llvm/Support/Threading.h>
 extern "C"
 SEXP
@@ -52,7 +53,7 @@ R_llvm_stop_multithreaded()
     return(ScalarLogical(ans));
 }
 #endif
-
+#endif
 
 
 extern "C"

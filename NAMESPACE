@@ -272,6 +272,8 @@ export(getGlobalVariables, getModuleGlobals)
 
 export(structType, getElementTypes)
 
+export(functionType)
+
 export(arrayType, getNumElements)
 export(vectorType)
 

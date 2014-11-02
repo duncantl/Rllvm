@@ -53,7 +53,7 @@ R_flush_formatted_raw_ostream(SEXP r_stream)
     return(R_NilValue);
 }
 
-
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
 extern "C"
 SEXP
 R_new_raw_fd_ostream(SEXP r_filename)
@@ -67,7 +67,7 @@ R_new_raw_fd_ostream(SEXP r_filename)
     }
     return(R_createRef(ans, "raw_fd_ostream"));
 }
-
+#endif
 
 extern "C"
 SEXP

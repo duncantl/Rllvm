@@ -134,9 +134,15 @@ R_verifyModule(SEXP r_module)
 #endif
         std::string errors;
                                                  // was PrintMessageAction
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
         bool status = llvm::verifyModule(*module, llvm::ReturnStatusAction, &errors); 
+
+#else
+    	llvm::raw_string_ostream OS(errors);
+        bool status = llvm::verifyModule(*module, &OS); 
+#endif
         if(status != false) {
-            PROBLEM "module verification: %s", errors.c_str()
+            PROBLEM "module verification: %s ", errors.c_str()
                 ERROR;
         }
 #ifdef USE_EXCEPTIONS
@@ -168,11 +174,26 @@ SEXP
 R_showModule(SEXP r_module, SEXP asString)
 {
     llvm::Module *Mod = GET_REF(r_module, Module);
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
     verifyModule(*Mod, llvm::PrintMessageAction);
+#else
+    verifyModule(*Mod);
+#endif
     llvm::PassManager PM;
     std::string str;
-    llvm::raw_string_ostream to(str);
-    PM.add(llvm::createPrintModulePass(LOGICAL(asString)[0] ? &to : &llvm::outs()));
+	
+    
+    if (LOGICAL(asString)[0]) {
+	llvm::raw_string_ostream to(str);
+	PM.add(llvm::createPrintModulePass(to));
+    } else {
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
+	PM.add(llvm::createPrintModulePass(&llvm::outs()));
+#else
+	PM.add(llvm::createPrintModulePass(llvm::outs()));
+#endif
+    }
+    
     PM.run(*Mod);
     if(LOGICAL(asString)[0])
       return(ScalarString(mkChar(str.data())));
@@ -197,7 +218,11 @@ SEXP
 R_Module_getDataLayout(SEXP r_module)
 {
     llvm::Module *mod = GET_REF(r_module, Module);
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
     const char *str = mod->getDataLayout().c_str();
+#else
+    const char *str = mod->getDataLayout()->getStringRepresentation().c_str();
+#endif
     return(str ? ScalarString(mkChar(str)) : NEW_CHARACTER(0));
 }
 
@@ -308,8 +333,11 @@ R_Module_getGlobalVariable(SEXP r_module, SEXP r_name, SEXP r_allowInternal)
     return(R_createRef(var, "GlobalVariable"));
 }
 
-
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
 #include <llvm/Assembly/Parser.h>
+#else
+#include <llvm/AsmParser/Parser.h>
+#endif
 #include <llvm/Support/SourceMgr.h>
 
 extern "C"
@@ -362,8 +390,9 @@ R_Module_CloneModule(SEXP r_module)
 
     return(R_createRef(ans, "Module"));
 }
-
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
 #include <llvm/Support/system_error.h>
+#endif
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Bitcode/ReaderWriter.h>
 
@@ -392,7 +421,7 @@ R_WriteBitcodeToFile(SEXP r_module, SEXP r_to)
 #endif
 
 
-
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
 //   Module *ParseBitcodeFile(MemoryBuffer *Buffer, LLVMContext &Context,
 //                           std::string *ErrMsg = 0);
 extern "C"
@@ -406,16 +435,28 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
         context = & llvm::getGlobalContext();
 
     llvm::MemoryBuffer *buf;
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
     llvm::error_code ec;
+#else
+    std::error_code ec;
+#endif
     
     if(TYPEOF(r_input) == STRSXP) {
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
         llvm::OwningPtr<llvm::MemoryBuffer> tmp;
+#else
+	std::unique_ptr<llvm::MemoryBuffer> tmp;
+#endif
         ec = llvm::MemoryBuffer::getFile(CHAR(STRING_ELT(r_input, 0)), tmp);
         if(ec) {
             PROBLEM "error reading file: %s", ec.message().c_str()
             ERROR;
         }
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
         buf = tmp.take();
+#else
+	buf = std::move(tmp);
+#endif
     } else {
 #if 1
        llvm::StringRef ref((const char *) RAW(r_input), Rf_length(r_input));
@@ -428,7 +469,11 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
 
     
     std::string msg;
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
     llvm::Module *ans = llvm::ParseBitcodeFile(buf, *context, &msg);
+#else
+    llvm::Module *ans = llvm::parseBitcodeFile(buf, *context, &msg);
+#endif
     if(!ans) {
         PROBLEM "failed to read bitcode %s", msg.c_str()
          ERROR;
@@ -436,7 +481,7 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
     return(R_createRef(ans, "Module"));    
 }
 
-
+#endif
 
 #include <llvm/ADT/Triple.h>
 

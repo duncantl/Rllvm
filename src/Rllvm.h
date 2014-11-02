@@ -24,14 +24,20 @@
 #include <algorithm>
 
 #endif
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
+#include <llvm/Analysis/Verifier.h>
+#include <llvm/Assembly/PrintModulePass.h>
+#else
+#include <llvm/IR/Verifier.h>
+#include <llvm/IR/IRPrintingPasses.h>
+#endif
 
 #include <llvm/Support/FormattedStream.h>
 #include <llvm/Support/MathExtras.h>
 #include <llvm/Pass.h>
 #include <llvm/PassManager.h>
 #include <llvm/ADT/SmallVector.h>
-#include <llvm/Analysis/Verifier.h>
-#include <llvm/Assembly/PrintModulePass.h>
+
 
 
 #include <Rdefines.h>
