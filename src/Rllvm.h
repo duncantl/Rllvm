@@ -30,9 +30,7 @@
 #include <llvm/Pass.h>
 #include <llvm/PassManager.h>
 #include <llvm/ADT/SmallVector.h>
-#include <llvm/Analysis/Verifier.h>
-#include <llvm/Assembly/PrintModulePass.h>
-
+#include <llvm/IR/Verifier.h>
 
 #include <Rdefines.h>
 

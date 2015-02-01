@@ -309,7 +309,7 @@ R_Module_getGlobalVariable(SEXP r_module, SEXP r_name, SEXP r_allowInternal)
 }
 
 
-#include <llvm/Assembly/Parser.h>
+#include <llvm/AsmParser/Parser.h>
 #include <llvm/Support/SourceMgr.h>
 
 extern "C"
@@ -363,7 +363,6 @@ R_Module_CloneModule(SEXP r_module)
     return(R_createRef(ans, "Module"));
 }
 
-#include <llvm/Support/system_error.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Bitcode/ReaderWriter.h>
 
