@@ -38,6 +38,10 @@ R_initPassRegistry(SEXP r_registry)
 
 #include  <llvm/Transforms/Scalar.h>
 
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 5
+#include <llvm/LinkAllPasses.h>
+#endif
+
 #define R_CREATE_FUNPASS(id) \
 extern "C" \
 SEXP  \

@@ -134,7 +134,13 @@ R_verifyModule(SEXP r_module)
 #endif
         std::string errors;
                                                  // was PrintMessageAction
-        bool status = llvm::verifyModule(*module, llvm::ReturnStatusAction, &errors); 
+        bool status;
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
+        status = llvm::verifyModule(*module, llvm::ReturnStatusAction, &errors);
+#else
+        llvm::raw_string_ostream OS(errors);
+        status = llvm::verifyModule(*module, &OS);
+#endif
         if(status != false) {
             PROBLEM "module verification: %s", errors.c_str()
                 ERROR;
@@ -168,11 +174,21 @@ SEXP
 R_showModule(SEXP r_module, SEXP asString)
 {
     llvm::Module *Mod = GET_REF(r_module, Module);
+
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
     verifyModule(*Mod, llvm::PrintMessageAction);
+#else
+    verifyModule(*Mod); //XXX Check
+#endif
     llvm::PassManager PM;
     std::string str;
     llvm::raw_string_ostream to(str);
-    PM.add(llvm::createPrintModulePass(LOGICAL(asString)[0] ? &to : &llvm::outs()));
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
+    PM.add(llvm::createPrintModulePass(&llvm::outs()));
+#else
+    PM.add(llvm::createPrintModulePass(llvm::outs()));
+#endif
+
     PM.run(*Mod);
     if(LOGICAL(asString)[0])
       return(ScalarString(mkChar(str.data())));
@@ -197,7 +213,13 @@ SEXP
 R_Module_getDataLayout(SEXP r_module)
 {
     llvm::Module *mod = GET_REF(r_module, Module);
+
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
     const char *str = mod->getDataLayout().c_str();
+#else
+    const char *str = mod->getDataLayout()->getStringRepresentation().c_str();
+#endif
+
     return(str ? ScalarString(mkChar(str)) : NEW_CHARACTER(0));
 }
 
@@ -309,7 +331,12 @@ R_Module_getGlobalVariable(SEXP r_module, SEXP r_name, SEXP r_allowInternal)
 }
 
 
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
 #include <llvm/Assembly/Parser.h>
+#else
+#include <llvm/AsmParser/Parser.h>
+#endif
+
 #include <llvm/Support/SourceMgr.h>
 
 extern "C"
@@ -363,7 +390,10 @@ R_Module_CloneModule(SEXP r_module)
     return(R_createRef(ans, "Module"));
 }
 
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
 #include <llvm/Support/system_error.h>
+#endif
+
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Bitcode/ReaderWriter.h>
 
@@ -406,9 +436,11 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
         context = & llvm::getGlobalContext();
 
     llvm::MemoryBuffer *buf;
-    llvm::error_code ec;
-    
+
     if(TYPEOF(r_input) == STRSXP) {
+
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
+        llvm::error_code ec;
         llvm::OwningPtr<llvm::MemoryBuffer> tmp;
         ec = llvm::MemoryBuffer::getFile(CHAR(STRING_ELT(r_input, 0)), tmp);
         if(ec) {
@@ -416,6 +448,18 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
             ERROR;
         }
         buf = tmp.take();
+#else
+        llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> ec = llvm::MemoryBuffer::getFile(CHAR(STRING_ELT(r_input, 0)));
+        if(!ec) {
+            PROBLEM "error reading file: %s", ec.getError().message().c_str()
+            ERROR;
+        }
+
+//        std::unique_ptr<llvm::MemoryBuffer> tmp = ec.get();
+        buf = ec.get(); //std::move(ec.getStorage());
+#endif
+
+
     } else {
 #if 1
        llvm::StringRef ref((const char *) RAW(r_input), Rf_length(r_input));
@@ -426,13 +470,24 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
 #endif
     }
 
-    
+
+    llvm::Module *ans = NULL;
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5    
     std::string msg;
-    llvm::Module *ans = llvm::ParseBitcodeFile(buf, *context, &msg);
+    ans = llvm::ParseBitcodeFile(buf, *context, &msg);
     if(!ans) {
         PROBLEM "failed to read bitcode %s", msg.c_str()
          ERROR;
     }
+#else
+//XXX CHECK!
+    llvm::ErrorOr<llvm::Module *> err =  llvm::parseBitcodeFile(buf, *context);
+    if(!err) {
+        PROBLEM "failed to read bitcode %s", err.getError().message().c_str()
+         ERROR;
+    }
+#endif
+
     return(R_createRef(ans, "Module"));    
 }
 

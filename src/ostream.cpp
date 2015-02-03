@@ -1,5 +1,9 @@
 #include "Rllvm.h"
 
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 5
+#include <llvm/Support/FileSystem.h>
+#endif
+
 extern "C"
 SEXP
 R_new_raw_string_ostream(SEXP r_str)
@@ -56,11 +60,19 @@ R_flush_formatted_raw_ostream(SEXP r_stream)
 
 extern "C"
 SEXP
-R_new_raw_fd_ostream(SEXP r_filename)
+R_new_raw_fd_ostream(SEXP r_filename, SEXP r_flags)
 {
     std::string err;
     llvm::raw_fd_ostream *ans;
+
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 5
+    llvm::sys::fs::OpenFlags flags = llvm::sys::fs::OpenFlags::F_None;
+    if(Rf_length(r_flags))
+        flags = (llvm::sys::fs::OpenFlags) INTEGER(r_flags)[0];
+    ans = new llvm::raw_fd_ostream(CHAR(STRING_ELT(r_filename, 0)), err, flags);
+#else
     ans = new llvm::raw_fd_ostream(CHAR(STRING_ELT(r_filename, 0)), err);
+#endif
     if(!err.empty()) {
         PROBLEM "%s", err.c_str()
         ERROR;

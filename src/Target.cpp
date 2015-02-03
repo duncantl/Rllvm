@@ -67,7 +67,11 @@ R_Target_createTargetMachine(SEXP r_target, SEXP r_triple, SEXP r_cpu, SEXP r_fe
 #endif
         defaultOpts.TrapFuncName = "";
         defaultOpts.PositionIndependentExecutable = true;
+
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
         defaultOpts.EnableSegmentedStacks = false;
+#endif
+
         defaultOpts.UseInitArray = false;
 #ifdef LLVM_HAS_SSPBUFFERSIZE
         defaultOpts.SSPBufferSize = 0;

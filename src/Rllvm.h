@@ -30,8 +30,15 @@
 #include <llvm/Pass.h>
 #include <llvm/PassManager.h>
 #include <llvm/ADT/SmallVector.h>
+
+
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 5
+#include <llvm/IR/Verifier.h>
+#include <llvm/IR/IRPrintingPasses.h>
+#else
 #include <llvm/Analysis/Verifier.h>
 #include <llvm/Assembly/PrintModulePass.h>
+#endif
 
 
 #include <Rdefines.h>

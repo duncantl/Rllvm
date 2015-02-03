@@ -13,9 +13,14 @@ fi
 
 
 LLVM_VERSION_NUMBER=`${LLVM_CONFIG} --version | sed -e 's/svn//'`
-LLVM_VERSION=`${LLVM_CONFIG} --version | sed -e 's/\.[[0-9]]*//' | sed -e 's/svn//'`
-LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -e 's/[[0-9]]\.//' | sed -e 's/svn//'`
+dnl LLVM_VERSION=`${LLVM_CONFIG} --version | sed -e 's/\.[[0-9].]*//' | sed -e 's/svn//'`
+dnl LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -e 's/[[0-9]]\.//' | sed -e 's/svn//'`
 
+LLVM_VERSION=`${LLVM_CONFIG} --version | sed -Ee 's/\.[[0-9]]*(\.[[0-9]]*)?//' | sed -e 's/svn//'`
+LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -Ee 's/[[0-9]]\.//' | sed -Ee 's/\.[[0-9]]*//' | sed -e 's/svn//'`
+
+
+echo "LLVM_VERSION_NUMBER = ${LLVM_VERSION_NUMBER},  VERSION = ${LLVM_VERSION}, MINOR = ${LLVM_MINOR_VERSION}"
 
 CXXFLAGS=`${LLVM_CONFIG} --cxxflags`
 AC_LANG(C++)
