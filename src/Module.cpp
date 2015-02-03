@@ -435,7 +435,7 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
     else
         context = & llvm::getGlobalContext();
 
-    llvm::MemoryBuffer *buf;
+    llvm::MemoryBuffer *buf = NULL;
 
     if(TYPEOF(r_input) == STRSXP) {
 
@@ -456,18 +456,14 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
         }
 
 //        std::unique_ptr<llvm::MemoryBuffer> tmp = ec.get();
-        buf = ec.get(); //std::move(ec.getStorage());
+        buf = ec.get().release(); //XXX Make certain to clean up.
 #endif
 
 
     } else {
-#if 1
+        //  Dealing with a raw() vector from R. So contents are in memory already.
        llvm::StringRef ref((const char *) RAW(r_input), Rf_length(r_input));
        buf = llvm::MemoryBuffer::getMemBuffer(ref, "", false);        
-#else
-       PROBLEM "handling of raw bitcode content not implemented yet"
-       ERROR;
-#endif
     }
 
 
@@ -486,6 +482,7 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
         PROBLEM "failed to read bitcode %s", err.getError().message().c_str()
          ERROR;
     }
+    ans = err.get();
 #endif
 
     return(R_createRef(ans, "Module"));    
