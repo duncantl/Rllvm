@@ -321,18 +321,26 @@ R_convertValueToR(SEXP r_val)
         } else if(llvm::dyn_cast<llvm::ConstantPointerNull>(val)) {
             return(R_NilValue);
         } else if(llvm::dyn_cast<llvm::ConstantArray>(val)) {
+#if R_DEBUG
             fprintf(stderr, "ConstantArray\n");
+#endif
         } else if(llvm::dyn_cast<llvm::ConstantDataSequential>(val)) {
+#if R_DEBUG
             fprintf(stderr, "ConstantDataSequential\n");
+#endif
         } else if(llvm::dyn_cast<llvm::ConstantDataArray>(val)) {
+#if R_DEBUG
             fprintf(stderr, "ConstantDataArray\n");
+#endif
         }
     } else if(llvm::dyn_cast<llvm::MDString>(val)) {
         llvm::MDString *tmp = llvm::dyn_cast<llvm::MDString>(val);
         llvm::StringRef str = tmp->getString();
         return(mkString(str.data()));
     } else if(llvm::MDString::classof(val)) {
+#if R_DEBUG
             fprintf(stderr, "MDString via classof()\n");
+#endif
     }
 
     PROBLEM  "don't know what the class is of the Value"
