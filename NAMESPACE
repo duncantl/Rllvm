@@ -15,7 +15,6 @@ exportClasses(
   CastInst,
   CompositeType,
   Constant,
-  ConstantPointerNull,
   ConstantFP,
   ConstantInt,
   ConstantAggregateZero,              
@@ -43,9 +42,11 @@ exportClasses(
   User,
   Value,
   FunctionPassManager,
-  FunctionPass,
   BinaryOperator,
   SelectInst)
+
+#  ConstantPointerNull,
+#  FunctionPass,
 
 exportMethods("$", "names", "names<-", "run", "setName", "getName", "$",
                createIntegerConstant, coerce)
@@ -297,6 +298,8 @@ export(getIntegerType)
 export(setAlignment)
 exportMethods(setAlignment)
 
+#export(getFunctionType)
+
 export(addModule)
 
 export(getGetElementPtr)
@@ -416,7 +419,7 @@ export(parseIRError)
 # Document.
 export(getCondition, getSuccessor, getNumSuccessors, isConditional)
 export(getValue)
-export(getNULLPointer)
+export(getNULLPointerType)
 
 
 export(isVarArg)
