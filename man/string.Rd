@@ -4,7 +4,9 @@
 \description{
   This is introduced to provide a function
   analogous to \code{numeric} and \code{integer}
-  for specifying the type of a string with a fixed maximum length.
+  for creating a string with a specific length, populated with space
+  characters.
+  This is used for specifying the type of a string with a fixed maximum length.
 }
 \usage{
 string(length)
@@ -23,6 +25,8 @@ string(length)
 
 
 %\seealso{}
-%\examples{}
+\examples{
+ string(10)
+}
 \keyword{programming}
 

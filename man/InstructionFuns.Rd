@@ -46,6 +46,7 @@
 
 \alias{insertBefore}
 \alias{insertAfter}
+\alias{insertAtEnd}
 \alias{moveBefore}
 
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -65,7 +66,7 @@ isCast(x, ...)
 \references{
     LLVM Documentation \url{http://llvm.org/docs/}
 }
-\author{DTL}
+\author{Duncan Temple Lang}
 
 %\seealso{}
 %\examples{}

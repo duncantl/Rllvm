@@ -5,12 +5,11 @@
 \alias{names<-,Function,character-method}
 \alias{names<-,ParameterList,character-method}
 \alias{names,Function-method}
-\alias{run,Function-method}
-\alias{.llvm}
+\alias{[,Function,numeric,missing-method}
+\alias{[[,Function,character,ANY-method}
 \alias{coerce,Function,Module-method}
 \alias{getParameters}
 \alias{$,Function-method}
-\alias{run}
 \alias{setLinkage}
 \alias{ExternalLinkage}
 \alias{AvailableExternallyLinkage}
@@ -43,6 +42,8 @@
 \alias{getParent,Function-method}
 
 \alias{LLVMAttributes}
+
+\alias{isVarArg}
 
 \title{Create an LLVM function/routine}
 \description{

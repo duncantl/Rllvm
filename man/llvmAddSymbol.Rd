@@ -4,6 +4,7 @@
 
 \alias{coerce,character,NativeSymbol-method}
 \alias{coerce,NativeSymbolInfo,NativeSymbol-method}
+\alias{coerce,NativeSymbolInfo,character-method}
 
 \title{Resolving external symbols}
 \description{

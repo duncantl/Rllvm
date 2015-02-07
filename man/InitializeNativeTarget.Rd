@@ -1,6 +1,7 @@
 \name{InitializeNativeTarget}
 \alias{InitializeNativeTarget}
 \alias{llvmShutdown}
+\alias{shutdown}
 \alias{llvmStartMultiThreaded}
 \alias{llvmStopMultiThreaded}
 \alias{llvmVersion}

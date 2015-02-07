@@ -1,6 +1,7 @@
 \name{setMetadata}
 \alias{setMetadata}
 \alias{getMetadata}
+\alias{getMetadata,Module,missing-method}
 
 \alias{MDNode-class}
 \alias{MDString-class}

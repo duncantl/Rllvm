@@ -31,6 +31,7 @@
 \alias{VECSXPType-class}
 \alias{SEXPType-class}
 
+\alias{getNULLPointerType}
 
 
 \docType{data}

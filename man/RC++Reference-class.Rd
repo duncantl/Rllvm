@@ -35,6 +35,7 @@
 \alias{FunctionType-class}
 \alias{BinaryOperator-class}
 
+\alias{SelectInst-class}
 
 \alias{setName}
 \alias{getName}

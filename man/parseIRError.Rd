@@ -26,7 +26,7 @@ parseIRError(line, col, msg)
 Duncan Temple Lang
 }
 
-\seealso{\code{\link{parserIR}}}
+\seealso{\code{\link{parseIR}}}
 \examples{
 \dontrun{
   ir = c("%CXCursor = type { i32, i32, [3 x i8*]}",

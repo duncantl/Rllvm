@@ -57,11 +57,12 @@
 \description{
   This function and class allow us to create and use
   an IRBuilder for "easy" creation of instructions
-  as we define a native function.
+  as we define a native function and generate code.
 }
 \usage{
 IRBuilder(block = getGlobalContext())
-createBr(builder, block)
+createBr(builder, block, check = TRUE)
+createBranch(builder, block, check = TRUE)
 createCall(builder, fun, ..., .args = list(...), id = character())
 createCondBr(builder, cond, true, false)
 createGEP(builder, val, index, id = character())
@@ -82,7 +83,6 @@ createSIToFP(builder, val, type, id = character())
 createFPToSI(builder, val, type, id = character())
 createFPToUI(builder, val, type, id = character())
 setInsertPoint(builder, instruction)
-createBranch(builder, block)
 createCast(builder, op, from, to, id = character())
 createCondBranch(builder, cond, true, false)
 createExtractElement(builder, vec, idx)
@@ -149,7 +149,10 @@ createFPTrunc(builder, value, type, id = "")
 \item{cpu}{a string describing the type of CPU}
 \item{features}{a string specifying the features.}
 \item{options}{a \code{list}}
-\item{Z}{a logical value}  
+\item{Z}{a logical value}
+\item{check}{a logical value that determines whether we check if the
+  branch is to the same block, i.e., if we are creating a branch
+  instruction to a block that is the same block.}
 }
 
 %\value{}

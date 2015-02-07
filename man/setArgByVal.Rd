@@ -1,6 +1,12 @@
 \name{setArgByVal}
 \alias{setArgByVal}
 \alias{hasByValAttr}
+\alias{byVal}
+\alias{byVal<-}
+\alias{byVal,Value-method}
+\alias{byVal<-,Argument,ANY-method}
+\alias{byVal<-,CallInst,numeric-method}
+
 \title{Set and Query Pass-By-Value Semantics for a Parameter}
 \description{
   These functions relate to passing aggregate objects in
@@ -14,9 +20,11 @@
 \usage{
 setArgByVal(call, paramNum)
 hasByValAttr(x, ...)
+byVal(x, ...)
 }
 \arguments{
-  \item{call}{the \code{CallInst} object representing the low-level call}
+  \item{call}{the \code{CallInst} object representing the low-level call
+    or LLVM \code{Function} object}
   \item{paramNum}{the index (starting at 1) of the argument of interest}
   \item{x}{the argument in a call.}
   \item{\dots}{additional parameters for a generic version of this function}
