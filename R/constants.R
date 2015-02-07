@@ -98,7 +98,7 @@ setMethod("getValue", "ConstantFP",
               .Call("R_ConstantFP_getValue", x))
 
 
-getNULLPointer =
+getNULLPointer = getNULLPointerType =
 function(type)
 {
   .Call("R_ConstantPointerNull_get", type)

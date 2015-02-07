@@ -152,3 +152,8 @@ function(ty, asIs = FALSE)
   
   (isArrayType(ty) || isPointerType(ty)) && sameType(getElementType(ty), Int8Type)
 }
+
+
+functionType <-
+function(returnType, argTypes, varArgs)
+  .Call("R_FunctionType_get", returnType, argTypes, as.integer(varArgs))

@@ -175,7 +175,7 @@ function(builder, val, index, id = character())
 setGeneric("isInBounds", function(x, ...) standardGeneric("isInBounds"))
 setMethod("isInBounds", "Value",
            function(x, ...) {
-              if(isa(p, "GetElementPtrInst"))
+              if(isa(x, "GetElementPtrInst"))
                   .Call("R_GetElementPtrInst_isInBounds", x)
               else
                   stop("isInBounds applicable only for GetElementPtrInst")               
@@ -184,7 +184,7 @@ setMethod("isInBounds", "Value",
 setGeneric("isInBounds<-", function(x, ..., value) standardGeneric("isInBounds<-"))
 setMethod("isInBounds<-", "Value",
            function(x, ..., value) {
-              if(isa(p, "GetElementPtrInst"))
+              if(isa(x, "GetElementPtrInst"))
                  .Call("R_GetElementPtrInst_setIsInBounds", x, as.logical(value))
               else
                   stop("isInBounds applicable only for GetElementPtrInst")
