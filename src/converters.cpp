@@ -62,18 +62,39 @@ convertRawPointerToR(void *p, const llvm::Type *type)
     if(ID == llvm::Type::ArrayTyID) {
         SEXP ans = R_NilValue;
         unsigned nels = type->getArrayNumElements(), i;
+        int np = 0;
 //        fprintf(stderr, "# elements = %d\n", nels);
         if(elID == llvm::Type::IntegerTyID) {
             PROTECT(ans = NEW_INTEGER(nels));
+            np++;
             for(i = 0 ; i < nels; i++)
                 INTEGER(ans)[i] = ((int *) p)[i];
         } else if(elID == llvm::Type::DoubleTyID) {
             PROTECT(ans = NEW_NUMERIC(nels));
+            np++;
             for(i = 0 ; i < nels; i++)
                 REAL(ans)[i] = ((double *) p)[i];
+        } else if(elID == llvm::Type::PointerTyID && 
+                  ((const llvm::PointerType*) elType)->getElementType()->getTypeID() == llvm::Type::IntegerTyID) // XXX Should really check 1 byte integer.
+                                                                                                                 // llvm::Type::getInt8Ty()) 
+        {
+            const char **els = (const char **) p;
+
+            PROTECT(ans = NEW_CHARACTER(nels));
+            np++;
+            for(i = 0 ; i < nels; i++) {
+                if(els[i]) // if els[i] is NULL, don't attempt to insert it.
+                    SET_STRING_ELT(ans, i, mkChar( els[i])); 
+            }
+
+        } else {
+
+            PROBLEM "no code for convertRawPointerTo for type %d with pointers of type %d", elID,
+((const llvm::PointerType*) type)->getElementType()->getTypeID()
+                WARN;
         }
 
-        UNPROTECT(1);
+        UNPROTECT(np);
         return(ans);
     } else if(elID == llvm::Type::IntegerTyID) {
        const llvm::IntegerType *ity = (const llvm::IntegerType *) elType;
