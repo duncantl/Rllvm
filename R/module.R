@@ -150,9 +150,9 @@ setMethod("[[", c("Module", "character", "missing"),
              else {
                tmp = getGlobalEntries(x, i, FALSE)
                if(!is.null(tmp))
-                 tmp[[1]]
+                  tmp[[1]]
                else
-                 tmp
+                  tmp
              }
         if(value)
 	   getGlobalValue(ans, ee)
