@@ -1,6 +1,6 @@
 # Build an R table of the enum values for the llvm::Intrinsic values.
 
-# Could do this with RGCCTranslationUnit.
+# Could do this with RCIndex  (or RGCCTranslationUnit)
 
 getIntrinsicEnum =
 function(header = "/usr/local/include/llvm/Intrinsics.gen")
