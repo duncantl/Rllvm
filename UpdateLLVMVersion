@@ -1,0 +1,5 @@
+When updating to a new version of LLVM, you should verify that the enumerated constands
+in the R code still correspond correctly to those in the LLVM header files. 
+AttrKind is the one that has changed most often. 
+Update the definition of LLVMAttributes (and FuncAttributes) in Function.R.
+Use the R commands in TU/enums.R
