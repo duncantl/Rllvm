@@ -8,9 +8,19 @@ if test -z "${LLVM_CONFIG}" ; then
     echo "cannot find llvm-config in your path. Make certain it is installed and in your path"
     exit 1;
   fi
-
 fi
 
+
+${LLVM_CONFIG} --system-libs &> /dev/null 
+#LLVM_HAS_SYS_LIBS=$?
+if test "$?" = "0" ; then
+ LLVM_SYS_LIBS="--system-libs"
+else
+ LLVM_SYS_LIBS=""
+fi
+AC_SUBST(LLVM_SYS_LIBS)
+
+echo "LLVM_HAS_SYS_LIBS = ${LLVM_SYS_LIBS}"
 
 LLVM_VERSION_NUMBER=`${LLVM_CONFIG} --version | sed -e 's/svn//'`
 dnl LLVM_VERSION=`${LLVM_CONFIG} --version | sed -e 's/\.[[0-9].]*//' | sed -e 's/svn//'`

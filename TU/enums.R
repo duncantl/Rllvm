@@ -3,7 +3,7 @@ tu = createTU("llvm.cpp", includes = c("/Users/duncan/local/include", "/Applicat
 
 enums = getEnums(tu)
 
-enums$AttrKind
+dput(enums$AttrKind@values)
 
 # BinaryOps
 # CallingConvValues

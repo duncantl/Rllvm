@@ -577,6 +577,7 @@ CPPFLAGS
 LDFLAGS
 CXXFLAGS
 CXX
+LLVM_SYS_LIBS
 LLVM_CONFIG
 target_alias
 host_alias
@@ -1760,13 +1761,21 @@ fi
     echo "cannot find llvm-config in your path. Make certain it is installed and in your path"
     exit 1;
   fi
-
 fi
 
 
+${LLVM_CONFIG} --system-libs &> /dev/null
+#LLVM_HAS_SYS_LIBS=$?
+if test "$?" = "0" ; then
+ LLVM_SYS_LIBS="--system-libs"
+else
+ LLVM_SYS_LIBS=""
+fi
+
+
+echo "LLVM_HAS_SYS_LIBS = ${LLVM_SYS_LIBS}"
+
 LLVM_VERSION_NUMBER=`${LLVM_CONFIG} --version | sed -e 's/svn//'`
-LLVM_VERSION=`${LLVM_CONFIG} --version | sed -e 's/\.[0-9].*//' | sed -e 's/svn//'`
-LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -e 's/[0-9]\.//' | sed -e 's/svn//'`
 
 LLVM_VERSION=`${LLVM_CONFIG} --version | sed -Ee 's/\.[0-9]*(\.[0-9]*)?//' | sed -e 's/svn//'`
 LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -Ee 's/[0-9]\.//' | sed -Ee 's/\.[0-9]*//' | sed -e 's/svn//'`
