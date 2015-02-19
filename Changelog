@@ -1,3 +1,7 @@
+	*  getSuccessor(), getNumSuccessors() deal with ReturnInst correctly.
+
+	*  moveAfter() generic and  method for Block
+
 Version 0.7-0
 
 	*  insertAtEnd() function to put a instruction at the end of a block. The instruction should
