@@ -181,9 +181,9 @@ mod[["ptr", ee = ee]]
 
 <para>
 The signature for <c:func>fopen</c:func> is
-<c:function eval="false">
+<c:code eval="false">
 FILE *fopen(const char *, const char *)
-</c:function>
+</c:code>
 We can create a wrapper to this routine with
 <r:code thread="fopen">
 mod = Module()
