@@ -277,6 +277,20 @@ Need the -xc++ argument for  libclang to force C++.
 <title>Main</title>
 <items>
 
+<item status="done">
+Can we already set the name on a Block? Yes - <r:func>setName</r:func>
+</item>
+
+<item>
+Get name of actual class of C++ object.
+<br/>
+Use isa()
+</item>
+
+<item>
+getPredecessor() method for BasicBlock.
+</item>
+
 <item>
 Shutdown and restart.
 See RLLVMCompile/tests/serialize.R

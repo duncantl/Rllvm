@@ -417,7 +417,7 @@ exportMethods(isInBounds, "isInBounds<-")
 export(parseIRError)
 
 # Document.
-export(getCondition, getSuccessor, getNumSuccessors, isConditional)
+export(getCondition, getSuccessor, getNumSuccessors, isConditional, getSuccessors)
 export(getValue)
 export(getNULLPointer)
 

@@ -62,6 +62,22 @@ R_BasicBlock_getBlockInstructions(SEXP r_block)
 MAKE_R_eraseFromParent(BasicBlock) 
 MAKE_R_getParent(BasicBlock, Function)
 
+extern "C"
+SEXP
+R_BasicBlock_moveAfter(SEXP r_block, SEXP r_targetBlock)
+{
+
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    llvm::BasicBlock *targetBlock = GET_REF(r_targetBlock, BasicBlock);
+    
+    if(!block || !targetBlock) {
+        PROBLEM "one of the blocks in moveAfter is NULL"
+            ERROR;
+    }
+    block->moveAfter(targetBlock);
+   
+    return(R_NilValue);
+}
 
 
 extern "C"
@@ -74,5 +90,7 @@ R_BasicBlock_getContext(SEXP r_block)
    
     return(ans ? R_createRef(ans, "LLVMContext") : R_NilValue);
 }
+
+
 
 
