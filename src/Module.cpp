@@ -180,13 +180,14 @@ R_showModule(SEXP r_module, SEXP asString)
 #else
     verifyModule(*Mod); //XXX Check
 #endif
+
     llvm::PassManager PM;
     std::string str;
     llvm::raw_string_ostream to(str);
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
-    PM.add(llvm::createPrintModulePass(&llvm::outs()));
+    PM.add(llvm::createPrintModulePass(&llvm::outs())); //XXX fix
 #else
-    PM.add(llvm::createPrintModulePass(llvm::outs()));
+    PM.add(llvm::createPrintModulePass(LOGICAL(asString)[0] ? to : llvm::outs())); // llvm::outs()));
 #endif
 
     PM.run(*Mod);
