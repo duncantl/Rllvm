@@ -15,3 +15,8 @@ setGeneric("getNumElements",
           function(x, ...)
             standardGeneric("getNumElements"))
 
+
+setGeneric("moveAfter",
+            function(src, dest, ...)
+              standardGeneric("moveAfter"))
+

@@ -46,6 +46,11 @@ function(block, cast = TRUE)
 }
 
 
+
+setMethod("moveAfter", c("BasicBlock", "BasicBlock"),
+            function(src, dest, ...)
+               .Call("R_BasicBlock_moveAfter", src, dest))
+
 #
 # z = .Call("R_getOpcodeNames", 1:58)
 # z = z[!grepl("<Invalid operator", names(z), fixed = TRUE)]
