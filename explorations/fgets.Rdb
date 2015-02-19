@@ -32,36 +32,101 @@ xmlSource(tt, verbose = TRUE, force = TRUE)
 <para>
 We use this in our <ulink url="sampleCSV.Rdb">sampleCSV()</ulink>.
 </para>
+
 <para>
 We will use the <c/> routine <c:routine>fgets</c:routine> to read
-a line. We have to specify the memory into which it will place the 
-line contents. We can allocate space or alternatively we can use a module-specific
+a line from a file.
+This takes a pointer an opaque data structure representing the file cursor
+which we obtain via a call to the <c:func>fopen</c:func> routine.
+We also have to specify the memory into which <c:func>fgets</c:func>  will place the 
+contents of the line. We can allocate space or alternatively we can use a module-specific
 <quote>global</quote> variable.
-We create a global variable which is a char array of length 1000.
+We create this global variable which is a char(acter) array of length 1000.
 Then we will have to pass a pointer to this array in our call to <c:routine>fgets</c:routine>.
-
-
-<r:code>
+</para>
+<para>
+We start by creating our module and <r:class>ExecutionEngine</r:class>:
+<r:code thread="manual">
 library(RLLVMCompile)
 mod = Module("fgets")
 ee = ExecutionEngine(mod)
-
-stringType = pointerType(getIntegerType(8L, getContext(mod)))
+</r:code>
+</para>
+<para>
+<c:func>fgets</c:func> requires a pointer to a <c:type>FILE</c:type>  object.
+So we define a representation for this type. 
+Since it is an opaque and we only deal with pointers to it, the precise
+format is not important.
+<r:code thread="manual">
 #FILEType = pointerType(Int32Type) # an opaque struct type?
 FILEType = pointerType(structType(list(o=Int32Type))) # an opaque struct type?
+stringType = pointerType(getIntegerType(8L, getContext(mod)))
+</r:code>
+Note that we can now use the variable <r:var>StringType</r:var> which is now in <omg:pkg>Rllvm</omg:pkg>.
+</para>
 
-.str = createGlobalVariable(".str", mod, val = string(1000), linkage = PrivateLinkage)
+<para>
+We create the global variable to store each line with
+<r:code thread="manual">
+.str = createGlobalVariable(".str", mod, val = string(1000))#, linkage = PrivateLinkage)
+</r:code>
 
+We need a pointer to this array to pass to <c:func>fgets</c:func>.
+This is a little confusing and requires careful thought as to why we want a pointer to the array
+and not just the array itself. Nevertheless, we compute the pointer with
+<r:code thread="manual">
  # we'd like to be able to use .str and have R functions call getGetElementPtr for us.
 p = getGetElementPtr(.str)
 .ptr = createGlobalVariable("ptr", mod, stringType, p) 
-
-  # could specify this information via .routineInfo parameter of compileFunction()
-declareFunction(list(stringType, stringType, Int32Type, FILEType), "fgets", mod) 
+</r:code>
+Next, we need to tell <llvm/> about how we need to call <c:func>fgets</c:func>
+by specifying  its signature. 
+We can do this explicitly by creating a <r:class>Function</r:class> object
+or using the <r:func>declareFunction</r:func> helper function:
+<r:code thread="manual">
+fgets = declareFunction(list(stringType, stringType, Int32Type, FILEType), "fgets", mod) 
+</r:code>
+If we are using <r:func>compileFunction</r:func> in <omg:pkg>RLLVMCompile</omg:pkg>,
+we could specify this information via <r:arg>.routineInfo</r:arg> parameter of <r:func>compileFunction</r:func>.
+</para>
+<para>
+We also need to tell <llvm/> how to locate this routine. We resolve it
+in <r/> and pass its address to <llvm/>:
+<r:code thread="manual">
 llvmAddSymbol(fgets = getNativeSymbolInfo("fgets")$address)
 </r:code>
+</para>
+
+<para>
+We'll compile the code manually here rather than using <r:func>compileFunction</r:func> (which we do below).
+We create the <r:func>Function</r:func> object, and for simplicity, we'll have it not return any value.
+(We should have it return the value of the call to <c:func>fgets</c:func>.)
+<r:code thread="manual">
+fun = Function("Fgets", VoidType, list(file = FILEType), module = mod)
+b = Block(fun)
+ir = IRBuilder(b)
+</r:code>
+</para>
+<para>
+To invoke the <c:func>fgets</c:func> routine, we need to load the 
+pointer to the array and then pass the first argument of our function and that pointer:
+<r:code thread="manual">
+f = getParameters(fun)[[1]]
+ll = ir$createLoad(.ptr)
+sz = createIntegerConstant(1000L)
+ir$createCall(fgets, ll, sz, f)
+</r:code>
+Finally, we return from our compiled routine:
+<r:code thread="manual">
+ir$createRetVoid()
+</r:code>
+</para>
 
 
+
+<para>
+If we want to use <r:func>compileFunction</r:func> to create our generated function,
+we first write an  <r/> version of our simple call to <r:func>fgets</r:func>:
 <r:code>
 Fgets  =
 function(file)
@@ -69,15 +134,14 @@ function(file)
   fgets(ptr, 1000L, file) #  != NULL # should raise an error if NULL.
 }
 </r:code>
-
-Now we can compile the function
-<r:code>
+Then we can compile the function using <r:func>compileFunction</r:func>
+<r:code eval="false">
 fun = compileFunction(Fgets, stringType, list(FILEType), mod, name = "Fgets")
 </r:code>
+The following changes the return type to a pointer to an integer.
 <r:code eval="false">
-fun = compileFunction(Fgets, Int32Type, list(FILEType), mod, name = "Fgets")
+fun = compileFunction(Fgets, pointerType(Int8Type), list(FILEType), mod, name = "Fgets")
 </r:code>
-
 <q>
 This  claims there is a mismatch in the argument types. 
 In ../simpleCall.R, we go through each of the parameters and see
@@ -85,25 +149,115 @@ which fail.  The problem appears that the type of the global variable
 ptr is not the same as stringType.
 Is it that we are not loading the variable?
 </q>
-
-
 Note that we could use <r:var>.str</r:var> rather than <r:var>ptr</r:var> in the call to 
 <r:func>fgets</r:func> and our compiler should figure out to use
 the pointer to <r:var>.str</r:var> via a <r:func>getGetElementPtr</r:func> call.
-
 </para>
 
 
 <para>
+How do we get the pointer to the <c:type>FILE</c:type> that we pass to our compiled
+routine? We can compile a call to <c:func>fopen</c:func>.
+Alternatively, we can use the <r:func>CFILE</r:func> function in
+the <omg:pkg>RCurl</omg:pkg> package and the address it returns in its <r:slot>ref</r:slot> slot.
+</para>
+
+
+<para>
+Let's invoke our function.
+We'll read the lines from this Rdb file.
 <r:code eval="false" id="test">
 library(RCurl)
-f = CFILE("../DESCRIPTION", "r")
+f = CFILE("fgets.Rdb", "r")
 .llvm(fun, f@ref)
-replicate(5, .llvm(fun, f@ref))
+invisible(replicate(5, .llvm(fun, f@ref, .ee = ee)))
+mod[["ptr", ee = ee]]
 </r:code>
-
 </para>
 </section>
+
+<section>
+<title>Calling the <c:func>fopen</c:func> Routine</title>
+
+<para>
+The signature for <c:func>fopen</c:func> is
+<c:function eval="false">
+FILE *fopen(const char *, const char *)
+</c:function>
+We can create a wrapper to this routine with
+<r:code thread="fopen">
+mod = Module()
+fopen = Function("fopen", FILEType, list(StringType, StringType), module = mod)
+fun = Function("Fopen", FILEType, list(file = StringType, mode = StringType), module = mod)
+b = Block(fun, "entry")
+ir = IRBuilder(b)
+params = getParameters(fun)
+tmp = ir$createCall(fopen, params[[1]], params[[2]])
+ir$createRet(tmp)
+</r:code>
+</para>
+
+<ignore>
+<r:code>
+fopen = Function("fopen", VoidType, list(StringType, StringType), module = mod)
+b = Block(fopen)
+ir =IRBuilder(b)
+#ans = ir$createLocalVariable(FILEType, "tmp")
+params = getParameters(fopen)
+tmp = ir$createCall(fopen, params[[1]], params[[2]])
+#ir$createStore(tmp, ans)
+#ans = ir$createLoad(ans)
+#ir$createRet(ans)
+ir$createRetVoid()
+</r:code>
+</ignore>
+
+
+<para>
+Let's test this with
+<r:code>
+llvmAddSymbol(fopen = getNativeSymbolInfo("fopen")$address)
+ff = .llvm(fun, "tmp", "r", .ee = ee)
+</r:code>
+</para>
+
+<section>
+<title>Calling <c:func>fclose</c:func></title>
+<para>
+We need to be able to close the <c:type>FILE*</c:type> object.
+We can do this using either of the  <r:pkg>rdyncall</r:pkg>
+or <omg:pkg>Rffi</omg:pkg> packages.
+However, we will compile a wrapper using <omg:pkg>Rllvm</omg:pkg>.
+The native routine has a signature
+<c:code eval="false">
+void fclose(FILE *);
+</c:code>
+This is even simpler than our previous routines.
+We can create the wrapper with
+<r:code thread="fclose">
+m = Module()
+fclose = Function("fclose", VoidType, list(FILEType), module = m)
+Fclose = Function("Fclose", VoidType, list(FILEType), module = m)
+b = Block(Fclose, "entry")
+ir = IRBuilder(b)
+params = getParameters(Fclose)
+tmp = ir$createCall(fclose, params[[1]])
+ir$createRetVoid()
+</r:code>
+</para>
+<para>
+
+We can test this and close the handle we opened above with
+<r:code>
+llvmAddSymbol(fclose = getNativeSymbolInfo("fclose")$address)
+ff = .llvm(Fclose, ff, .ee = ee)
+</r:code>
+</para>
+</section>
+</section>
+
+
+
 
 <section>
 <title></title>
