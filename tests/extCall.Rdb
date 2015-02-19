@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <article xmlns:r="http://www.r-project.org"
-         xmlns:xi="http://www.w3.org/2003/XInclude">
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:c="http://www.C.org">
 
 <articleinfo>
 
@@ -14,85 +15,178 @@
 </articleinfo>
 
 <section>
-<title></title>
+<title>Calling Existing Native Routines</title>
 
 <para>
 In this example, we illustrate how to generate a routine
 via LLVM which calls a routine that exists in the R 
 executable. This shows how we can make use of existing
 functions.
+</para>
+<para>
+We create a compiled routine <r:func>tossCoin</r:func>
+which returns either 1 for a head,  or 0 for a tail.
+The idea here is to use the native <r:func>runif</r:func>
+routine to generate a real value uniformly between 0 and 1.
+We then compare this value to 0.5.
+If it is less that 0.5, we return 1 for a head; otherwise, we
+return 0 for a tail.
+The equivalent <r/> code  is
+<r:function><![CDATA[
+toss =
+function()
+{
+  ans = 0L
+  if(runif() < 0.5)
+     ans = 1
+  else
+     ans = 0
 
+  ans
+}
+]]></r:function>
+(Here <r:func>runif</r:func> is the <c/> routine that takes no arguments.)
+</para>
+
+<para>
+We start by creating a <r:class>Module</r:class>:
 <r:code>
 library(Rllvm)
 InitializeNativeTarget()
 mod = Module("dotC")
 </r:code>
-
-
-Now we create the routine.
+Next, we create our routine, specifying
+its return type and no parameters:
 <r:code>
 fun = Function("tossCoin", Int32Type, module = mod)
 </r:code>
-
-
+</para>
+<para>
+We are ready to create the instructions.
+We create three <r:class>Block</r:class>s for the function.
+The first (named <literal>entry</literal>) is the initial
+block in which we start the computations.
+The other two blocks are for store the head value, and another for storing the tail respectively.
+We have a final <r:class>Block</r:class> for returning the value.
 <r:code>
 b = Block(fun, "entry")
 head = Block(fun)
 tail = Block(fun)
 ret = Block(fun)
+</r:code>
+We should note that we do not need the final return block.
+We can explicitly return 1 and 0 from each of the head and tail  <r:class>Block</r:class>s.
+This is an opportunity for optimization.
+</para>
+<para>
+We also create an IRBuilder for creating the instructions
+and we initially set it to create instructions in the entry <r:class>Block</r:class>:
+<r:code>
 ir = IRBuilder(b)
 </r:code>
-
+</para>
+<para>
+We will return 1 for a head and 0 for a tail.
+So we define these as constants. This is  not actually necessary as
+we could explicitly return local values of these.<check/>
+However, we'll create constants
 <r:code>
 zero = createIntegerConstant( 0L)
 one = createIntegerConstant( 1L)
+</r:code>
+Note that these are <llvm/>-level constants, not in the <r:class>Module</r:class> or in the <r:func>Function</r:func>.
+</para>
 
+<para>
+We are now ready to create instructions.
+We create a local variable <r:var>ans</r:var>
+in the entry <r:class>Block</r:class>.
+This is an integer for storing the result, either 0 or 1.
+<r:code>
 ans = createLocalVariable(ir, Int32Type, "ans")
+</r:code>
+Since we are invoking <r/>'s <c:func>runif</c:func> routine,
+we need to declare it so that <llvm/> can understand how to invoke
+it and deal with its return  value.
+We do this with
+<r:code>
 runif = Function("runif", DoubleType, module = mod)
 setLinkage(runif, ExternalLinkage)
+</r:code>
+We can now invoke <c:func>runif</c:func> with
+<r:code>
 toss = ir$createCall(runif)
+</r:code>
+<note><para>Say how to add arguments in the call</para></note>
+The symbolic value of the call  (i.e. not an actual call, but the call that will be made at run time)
+is stored in the <r/> variable <r:var>toss</r:var>.
+</para>
+<para>
+We compare the outcome of the call to <c:func>runif</c:func> 0.5 with
+<r:code>
 point5 = createDoubleConstant(0.5)
 gt = ir$createFCmp(FCMP_ULT, toss, point5)
-
+</r:code>
+Depending on whether <r:var>gt</r:var> is true or false,
+we branch to either the head <r:class>Block</r:class> or tail <r:class>Block</r:class>
+that we created previously. We create the branch instruction using
+<r:code>
 ir$createCondBr(gt, head, tail)
 </r:code>
+This adds the terminator for the entry <r:class>Block</r:class>.
+We can now move on to populating the head and tail <r:class>Block</r:class> with instructions.
+</para>
 
+<para>
+We set the IRBuilder to create instructions in the  head <r:class>Block</r:class> and then 
+assign the value one to our local variable  <r:var>ans</r:var>.
+Then we branch to the return <r:class>Block</r:class>.
+We do these with 3 instructions:
 <r:code>
 ir$setInsertPoint(head)
 ir$createStore(one, ans)
 ir$createBr(ret)
 </r:code>
-
+</para>
+<para>
+Similarly, we create the instructions for the tail <r:class>Block</r:class>:
 <r:code>
 ir$setInsertPoint(tail)
 ir$createStore(zero, ans)
 ir$createBr(ret)
 </r:code>
-
+</para>
+<para>
+Finally, we complete the return <r:class>Block</r:class> by just
+return the value of <r:var>ans</r:var>. We
+have to load the value and then return it.
 <r:code>
 ir$setInsertPoint(ret)
 ans = ir$createLoad(ans)
 ir$createRet(ans)
 </r:code>
+</para>
 
-
+<para>
 We have to tell LLVM how to find the external runif that is not part of the module
 but is referenced in our routine.  We can do this by explicitly finding
 the address of the routine via the R function <r:func>getNativeSymbolInfo</r:func>
 <r:code>
 llvmAddSymbol(runif = getNativeSymbolInfo("runif")$address)
-print(run(fun))
 </r:code>
+We can then invoke the new routine using <r:func>.llvm</r:func>:
+<r:code>
+print(.llvm(fun))
+</r:code>
+</para>
 
-
-
+<ignore>
 <r:code eval="false">
 llvmLoadDLL(system.file("libs", "Rllvm.so", package = "Rllvm"))
-print(run(fun))
+print(.llvm(fun))
 </r:code>
+</ignore>
 
-
-</para>
 <para>
 For repeated calls, we can save a great deal of time by 
 creating the ExecutionEngine in which to evaluate the call
@@ -100,13 +194,13 @@ to the function just once and the passing it explicitly in the
 call to run:
 <r:code>
 ee = ExecutionEngine(as(fun, "Module"))
-system.time(replicate(1000, run(fun, .ee = ee)))
+system.time(replicate(1000, .llvm(fun, .ee = ee)))
 </r:code>
 
 We can time how long this takes for different number of calls
 <r:code>
 n = 10^(2:7)
-tt = sapply(n, function(n) system.time(replicate(n, run(fun, .ee = ee))))
+tt = sapply(n, function(n) system.time(replicate(n, .llvm(fun, .ee = ee))))
 colnames(tt) = n
 plot(n, tt["elapsed", ], type = "l")
 </r:code>
@@ -123,10 +217,10 @@ system.time(as.integer(replicate(n[length(n)], runif(1)) > .5))
 This takes about 117 seconds, as opposed to the 880
 for the call to tossCoin.
 This may be due in part to the fact that runif uses
-the .Internal mechanism, whereas run(fun) involves
+the <r:func>.Internal</r:func> mechanism, whereas <r:expr>.llvm(fun)</r:expr eval="false"> involves
 a non-trivial overhead of processing the arguments.
-
-
+Of course, we also have the opportunity of compiling a loop to toss n coins
+and avoiding the n calls to <r:func>.llvm</r:func>.
 </para>
 
 </section>
