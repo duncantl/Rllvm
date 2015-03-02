@@ -121,3 +121,13 @@ if(!isGeneric("sapply"))
 setMethod("sapply", "BasicBlock",
           function (X, FUN, cast = TRUE, ..., simplify = TRUE, USE.NAMES = TRUE)
              sapply(getBlockInstructions(X, cast = cast), FUN, ..., simplify = simplify, USE.NAMES = USE.NAMES))
+
+
+
+getLandingPadInst =
+function(block)
+  .Call("R_BasicBlock_getLandingPadInst", as(block, "BasicBlock"))
+
+isLandingPad =
+function(block)
+  .Call("R_BasicBlock_isLandingPad", as(block, "BasicBlock"))

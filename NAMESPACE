@@ -462,3 +462,5 @@ exportMethods(onlyReadsMemory)
 
 export(insertAtEnd)
 
+export(isLandingPad, getLandingPadInst)
+
