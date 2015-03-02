@@ -1,7 +1,7 @@
 #include "Rllvm.h"
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
-#include <llvm/ExecutionEngine/JIT.h>
+//#include <llvm/ExecutionEngine/JIT.h>
 
 #if LLVM_VERSION < 3
 #include <llvm/Target/TargetSelect.h>
@@ -154,6 +154,8 @@ R_ExecutionEngine_FindFunctionNamed(SEXP r_execEngine, SEXP r_id)
     return(R_createRef(ans, "Function"));
 }
 
+
+#if 1
 extern "C"
 SEXP
 R_ExecutionEngine_setVerifyModules(SEXP r_execEngine, SEXP r_val)
@@ -171,7 +173,7 @@ R_ExecutionEngine_getVerifyModules(SEXP r_execEngine)
     llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
     return(ScalarLogical(ee->getVerifyModules()));
 }
-
+#endif
 
 
 #if 0
