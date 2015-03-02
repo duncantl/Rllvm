@@ -131,6 +131,9 @@ setClass("NativeFunctionPointer", contains = "RC++Reference")
 setClass("NativeGlobalVariable", contains = "RC++Reference")
 
 
+setClass("Mangler", contains = "RC++Reference")
+
+
 setMethod("show", "Type",
           function(object) {
             cat("Type", names(getTypeID(object)), "\n")

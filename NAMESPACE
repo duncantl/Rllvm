@@ -45,6 +45,9 @@ exportClasses(
   BinaryOperator,
   SelectInst)
 
+
+exportClass(Mangler)
+
 #  ConstantPointerNull,
 #  FunctionPass,
 

@@ -277,8 +277,10 @@ Need the -xc++ argument for  libclang to force C++.
 <title>Main</title>
 <items>
 
-<item>
+<item status="done">
 Enums for LinkageTypes, etc.
+<br/>
+See TU/enums.R
 </item>
 
 <item>
@@ -290,7 +292,7 @@ Can we already set the name on a Block? Yes - <r:func>setName</r:func>
 </item>
 
 <item>
-Get name of actual class of C++ object.
+Get name of actual class of LLVM C++ objects.
 <br/>
 Use isa()
 </item>

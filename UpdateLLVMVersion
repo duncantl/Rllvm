@@ -3,3 +3,14 @@ in the R code still correspond correctly to those in the LLVM header files.
 AttrKind is the one that has changed most often. 
 Update the definition of LLVMAttributes (and FuncAttributes) in Function.R.
 Use the R commands in TU/enums.R
+
+
+
+
+ExecEngine.cpp
+IRBuilder.cpp
+Module.cpp
+Target.cpp
+converters.cpp
+metadata.cpp
+ostream.cpp
