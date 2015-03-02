@@ -92,5 +92,28 @@ R_BasicBlock_getContext(SEXP r_block)
 }
 
 
+extern "C"
+SEXP
+R_BasicBlock_isLandingPad(SEXP r_block)
+{
+
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    
+    return(ScalarLogical(block->isLandingPad()));
+}
+
+extern "C"
+SEXP
+R_BasicBlock_getLandingPadInst(SEXP r_block)
+{
+
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    llvm::LandingPadInst *ans;
+    ans = block->getLandingPadInst();
+    return(ans ? R_createRef(ans, "LandingPadInst") : R_NilValue);    
+
+}
+
+
 
 
