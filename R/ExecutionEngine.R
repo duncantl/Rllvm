@@ -141,3 +141,17 @@ function(var, exec, type = getType(var))
    ty = getElementType(type)
    .Call("R_convertNativeValuePtrToR", ptr@ref, ty)
 }
+
+
+
+getVerifyModules =
+function(exeEng)
+{
+  .Call("R_ExecutionEngine_getVerifyModules", exeEng)
+}
+
+setVerifyModules =
+function(exeEng, val)
+{
+  .Call("R_ExecutionEngine_setVerifyModules", exeEng, as.logical(val))
+}

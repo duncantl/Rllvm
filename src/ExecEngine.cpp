@@ -154,6 +154,26 @@ R_ExecutionEngine_FindFunctionNamed(SEXP r_execEngine, SEXP r_id)
     return(R_createRef(ans, "Function"));
 }
 
+extern "C"
+SEXP
+R_ExecutionEngine_setVerifyModules(SEXP r_execEngine, SEXP r_val)
+{
+    llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
+    ee->setVerifyModules(LOGICAL(r_val)[0]);
+    return(R_NilValue);
+}
+
+
+extern "C"
+SEXP
+R_ExecutionEngine_getVerifyModules(SEXP r_execEngine)
+{
+    llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
+    return(ScalarLogical(ee->getVerifyModules()));
+}
+
+
+
 #if 0
 extern "C"
 SEXP

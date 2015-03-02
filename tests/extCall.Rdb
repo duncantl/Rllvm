@@ -217,7 +217,7 @@ system.time(as.integer(replicate(n[length(n)], runif(1)) > .5))
 This takes about 117 seconds, as opposed to the 880
 for the call to tossCoin.
 This may be due in part to the fact that runif uses
-the <r:func>.Internal</r:func> mechanism, whereas <r:expr>.llvm(fun)</r:expr eval="false"> involves
+the <r:func>.Internal</r:func> mechanism, whereas <r:expr eval="false">.llvm(fun)</r:expr> involves
 a non-trivial overhead of processing the arguments.
 Of course, we also have the opportunity of compiling a loop to toss n coins
 and avoiding the n calls to <r:func>.llvm</r:func>.

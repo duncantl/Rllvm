@@ -167,6 +167,7 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
        return(rv);
    }
 
+// FIX - enhance to cover more situations.
     if(type->isPointerTy()) {
       const llvm::Type *elType = ((const llvm::PointerType*) type)->getElementType();
        ty = elType->getTypeID();       
