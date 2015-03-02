@@ -277,6 +277,14 @@ Need the -xc++ argument for  libclang to force C++.
 <title>Main</title>
 <items>
 
+<item>
+Enums for LinkageTypes, etc.
+</item>
+
+<item>
+Mangling of overloaded names. How can we map a Function signature to a name.
+</item>
+
 <item status="done">
 Can we already set the name on a Block? Yes - <r:func>setName</r:func>
 </item>
@@ -342,6 +350,11 @@ shutdown LLVM.
 
 <item status="done">
 Dynamically retrieve LLVM version information. See <r:func>llvmVersion</r:func>
+</item>
+
+<item>
+Allow writeBitcode and showModule() to actually write to an ostream directly
+rather than bringing it back to R and have R do the output.
 </item>
 
 <item>
