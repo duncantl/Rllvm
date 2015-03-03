@@ -58,6 +58,31 @@ R_flush_formatted_raw_ostream(SEXP r_stream)
 }
 
 
+
+
+
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 6
+extern "C"
+SEXP
+R_new_raw_fd_ostream(SEXP r_filename, SEXP r_flags)
+{
+    std::error_code err;
+    llvm::raw_fd_ostream *ans;
+
+    llvm::sys::fs::OpenFlags flags = llvm::sys::fs::OpenFlags::F_None;
+    if(Rf_length(r_flags))
+        flags = (llvm::sys::fs::OpenFlags) INTEGER(r_flags)[0];
+    ans = new llvm::raw_fd_ostream(llvm::StringRef(CHAR(STRING_ELT(r_filename, 0))), err, flags);
+
+    if(err) {
+        PROBLEM "%s", err.message().c_str()
+        ERROR;
+    }
+    return(R_createRef(ans, "raw_fd_ostream"));
+}
+
+#else
+
 extern "C"
 SEXP
 R_new_raw_fd_ostream(SEXP r_filename, SEXP r_flags)
@@ -79,7 +104,7 @@ R_new_raw_fd_ostream(SEXP r_filename, SEXP r_flags)
     }
     return(R_createRef(ans, "raw_fd_ostream"));
 }
-
+#endif
 
 extern "C"
 SEXP

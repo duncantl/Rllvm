@@ -68,7 +68,14 @@ R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel)
     /* Do we want to use some of the create() methods in the ExecutionEngine class. */
     std::string errStr;
     llvm::Module *module = GET_REF(r_module, Module);
-    llvm::ExecutionEngine *EE = llvm::EngineBuilder(module).setErrorStr(&errStr).setEngineKind(llvm::EngineKind::JIT).setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]).create();
+
+    llvm::ExecutionEngine *EE = llvm::EngineBuilder(
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
+                                  std::unique_ptr<llvm::Module>(module)
+#else
+                                   module
+#endif
+                                ).setErrorStr(&errStr).setEngineKind(llvm::EngineKind::JIT).setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]).create();
     if(!EE) {
         PROBLEM "failed to create execution engine: %s", errStr.c_str()
             ERROR;
@@ -114,7 +121,13 @@ R_ExecutionEngine_addModule(SEXP r_execEngine, SEXP r_mods)
     llvm::Module *m;
     for(int i = 0 ; i < Rf_length(r_mods); i++) {
         m = GET_REF(VECTOR_ELT(r_mods, i), Module);
-        ee->addModule(m);
+        ee->addModule(
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
+                       std::unique_ptr<llvm::Module>(m)
+#else
+                       m
+#endif
+                     );
     }
     return(R_NilValue);
 }

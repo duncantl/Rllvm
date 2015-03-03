@@ -97,6 +97,8 @@ R_TargetLibraryInfo_new(SEXP r_triple)
 
 
 
+
+#if !(LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5)
 extern "C"
 SEXP
 R_TargetMachine_getDataLayout(SEXP r_tm)
@@ -105,6 +107,7 @@ R_TargetMachine_getDataLayout(SEXP r_tm)
     const llvm::DataLayout *ans = tm->getDataLayout();
     return(R_createRef(ans, "DataLayout"));
 }
+#endif
 
 extern "C"
 SEXP

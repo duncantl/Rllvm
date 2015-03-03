@@ -13,9 +13,5 @@ llvmStopMultiThreaded =
 function()
   .Call("R_llvm_stop_multithreaded")
 
-llvmVersion =
-function()
-{
-   LLVMVersion
-}
+
 

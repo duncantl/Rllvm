@@ -802,10 +802,18 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
 
     if(LOGICAL(r_inMemory)[0])  {
         llvm::MemoryBuffer *buf;
-        buf = llvm::MemoryBuffer::getMemBuffer(fn);
+        buf = llvm::MemoryBuffer::getMemBuffer(fn).get();
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
+        mod = llvm::parseIR(buf->getMemBufferRef(), err, *context).get();
+#else
         mod = llvm::ParseIR(buf, err, *context);
+#endif
     } else { 
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
+        mod = llvm::parseIRFile(fn, err, *context).get();
+#else
         mod = llvm::ParseIRFile(fn, err, *context);
+#endif
     }
     if(!mod) {
   raiseError(err);

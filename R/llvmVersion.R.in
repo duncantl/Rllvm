@@ -1,2 +1,9 @@
-.llvmVersion = c(major = @LLVM_VERSION@, minor = @LLVM_MINOR_VERSION@)
+LLVMVersion = .llvmVersion = c(major = @LLVM_VERSION@, minor = @LLVM_MINOR_VERSION@)
+
+llvmVersion =
+function()
+{
+   LLVMVersion
+}
+
 

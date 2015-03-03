@@ -359,7 +359,11 @@ R_ParseAssemblyString(SEXP r_str, SEXP r_module, SEXP r_context)
         module = NULL;
 
     const char *text = CHAR(STRING_ELT(r_str, 0));
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 6
+    module = llvm::parseAssemblyString(text, /* module, */ err, *context).get();
+#else
     module = llvm::ParseAssemblyString(text, module, err, *context);
+#endif
     if(!module) {
         PROBLEM  "problem reading assembler code"
             ERROR;
@@ -464,7 +468,11 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
     } else {
         //  Dealing with a raw() vector from R. So contents are in memory already.
        llvm::StringRef ref((const char *) RAW(r_input), Rf_length(r_input));
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 6
+       buf = llvm::MemoryBuffer::getMemBuffer(ref, "", false).get();        
+#else
        buf = llvm::MemoryBuffer::getMemBuffer(ref, "", false);        
+#endif
     }
 
 
@@ -478,7 +486,11 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
     }
 #else
 //XXX CHECK!
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 6
+    llvm::ErrorOr<llvm::Module *> err =  llvm::parseBitcodeFile(buf->getMemBufferRef(), *context);
+#else
     llvm::ErrorOr<llvm::Module *> err =  llvm::parseBitcodeFile(buf, *context);
+#endif
     if(!err) {
         PROBLEM "failed to read bitcode %s", err.getError().message().c_str()
          ERROR;

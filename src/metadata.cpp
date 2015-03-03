@@ -24,6 +24,14 @@ R_NamedMDNode_addOperand(SEXP r_namedNode, SEXP r_node)
     return(R_NilValue);
 }
 
+
+
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
+#define MD_TYPE Metadata
+#else
+#define MD_TYPE Value
+#endif
+
 extern "C"
 SEXP
 R_NamedMDNode_addOperand1(SEXP r_namedNode, SEXP r_vals, SEXP r_context)
@@ -34,10 +42,10 @@ R_NamedMDNode_addOperand1(SEXP r_namedNode, SEXP r_vals, SEXP r_context)
         ERROR;
     }
     int nels = Rf_length(r_vals);
-    std::vector<llvm::Value *> args; // does this disappear and we lose the elements?
+    std::vector<llvm::MD_TYPE *> args; // does this disappear and we lose the elements?
     for(int i = 0; i < nels; i++) 
-            args.push_back(GET_REF(VECTOR_ELT(r_vals, i), Value));
-    llvm::ArrayRef<llvm::Value*> vals = makeArrayRef(args);
+            args.push_back(GET_REF(VECTOR_ELT(r_vals, i), MD_TYPE));
+    llvm::ArrayRef<llvm::MD_TYPE *> vals = makeArrayRef(args);
     llvm::LLVMContext *context = GET_REF(r_context, LLVMContext);
     llvm::MDNode *node = llvm::MDNode::get(*context, vals);
 
@@ -54,10 +62,10 @@ R_MDNode_get(SEXP r_context, SEXP r_vals)
 {
     int nels = Rf_length(r_vals);
 #if 1
-    std::vector<llvm::Value *> args; // does this disappear and we lose the elements?
+    std::vector<llvm::MD_TYPE *> args; // does this disappear and we lose the elements?
     for(int i = 0; i < nels; i++) 
-        args.push_back(GET_REF(VECTOR_ELT(r_vals, i), Value));
-    llvm::ArrayRef<llvm::Value*> vals = makeArrayRef(args);
+        args.push_back(GET_REF(VECTOR_ELT(r_vals, i), MD_TYPE));
+    llvm::ArrayRef<llvm::MD_TYPE*> vals = makeArrayRef(args);
 #else
     llvm::Value *vals[nels];
     for(int i = 0 ; i < nels; i++) {
@@ -105,8 +113,12 @@ R_NamedMDNode_getOperands(SEXP r_node)
     for(unsigned int i = 0; i < numEls; i++) {
         llvm::MDNode *el = node->getOperand(i);
         SET_VECTOR_ELT(ans, i, R_createRef(el, "MDNode"));
-        llvm::StringRef str = el->getName();
+        llvm::StringRef str;
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 6
+//	llvm::NamedMDNode *tmp = dynamic_cast<llvm::NamedMDNode*>(el);
+	str = el->getName();
         SET_STRING_ELT(names, i, str.data() ? mkChar(str.data()) : R_NaString);
+#endif
     }
     SET_NAMES(ans, names);
     UNPROTECT(2);
@@ -138,10 +150,13 @@ R_MDNode_getOperands(SEXP r_node)
     PROTECT(ans = NEW_LIST(numEls));
     PROTECT(names = NEW_CHARACTER(numEls));
     for(unsigned int i = 0; i < numEls; i++) {
-        llvm::Value *el = node->getOperand(i);
-        SET_VECTOR_ELT(ans, i, R_createRef(el, "Value"));
-        llvm::StringRef str = el->getName();
+        llvm::MD_TYPE *el = node->getOperand(i);
+        SET_VECTOR_ELT(ans, i, R_createRef(el, "Metadata"));
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 6
+        llvm::StringRef str;
+	str = el->getName();
         SET_STRING_ELT(names, i, str.data() ? mkChar(str.data()) : R_NaString);
+#endif
     }
     SET_NAMES(ans, names);
     UNPROTECT(2);

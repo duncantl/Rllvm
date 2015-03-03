@@ -109,6 +109,8 @@ convertRawPointerToR(void *p, const llvm::Type *type)
     return(R_MakeExternalPtr(p, Rf_install("void*"), R_NilValue));
 }
 
+
+
 SEXP
 convertPointerToR(const llvm::GenericValue *val, const llvm::Type *type)
 {
@@ -146,10 +148,14 @@ convertGenericValueToR(const llvm::GenericValue *val, const llvm::Type *type)
         case llvm::Type::PointerTyID:
             ans = convertPointerToR(val, type);
             break;
+
+        default:
+            ans = R_NilValue;
     }
 
     return(ans);
 }
+
 
 
 /* #include <llvm/DerivedTypes.h> */
@@ -250,7 +256,6 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
     return(true);
 }
 
-
 /*
      case Type::VoidTyID:
        rv.IntVal = APInt(32, ((int(*)())(intptr_t)FPtr)());
@@ -310,6 +315,7 @@ convertNativeValuePtrToR(void *ptr, const llvm::Type *type)
     return(ans);
 }
 
+
 extern "C"
 SEXP
 R_convertNativeValuePtrToR(SEXP r_ptr, SEXP r_type)
@@ -320,7 +326,6 @@ R_convertNativeValuePtrToR(SEXP r_ptr, SEXP r_type)
         ptr = * ((void **) ptr);
     return(convertNativeValuePtrToR(ptr, ty));
 }
-
 
 
 
@@ -355,17 +360,23 @@ R_convertValueToR(SEXP r_val)
             fprintf(stderr, "ConstantDataArray\n");
 #endif
         }
-    } else if(llvm::dyn_cast<llvm::MDString>(val)) {
+    }
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 6
+    else if(llvm::dyn_cast<llvm::MDString>(val)) {
         llvm::MDString *tmp = llvm::dyn_cast<llvm::MDString>(val);
         llvm::StringRef str = tmp->getString();
         return(mkString(str.data()));
-    } else if(llvm::MDString::classof(val)) {
+    }
+
+ else if(llvm::MDString::classof(val)) {
 #if R_DEBUG
             fprintf(stderr, "MDString via classof()\n");
 #endif
-    }
+  }
+#endif
 
     PROBLEM  "don't know what the class is of the Value"
         ERROR;
     return(R_NilValue);
 }
+

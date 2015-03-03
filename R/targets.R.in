@@ -1,7 +1,4 @@
 
-LLVMVersion = c(major = @LLVM_VERSION@, minor = @LLVM_MINOR_VERSION@)
-
-
 LLVMTargets = strsplit('@LLVM_TARGETS@', '[[:space:]]+')[[1]]
 
 getLLVMTargets =

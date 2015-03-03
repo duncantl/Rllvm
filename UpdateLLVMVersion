@@ -7,10 +7,14 @@ Use the R commands in TU/enums.R
 
 
 
-ExecEngine.cpp
-IRBuilder.cpp
-Module.cpp
-Target.cpp
-converters.cpp
-metadata.cpp
-ostream.cpp
+converters.cpp 
+metadata.cpp  - activate getting names again!
+
+[Test] Target.cpp  - ifdef'ed out the R_TargetMachine_getDataLayout() routine. Can get it from the Module, but not the target machine anymore.
+[Test] IRBuilder.cpp
+[Test] Module.cpp
+[Test] ostream.cpp
+[Test] ExecEngine.cpp - can we create a correct std::unique_ptr<llvm::Module> from R reference?
+
+Test the handling of .get() for the std::unique_ptr<>. Do we still own it at the end or is it released??????
+Test the error in ostream - treating as bool - do we get use !err or err?

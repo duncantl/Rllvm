@@ -2,6 +2,10 @@ setClass("IntrinsicID", contains = "integer")
 
 setClass("RC++Reference", representation(ref = "externalptr"))
 
+# For LLVM 3.6, this is
+if(all(llvmVersion() >= c(3, 6)))
+   setClass("Metadata", representation(ref = "externalptr"))
+
 setClass("raw_ostream", contains = "RC++Reference")
 setClass("raw_fd_ostream", contains = "raw_ostream")
 setClass("raw_string_ostream", contains = "raw_ostream")
