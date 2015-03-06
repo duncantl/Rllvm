@@ -129,6 +129,8 @@ R_verifyModule(SEXP r_module)
 {
     llvm::Module *module;
     module = (GET_REF(r_module, Module)); // llvm::cast<llvm::Module>
+
+
 #ifdef USE_EXCEPTIONS
     try {
 #endif
@@ -137,14 +139,15 @@ R_verifyModule(SEXP r_module)
         bool status;
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
         status = llvm::verifyModule(*module, llvm::ReturnStatusAction, &errors);
+        if(status != false) 
+            return(ScalarString(mkChar(errors.c_str())));            
 #else
         llvm::raw_string_ostream OS(errors);
         status = llvm::verifyModule(*module, &OS);
+        if(status == true) 
+            return(ScalarString(mkChar(OS.str().c_str())));
 #endif
-        if(status != false) {
-            PROBLEM "module verification: %s", errors.c_str()
-                ERROR;
-        }
+
 #ifdef USE_EXCEPTIONS
        } catch(...) {
             PROBLEM "Failed in verifying the module"
@@ -154,6 +157,17 @@ R_verifyModule(SEXP r_module)
 
     return(ScalarLogical(TRUE));
 }
+
+
+extern "C"
+SEXP
+R_foo()
+{
+  PROBLEM "my error"
+      ERROR;
+}
+
+
 
 #if 0 /* This is available from the parent method R_GlobalValue_getParent */
 extern "C"
@@ -555,3 +569,4 @@ R_Module_getNamedMDList(SEXP r_mod)
   UNPROTECT(2);
   return(rans);
 }
+

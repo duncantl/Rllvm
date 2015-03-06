@@ -14,8 +14,13 @@ function()
 
 verifyModule =
 function(module)
-  .Call("R_verifyModule", module)
+{    
+  ans = .Call("R_verifyModule", module)
+  if(is.character(ans))
+      stop(ans)
 
+  ans
+}
 
 setGeneric("Optimize",
              function(obj, ...)
