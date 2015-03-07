@@ -1,4 +1,4 @@
-if(all(llvmVersion() == c(3, 5))) {
+if(all(llvmVersion() == c( 3 ,  4 ))) {
 
 `round_indeterminate` = -1L
 `round_toward_zero` = 0L
@@ -86,73 +86,68 @@ if(all(llvmVersion() == c(3, 5))) {
 
 ##########################
 
-`MF_READ` = 16777216L
-`MF_WRITE` = 33554432L
-`MF_EXEC` = 67108864L
-
-
-
- `ProtectionFlags`  = structure(c(16777216L, 33554432L, 67108864L), .Names = c("MF_READ", 
-"MF_WRITE", "MF_EXEC"))
-
-
-##########################
-
 `None` = 0L
 `Alignment` = 1L
 `AlwaysInline` = 2L
 `Builtin` = 3L
 `ByVal` = 4L
-`InAlloca` = 5L
-`Cold` = 6L
-`InlineHint` = 7L
-`InReg` = 8L
-`JumpTable` = 9L
-`MinSize` = 10L
-`Naked` = 11L
-`Nest` = 12L
-`NoAlias` = 13L
-`NoBuiltin` = 14L
-`NoCapture` = 15L
-`NoDuplicate` = 16L
-`NoImplicitFloat` = 17L
-`NoInline` = 18L
-`NonLazyBind` = 19L
-`NonNull` = 20L
-`Dereferenceable` = 21L
-`NoRedZone` = 22L
-`NoReturn` = 23L
-`NoUnwind` = 24L
-`OptimizeForSize` = 25L
-`OptimizeNone` = 26L
-`ReadNone` = 27L
-`ReadOnly` = 28L
-`Returned` = 29L
-`ReturnsTwice` = 30L
-`SExt` = 31L
-`StackAlignment` = 32L
-`StackProtect` = 33L
-`StackProtectReq` = 34L
-`StackProtectStrong` = 35L
-`StructRet` = 36L
-`SanitizeAddress` = 37L
-`SanitizeThread` = 38L
-`SanitizeMemory` = 39L
-`UWTable` = 40L
-`ZExt` = 41L
-`EndAttrKinds` = 42L
+`Cold` = 5L
+`InlineHint` = 6L
+`InReg` = 7L
+`MinSize` = 8L
+`Naked` = 9L
+`Nest` = 10L
+`NoAlias` = 11L
+`NoBuiltin` = 12L
+`NoCapture` = 13L
+`NoDuplicate` = 14L
+`NoImplicitFloat` = 15L
+`NoInline` = 16L
+`NonLazyBind` = 17L
+`NoRedZone` = 18L
+`NoReturn` = 19L
+`NoUnwind` = 20L
+`OptimizeForSize` = 21L
+`OptimizeNone` = 22L
+`ReadNone` = 23L
+`ReadOnly` = 24L
+`Returned` = 25L
+`ReturnsTwice` = 26L
+`SExt` = 27L
+`StackAlignment` = 28L
+`StackProtect` = 29L
+`StackProtectReq` = 30L
+`StackProtectStrong` = 31L
+`StructRet` = 32L
+`SanitizeAddress` = 33L
+`SanitizeThread` = 34L
+`SanitizeMemory` = 35L
+`UWTable` = 36L
+`ZExt` = 37L
+`EndAttrKinds` = 38L
 
 
 
- `AttrKind`  = structure(0:42, .Names = c("None", "Alignment", "AlwaysInline", 
-"Builtin", "ByVal", "InAlloca", "Cold", "InlineHint", "InReg", 
-"JumpTable", "MinSize", "Naked", "Nest", "NoAlias", "NoBuiltin", 
-"NoCapture", "NoDuplicate", "NoImplicitFloat", "NoInline", "NonLazyBind", 
-"NonNull", "Dereferenceable", "NoRedZone", "NoReturn", "NoUnwind", 
-"OptimizeForSize", "OptimizeNone", "ReadNone", "ReadOnly", "Returned", 
-"ReturnsTwice", "SExt", "StackAlignment", "StackProtect", "StackProtectReq", 
-"StackProtectStrong", "StructRet", "SanitizeAddress", "SanitizeThread", 
-"SanitizeMemory", "UWTable", "ZExt", "EndAttrKinds"))
+ `AttrKind`  = structure(0:38, .Names = c("None", "Alignment", "AlwaysInline", 
+"Builtin", "ByVal", "Cold", "InlineHint", "InReg", "MinSize", 
+"Naked", "Nest", "NoAlias", "NoBuiltin", "NoCapture", "NoDuplicate", 
+"NoImplicitFloat", "NoInline", "NonLazyBind", "NoRedZone", "NoReturn", 
+"NoUnwind", "OptimizeForSize", "OptimizeNone", "ReadNone", "ReadOnly", 
+"Returned", "ReturnsTwice", "SExt", "StackAlignment", "StackProtect", 
+"StackProtectReq", "StackProtectStrong", "StructRet", "SanitizeAddress", 
+"SanitizeThread", "SanitizeMemory", "UWTable", "ZExt", "EndAttrKinds"
+))
+
+
+##########################
+
+`ReturnIndex` = NA
+`FunctionIndex` = NA
+
+
+
+ `AttrIndex`  = structure(c(NA_integer_, NA_integer_), .Names = c("ReturnIndex", 
+"FunctionIndex"))
 
 
 ##########################
@@ -358,18 +353,6 @@ if(all(llvmVersion() == c(3, 5))) {
 
 ##########################
 
-`LLVMDefaultStorageClass` = 0L
-`LLVMDLLImportStorageClass` = 1L
-`LLVMDLLExportStorageClass` = NA
-
-
-
- `LLVMDLLStorageClass`  = structure(c(0L, 1L, NA), .Names = c("LLVMDefaultStorageClass", 
-"LLVMDLLImportStorageClass", "LLVMDLLExportStorageClass"))
-
-
-##########################
-
 `LLVMCCallConv` = 0L
 `LLVMFastCallConv` = 8L
 `LLVMColdCallConv` = 9L
@@ -503,19 +486,6 @@ if(all(llvmVersion() == c(3, 5))) {
 
 ##########################
 
-`LLVMDSError` = 0L
-`LLVMDSWarning` = 1L
-`LLVMDSRemark` = 2L
-`LLVMDSNote` = 3L
-
-
-
- `LLVMDiagnosticSeverity`  = structure(0:3, .Names = c("LLVMDSError", "LLVMDSWarning", "LLVMDSRemark", 
-"LLVMDSNote"))
-
-
-##########################
-
 `zeroDigitTag` = 0L
 `oneDigitTag` = 1L
 `stopTag` = 2L
@@ -549,20 +519,24 @@ if(all(llvmVersion() == c(3, 5))) {
 `MDNodeVal` = 17L
 `MDStringVal` = 18L
 `InlineAsmVal` = 19L
-`InstructionVal` = 20L
+`PseudoSourceValueVal` = 20L
+`FixedStackPseudoSourceValueVal` = 21L
+`InstructionVal` = 22L
 `ConstantFirstVal` = 2L
 `ConstantLastVal` = 16L
 
 
 
  `ValueTy`  = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 
-12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L, 2L, 16L), .Names = c("ArgumentVal", 
-"BasicBlockVal", "FunctionVal", "GlobalAliasVal", "GlobalVariableVal", 
-"UndefValueVal", "BlockAddressVal", "ConstantExprVal", "ConstantAggregateZeroVal", 
-"ConstantDataArrayVal", "ConstantDataVectorVal", "ConstantIntVal", 
-"ConstantFPVal", "ConstantArrayVal", "ConstantStructVal", "ConstantVectorVal", 
-"ConstantPointerNullVal", "MDNodeVal", "MDStringVal", "InlineAsmVal", 
-"InstructionVal", "ConstantFirstVal", "ConstantLastVal"))
+12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L, 21L, 22L, 2L, 16L
+), .Names = c("ArgumentVal", "BasicBlockVal", "FunctionVal", 
+"GlobalAliasVal", "GlobalVariableVal", "UndefValueVal", "BlockAddressVal", 
+"ConstantExprVal", "ConstantAggregateZeroVal", "ConstantDataArrayVal", 
+"ConstantDataVectorVal", "ConstantIntVal", "ConstantFPVal", "ConstantArrayVal", 
+"ConstantStructVal", "ConstantVectorVal", "ConstantPointerNullVal", 
+"MDNodeVal", "MDStringVal", "InlineAsmVal", "PseudoSourceValueVal", 
+"FixedStackPseudoSourceValueVal", "InstructionVal", "ConstantFirstVal", 
+"ConstantLastVal"))
 
 
 ##########################
@@ -710,8 +684,6 @@ if(all(llvmVersion() == c(3, 5))) {
 `HiPE` = 11L
 `WebKit_JS` = 12L
 `AnyReg` = 13L
-`PreserveMost` = 14L
-`PreserveAll` = 15L
 `FirstTargetCC` = 64L
 `X86_StdCall` = 64L
 `X86_FastCall` = 65L
@@ -730,13 +702,12 @@ if(all(llvmVersion() == c(3, 5))) {
 
 
 
- `ID`  = structure(c(0L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 64L, 64L, 
-65L, 66L, 67L, 68L, 69L, 70L, 71L, 72L, 75L, 76L, 77L, 78L, 79L
-), .Names = c("C", "Fast", "Cold", "GHC", "HiPE", "WebKit_JS", 
-"AnyReg", "PreserveMost", "PreserveAll", "FirstTargetCC", "X86_StdCall", 
-"X86_FastCall", "ARM_APCS", "ARM_AAPCS", "ARM_AAPCS_VFP", "MSP430_INTR", 
-"X86_ThisCall", "PTX_Kernel", "PTX_Device", "SPIR_FUNC", "SPIR_KERNEL", 
-"Intel_OCL_BI", "X86_64_SysV", "X86_64_Win64"))
+ `ID`  = structure(c(0L, 8L, 9L, 10L, 11L, 12L, 13L, 64L, 64L, 65L, 66L, 
+67L, 68L, 69L, 70L, 71L, 72L, 75L, 76L, 77L, 78L, 79L), .Names = c("C", 
+"Fast", "Cold", "GHC", "HiPE", "WebKit_JS", "AnyReg", "FirstTargetCC", 
+"X86_StdCall", "X86_FastCall", "ARM_APCS", "ARM_AAPCS", "ARM_AAPCS_VFP", 
+"MSP430_INTR", "X86_ThisCall", "PTX_Kernel", "PTX_Device", "SPIR_FUNC", 
+"SPIR_KERNEL", "Intel_OCL_BI", "X86_64_SysV", "X86_64_Win64"))
 
 
 ##########################
@@ -846,13 +817,18 @@ if(all(llvmVersion() == c(3, 5))) {
 `ArrayTyID` = 13L
 `PointerTyID` = 14L
 `VectorTyID` = 15L
+`NumTypeIDs` = 16L
+`LastPrimitiveTyID` = 9L
+`FirstDerivedTyID` = 10L
 
 
 
- `TypeID`  = structure(0:15, .Names = c("VoidTyID", "HalfTyID", "FloatTyID", 
-"DoubleTyID", "X86_FP80TyID", "FP128TyID", "PPC_FP128TyID", "LabelTyID", 
-"MetadataTyID", "X86_MMXTyID", "IntegerTyID", "FunctionTyID", 
-"StructTyID", "ArrayTyID", "PointerTyID", "VectorTyID"))
+ `TypeID`  = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 
+12L, 13L, 14L, 15L, 16L, 9L, 10L), .Names = c("VoidTyID", "HalfTyID", 
+"FloatTyID", "DoubleTyID", "X86_FP80TyID", "FP128TyID", "PPC_FP128TyID", 
+"LabelTyID", "MetadataTyID", "X86_MMXTyID", "IntegerTyID", "FunctionTyID", 
+"StructTyID", "ArrayTyID", "PointerTyID", "VectorTyID", "NumTypeIDs", 
+"LastPrimitiveTyID", "FirstDerivedTyID"))
 
 
 ##########################
@@ -866,15 +842,20 @@ if(all(llvmVersion() == c(3, 5))) {
 `AppendingLinkage` = 6L
 `InternalLinkage` = 7L
 `PrivateLinkage` = 8L
-`ExternalWeakLinkage` = 9L
-`CommonLinkage` = 10L
+`LinkerPrivateLinkage` = 9L
+`LinkerPrivateWeakLinkage` = 10L
+`DLLImportLinkage` = 11L
+`DLLExportLinkage` = 12L
+`ExternalWeakLinkage` = 13L
+`CommonLinkage` = 14L
 
 
 
- `LinkageTypes`  = structure(0:10, .Names = c("ExternalLinkage", "AvailableExternallyLinkage", 
+ `LinkageTypes`  = structure(0:14, .Names = c("ExternalLinkage", "AvailableExternallyLinkage", 
 "LinkOnceAnyLinkage", "LinkOnceODRLinkage", "WeakAnyLinkage", 
 "WeakODRLinkage", "AppendingLinkage", "InternalLinkage", "PrivateLinkage", 
-"ExternalWeakLinkage", "CommonLinkage"))
+"LinkerPrivateLinkage", "LinkerPrivateWeakLinkage", "DLLImportLinkage", 
+"DLLExportLinkage", "ExternalWeakLinkage", "CommonLinkage"))
 
 
 ##########################
@@ -887,33 +868,6 @@ if(all(llvmVersion() == c(3, 5))) {
 
  `VisibilityTypes`  = structure(0:2, .Names = c("DefaultVisibility", "HiddenVisibility", 
 "ProtectedVisibility"))
-
-
-##########################
-
-`DefaultStorageClass` = 0L
-`DLLImportStorageClass` = 1L
-`DLLExportStorageClass` = NA
-
-
-
- `DLLStorageClassTypes`  = structure(c(0L, 1L, NA), .Names = c("DefaultStorageClass", "DLLImportStorageClass", 
-"DLLExportStorageClass"))
-
-
-##########################
-
-`NotThreadLocal` = 0L
-`GeneralDynamicTLSModel` = 1L
-`LocalDynamicTLSModel` = 2L
-`InitialExecTLSModel` = 3L
-`LocalExecTLSModel` = 4L
-
-
-
- `ThreadLocalMode`  = structure(0:4, .Names = c("NotThreadLocal", "GeneralDynamicTLSModel", 
-"LocalDynamicTLSModel", "InitialExecTLSModel", "LocalExecTLSModel"
-))
 
 
 ##########################

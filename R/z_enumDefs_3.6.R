@@ -1,4 +1,4 @@
-if(all(llvmVersion() == c(3, 5))) {
+if(all(llvmVersion() == c( 3 ,  6 ))) {
 
 `round_indeterminate` = -1L
 `round_toward_zero` = 0L
@@ -36,31 +36,6 @@ if(all(llvmVersion() == c(3, 5))) {
 
  `_Manager_operation`  = structure(0:3, .Names = c("__get_type_info", "__get_functor_ptr", 
 "__clone_functor", "__destroy_functor"))
-
-
-##########################
-
-`NullKind` = 0L
-`EmptyKind` = 1L
-`TwineKind` = 2L
-`CStringKind` = 3L
-`StdStringKind` = 4L
-`StringRefKind` = 5L
-`CharKind` = 6L
-`DecUIKind` = 7L
-`DecIKind` = 8L
-`DecULKind` = 9L
-`DecLKind` = 10L
-`DecULLKind` = 11L
-`DecLLKind` = 12L
-`UHexKind` = 13L
-
-
-
- `NodeKind`  = structure(0:13, .Names = c("NullKind", "EmptyKind", "TwineKind", 
-"CStringKind", "StdStringKind", "StringRefKind", "CharKind", 
-"DecUIKind", "DecIKind", "DecULKind", "DecLKind", "DecULLKind", 
-"DecLLKind", "UHexKind"))
 
 
 ##########################
@@ -546,22 +521,21 @@ if(all(llvmVersion() == c(3, 5))) {
 `ConstantStructVal` = 14L
 `ConstantVectorVal` = 15L
 `ConstantPointerNullVal` = 16L
-`MDNodeVal` = 17L
-`MDStringVal` = 18L
-`InlineAsmVal` = 19L
-`InstructionVal` = 20L
+`MetadataAsValueVal` = 17L
+`InlineAsmVal` = 18L
+`InstructionVal` = 19L
 `ConstantFirstVal` = 2L
 `ConstantLastVal` = 16L
 
 
 
  `ValueTy`  = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 
-12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 20L, 2L, 16L), .Names = c("ArgumentVal", 
+12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L, 2L, 16L), .Names = c("ArgumentVal", 
 "BasicBlockVal", "FunctionVal", "GlobalAliasVal", "GlobalVariableVal", 
 "UndefValueVal", "BlockAddressVal", "ConstantExprVal", "ConstantAggregateZeroVal", 
 "ConstantDataArrayVal", "ConstantDataVectorVal", "ConstantIntVal", 
 "ConstantFPVal", "ConstantArrayVal", "ConstantStructVal", "ConstantVectorVal", 
-"ConstantPointerNullVal", "MDNodeVal", "MDStringVal", "InlineAsmVal", 
+"ConstantPointerNullVal", "MetadataAsValueVal", "InlineAsmVal", 
 "InstructionVal", "ConstantFirstVal", "ConstantLastVal"))
 
 
@@ -703,44 +677,6 @@ if(all(llvmVersion() == c(3, 5))) {
 
 ##########################
 
-`C` = 0L
-`Fast` = 8L
-`Cold` = 9L
-`GHC` = 10L
-`HiPE` = 11L
-`WebKit_JS` = 12L
-`AnyReg` = 13L
-`PreserveMost` = 14L
-`PreserveAll` = 15L
-`FirstTargetCC` = 64L
-`X86_StdCall` = 64L
-`X86_FastCall` = 65L
-`ARM_APCS` = 66L
-`ARM_AAPCS` = 67L
-`ARM_AAPCS_VFP` = 68L
-`MSP430_INTR` = 69L
-`X86_ThisCall` = 70L
-`PTX_Kernel` = 71L
-`PTX_Device` = 72L
-`SPIR_FUNC` = 75L
-`SPIR_KERNEL` = 76L
-`Intel_OCL_BI` = 77L
-`X86_64_SysV` = 78L
-`X86_64_Win64` = 79L
-
-
-
- `ID`  = structure(c(0L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 64L, 64L, 
-65L, 66L, 67L, 68L, 69L, 70L, 71L, 72L, 75L, 76L, 77L, 78L, 79L
-), .Names = c("C", "Fast", "Cold", "GHC", "HiPE", "WebKit_JS", 
-"AnyReg", "PreserveMost", "PreserveAll", "FirstTargetCC", "X86_StdCall", 
-"X86_FastCall", "ARM_APCS", "ARM_AAPCS", "ARM_AAPCS_VFP", "MSP430_INTR", 
-"X86_ThisCall", "PTX_Kernel", "PTX_Device", "SPIR_FUNC", "SPIR_KERNEL", 
-"Intel_OCL_BI", "X86_64_SysV", "X86_64_Win64"))
-
-
-##########################
-
 `NoRelocation` = 0L
 `LocalRelocation` = 1L
 `GlobalRelocations` = 2L
@@ -826,6 +762,17 @@ if(all(llvmVersion() == c(3, 5))) {
 
 
  `uninitializedTag`  = structure(0L, .Names = "uninitialized")
+
+
+##########################
+
+`IEK_Zero` = 0L
+`IEK_NaN` = 1L
+`IEK_Inf` = 2L
+
+
+
+ `IlogbErrorKinds`  = structure(0:2, .Names = c("IEK_Zero", "IEK_NaN", "IEK_Inf"))
 
 
 ##########################
