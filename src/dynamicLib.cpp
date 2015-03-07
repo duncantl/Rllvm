@@ -9,14 +9,51 @@ R_DynamicLibrary_LoadLibraryPermanently(SEXP r_libs)
     SEXP ans;
 
     std::string err;
+    bool ok;
     PROTECT(ans = NEW_LOGICAL(n));
     for(i = 0; i < n; i++) {
-        LOGICAL(ans)[i] = llvm::sys::DynamicLibrary::LoadLibraryPermanently(CHAR(STRING_ELT(r_libs, i)), &err);
+        ok = llvm::sys::DynamicLibrary::LoadLibraryPermanently(CHAR(STRING_ELT(r_libs, i)), &err);
+        LOGICAL(ans)[i] = !ok;
+        if(ok) {
+            PROBLEM "failed to load DLL %s", err.c_str()
+            ERROR;
+        }
     }
     UNPROTECT(1);
     
     return(ans);
 }
+
+
+
+#if 0
+extern "C"
+SEXP
+R_DynamicLibrary_getPermanentLibrary(SEXP r_libs)
+{
+    int i, n = Rf_length(r_libs);
+    SEXP ans;
+
+    std::string err;
+    bool ok;
+    PROTECT(ans = NEW_LIST(n));
+    for(i = 0; i < n; i++) {
+        llvm::sys::DynamicLibrary lib;
+        lib = llvm::sys::DynamicLibrary::getPermanentLibrary(CHAR(STRING_ELT(r_libs, i)), &err);
+        LOGICAL(ans)[i] = lib.isValid();
+        if(ok) {
+            PROBLEM "failed to load DLL %s", err.c_str()
+            WARN;
+        } else {
+            SET_VECTOR_ELT(ans, i, R_createRef(lib, "Module"));
+        }
+    }
+    UNPROTECT(1);
+    
+    return(ans);
+}
+#endif
+
 
 extern "C"
 SEXP
