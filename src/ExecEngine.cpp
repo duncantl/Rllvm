@@ -1,7 +1,11 @@
 #include "Rllvm.h"
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
-//#include <llvm/ExecutionEngine/JIT.h>
+#if LLVM_VERSION <= 3 && LLVM_MINOR_VERSION < 6
+#include <llvm/ExecutionEngine/JIT.h>
+#endif
+
+#include <llvm/ExecutionEngine/MCJIT.h>
 
 #if LLVM_VERSION < 3
 #include <llvm/Target/TargetSelect.h>
