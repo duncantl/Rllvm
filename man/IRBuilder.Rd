@@ -8,6 +8,7 @@
 \alias{createLoad}
 \alias{createLocalArrayVariable}
 \alias{createLocalVariable}
+\alias{createAlloc}
 \alias{createNeg}
 \alias{createNot}
 \alias{createRet}
@@ -69,6 +70,7 @@ createGEP(builder, val, index, id = character())
 createLoad(builder, val, isVolatile = FALSE, id = character())
 createLocalArrayVariable(builder, type, id, size = NULL)
 createLocalVariable(builder, type, id, beforeTerminator = FALSE)
+createAlloc(builder, type, id, beforeTerminator = FALSE)
 createNeg(val, id = character(), block = NULL)
 createNot(val, id = character(), block = NULL, builder = NULL)
 createRet(builder, value = NULL)
