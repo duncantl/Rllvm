@@ -6,7 +6,7 @@ function(libs)
   libs = path.expand(as.character(libs))
   e = file.exists(libs)
   if(!all(e))
-     stop("DSO(s) don't exist", paste(libs[!e], sep = ", "))
+     stop("DSO(s) don't exist: ", paste(libs[!e], sep = ", "))
 
   .Call("R_DynamicLibrary_LoadLibraryPermanently", libs)
 }
