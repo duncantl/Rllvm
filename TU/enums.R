@@ -9,7 +9,6 @@ enums = getEnums(tu)
 # dput(enums$AttrKind@values)
 
 
-
 if(FALSE) {
  source("utils.R")
  ids = grep("(^__|::)", names(enums), invert = TRUE, value = TRUE) # remove llvm:: , std::, __lx
