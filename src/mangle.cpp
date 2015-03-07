@@ -1,8 +1,12 @@
 #include "Rllvm.h"
 
 #include <llvm/Target/TargetMachine.h>
-// #include <llvm/Target/Mangler.h>
+
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 5
 #include <llvm/IR/Mangler.h>
+#else
+#include <llvm/Target/Mangler.h>
+#endif
 
 #include <llvm/ADT/SmallString.h>
 
@@ -37,6 +41,7 @@ R_Mangler_getNameWithPrefix_GV(SEXP r_mangler, SEXP r_GV, SEXP r_isImplicitlyPri
 }
 #else
 
+#if LLVM_MAJOR_VERSION == 3 && LLVM_MINOR_VERSION > 4
 
 extern "C"
 SEXP
@@ -65,4 +70,5 @@ R_Mangler_getNameWithPrefix_GV(SEXP r_mangler, SEXP r_GV, SEXP r_CannotUsePrivat
     UNPROTECT(1);
     return(ans);
 }
+#endif
 #endif
