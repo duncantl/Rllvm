@@ -168,7 +168,7 @@ R_ExecutionEngine_FindFunctionNamed(SEXP r_execEngine, SEXP r_id)
 }
 
 
-#if 1
+#if LLVM_MAJOR_VERSION == 3 && LLVM_MINOR_VERSION > 4
 extern "C"
 SEXP
 R_ExecutionEngine_setVerifyModules(SEXP r_execEngine, SEXP r_val)
