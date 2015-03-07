@@ -171,6 +171,15 @@ function(call, val = TRUE)
 
 
 
+setGeneric("setName",
+function(obj, name, ...)
+           standardGeneric("setName"))
+
+setGeneric("getName",
+function(obj, ...)
+           standardGeneric("getName"))
+
+
 setGeneric("clone", function(x, ...) standardGeneric("clone"))
 
 setAs("Module", "ExecutionEngine", 
