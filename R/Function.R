@@ -44,13 +44,6 @@ setMethod("names<-", c("ParameterList", "character"),
               x
            })
 
-setGeneric("setName",
-function(obj, name, ...)
-           standardGeneric("setName"))
-
-setGeneric("getName",
-function(obj, ...)
-           standardGeneric("getName"))
 
 setMethod("setName", "Value",
           function(obj, name)
@@ -205,19 +198,9 @@ function(func, ..., .attrs = list(...))
 # See inst/TU/enums.R
 #  dput(enums$AttrKind@values)
 #
-LLVMAttributes = FuncAttributes =
-if(all(.llvmVersion == c(3, 5))) {
-    structure(0:42, .Names = c("None", "Alignment", "AlwaysInline", 
-"Builtin", "ByVal", "InAlloca", "Cold", "InlineHint", "InReg", 
-"JumpTable", "MinSize", "Naked", "Nest", "NoAlias", "NoBuiltin", 
-"NoCapture", "NoDuplicate", "NoImplicitFloat", "NoInline", "NonLazyBind", 
-"NonNull", "Dereferenceable", "NoRedZone", "NoReturn", "NoUnwind", 
-"OptimizeForSize", "OptimizeNone", "ReadNone", "ReadOnly", "Returned", 
-"ReturnsTwice", "SExt", "StackAlignment", "StackProtect", "StackProtectReq", 
-"StackProtectStrong", "StructRet", "SanitizeAddress", "SanitizeThread", 
-"SanitizeMemory", "UWTable", "ZExt", "EndAttrKinds"))
-
-} else if(all(.llvmVersion >= c(3, 3))) {
+if(FALSE) {
+FuncAttributes = LLVMAttributes = 
+if(all(.llvmVersion >= c(3, 3))) {
 #  >= 3.3 of llvm    
  if(.llvmVersion[2] < 4)
  structure(0:34, .Names = c("None", "Alignment", "AlwaysInline", 
@@ -247,6 +230,9 @@ structure(1:27, .Names = c("AddressSafety", "Alignment", "AlwaysInline",
                   "ReturnsTwice", "SExt", "StackAlignment", "StackProtect", "StackProtectReq",
                   "StructRet", "UWTable"))
 }
+}
+
+FuncAttributes = LLVMAttributes = LLVMAttribute
 
 
 matchFuncAttributes =
