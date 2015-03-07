@@ -1,6 +1,7 @@
-if(all(.llvmVersion == c(3, 5))) {
+if(all(llvmVersion() == c(3, 5))) {
+    cat("In LLVM 3.5 enums\n")
 
-`round_indeterminate` = 1L
+`round_indeterminate` = -1L
 `round_toward_zero` = 0L
 `round_to_nearest` = 1L
 `round_toward_infinity` = 2L
@@ -8,20 +9,20 @@ if(all(.llvmVersion == c(3, 5))) {
 
 
 
- `float_round_style`  = structure(c(1L, 0L, 1L, 2L, 3L), .Names = c("round_indeterminate", 
-"round_toward_zero", "round_to_nearest", "round_toward_infinity", 
-"round_toward_neg_infinity"))
+ `float_round_style`  = structure(-1:3, .Names = c("round_indeterminate", "round_toward_zero", 
+"round_to_nearest", "round_toward_infinity", "round_toward_neg_infinity"
+))
 
 
 ##########################
 
-`denorm_indeterminate` = 1L
+`denorm_indeterminate` = -1L
 `denorm_absent` = 0L
 `denorm_present` = 1L
 
 
 
- `float_denorm_style`  = structure(c(1L, 0L, 1L), .Names = c("denorm_indeterminate", "denorm_absent", 
+ `float_denorm_style`  = structure(-1:1, .Names = c("denorm_indeterminate", "denorm_absent", 
 "denorm_present"))
 
 
@@ -158,45 +159,47 @@ if(all(.llvmVersion == c(3, 5))) {
 ##########################
 
 `LLVMZExtAttribute` = 1L
-`LLVMSExtAttribute` = 1L
-`LLVMNoReturnAttribute` = 1L
-`LLVMInRegAttribute` = 1L
-`LLVMStructRetAttribute` = 1L
-`LLVMNoUnwindAttribute` = 1L
-`LLVMNoAliasAttribute` = 1L
-`LLVMByValAttribute` = 1L
-`LLVMNestAttribute` = 1L
-`LLVMReadNoneAttribute` = 1L
-`LLVMReadOnlyAttribute` = 1L
-`LLVMNoInlineAttribute` = 1L
-`LLVMAlwaysInlineAttribute` = 1L
-`LLVMOptimizeForSizeAttribute` = 1L
-`LLVMStackProtectAttribute` = 1L
-`LLVMStackProtectReqAttribute` = 1L
-`LLVMAlignment` = 31L
-`LLVMNoCaptureAttribute` = 1L
-`LLVMNoRedZoneAttribute` = 1L
-`LLVMNoImplicitFloatAttribute` = 1L
-`LLVMNakedAttribute` = 1L
-`LLVMInlineHintAttribute` = 1L
-`LLVMStackAlignment` = 7L
-`LLVMReturnsTwice` = 1L
-`LLVMUWTable` = 1L
-`LLVMNonLazyBind` = 1L
+`LLVMSExtAttribute` = 2L
+`LLVMNoReturnAttribute` = 4L
+`LLVMInRegAttribute` = 8L
+`LLVMStructRetAttribute` = 16L
+`LLVMNoUnwindAttribute` = 32L
+`LLVMNoAliasAttribute` = 64L
+`LLVMByValAttribute` = 128L
+`LLVMNestAttribute` = 256L
+`LLVMReadNoneAttribute` = 512L
+`LLVMReadOnlyAttribute` = 1024L
+`LLVMNoInlineAttribute` = 2048L
+`LLVMAlwaysInlineAttribute` = 4096L
+`LLVMOptimizeForSizeAttribute` = 8192L
+`LLVMStackProtectAttribute` = 16384L
+`LLVMStackProtectReqAttribute` = 32768L
+`LLVMAlignment` = 2031616L
+`LLVMNoCaptureAttribute` = 2097152L
+`LLVMNoRedZoneAttribute` = 4194304L
+`LLVMNoImplicitFloatAttribute` = 8388608L
+`LLVMNakedAttribute` = 16777216L
+`LLVMInlineHintAttribute` = 33554432L
+`LLVMStackAlignment` = 469762048L
+`LLVMReturnsTwice` = 536870912L
+`LLVMUWTable` = 1073741824L
+`LLVMNonLazyBind` = NA
 
 
 
- `LLVMAttribute`  = structure(c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
-1L, 1L, 1L, 31L, 1L, 1L, 1L, 1L, 1L, 7L, 1L, 1L, 1L), .Names = c("LLVMZExtAttribute", 
-"LLVMSExtAttribute", "LLVMNoReturnAttribute", "LLVMInRegAttribute", 
-"LLVMStructRetAttribute", "LLVMNoUnwindAttribute", "LLVMNoAliasAttribute", 
-"LLVMByValAttribute", "LLVMNestAttribute", "LLVMReadNoneAttribute", 
-"LLVMReadOnlyAttribute", "LLVMNoInlineAttribute", "LLVMAlwaysInlineAttribute", 
-"LLVMOptimizeForSizeAttribute", "LLVMStackProtectAttribute", 
-"LLVMStackProtectReqAttribute", "LLVMAlignment", "LLVMNoCaptureAttribute", 
-"LLVMNoRedZoneAttribute", "LLVMNoImplicitFloatAttribute", "LLVMNakedAttribute", 
-"LLVMInlineHintAttribute", "LLVMStackAlignment", "LLVMReturnsTwice", 
-"LLVMUWTable", "LLVMNonLazyBind"))
+ `LLVMAttribute`  = structure(c(1L, 2L, 4L, 8L, 16L, 32L, 64L, 128L, 256L, 512L, 
+1024L, 2048L, 4096L, 8192L, 16384L, 32768L, 2031616L, 2097152L, 
+4194304L, 8388608L, 16777216L, 33554432L, 469762048L, 536870912L, 
+1073741824L, NA), .Names = c("LLVMZExtAttribute", "LLVMSExtAttribute", 
+"LLVMNoReturnAttribute", "LLVMInRegAttribute", "LLVMStructRetAttribute", 
+"LLVMNoUnwindAttribute", "LLVMNoAliasAttribute", "LLVMByValAttribute", 
+"LLVMNestAttribute", "LLVMReadNoneAttribute", "LLVMReadOnlyAttribute", 
+"LLVMNoInlineAttribute", "LLVMAlwaysInlineAttribute", "LLVMOptimizeForSizeAttribute", 
+"LLVMStackProtectAttribute", "LLVMStackProtectReqAttribute", 
+"LLVMAlignment", "LLVMNoCaptureAttribute", "LLVMNoRedZoneAttribute", 
+"LLVMNoImplicitFloatAttribute", "LLVMNakedAttribute", "LLVMInlineHintAttribute", 
+"LLVMStackAlignment", "LLVMReturnsTwice", "LLVMUWTable", "LLVMNonLazyBind"
+))
 
 
 ##########################
@@ -358,12 +361,12 @@ if(all(.llvmVersion == c(3, 5))) {
 
 `LLVMDefaultStorageClass` = 0L
 `LLVMDLLImportStorageClass` = 1L
-`LLVMDLLExportStorageClass` = 2L
+`LLVMDLLExportStorageClass` = NA
 
 
 
- `LLVMDLLStorageClass`  = structure(0:2, .Names = c("LLVMDefaultStorageClass", "LLVMDLLImportStorageClass", 
-"LLVMDLLExportStorageClass"))
+ `LLVMDLLStorageClass`  = structure(c(0L, 1L, NA), .Names = c("LLVMDefaultStorageClass", 
+"LLVMDLLImportStorageClass", "LLVMDLLExportStorageClass"))
 
 
 ##########################
@@ -466,11 +469,11 @@ if(all(.llvmVersion == c(3, 5))) {
 `LLVMAtomicOrderingAcquire` = 4L
 `LLVMAtomicOrderingRelease` = 5L
 `LLVMAtomicOrderingAcquireRelease` = 6L
-`LLVMAtomicOrderingSequentiallyConsistent` = 7L
+`LLVMAtomicOrderingSequentiallyConsistent` = NA
 
 
 
- `LLVMAtomicOrdering`  = structure(c(0L, 1L, 2L, 4L, 5L, 6L, 7L), .Names = c("LLVMAtomicOrderingNotAtomic", 
+ `LLVMAtomicOrdering`  = structure(c(0L, 1L, 2L, 4L, 5L, 6L, NA), .Names = c("LLVMAtomicOrderingNotAtomic", 
 "LLVMAtomicOrderingUnordered", "LLVMAtomicOrderingMonotonic", 
 "LLVMAtomicOrderingAcquire", "LLVMAtomicOrderingRelease", "LLVMAtomicOrderingAcquireRelease", 
 "LLVMAtomicOrderingSequentiallyConsistent"))
@@ -566,11 +569,11 @@ if(all(.llvmVersion == c(3, 5))) {
 ##########################
 
 `CompareIgnoringAlignment` = 1L
-`CompareUsingScalarTypes` = 1L
+`CompareUsingScalarTypes` = 2L
 
 
 
- `OperationEquivalenceFlags`  = structure(c(1L, 1L), .Names = c("CompareIgnoringAlignment", "CompareUsingScalarTypes"
+ `OperationEquivalenceFlags`  = structure(1:2, .Names = c("CompareIgnoringAlignment", "CompareUsingScalarTypes"
 ))
 
 
@@ -596,103 +599,107 @@ if(all(.llvmVersion == c(3, 5))) {
 ##########################
 
 `BinaryOpsBegin` = 0L
-`Add` = 1L
-`FAdd` = 2L
-`Sub` = 3L
-`FSub` = 4L
-`Mul` = 5L
-`FMul` = 6L
-`UDiv` = 7L
-`SDiv` = 8L
-`FDiv` = 9L
-`URem` = 10L
-`SRem` = 11L
-`FRem` = 12L
-`Shl` = 13L
-`LShr` = 14L
-`AShr` = 15L
-`And` = 16L
-`Or` = 17L
-`Xor` = 18L
-`BinaryOpsEnd` = 19L
+`Add` = 8L
+`FAdd` = 9L
+`Sub` = 10L
+`FSub` = 11L
+`Mul` = 12L
+`FMul` = 13L
+`UDiv` = 14L
+`SDiv` = 15L
+`FDiv` = 16L
+`URem` = 17L
+`SRem` = 18L
+`FRem` = 19L
+`Shl` = 20L
+`LShr` = 21L
+`AShr` = 22L
+`And` = 23L
+`Or` = 24L
+`Xor` = 25L
+`BinaryOpsEnd` = 26L
 
 
 
- `BinaryOps`  = structure(0:19, .Names = c("BinaryOpsBegin", "Add", "FAdd", "Sub", 
-"FSub", "Mul", "FMul", "UDiv", "SDiv", "FDiv", "URem", "SRem", 
-"FRem", "Shl", "LShr", "AShr", "And", "Or", "Xor", "BinaryOpsEnd"
-))
+ `BinaryOps`  = structure(c(0L, 8L, 9L, 10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L, 
+18L, 19L, 20L, 21L, 22L, 23L, 24L, 25L, 26L), .Names = c("BinaryOpsBegin", 
+"Add", "FAdd", "Sub", "FSub", "Mul", "FMul", "UDiv", "SDiv", 
+"FDiv", "URem", "SRem", "FRem", "Shl", "LShr", "AShr", "And", 
+"Or", "Xor", "BinaryOpsEnd"))
 
 
 ##########################
 
 `MemoryOpsBegin` = 0L
-`Alloca` = 1L
-`Load` = 2L
-`Store` = 3L
-`GetElementPtr` = 4L
-`Fence` = 5L
-`AtomicCmpXchg` = 6L
-`AtomicRMW` = 7L
-`MemoryOpsEnd` = 8L
+`Alloca` = 26L
+`Load` = 27L
+`Store` = 28L
+`GetElementPtr` = 29L
+`Fence` = 30L
+`AtomicCmpXchg` = 31L
+`AtomicRMW` = 32L
+`MemoryOpsEnd` = 33L
 
 
 
- `MemoryOps`  = structure(0:8, .Names = c("MemoryOpsBegin", "Alloca", "Load", 
-"Store", "GetElementPtr", "Fence", "AtomicCmpXchg", "AtomicRMW", 
-"MemoryOpsEnd"))
+ `MemoryOps`  = structure(c(0L, 26L, 27L, 28L, 29L, 30L, 31L, 32L, 33L), .Names = c("MemoryOpsBegin", 
+"Alloca", "Load", "Store", "GetElementPtr", "Fence", "AtomicCmpXchg", 
+"AtomicRMW", "MemoryOpsEnd"))
 
 
 ##########################
 
 `CastOpsBegin` = 0L
-`Trunc` = 1L
-`ZExt` = 2L
-`SExt` = 3L
-`FPToUI` = 4L
-`FPToSI` = 5L
-`UIToFP` = 6L
-`SIToFP` = 7L
-`FPTrunc` = 8L
-`FPExt` = 9L
-`PtrToInt` = 10L
-`IntToPtr` = 11L
-`BitCast` = 12L
-`AddrSpaceCast` = 13L
-`CastOpsEnd` = 14L
+`Trunc` = 33L
+`ZExt` = 34L
+`SExt` = 35L
+`FPToUI` = 36L
+`FPToSI` = 37L
+`UIToFP` = 38L
+`SIToFP` = 39L
+`FPTrunc` = 40L
+`FPExt` = 41L
+`PtrToInt` = 42L
+`IntToPtr` = 43L
+`BitCast` = 44L
+`AddrSpaceCast` = 45L
+`CastOpsEnd` = 46L
 
 
 
- `CastOps`  = structure(0:14, .Names = c("CastOpsBegin", "Trunc", "ZExt", "SExt", 
-"FPToUI", "FPToSI", "UIToFP", "SIToFP", "FPTrunc", "FPExt", "PtrToInt", 
-"IntToPtr", "BitCast", "AddrSpaceCast", "CastOpsEnd"))
+ `CastOps`  = structure(c(0L, 33L, 34L, 35L, 36L, 37L, 38L, 39L, 40L, 41L, 
+42L, 43L, 44L, 45L, 46L), .Names = c("CastOpsBegin", "Trunc", 
+"ZExt", "SExt", "FPToUI", "FPToSI", "UIToFP", "SIToFP", "FPTrunc", 
+"FPExt", "PtrToInt", "IntToPtr", "BitCast", "AddrSpaceCast", 
+"CastOpsEnd"))
 
 
 ##########################
 
 `OtherOpsBegin` = 0L
-`ICmp` = 1L
-`FCmp` = 2L
-`PHI` = 3L
-`Call` = 4L
-`Select` = 5L
-`UserOp1` = 6L
-`UserOp2` = 7L
-`VAArg` = 8L
-`ExtractElement` = 9L
-`InsertElement` = 10L
-`ShuffleVector` = 11L
-`ExtractValue` = 12L
-`InsertValue` = 13L
-`LandingPad` = 14L
-`OtherOpsEnd` = 15L
+`ICmp` = 46L
+`FCmp` = 47L
+`PHI` = 48L
+`Call` = 49L
+`Select` = 50L
+`UserOp1` = 51L
+`UserOp2` = 52L
+`VAArg` = 53L
+`ExtractElement` = 54L
+`InsertElement` = 55L
+`ShuffleVector` = 56L
+`ExtractValue` = 57L
+`InsertValue` = 58L
+`LandingPad` = 59L
+`OtherOpsEnd` = 60L
 
 
 
- `OtherOps`  = structure(0:15, .Names = c("OtherOpsBegin", "ICmp", "FCmp", "PHI", 
-"Call", "Select", "UserOp1", "UserOp2", "VAArg", "ExtractElement", 
-"InsertElement", "ShuffleVector", "ExtractValue", "InsertValue", 
-"LandingPad", "OtherOpsEnd"))
+ `OtherOps`  = structure(c(0L, 46L, 47L, 48L, 49L, 50L, 51L, 52L, 53L, 54L, 
+55L, 56L, 57L, 58L, 59L, 60L), .Names = c("OtherOpsBegin", "ICmp", 
+"FCmp", "PHI", "Call", "Select", "UserOp1", "UserOp2", "VAArg", 
+"ExtractElement", "InsertElement", "ShuffleVector", "ExtractValue", 
+"InsertValue", "LandingPad", "OtherOpsEnd"))
 
 
 ##########################
@@ -887,11 +894,11 @@ if(all(.llvmVersion == c(3, 5))) {
 
 `DefaultStorageClass` = 0L
 `DLLImportStorageClass` = 1L
-`DLLExportStorageClass` = 2L
+`DLLExportStorageClass` = NA
 
 
 
- `DLLStorageClassTypes`  = structure(0:2, .Names = c("DefaultStorageClass", "DLLImportStorageClass", 
+ `DLLStorageClassTypes`  = structure(c(0L, 1L, NA), .Names = c("DefaultStorageClass", "DLLImportStorageClass", 
 "DLLExportStorageClass"))
 
 
