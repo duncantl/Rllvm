@@ -21,6 +21,23 @@ R_InitializeNativeTarget()
     llvm::InitializeNativeTarget();
 }
 
+extern "C"
+void
+R_InitializeNativeTargetAsmParser()
+{
+    llvm::InitializeNativeTargetAsmParser();
+}
+
+
+extern "C"
+void
+R_InitializeNativeTargetAsmPrinter()
+{
+    llvm::InitializeNativeTargetAsmPrinter();
+}
+
+
+
 #include <llvm/Support/ManagedStatic.h>
 extern "C"
 void
@@ -79,7 +96,7 @@ R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel)
 #else
                                    module
 #endif
-                                ).setErrorStr(&errStr).setEngineKind(llvm::EngineKind::JIT).setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]).create();
+                             ).setErrorStr(&errStr).setEngineKind(llvm::EngineKind::JIT).setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]).create();
     if(!EE) {
         PROBLEM "failed to create execution engine: %s", errStr.c_str()
             ERROR;

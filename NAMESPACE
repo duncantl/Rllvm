@@ -35,6 +35,7 @@ exportClasses(
   SExtInst,
   StoreInst,
   StructType,
+  functionType,
   TerminatorInst,
   Type,
   UnaryInstruction,
@@ -468,3 +469,4 @@ export(insertAtEnd)
 
 export(isLandingPad, getLandingPadInst)
 
+export(createPHI,createPhi)

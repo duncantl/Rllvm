@@ -508,3 +508,10 @@ function(builder, value, type, id = "")
   .Call("R_IRBuilder_CreateTrunc", as(builder, "IRBuilder"), as(value, "Value"), as(type, "Type"), as.character(id))
 }
 
+
+
+createPhi = createPHI =
+function(build, type, numReservedValues, id = character())
+{
+  .Call("R_IRBuilder_CreatePHI", as(builder, "IRBuilder"), as(type, "Type"), as.integer(numReservedValues), as.character(id))
+}

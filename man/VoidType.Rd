@@ -10,10 +10,8 @@
 \alias{Int32Type}
 \alias{Int64Type}
 \alias{Int8Type}
-\alias{isBasicType}
 \alias{LabelType}
 \alias{StringType}
-\alias{pointerType}
 \alias{CHARSXPType}
 \alias{INTSXPType}
 \alias{LGLSXPType}
@@ -30,9 +28,6 @@
 \alias{STRSXPType-class}
 \alias{VECSXPType-class}
 \alias{SEXPType-class}
-
-\alias{getNULLPointerType}
-
 
 \docType{data}
 \title{Objects representing different LLVM common Types}

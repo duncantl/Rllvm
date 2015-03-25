@@ -102,6 +102,9 @@ InitializeNativeTarget =
 function()
 {
   .C("R_InitializeNativeTarget")
+  # Need this in 3.6. For now, do it always.
+  .C("R_InitializeNativeTargetAsmPrinter")
+  .C("R_InitializeNativeTargetAsmParser")
 }
 
 InitializeCppBackendTarget =

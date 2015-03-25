@@ -54,6 +54,9 @@
 \alias{createTrunc}
 \alias{createFPTrunc}
 
+\alias{createPHI}
+\alias{createPhi}
+
 \title{Create an IR builder object for LLVM construction}
 \description{
   This function and class allow us to create and use

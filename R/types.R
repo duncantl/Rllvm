@@ -155,5 +155,5 @@ function(ty, asIs = FALSE)
 
 
 functionType <-
-function(returnType, argTypes, varArgs)
+function(returnType, argTypes, varArgs = FALSE)
   .Call("R_FunctionType_get", returnType, argTypes, as.integer(varArgs))

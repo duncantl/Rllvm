@@ -811,7 +811,11 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
 #endif
     } else { 
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
-        mod = llvm::parseIRFile(fn, err, *context).get();
+        std::unique_ptr<llvm::Module> tmp;
+        tmp = llvm::parseIRFile(fn, err, *context);
+        mod = tmp.get();
+        tmp.reset(NULL);
+        // mod = llvm::parseIRFile(fn, err, *context).get();
 #else
         mod = llvm::ParseIRFile(fn, err, *context);
 #endif
@@ -983,3 +987,19 @@ R_IRBuilder_CreateTrunc(SEXP r_builder, SEXP r_value, SEXP r_type, SEXP r_id)
 }
 
 
+
+
+extern "C"
+SEXP
+R_IRBuilder_CreatePHI(SEXP r_builder, SEXP r_type, SEXP r_numReservedValues, SEXP r_id)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Type *type = GET_REF(r_type, Type);
+
+    llvm::PHINode *ret = builder->CreatePHI(type, INTEGER(r_numReservedValues)[0]);
+    if(Rf_length(r_id)) 
+        ret->setName(makeTwine(r_id));
+
+    return(R_createRef(ret, "PHINode"));
+} 
