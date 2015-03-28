@@ -446,6 +446,11 @@ function(builder, type, numReservedVals)
    .Call("R_IRBuilder_CreatePHI", builder, type, as.integer(numReservedVals))
 }
 
+PHIAddIncoming =
+function(phiNode, value, block)
+{
+   .Call("R_PHINode_addIncoming", phiNode, value, block)
+}
 
 
 if(FALSE) {
