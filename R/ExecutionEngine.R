@@ -34,6 +34,18 @@ function(module, optimizationLevel = CodeGenOpt_Default)
   .Call("R_create_ExecutionEngine", as(module, "Module"), as.integer(optimizationLevel))
 }
 
+#finalize must be called before invoking code that has been
+#compiled using MC Jit
+finalizeEngine =
+function(engine)
+{
+   if(!is(engine, "ExecutionEngine"))
+     stop("can only finalize an ExecutionEngine")
+   
+   .Call("R_ExecutionEngine_finalize", engine)
+}
+
+
 addModule =
 function(engine, ...)
 {

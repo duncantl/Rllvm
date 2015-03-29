@@ -105,6 +105,19 @@ R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel)
     return(R_createRef(EE, "ExecutionEngine"));
 }
 
+/* finalize engine must be called before invoking code
+compiled with MC Jit */
+extern "C"
+void
+R_ExecutionEngine_finalize(SEXP r_ee)
+{
+
+    /* Do we want to use some of the create() methods in the ExecutionEngine class. */
+
+    llvm::ExecutionEngine *EE = GET_REF(r_ee, ExecutionEngine);
+	EE->finalizeObject();
+}
+
 extern "C"
 SEXP 
 R_callFunction(SEXP r_fun, SEXP r_args, SEXP r_execEngine)
