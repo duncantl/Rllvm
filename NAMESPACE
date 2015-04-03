@@ -186,7 +186,8 @@ exportMethods(Optimize)
 
 export(setLinkage)
 
-export(findFunction, getPointerToFunction)
+export(findFunction, getPointerToFunction, 
+	getNativePointerToFunction)
 
 export(createDoubleConstant)
 

@@ -83,20 +83,34 @@ R_InitializeCppBackendTarget()
 
 extern "C"
 SEXP
-R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel)
+R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel, 
+    SEXP r_usemcjit)
 {
 
     /* Do we want to use some of the create() methods in the ExecutionEngine class. */
     std::string errStr;
     llvm::Module *module = GET_REF(r_module, Module);
 
-    llvm::ExecutionEngine *EE = llvm::EngineBuilder(
+    llvm::EngineBuilder builder(
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
                                   std::unique_ptr<llvm::Module>(module)
 #else
                                    module
 #endif
-                             ).setErrorStr(&errStr).setEngineKind(llvm::EngineKind::JIT).setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]).create();
+    );
+                             
+    builder.setErrorStr(&errStr);
+    builder.setEngineKind(llvm::EngineKind::JIT);
+    builder.setUseMCJIT(*LOGICAL(r_usemcjit));
+    builder.setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]);
+
+    llvm::TargetOptions Options;
+    Options.JITEmitDebugInfo = *LOGICAL(r_usemcjit);
+
+    builder.setTargetOptions(Options);
+
+
+    llvm::ExecutionEngine *EE = builder.create();
     if(!EE) {
         PROBLEM "failed to create execution engine: %s", errStr.c_str()
             ERROR;
@@ -108,7 +122,7 @@ R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel)
 /* finalize engine must be called before invoking code
 compiled with MC Jit */
 extern "C"
-void
+SEXP
 R_ExecutionEngine_finalize(SEXP r_ee)
 {
 
@@ -116,6 +130,7 @@ R_ExecutionEngine_finalize(SEXP r_ee)
 
     llvm::ExecutionEngine *EE = GET_REF(r_ee, ExecutionEngine);
 	EE->finalizeObject();
+	return(R_NilValue);
 }
 
 extern "C"
@@ -176,6 +191,21 @@ R_ExecutionEngine_getPointerToFunction(SEXP r_execEngine, SEXP r_func)
     void *ans = ee->getPointerToFunction(fun);
     
     return(R_createRef(ans, "NativeFunctionPointer", "native symbol"));
+}
+
+extern "C"
+SEXP
+R_ExecutionEngine_getNativePointerToFunction(SEXP r_execEngine, SEXP r_func)
+{
+    llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
+    llvm::Function *fun = GET_REF(r_func, Function);
+    void *ans = ee->getPointerToFunction(fun);
+
+	SEXP ans2;
+	PROTECT(ans2=R_MakeExternalPtr(ans, install("native symbol"),
+				      R_NilValue));
+    UNPROTECT(1);
+    return(ans2);
 }
 
 extern "C"

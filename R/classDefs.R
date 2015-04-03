@@ -14,7 +14,7 @@ setClass("formatted_raw_ostream", contains = "raw_ostream")
 setClass("Module", contains = "RC++Reference")
 setClass("IRBuilder", contains = "RC++Reference")
 setClass("LLVMContext", contains = "RC++Reference")
-setClass("ExecutionEngine", contains = "RC++Reference")
+setClass("ExecutionEngine", representation(useMCJIT = "logical", finalized = "logical"), contains = "RC++Reference")
 setClass("Value", contains = "RC++Reference")
 setClass("BasicBlock", contains = "Value")
 
