@@ -119,9 +119,12 @@ R_DIBuilder_CreateLocalVariable(SEXP r_builder, SEXP r_ir_builder, SEXP r_sp, SE
     llvm::IRBuilder<> *ir_builder;
     ir_builder = GET_REF(r_ir_builder, IRBuilder<>);
 
-	llvm::DIVariable D = builder->createLocalVariable(llvm::dwarf::DW_TAG_arg_variable,
+    int idx=asInteger(r_idx);
+
+    llvm::DIVariable D = builder->createLocalVariable(
+                                            (idx == 0) ? llvm::dwarf::DW_TAG_auto_variable : llvm::dwarf::DW_TAG_arg_variable,
                                              *SP, varName, Unit, asInteger(r_lineNo),
-                                             *di_type, false, 0, asInteger(r_idx));
+                                             *di_type, false, 0, idx);
 
     llvm::Instruction *Call = builder->insertDeclare(
         var, D, ir_builder->GetInsertBlock());
