@@ -92,6 +92,13 @@ setClass("NamedMDNode", contains = "RC++Reference")
 setClass("MDNode", contains = "Value")
 setClass("MDString", contains = "Value")
 
+#Classes for DIBuilder
+setClass("DIBuilder", contains = "RC++Reference")
+setClass("DICompileUnit", contains = "RC++Reference")
+setClass("DIDescriptor", contains = "RC++Reference")
+setClass("DISubprogram", contains = "RC++Reference")
+setClass("DIType", contains = "RC++Reference")
+setClass("DICompositeType", contains = "DIType")
 
 
 setClass("Type", contains = "RC++Reference")

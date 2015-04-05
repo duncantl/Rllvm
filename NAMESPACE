@@ -471,3 +471,13 @@ export(insertAtEnd)
 export(isLandingPad, getLandingPadInst)
 
 export(createPHI,createPhi)
+
+export(DIBuilder,
+	finalizeDIBuilder,
+	newDebugCU,
+	newDebugFunction,
+	newDebugLocalVariable,
+	newDebugBasicType,
+	newDebugFunctionType,
+	newDebugPointerType,
+	debugSetLocation)
