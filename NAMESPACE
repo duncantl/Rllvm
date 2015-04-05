@@ -304,7 +304,7 @@ export(getIntegerType)
 export(setAlignment)
 exportMethods(setAlignment)
 
-#export(getFunctionType)
+export(functionType)
 
 export(addModule)
 
