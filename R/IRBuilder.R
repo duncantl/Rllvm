@@ -439,13 +439,6 @@ function(builder, vec, elt, idx)
    .Call("R_IRBuilder_CreateInsertElement", builder, vec, elt, idx)
 }
 
-
-createPHI =
-function(builder, type, numReservedVals)
-{
-   .Call("R_IRBuilder_CreatePHI", builder, type, as.integer(numReservedVals))
-}
-
 PHIAddIncoming =
 function(phiNode, value, block)
 {
@@ -516,7 +509,7 @@ function(builder, value, type, id = "")
 
 
 createPhi = createPHI =
-function(build, type, numReservedValues, id = character())
+function(builder, type, numReservedValues, id = character())
 {
   .Call("R_IRBuilder_CreatePHI", as(builder, "IRBuilder"), as(type, "Type"), as.integer(numReservedValues), as.character(id))
 }
