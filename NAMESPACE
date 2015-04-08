@@ -472,6 +472,8 @@ export(isLandingPad, getLandingPadInst)
 
 export(createPHI,createPhi)
 
+export(PHIAddIncoming)
+
 export(DIBuilder,
 	finalizeDIBuilder,
 	newDebugCU,
