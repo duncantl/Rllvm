@@ -10,9 +10,20 @@ struct TypeName {
     const char * const name;
 } ;
 
+
+SEXP
+R_createRefTypes(const void *ptr, SEXP klass, const char * tag)
+{
+    SEXP ans;
+    PROTECT(ans = NEW_OBJECT(klass));
+    SET_SLOT(ans, Rf_install("ref"), R_MakeExternalPtr((void*)ptr, Rf_install(tag), R_NilValue));
+    UNPROTECT(1);
+    return(ans);
+}
+
 extern "C"
 SEXP
-R_getTypeDefinitions()
+R_getTypeDefinitions(SEXP r_TypeClass)
 {
     llvm::LLVMContext &ctxt = llvm::getGlobalContext();
 
@@ -37,10 +48,15 @@ R_getTypeDefinitions()
 
     SEXP ans;
     PROTECT(ans = NEW_LIST(n));
+
+	Rf_install("Type");
+
     for(int i = 0; i < n; i++) {
         SEXP tmp;
-        SET_VECTOR_ELT(ans, i, tmp = R_MakeExternalPtr((void *) types[i].type, Rf_install("Type"), R_NilValue)); // R_createRef((void *) types[i], "Type")
+        //SET_VECTOR_ELT(ans, i, tmp = R_MakeExternalPtr((void *) types[i].type, Rf_install("Type"), R_NilValue)); // R_createRef((void *) types[i], "Type")
 //        Rf_setAttrib(tmp, Rf_install("typeName"), mkString(types[i].name));
+
+		SET_VECTOR_ELT(ans, i, R_createRefTypes(types[i].type, r_TypeClass, "Type"));
     }
     UNPROTECT(1);
 
