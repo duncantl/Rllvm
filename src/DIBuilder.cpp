@@ -17,7 +17,7 @@
 #include "llvm/Support/Dwarf.h"
 #include "llvm/IR/Metadata.h"
 
-//extern "C" void __jit_debug_register_code();
+//FIXME: this code leaks memory. the interface changes with llvm 3.6. writing non leaking code should be easier with llvm 3.6
 
 extern "C"
 SEXP
@@ -44,7 +44,6 @@ R_new_DIBuilder_CU(SEXP r_dibuilder, SEXP filename, SEXP path)
 	llvm::DICompileUnit* ptr = new llvm::DICompileUnit(); 
 	*ptr=ans;
 
-	 //llvm::DIRef<llvm::DICompileUnit> ans2=ans;
     return(R_createRef(ptr, "DICompileUnit"));
 }
 
@@ -186,10 +185,7 @@ R_IRBuilder_CreateFunctionType(SEXP r_builder, SEXP args, SEXP r_cu) {
 
 	for (unsigned i = 0; i < Rf_length(args); ++i) {
 		llvm::DIType *element=GET_REF(VECTOR_ELT(args,i), DIType);
-		//llvm::DITypeRef *element2 = llvm::cast<llvm::DITypeRef >(element);
-		//llvm::Value *element3 = llvm::cast<llvm::Value>(element2);
 		EltTys.push_back(*element);
-		//EltTys.push_back(const_cast<llvm::Value*>( (llvm::MDNodeContext, MDs *)element));
 	}
 
   	llvm::DIArray EltTypeArray = builder->getOrCreateArray(EltTys);
