@@ -35,7 +35,6 @@ exportClasses(
   SExtInst,
   StoreInst,
   StructType,
-  functionType,
   TerminatorInst,
   Type,
   UnaryInstruction,
@@ -114,6 +113,7 @@ FCMP_ULT,
 FCMP_UNE,
 FCMP_UNO,
 FDiv,
+finalizeEngine,
 FIRST_FCMP_PREDICATE,
 FIRST_ICMP_PREDICATE,
 FloatPtrType,
@@ -186,7 +186,8 @@ exportMethods(Optimize)
 
 export(setLinkage)
 
-export(findFunction, getPointerToFunction)
+export(findFunction, getPointerToFunction, 
+	getNativePointerToFunction)
 
 export(createDoubleConstant)
 
@@ -303,7 +304,7 @@ export(getIntegerType)
 export(setAlignment)
 exportMethods(setAlignment)
 
-#export(getFunctionType)
+export(functionType)
 
 export(addModule)
 
@@ -470,3 +471,15 @@ export(insertAtEnd)
 export(isLandingPad, getLandingPadInst)
 
 export(createPHI,createPhi)
+
+export(PHIAddIncoming)
+
+export(DIBuilder,
+	finalizeDIBuilder,
+	newDebugCU,
+	newDebugFunction,
+	newDebugLocalVariable,
+	newDebugBasicType,
+	newDebugFunctionType,
+	newDebugPointerType,
+	debugSetLocation)

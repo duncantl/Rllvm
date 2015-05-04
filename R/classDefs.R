@@ -14,7 +14,7 @@ setClass("formatted_raw_ostream", contains = "raw_ostream")
 setClass("Module", contains = "RC++Reference")
 setClass("IRBuilder", contains = "RC++Reference")
 setClass("LLVMContext", contains = "RC++Reference")
-setClass("ExecutionEngine", contains = "RC++Reference")
+setClass("ExecutionEngine", representation(useMCJIT = "logical", finalized = "logical"), contains = "RC++Reference")
 setClass("Value", contains = "RC++Reference")
 setClass("BasicBlock", contains = "Value")
 
@@ -92,6 +92,13 @@ setClass("NamedMDNode", contains = "RC++Reference")
 setClass("MDNode", contains = "Value")
 setClass("MDString", contains = "Value")
 
+#Classes for DIBuilder
+setClass("DIBuilder", contains = "RC++Reference")
+setClass("DICompileUnit", contains = "RC++Reference")
+setClass("DIDescriptor", contains = "RC++Reference")
+setClass("DISubprogram", contains = "RC++Reference")
+setClass("DIType", contains = "RC++Reference")
+setClass("DICompositeType", contains = "DIType")
 
 
 setClass("Type", contains = "RC++Reference")

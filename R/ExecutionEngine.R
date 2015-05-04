@@ -27,12 +27,41 @@ function(val, values)
 }
 
 ExecutionEngine =
-function(module, optimizationLevel = CodeGenOpt_Default)
+function(module, optimizationLevel = CodeGenOpt_Default, useMCJIT)
 {
   optimizationLevel = matchEnum(optimizationLevel, CodeGenOptEnum)
+
+  if (missing(useMCJIT)) {
+    if(all(llvmVersion() >= c(3, 6))) {
+      #defaulting to mc jit on llvm 3.6
+      useMCJIT=TRUE
+    } else {
+      useMCJIT=FALSE
+    }
+  }
   
-  .Call("R_create_ExecutionEngine", as(module, "Module"), as.integer(optimizationLevel))
+  res=.Call("R_create_ExecutionEngine", as(module, "Module"), as.integer(optimizationLevel),as.logical(useMCJIT))
+
+  res@useMCJIT=useMCJIT
+  res@finalized=FALSE
+
+  res
 }
+
+#finalize must be called before invoking code that has been
+#compiled using MC Jit
+finalizeEngine =
+function(engine)
+{
+   if(!is(engine, "ExecutionEngine"))
+     stop("can only finalize an ExecutionEngine")
+
+   if(engine@finalized)
+     stop("engine has already been finalized")
+   
+   invisible(.Call("R_ExecutionEngine_finalize", engine))
+}
+
 
 addModule =
 function(engine, ...)
@@ -71,15 +100,20 @@ function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .a
   if(!is(.x, "Function"))
     stop("argument to .llvm must be a Function")
 
-# If an argument is a Function, we probably want to treat it as a function pointer and so want
-# its address which can be obtained via getPointerToFunction() with the exec engine also.
-#  .args = lapply(.args, function(x) if(is(x, "Function")) getPointerToFunction(x, .ee)@ref else x)
+  if (.ee@useMCJIT) {
+    stop("calling .llvm/runFunction is not supported with MC-JIT")
+  } else {
 
-  if(length(.duplicate))
-    .args[.duplicate] =  lapply(.args[.duplicate], function(x) .Call('Rf_duplicate', x))
+  # If an argument is a Function, we probably want to treat it as a function pointer and so want
+  # its address which can be obtained via getPointerToFunction() with the exec engine also.
+  #  .args = lapply(.args, function(x) if(is(x, "Function")) getPointerToFunction(x, .ee)@ref else x)
 
-  
-   ans = .Call("R_callFunction", .x, .args, .ee)
+    if(length(.duplicate))
+      .args[.duplicate] =  lapply(.args[.duplicate], function(x) .Call('Rf_duplicate', x))
+
+    
+     ans = .Call("R_callFunction", .x, .args, .ee)
+  }
 
   if(.all)
      append(ans, structure(.args, names = names(.args)))
@@ -121,6 +155,12 @@ getPointerToFunction =
 function(fun, execEngine)
 {
    .Call("R_ExecutionEngine_getPointerToFunction", execEngine, fun)
+}
+
+getNativePointerToFunction =
+function(fun, execEngine)
+{
+   .Call("R_ExecutionEngine_getNativePointerToFunction", execEngine, fun)
 }
 
 getPointerToGlobal =

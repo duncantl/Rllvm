@@ -1003,3 +1003,24 @@ R_IRBuilder_CreatePHI(SEXP r_builder, SEXP r_type, SEXP r_numReservedValues, SEX
 
     return(R_createRef(ret, "PHINode"));
 } 
+
+extern "C"
+SEXP
+R_PHINode_addIncoming(SEXP r_phiNode, SEXP r_value, SEXP r_block)
+{
+    llvm::PHINode* phiNode;
+    phiNode = GET_REF(r_phiNode, PHINode);
+
+
+    llvm::Value *value;
+    value = GET_REF(r_value, Value);
+
+    llvm::BasicBlock *block;
+    block = GET_REF(r_block, BasicBlock);
+
+    
+    phiNode->addIncoming(value, block);
+
+    return(R_NilValue);
+
+}
