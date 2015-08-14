@@ -36,10 +36,11 @@ setMethod("names<-", c("Function", "character"),
                 # Temporarily do this directly
               .Call("R_setFunctionParamNames", x, value)
               return(x)
-              
-              params = getParameters(x)
-              names(params) = value
-              x
+
+# the previous way of doing this              
+#              params = getParameters(x)
+#              names(params) = value
+#              x
            })
 
 setMethod("names<-", c("ParameterList", "character"),

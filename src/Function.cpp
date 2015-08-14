@@ -162,10 +162,37 @@ R_Function_getParam(SEXP r_func,  SEXP r_whichParam)
              ERROR;
      }
 
+// llvm::Argument *a = args[num];
+
      llvm::Function::ArgumentListType::iterator arg = args.begin();
 
      for(i = 0 ; i < num; i++, arg++) {  }
-     return(R_createRef(arg, "Argument"));
+     llvm::Argument *el;
+     el = arg; // Don't use arg.getNodePtrUnchecked() as that is internal, but leave it here for a note.
+     return(R_createRef(el, "Argument"));
+}
+
+extern "C"
+SEXP
+R_setFunctionParamNames(SEXP r_func, SEXP r_names)
+{
+     llvm::Function *func = GET_REF(r_func, Function);
+     llvm::Function::ArgumentListType &args = func->getArgumentList();
+     int num = args.size();
+
+     if(Rf_length(r_names) < num) {
+         PROBLEM "fewer names provided than parameters for function %s (%d versus %d)", func->getName().data(), Rf_length(r_names), num
+	    WARN;
+         num = Rf_length(r_names);
+      }
+
+     llvm::Function::ArgumentListType::iterator arg = args.begin();
+
+     for(int i = 0 ; i < num; i++, arg++) {  
+         arg->setName( CHAR(STRING_ELT(r_names, i)));
+     }
+
+     return(r_func);
 }
 
 
