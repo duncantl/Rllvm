@@ -33,6 +33,10 @@ setMethod("names", c("Function"),
 
 setMethod("names<-", c("Function", "character"),
            function(x, value) {
+                # Temporarily do this directly
+              .Call("R_setFunctionParamNames", x, value)
+              return(x)
+              
               params = getParameters(x)
               names(params) = value
               x
@@ -175,12 +179,13 @@ function(func, simplify = TRUE)
 
 
 setParamAttributes =
-function(arg, values)
+function(arg, values, force = FALSE)
 {
    if(!is(arg, "Argument"))
      stop("need an Argument object to set the attributes")
-   
-  values = matchFuncAttributes(unlist(values))
+
+  if(!force)
+     values = matchFuncAttributes(unlist(values))
    
   .Call("R_Argument_setAttributes", arg, as.integer(values))
 }
@@ -232,7 +237,8 @@ structure(1:27, .Names = c("AddressSafety", "Alignment", "AlwaysInline",
 }
 }
 
-FuncAttributes = LLVMAttributes = LLVMAttribute
+# FuncAttributes = LLVMAttributes = LLVMAttribute
+FuncAttributes = LLVMAttributes = AttrKind # LLVMAttribute
 
 
 matchFuncAttributes =

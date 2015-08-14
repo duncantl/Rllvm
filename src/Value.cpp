@@ -6,7 +6,7 @@ R_Value_setName(SEXP r_val, SEXP r_name)
 {
     llvm::Value * val = GET_REF(r_val, Value);
     const char *str = CHAR(STRING_ELT(r_name, 0));
-    val->setName(str);
+    val->setName(str);  //??? Do we need to copy the string?
     return(ScalarLogical(1));
 }
 

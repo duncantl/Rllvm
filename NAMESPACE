@@ -35,7 +35,6 @@ exportClasses(
   SExtInst,
   StoreInst,
   StructType,
-  functionType,
   TerminatorInst,
   Type,
   UnaryInstruction,
@@ -48,6 +47,9 @@ exportClasses(
 
 
 exportClass(Mangler)
+
+
+export(functionType)
 
 #  ConstantPointerNull,
 #  FunctionPass,

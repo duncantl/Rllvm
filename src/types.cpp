@@ -72,9 +72,9 @@ R_pointerType(SEXP r_type, SEXP r_noClass, SEXP r_addrSpace)
     llvm::PointerType *ans;
     unsigned addrspace = 0;
     if(Rf_length(r_addrSpace))
-      addrspace = INTEGER(r_addrSpace)[0];
+       addrspace = INTEGER(r_addrSpace)[0];
 
-    ans = llvm::PointerType::get(elType, addrspace);
+    ans = llvm::PointerType::get(elType, addrspace );
 
     return(LOGICAL(r_noClass)[0] ? 
              R_MakeExternalPtr((void *) ans, Rf_install("PointerType"), R_NilValue) :
