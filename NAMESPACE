@@ -472,3 +472,9 @@ export(insertAtEnd)
 export(isLandingPad, getLandingPadInst)
 
 export(createPHI,createPhi)
+
+
+export(getBlockGraph)
+exportClass("TikzEdges")
+exportClass("EdgeMatrix")
+S3method(print, "TikzEdges")

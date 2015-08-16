@@ -1,4 +1,4 @@
-tikzShowBlocks =
+getBlockGraph =    
 function(fun, cleanNames = function(x) x)
 {    
    blocks = getBlocks(fun)
@@ -36,9 +36,19 @@ function(x)
 
 if(FALSE) {
 library(igraph)
-z = tikzShowBlocks(fc, cleanLoopNames)
+z = getBlockGraph(fc, cleanLoopNames)
 g = graph.edgelist(z)
 plot(g)
 
+plot(g, layout = layout.reingold.tilford)
+
 as(z, "TikzEdges")
+
+
+
+m = parseIR(system.file("IR", "distance.ir", package = "Rllvm"))
+z = getBlockGraph(m$dist, Rllvm:::cleanLoopNames)
+library(igraph)
+g = graph.edgelist(z)
+plot(g, layout = layout.reingold.tilford)
 }
