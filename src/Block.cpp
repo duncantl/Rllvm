@@ -96,7 +96,6 @@ extern "C"
 SEXP
 R_BasicBlock_isLandingPad(SEXP r_block)
 {
-
     llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
     
     return(ScalarLogical(block->isLandingPad()));
@@ -106,7 +105,6 @@ extern "C"
 SEXP
 R_BasicBlock_getLandingPadInst(SEXP r_block)
 {
-
     llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
     llvm::LandingPadInst *ans;
     ans = block->getLandingPadInst();
@@ -117,3 +115,30 @@ R_BasicBlock_getLandingPadInst(SEXP r_block)
 
 
 
+extern "C"
+SEXP
+R_BasicBlock_getPredecessor(SEXP r_block, SEXP r_single)
+{
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    llvm::BasicBlock *pre;
+    if(LOGICAL(r_single)[0])
+       pre = block->getSinglePredecessor();
+    else
+       pre = block->getUniquePredecessor();
+
+    return(pre ? R_createRef(pre, "BasicBlock") : R_NilValue);
+}
+
+
+extern "C"
+SEXP
+R_BasicBlock_getModule(SEXP r_block)
+{
+#if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 6
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    llvm::Module *mod = block->getModule();
+    return(R_createRef(mod, "Module"));
+#else
+    return(R_NilValue);
+#endif
+}

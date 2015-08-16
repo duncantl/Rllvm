@@ -131,3 +131,10 @@ function(block)
 isLandingPad =
 function(block)
   .Call("R_BasicBlock_isLandingPad", as(block, "BasicBlock"))
+
+
+getPredecessor =
+function(x, single = TRUE)
+{
+  .Call("R_BasicBlock_getPredecessor", as(x, "BasicBlock"), as.logical(single)) 
+}
