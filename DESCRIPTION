@@ -47,3 +47,4 @@ Collate: llvmVersion.R classDefs.R manual_generics.R BinaryOpEnums.R
          z_enumDefs_3.5.R
          z_enumDefs_3.6.R
 	 Function.R
+         ascii.R
