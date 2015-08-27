@@ -23,3 +23,15 @@ function(obj)
    i = match(ans, LinkageTypes)
    LinkageTypes[i]
 }
+
+
+
+replaceAllUsesWith =
+function(val, other)
+  .Call("R_Value_replaceAllUsesWith", as(val, "Value"), as(other, "Value"))    
+
+getAllUses = 
+function(obj)
+    .Call("R_Value_getAllUses", as(obj, "Value"))
+
+
