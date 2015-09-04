@@ -19,7 +19,7 @@ function( rawPointer = FALSE)
 {
    ans = list()
    types = list()   
-   ref = structType(list(type = Int32Type), "SEXPStruct", rawPointer = rawPointer, withNames = FALSE)
+   ref = structType(list(type = Int32Type), "SEXPRECStruct", rawPointer = rawPointer, withNames = FALSE)
    if(rawPointer)
       ref = new("StructType", ref = ref)
 
