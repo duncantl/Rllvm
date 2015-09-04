@@ -162,3 +162,16 @@ R_MDNode_getOperands(SEXP r_node)
     UNPROTECT(2);
     return(ans);
 }
+
+
+
+extern "C"
+SEXP
+R_Metadata_print(SEXP r_ref)
+{
+    std::string str;
+    llvm::raw_string_ostream OS(str);
+    llvm::MD_TYPE *metadata = GET_REF(r_ref, MD_TYPE);
+    metadata->print(OS);
+    return(ScalarString(mkChar( OS.str().c_str())));
+}
