@@ -3,8 +3,13 @@ setClass("IntrinsicID", contains = "integer")
 setClass("RC++Reference", representation(ref = "externalptr"))
 
 # For LLVM 3.6, this is
-if(all(llvmVersion() >= c(3, 6)))
+if(all(llvmVersion() >= c(3, 6))) {
    setClass("Metadata", representation(ref = "externalptr"))
+   setAs("Metadata", "character",
+         function(from) {
+             .Call("R_Metadata_print", from)
+         })
+}
 
 setClass("raw_ostream", contains = "RC++Reference")
 setClass("raw_fd_ostream", contains = "raw_ostream")
@@ -29,6 +34,8 @@ setClass("PassManager", contains = "PassManagerBase")
 # setClass("Instruction", contains = "RC++Reference")
 setClass("User", contains = "Value")
 setClass("Instruction", contains = "User")
+
+setClass("Use", contains = "RC++Reference")
 
 setClass("UnaryInstruction", contains = "Instruction")
 setClass("TerminatorInst", contains = "Instruction")
@@ -251,3 +258,7 @@ setMethod("onlyReadsMemory", "Function",
 setMethod("onlyReadsMemory", "Argument",
             function(x, ...)
                 .Call("R_Argument_onlyReadsMemory", x))
+
+
+
+
