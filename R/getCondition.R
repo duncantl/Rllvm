@@ -29,6 +29,7 @@ function(x)
   sapply(seq_len(getNumSuccessors(x)), function(i) getSuccessor(x, i))
 }
 
+
 isConditional =
 function(x)
   .Call("R_BranchInst_isConditional", as(x, "BranchInst"))
