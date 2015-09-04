@@ -130,6 +130,8 @@ R_BasicBlock_getPredecessor(SEXP r_block, SEXP r_single)
 }
 
 
+#if 0
+
 extern "C"
 SEXP
 R_BasicBlock_getModule(SEXP r_block)
@@ -142,3 +144,5 @@ R_BasicBlock_getModule(SEXP r_block)
     return(R_NilValue);
 #endif
 }
+
+#endif
