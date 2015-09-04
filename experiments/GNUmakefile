@@ -15,7 +15,7 @@ CC=$(CLANG)
 	llc -march=cpp $< -o $@
 
 %.ll: %.c GNUmakefile
-	$(CLANG) $(OPT_LEVEL) -S -emit-llvm -o $@ $<
+	$(CLANG) $(OPT_LEVEL) $(CFLAGS) -S -emit-llvm -o $@ $<
 
 %.bc: %.ll
 	llvm-as $<

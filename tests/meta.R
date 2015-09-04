@@ -5,11 +5,16 @@ setMetadata(m, "foo", 1L)
 setMetadata(m, "bar", 3.1415)
 setMetadata(m, "str", "a string")
 
+all.nmd = getMetadata(m)
+
 nmd = getMetadata(m, "str")
+# same as all.nmd[["str"]]
 getValue(nmd)
 val = nmd[[1]][[1]]
 getValue(val)
 #.Call("R_convertValueToR", val)
+
+.Call("R_Metadata_print", val)
 
 
 showModule(m)

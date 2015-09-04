@@ -43,7 +43,8 @@ exportClasses(
   Value,
   FunctionPassManager,
   BinaryOperator,
-  SelectInst)
+  SelectInst,
+  Use)
 
 
 exportClass(Mangler)
@@ -386,10 +387,11 @@ export(addAnalysisPasses, addPassesToEmitFile)
 export(rawFDOstream, formattedRawOstream, rawStringOstream)
 
 
-
 exportClasses(MDNode, MDString, NamedMDNode)
 export(setMetadata, getMetadata)
 export(getNumOperands, getOperands)
+
+exportClass("Metadata")
 
 exportMethods(length)
 
@@ -478,3 +480,11 @@ export(getBlockGraph)
 exportClass("TikzEdges")
 exportClass("EdgeMatrix")
 S3method(print, "TikzEdges")
+
+
+export(getAllUses, getAllUsers)
+export(replaceAllUsesWith)
+export(replaceUsesOfWith)
+exportMethods("length")
+exportMethods("[[")
+

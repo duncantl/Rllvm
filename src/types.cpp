@@ -334,3 +334,15 @@ R_FunctionType_get(SEXP r_returnType, SEXP r_argTypes, SEXP r_varArgs)
     ans = llvm::FunctionType::get(returnType, args, INTEGER(r_varArgs)[0]);
     return(R_createRef(ans, "FunctionType"));
 }
+
+
+extern "C"
+SEXP
+R_Type_print(SEXP r_type)
+{
+    llvm::Type *ty = GET_TYPE(r_type);
+    std::string str;
+    llvm::raw_string_ostream OS(str);
+    ty->print(OS);
+    return(ScalarString(mkChar( OS.str().c_str())));
+}
