@@ -182,13 +182,15 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
           case llvm::Type::IntegerTyID: 
               if(elType->isIntegerTy(8)) {
                   if(TYPEOF(rval) == STRSXP) {
-                      rv->PointerVal = (void*) CHAR(STRING_ELT(rval, 0));
+                      rv->PointerVal = Rf_length(rval) ? (void*) CHAR(STRING_ELT(rval, 0)) : (void *) NULL;
+                  } else if(TYPEOF(rval) == NILSXP) {
+                      rv->PointerVal = (void*) NULL;
                   } else
                       ok = false;
               } else if(TYPEOF(rval) == INTSXP) 
                 rv->PointerVal = INTEGER(rval);
               else
-                ok = false;
+                 ok = false;
             break;
           case llvm::Type::DoubleTyID: 
               if(TYPEOF(rval) == REALSXP)
@@ -196,7 +198,14 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
               else
                  ok = false;
            break;
-
+          case llvm::Type::PointerTyID: 
+              if(TYPEOF(rval) == STRSXP) {
+                  rv->PointerVal = Rf_length(rval) ? (void*) CHAR(STRING_ELT(rval, 0)) : (void *) NULL;
+              } if(TYPEOF(rval) == NILSXP || rval == R_NilValue) {
+                   rv->PointerVal = (void*) NULL;
+              } else
+                   ok = false;
+              break;
           default:
             ok = false;
        }
@@ -224,11 +233,11 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
 
  
 	if(ok == false) {
-           PROBLEM "no method to convert R object to %d", ty
+            PROBLEM "no method to convert R object of R type %d to LLVM pointer to type %d", TYPEOF(rval), ty
             WARN;         
         }
         return(ok);
-    }
+     }
 
     ty = type->getTypeID();
     switch(ty) {

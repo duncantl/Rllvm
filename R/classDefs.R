@@ -2,9 +2,10 @@ setClass("IntrinsicID", contains = "integer")
 
 setClass("RC++Reference", representation(ref = "externalptr"))
 
+setClass("Metadata", representation(ref = "externalptr"))
+
 # For LLVM 3.6, this is
-if(all(llvmVersion() >= c(3, 6))) {
-   setClass("Metadata", representation(ref = "externalptr"))
+if(TRUE || all(llvmVersion() >= c(3, 6))) {
    setAs("Metadata", "character",
          function(from) {
              .Call("R_Metadata_print", from)
