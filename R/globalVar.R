@@ -18,9 +18,12 @@ function(id, mod, type = getType(val), val = NULL, # guessType(val),
   if(is.null(val) && missing(type))
     stop("you need to specify either the type or an initial value for the global variable")
 
-  if(missing(val) && isArrayType(type))
+  missingVal = missing(val)  
+
+  if(missingVal && isArrayType(type))
     val = constantAggregateZero(type)
-  
+
+ 
   alignment = NA
   if(!is.null(val)) {
     if(is.character(val) && length(val) == 1) {
@@ -35,7 +38,10 @@ function(id, mod, type = getType(val), val = NULL, # guessType(val),
 
     if(!is(val, "Constant"))
       stop("val must be an object of class Constant")
-  }
+  } else if(!missingVal && isPointerType(type))
+      val = getNULLPointer(type)
+
+
   
   ans = .Call("R_createGlobalVariable", mod, type, val, as.character(id),
                 as.logical(constant), as.integer(linkage), as.logical(threadLocal))
