@@ -203,8 +203,17 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
                   rv->PointerVal = Rf_length(rval) ? (void*) CHAR(STRING_ELT(rval, 0)) : (void *) NULL;
               } if(TYPEOF(rval) == NILSXP || rval == R_NilValue) {
                    rv->PointerVal = (void*) NULL;
-              } else
+              } else if(TYPEOF(rval) == RAWSXP)
+                  rv->PointerVal = (void*) RAW(rval);
+              else
                    ok = false;
+              break;
+
+          case llvm::Type::VoidTyID: 
+              if(rval == R_NilValue)
+                  rv->PointerVal = (void*) NULL;
+              else if(TYPEOF(rval) == RAWSXP)
+                  rv->PointerVal = (void*) RAW(rval);
               break;
           default:
             ok = false;
