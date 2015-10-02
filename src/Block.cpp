@@ -130,7 +130,7 @@ R_BasicBlock_getPredecessor(SEXP r_block, SEXP r_single)
 }
 
 
-#if 0
+#if 1
 
 extern "C"
 SEXP
@@ -138,8 +138,15 @@ R_BasicBlock_getModule(SEXP r_block)
 {
 #if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 6
     llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
-    llvm::Module *mod = block->getModule();
-    return(R_createRef(mod, "Module"));
+    llvm::Module *mod = NULL;
+#if 0
+     mod = block->getModule();
+#else
+     llvm::Function *fun = block->getParent();
+     if(fun)
+         mod = fun->getParent();
+#endif
+     return(mod ? R_createRef(mod, "Module") : R_NilValue);
 #else
     return(R_NilValue);
 #endif
