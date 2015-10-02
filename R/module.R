@@ -15,7 +15,7 @@ function()
 verifyModule =
 function(module)
 {    
-  ans = .Call("R_verifyModule", module)
+  ans = .Call("R_verifyModule", as(module, "Module"))
   if(is.character(ans))
       stop(ans)
 
