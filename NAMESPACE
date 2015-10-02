@@ -488,3 +488,7 @@ export(replaceUsesOfWith)
 exportMethods("length")
 exportMethods("[[")
 
+
+
+export(setIncomingBlock, addIncoming, getBasicBlockIndex, getIncomingValueForBlock, hasConstantValue)
+

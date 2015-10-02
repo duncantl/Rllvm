@@ -423,28 +423,38 @@ R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id)
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
 
+    if(!builder) {
+        PROBLEM "NULL value for IRBuilder in CreateGEP"
+            ERROR;
+    }
+
     llvm::Value *val = GET_REF(r_val, Value);
     llvm::Value *ans;
+
+    if(!val) {
+        PROBLEM "NULL value for value in CreateGEP"
+            ERROR;
+    }
 
     if(TYPEOF(r_idx) == VECSXP) {
         int nargs = Rf_length(r_idx);
         std::vector<llvm::Value *> args; // does this disappear and we lose the elements?
-        for(int i = 0; i < nargs; i++) 
-            args.push_back(GET_REF(VECTOR_ELT(r_idx, i), Value));
+        for(int i = 0; i < nargs; i++)  {
+            llvm::Value *el = GET_REF(VECTOR_ELT(r_idx, i), Value);
+            args.push_back(el);
+        }
 
-
-        llvm::ArrayRef<llvm::Value *> idxs = makeArrayRef(args);
+//        llvm::ArrayRef<llvm::Value *> idxs = makeArrayRef(args);
 #ifdef USE_EXCEPTIONS
         try {	
 #endif
-
-
 #if 1
-             ans = builder->CreateGEP(val, idxs);
+             ans = builder->CreateGEP(val, args);
 #else
 	 fprintf(stderr, "Calling GetElementPtrInst::Create()\n");
-              ans = llvm::GetElementPtrInst::Create(val, args); // idxs
-              ans = builder->Insert(ans, "");
+         llvm::Instruction *inst = llvm::GetElementPtrInst::Create(val, args); // idxs
+	 fprintf(stderr, "got the GEP\n");
+         ans = builder->Insert(inst, "");
 #endif
 
 #ifdef USE_EXCEPTIONS
@@ -1003,3 +1013,63 @@ R_IRBuilder_CreatePHI(SEXP r_builder, SEXP r_type, SEXP r_numReservedValues, SEX
 
     return(R_createRef(ret, "PHINode"));
 } 
+
+
+extern "C"
+SEXP
+R_PHINode_setIncomingBlock(SEXP r_phi, SEXP r_pos, SEXP r_block)
+{
+    llvm::PHINode *phi = GET_REF(r_phi, PHINode);
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+
+    phi->setIncomingBlock(INTEGER(r_pos)[0], block);
+    return(R_NilValue);
+}
+
+extern "C"
+SEXP
+R_PHINode_addIncoming(SEXP r_phi, SEXP r_val, SEXP r_block)
+{
+    llvm::PHINode *phi = GET_REF(r_phi, PHINode);
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    llvm::Value *val = GET_REF(r_block, Value);
+
+    phi->addIncoming(val, block);
+    return(R_NilValue);
+}
+
+
+extern "C"
+SEXP
+R_PHINode_getBasicBlockIndex(SEXP r_phi, SEXP r_block)
+{
+    llvm::PHINode *phi = GET_REF(r_phi, PHINode);
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    int i = phi->getBasicBlockIndex(block);
+    return(ScalarInteger(i));
+}
+
+
+extern "C"
+SEXP
+R_PHINode_getIncomingValueForBlock(SEXP r_phi, SEXP r_block)
+{
+    llvm::PHINode *phi = GET_REF(r_phi, PHINode);
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    
+    llvm::Value *val;
+    val = phi->getIncomingValueForBlock(block);
+
+    return(R_createRef(val, "Value"));
+}
+
+extern "C"
+SEXP
+R_PHINode_hasConstantValue(SEXP r_phi)
+{
+    llvm::PHINode *phi = GET_REF(r_phi, PHINode);
+    
+    llvm::Value *val;
+    val = phi->hasConstantValue();
+    return(val ? R_createRef(val, "Value") : R_NilValue);
+}
