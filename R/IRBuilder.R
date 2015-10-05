@@ -166,7 +166,8 @@ function(builder, val, isVolatile = FALSE, id = character())
 createGEP =
 function(builder, val, index, id = character())
 {
-  if (!is.list(index)) index = as.list(index)
+  if (isBasicType(index)) index = as.list(index)
+  else if (!is.list(index)) index = list(index)
 
   index =
     lapply(index, function(idx) {
