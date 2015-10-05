@@ -166,8 +166,13 @@ function(builder, val, isVolatile = FALSE, id = character())
 createGEP =
 function(builder, val, index, id = character())
 {
-  if(isBasicType(index))
-     index = makeConstant(builder, index)
+  if (!is.list(index)) index = as.list(index)
+
+  index =
+    lapply(index, function(idx) {
+      if (isBasicType(idx)) makeConstant(builder, idx)
+      else idx
+    })
 
   .Call("R_IRBuilder_CreateGEP", builder, val, index, as.character(id))
 }
