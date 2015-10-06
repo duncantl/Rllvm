@@ -274,3 +274,14 @@ function(fun)
 {
   .Call("R_Function_isVarArg", as(fun, "Function"))
 }
+
+
+setAs("Function", "character",
+       function(from) {
+           blocks = getBlocks(from)
+           if(length(blocks) == 0)
+               return(character())
+           
+           sapply(blocks, function(b) paste(sapply(getBlockInstructions(b), as, "character"), collapse = "\n"))
+        })
+
