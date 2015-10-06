@@ -342,6 +342,8 @@ setAs("IRBuilder", "Function",
 getInsertBlock =
 function(builder)
 {
+   if(!is(builder, "IRBuilder"))
+      stop("getInsertBlock needs to be called with an IRBuilder object")
   .Call("R_IRBuilder_GetInsertBlock", builder)
 }
 
