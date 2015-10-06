@@ -25,6 +25,11 @@ setClass("Value", contains = "RC++Reference")
 setClass("BasicBlock", contains = "Value")
 
 
+setAs("Value", "character",
+        function(from)
+            .Call("R_Value_print", from))
+
+
 setClass("Argument", contains = "Value")
 
 setClass("PassManagerBase", contains = "RC++Reference")
