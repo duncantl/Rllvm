@@ -123,6 +123,30 @@ R_getFunctionArgs(SEXP r_func)
 }
 
 
+
+extern "C"
+SEXP
+R_getFunctionTypeArgTypes(SEXP r_funcType)
+{
+    const llvm::FunctionType *fty;
+    fty =  GET_REF(r_funcType, FunctionType);
+    int n = 0;
+
+    n = fty->getNumParams();
+
+    SEXP ans;
+    PROTECT(ans = NEW_LIST(n));
+    llvm::Type *el;
+    for(int i = 0; i < n ; i++) {
+        el = fty->getParamType(i);
+        SET_VECTOR_ELT(ans, i, R_createRef(el, "Type"));
+    }
+    UNPROTECT(1);
+    return(ans);
+}
+
+
+
 extern "C"
 SEXP
 R_verifyModule(SEXP r_module)
@@ -554,7 +578,6 @@ R_Module_getNamedMDList(SEXP r_mod)
   if(n == 0)
       return(R_NilValue);
 
-
   SEXP rans, names;
   PROTECT(rans = NEW_LIST(n));
   PROTECT(names = NEW_CHARACTER(n));
@@ -569,4 +592,33 @@ R_Module_getNamedMDList(SEXP r_mod)
   UNPROTECT(2);
   return(rans);
 }
+
+
+#if 0
+/* http://stackoverflow.com/questions/22138947/reading-metadata-from-instruction */
+extern "C"
+SEXP
+R_Module_getMDKindNames(SEXP r_mod)
+{
+  llvm::Module *mod = GET_REF(r_mod, Module);     
+  llvm::SmallVectorImpl<llvm::StringRef> vec;
+  mod->getMDKindNames(vec);
+  int ctr = 0;
+  for(llvm::SmallVectorImpl<llvm::StringRef>::iterator II = vec.begin(), EE = vec.end(); II !=EE; ++II) ctr++;
+
+  SEXP ans;
+#if 0
+  PROTECT(names = NEW_CHARACTER(ctr));
+  ctr = 0;
+  for(SmallVector<StringRef>::iterator II = MDForInst.begin(), EE = MDForInst.end(); II !=EE; ++II, ctr++) {
+      SET_STRING_ELT(names, ctr, );
+  }
+
+  UNPROTECT(1);
+#endif
+  return(ans);
+}
+#endif
+
+
 
