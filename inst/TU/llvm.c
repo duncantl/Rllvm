@@ -39,8 +39,17 @@
 #include <llvm/Pass.h>
 #include <llvm/PassManager.h>
 #include <llvm/ADT/SmallVector.h>
+#if 0
 #include <llvm/Analysis/Verifier.h>
+#else
+#include <llvm/IR/Verifier.h>
+#endif
+
+
+#if 0
 #include <llvm/Assembly/PrintModulePass.h>
+#endif
+
 
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/CallingConv.h>

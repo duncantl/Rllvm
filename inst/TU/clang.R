@@ -10,15 +10,22 @@ TypeMap = list('llvm::Twine' = list(convertRValue = function(var, rvar, ..., typ
 # The -xc++ is critical to get c++ parsing and the header files.
 # Otherwise get errors about not finding cstddef.
 #
-args = c("-I/usr/local/include", "-D_DEBUG", "-D_GNU_SOURCE", "-D__STDC_CONSTANT_MACROS", "-D__STDC_FORMAT_MACROS",  "-D__STDC_LIMIT_MACROS", "-fvisibility-inlines-hidden", "-fno-exceptions", "-fno-rtti", "-fno-common", "-Woverloaded-virtual", "-Wcast-qual", "-ferror-limit=1000", "-xc++")
+args = c("-I/usr/local/include", "-D_DEBUG", "-D_GNU_SOURCE", "-D__STDC_CONSTANT_MACROS", "-D__STDC_FORMAT_MACROS",  "-D__STDC_LIMIT_MACROS", "-fvisibility-inlines-hidden", "-fno-exceptions", "-fno-rtti", "-fno-common", "-Woverloaded-virtual", "-Wcast-qual", "-ferror-limit=1000", "-xc++",
+        "-Wc++11-extensions")
 
 f = "~/llvm-devel/include/llvm/IR/Attributes.h"
 f = "llvm.c"
-tu = createTU(f, args = args,
-               includes = c("~/llvm-devel/include",
-                            "~/llvm-devel/build/include/",
-                            "~/llvm-devel/tools/clang/include"
-                           ))
+
+inc = c("~/llvm-devel/include",
+        "~/llvm-devel/build/include/",
+        "~/llvm-devel/tools/clang/include"
+       )
+
+inc = c("~/LLVM3.6/clang+llvm-3.6.0-x86_64-apple-darwin/include",
+        "~/LLVM3.6/clang+llvm-3.6.0-x86_64-apple-darwin/include/llvm",
+        "~/LLVM3.6/clang+llvm-3.6.0-x86_64-apple-darwin/include/clang")
+
+tu = createTU(f, args = args, includes = inc)
 
 llvm = getCppClasses(tu, numClasses = 800, fileFilter = "llvm", nodesOnly = TRUE)
 
