@@ -1,5 +1,6 @@
 simpleFunction =
-function(.name, retType = VoidType, ..., .types = list(...), mod = Module())
+function(.name, retType = VoidType, ..., .types = list(...), mod = Module(),
+         .createLocalVars = FALSE)
 {
    if(length(names(.types)) == 0)
        names(.types) = letters[seq(along = .types)]
@@ -9,13 +10,14 @@ function(.name, retType = VoidType, ..., .types = list(...), mod = Module())
    
    if(length(.types)) {
       parms = getParameters(fun)
-      vars = mapply(function(ty, id, param) {
-                      var = ir$createLocalVariable(ty, id)
-                      ir$createStore(param, var)
-                      var
-                    }, .types, names(.types), parms)
+      if(.createLocalVars)
+          vars = mapply(function(ty, id, param) {
+                         var = ir$createLocalVariable(ty, id)
+                         ir$createStore(param, var)
+                         var
+                       }, .types, names(.types), parms)
    } else
      vars = NULL
    
-   list(ir = ir, vars = vars, module = mod, fun = fun, block = b)
+   list(ir = ir, params = parms, vars = vars, module = mod, fun = fun, block = b)
 }
