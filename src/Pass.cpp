@@ -60,6 +60,14 @@ R_##id() \
     return(R_createRef(pass, "Pass")); \
 }
 
+#if LLVM_VERSION <= 3 && LLVM_MINOR_VERSION <= 6
+R_CREATE_PASS(createGlobalMergePass)
+#else
+// In 3.7, this takes 3 arguments - 1 of which is optional.
+// const TargetMachine *TM, unsigned MaximalOffset
+#pragma message "Enable for 3.7"
+#endif
+
 R_CREATE_FUNPASS(createAggressiveDCEPass)
 R_CREATE_FUNPASS(createDeadCodeEliminationPass)
 R_CREATE_FUNPASS(createDeadStoreEliminationPass)
@@ -72,7 +80,6 @@ R_CREATE_PASS(createSROAPass)
 R_CREATE_PASS(createScalarReplAggregatesPass)
 R_CREATE_PASS(createIndVarSimplifyPass)
 R_CREATE_PASS(createLoopStrengthReducePass)
-R_CREATE_PASS(createGlobalMergePass)
 R_CREATE_FUNPASS(createReassociatePass)
 R_CREATE_FUNPASS(createCFGSimplificationPass)
 R_CREATE_FUNPASS(createJumpThreadingPass)
@@ -97,6 +104,9 @@ R_CREATE_PASS(createLoopInstSimplifyPass)
 R_CREATE_PASS(createLoopUnrollPass)
 R_CREATE_PASS(createLoopRotatePass)
 R_CREATE_PASS(createLoopIdiomPass)
+
+
+
 
 
 

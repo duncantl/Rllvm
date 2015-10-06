@@ -946,7 +946,23 @@ R_IRBuilder_CreateInvoke(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_normal,
     return(R_createRef(ans, "InvokeInst"));
 }
 
+#if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 7
+extern "C"
+SEXP
+R_IRBuilder_CreateStructGEP(SEXP r_builder, SEXP r_type, SEXP r_value, SEXP r_index, SEXP r_id) 
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *ans, *value;
+    llvm::Type *type = GET_TYPE(r_type);
+    value = GET_REF(r_builder, Value);
+    ans = builder->CreateStructGEP(type, value,  INTEGER(r_index)[0]);
+    if(Rf_length(r_id)) 
+        ans->setName(makeTwine(r_id));
 
+    return(R_createRef(ans, "Value"));
+}
+#else
 extern "C"
 SEXP
 R_IRBuilder_CreateStructGEP(SEXP r_builder, SEXP r_value, SEXP r_index, SEXP r_id) 
@@ -961,6 +977,9 @@ R_IRBuilder_CreateStructGEP(SEXP r_builder, SEXP r_value, SEXP r_index, SEXP r_i
 
     return(R_createRef(ans, "Value"));
 }
+#endif
+
+
 
 
 extern "C"

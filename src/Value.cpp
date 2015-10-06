@@ -105,3 +105,13 @@ R_Value_getAllUses(SEXP r_val)
 }
 
 
+extern "C"
+SEXP
+R_Value_print(SEXP r_value)
+{
+    llvm::Value *val = GET_REF(r_value, Value);
+    std::string str;
+    llvm::raw_string_ostream OS(str);
+    val->print(OS);
+    return(ScalarString(mkChar( OS.str().c_str())));
+}

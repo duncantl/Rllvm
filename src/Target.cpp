@@ -1,6 +1,12 @@
 #include "Rllvm.h"
 #include <llvm/Support/TargetRegistry.h>
+
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 7
+#include <llvm/Analysis/TargetLibraryInfo.h>
+#else
 #include <llvm/Target/TargetLibraryInfo.h>
+#endif
+
 #include <llvm/Target/TargetMachine.h>
 
 // Don't need this - do now - and not in same place on Linux setup.
@@ -47,7 +53,9 @@ R_Target_createTargetMachine(SEXP r_target, SEXP r_triple, SEXP r_cpu, SEXP r_fe
     else  {
         /* taken from Halide's CodeGen.cpp */
         defaultOpts.LessPreciseFPMADOption = true;
+#ifdef LLV_HAS_NOFRAMEPOINTERELIM
         defaultOpts.NoFramePointerElim = false;
+#endif
 #ifdef LLVM_HAS_NOFRAMEPOINTERELIMNONLEAF
         defaultOpts.NoFramePointerElimNonLeaf = false;
 #endif
@@ -56,16 +64,22 @@ R_Target_createTargetMachine(SEXP r_target, SEXP r_triple, SEXP r_cpu, SEXP r_fe
         defaultOpts.NoInfsFPMath = true;
         defaultOpts.NoNaNsFPMath = true;
         defaultOpts.HonorSignDependentRoundingFPMathOption = false;
+#ifdef LLVM_HAS_USESOFTFLOAT
         defaultOpts.UseSoftFloat = false;
+#endif
         defaultOpts.FloatABIType = llvm::FloatABI::Soft;
         defaultOpts.NoZerosInBSS = false;
         defaultOpts.GuaranteedTailCallOpt = false;
+#ifdef LLVM_HAS_DISABLETAILCALLS
         defaultOpts.DisableTailCalls = false;
+#endif
         defaultOpts.StackAlignmentOverride = 32;
 #ifdef LLVM_HAS_REALIGNSTACK
         defaultOpts.RealignStack = true;
 #endif
+#ifdef LLVM_HAS_TRAPFUNCNAME
         defaultOpts.TrapFuncName = "";
+#endif
         defaultOpts.PositionIndependentExecutable = true;
 
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5

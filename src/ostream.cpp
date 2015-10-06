@@ -28,7 +28,12 @@ R_new_formatted_raw_ostream(SEXP r_stream, SEXP r_delete)
 {
 
     llvm::raw_ostream *stream =  GET_REF(r_stream, raw_ostream);
-    llvm::formatted_raw_ostream *ans = new llvm::formatted_raw_ostream(*stream, LOGICAL(r_delete)[0]);
+    llvm::formatted_raw_ostream *ans;
+#if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 7
+    ans = new llvm::formatted_raw_ostream(*stream);
+#else
+    ans = new llvm::formatted_raw_ostream(*stream, LOGICAL(r_delete)[0]);
+#endif
     return(R_createRef(ans, "formatted_raw_ostream"));
 }
 

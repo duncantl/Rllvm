@@ -34,7 +34,7 @@ R_getPassManager(SEXP r_module, SEXP r_ee, SEXP r_level)
 #endif
   }
 
-#if 1
+#if 0
  llvm::PassManagerBuilder Builder;
  Builder.OptLevel = INTEGER(r_level)[0];
  Builder.populateFunctionPassManager(*mgr);

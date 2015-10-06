@@ -28,7 +28,11 @@
 #include <llvm/Support/FormattedStream.h>
 #include <llvm/Support/MathExtras.h>
 #include <llvm/Pass.h>
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 7
+#include <llvm/IR/PassManager.h>
+#else
 #include <llvm/PassManager.h>
+#endif
 #include <llvm/ADT/SmallVector.h>
 
 
@@ -63,6 +67,7 @@ void *getRReference(SEXP val);
 
 #define GET_TYPE(x)  GET_REF(x, Type) 
 
+
 #if 1
 #include <llvm/ExecutionEngine/GenericValue.h>
 bool convertRToGenericValue(llvm::GenericValue *val, SEXP rval, const llvm::Type *type);
@@ -78,8 +83,12 @@ extern llvm::Twine makeTwine(SEXP);
    R_##TYPE##_eraseFromParent(SEXP r_block, SEXP r_delete) \
    { \
       llvm::TYPE  *block = GET_REF(r_block, TYPE);	\
-      if(block) \
-          LOGICAL(r_delete)[0] ? block->eraseFromParent() : block->removeFromParent(); \
+      if(block) { \
+	  if(LOGICAL(r_delete)[0]) \
+	      block->eraseFromParent();		\
+          else							\
+             block->removeFromParent();				\
+      } \
       return(ScalarLogical(block != NULL));				\
    }
 
