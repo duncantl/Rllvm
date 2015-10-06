@@ -71,4 +71,20 @@ This happens because R puts -L/usr/local/lib ahead of package link options.
 </a>
 </q>
 
+<q>
+I'm creating a <r:class>Module</r:class> but when <r:func>verifyModule</r:func> is called
+(either implicitly or explicitly), <r/> crashes. This happens when I call <r:func>showModule</r:func>.
+So how can I see what the instructions are?
+<a>
+You can get the <r:class>Function</r:class> object of interest from  the <r:class>Module</r:class>,
+e.g. <r:expr eval="false">f = mod[["myRoutine"]]</r:expr>.
+Then you can get its blocks with <r:func>getBlocks</r:func>.
+For each block, we can call <r:func>getBlockInstructions</r:func>, and then convert each to a character string.
+We can do all of this with
+<r:code>
+lapply(getBlocks(f), function(b) sapply(getBlockInstructions(b), as, "character"))
+</r:code>
+</a>
+</q>
+
 </faq>

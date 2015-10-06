@@ -92,7 +92,7 @@ setMethod("run", "Function", .llvmCallFunction)
 
 .llvm = .llvmCallFunction
 
-llvmShutdow = shutdown =
+llvmShutdown = shutdown =
 function()
 {
     .C("R_LLVMShutdown")
