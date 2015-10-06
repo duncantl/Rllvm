@@ -113,6 +113,15 @@ setMethod("getParent", "BasicBlock",
           .Call("R_BasicBlock_getParent", x))
 
 
+setAs("BasicBlock", "Function",
+        function(from)
+           getParent(from))
+
+setAs("BasicBlock", "Module",
+        function(from)
+           as(getParent(from), "Module"))
+
+
 if(!isGeneric("sapply"))
   setGeneric("sapply",
                function (X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE)
