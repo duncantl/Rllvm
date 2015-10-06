@@ -15,6 +15,12 @@ simpleFunction(.name, retType = VoidType, ..., .types = list(...), mod = Module(
   \item{\dots}{individual type  objects for the parameters of the routine}
   \item{.types}{the parameter types specified as a single object}
   \item{mod}{the module in which to create the function}
+  \item{.createLocalVars}{a logical value. If this is \code{TRUE},
+    we create local variables correspoding to each of the parameters
+    and arrange to store the value of the parameter in that local
+    variable. This is the general idiom \code{clang} uses to create code
+    in the unoptimized form.
+   }
 }
 %\value{}
 \references{
