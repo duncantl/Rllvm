@@ -29,7 +29,8 @@
 #include <llvm/Support/MathExtras.h>
 #include <llvm/Pass.h>
 #if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 7
-#include <llvm/IR/PassManager.h>
+//#include <llvm/IR/PassManager.h>
+#include <llvm/IR/LegacyPassManager.h>
 #else
 #include <llvm/PassManager.h>
 #endif

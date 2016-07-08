@@ -77,7 +77,12 @@ SEXP
 R_Function_getGC(SEXP r_func)
 {
     llvm::Function *func = GET_REF(r_func, Function);
-    const char *str = func->getGC();
+    const char *str;
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION == 8
+    str = func->getGC().c_str();
+#else
+    str = func->getGC();  //XXX Define for 3.5 and check others. 3.8 returns a std::string
+#endif
     if(str)
         return(ScalarString(mkChar(str)));
     else
@@ -119,13 +124,22 @@ R_Function_getBasicBlockList(SEXP r_func)
     int n, i = 0;
     SEXP rans, names;
 
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
     llvm::iplist<llvm::BasicBlock> &blocks = func->getBasicBlockList();
+#else
+    llvm::Function::BasicBlockListType &blocks = func->getBasicBlockList();
+#endif
+
     n = blocks.size();
 
     PROTECT(rans = NEW_LIST(n));
     PROTECT(names = NEW_CHARACTER(n));
 #if 1
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
     for(llvm::iplist<const llvm::BasicBlock>::const_iterator it = blocks.begin(); it != blocks.end(); it++, i++)
+#else
+    for(llvm::Function::BasicBlockListType::const_iterator it = blocks.begin(); it != blocks.end(); it++, i++)
+#endif
     {
         const llvm::BasicBlock *cur = &(*it);
 //        SET_STRING_ELT(names, i, mkChar(cur->getNameStr().data())); // Worked for llvm 2.8
@@ -167,8 +181,8 @@ R_Function_getParam(SEXP r_func,  SEXP r_whichParam)
      llvm::Function::ArgumentListType::iterator arg = args.begin();
 
      for(i = 0 ; i < num; i++, arg++) {  }
-     llvm::Argument *el;
-     el = arg; // Don't use arg.getNodePtrUnchecked() as that is internal, but leave it here for a note.
+        llvm::Argument *el;
+        el = &(*arg); //XXX 3.8 // Don't use arg.getNodePtrUnchecked() as that is internal, but leave it here for a note.
      return(R_createRef(el, "Argument"));
 }
 
@@ -235,6 +249,7 @@ R_Argument_setAttrs(llvm::Argument *arg, SEXP r_vals)
 
 
 /* Kill this off now that we can get the Argument back. */
+#if 0  // XXX 3.8  see above - wrong signature now.
 extern "C"
 SEXP
 R_Function_setParamAttributes(SEXP r_func,  SEXP r_whichParam, SEXP r_vals)
@@ -253,6 +268,7 @@ R_Function_setParamAttributes(SEXP r_func,  SEXP r_whichParam, SEXP r_vals)
 
      return(R_Argument_setAttrs(arg, r_vals));
 }
+#endif
 
 extern "C"
 SEXP

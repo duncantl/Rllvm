@@ -23,7 +23,7 @@ R_getPassManager(SEXP r_module, SEXP r_ee, SEXP r_level)
   llvm::Module *TheModule = GET_REF(r_module, Module);
   llvm::ExecutionEngine *TheExecutionEngine = NULL;
 
-  llvm::FunctionPassManager *mgr = new llvm::FunctionPassManager(TheModule);
+  llvm::legacy::FunctionPassManager *mgr = new llvm::legacy::FunctionPassManager(TheModule);
 
   if(r_ee != R_NilValue) {
      TheExecutionEngine = GET_REF(r_ee, ExecutionEngine);
@@ -40,16 +40,23 @@ R_getPassManager(SEXP r_module, SEXP r_ee, SEXP r_level)
  Builder.populateFunctionPassManager(*mgr);
 // Builder.populateModulePassManager(MPM);
 #else
+
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 9
+#define ADD addPass
+#else 
+#define ADD add
+#endif
+
   // Promote allocas to registers.
-  mgr->add(llvm::createPromoteMemoryToRegisterPass());
+  mgr->ADD(llvm::createPromoteMemoryToRegisterPass());
   // Do simple "peephole" optimizations and bit-twiddling optzns.
-  mgr->add(llvm::createInstructionCombiningPass());
+  mgr->ADD(llvm::createInstructionCombiningPass());
   // Reassociate expressions.
-  mgr->add(llvm::createReassociatePass());
+  mgr->ADD(llvm::createReassociatePass());
   // Eliminate Common SubExpressions.
-  mgr->add(llvm::createGVNPass());
+  mgr->ADD(llvm::createGVNPass());
   // Simplify the control flow graph (deleting unreachable blocks, etc).
-  mgr->add(llvm::createCFGSimplificationPass());
+  mgr->ADD(llvm::createCFGSimplificationPass());
 #endif
   mgr->doInitialization();
 
@@ -72,14 +79,15 @@ extern "C"
 SEXP
 R_PassManager_run(SEXP r_passMgr, SEXP r_module)
 {
-  llvm::PassManager *mgr = GET_REF(r_passMgr, PassManager);
+  llvm::legacy::PassManager *mgr = GET_REF(r_passMgr, legacy::PassManager);
   llvm::Module *module = GET_REF(r_module, Module);
   mgr->run(*module);
   return(ScalarLogical(TRUE));
 }
 
-
-#include <llvm/PassManager.h>
+// For 3.5
+//#include <llvm/PassManager.h>
+#include <llvm/IR/PassManager.h>
 
 extern "C"
 SEXP
@@ -102,7 +110,7 @@ R_PassManager_new(SEXP r_mod, SEXP r_fnMgr)
         llvm::FunctionPassManager *fm = new llvm::FunctionPassManager(mod);
         return(R_createRef(fm, "FunctionPassManager"));
     } else {
-        llvm::PassManager *m = new llvm::PassManager();        
+        llvm::legacy::PassManager *m = new llvm::legacy::PassManager();        
         return(R_createRef(m, "PassManager"));
     }
 }

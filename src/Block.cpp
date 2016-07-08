@@ -53,7 +53,7 @@ R_BasicBlock_getBlockInstructions(SEXP r_block)
     for(ib = block->begin(), ie = block->end(); ib != ie; ib++, ctr++) {}
     PROTECT(ans = NEW_LIST(ctr));
     for(ctr = 0, ib = block->begin(), ie = block->end(); ib != ie; ib++, ctr++) {
-        SET_VECTOR_ELT(ans, ctr, R_createRef(ib, "Instruction"));
+        SET_VECTOR_ELT(ans, ctr, R_createRef(&(*ib), "Instruction")); //XXX LLVM 3.8
     }    
     UNPROTECT(1);
     return(ans);

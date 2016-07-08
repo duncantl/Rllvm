@@ -238,7 +238,7 @@ R_BranchInst_getSuccessor(SEXP r_branch, SEXP r_i)
 {
     llvm::BranchInst *branch;
     branch = GET_REF(r_branch, BranchInst);
-    if(INTEGER(r_i)[0] >= branch->getNumSuccessors()) {
+    if( (unsigned) INTEGER(r_i)[0] >= branch->getNumSuccessors()) {
 	PROBLEM "asking to retrieve a BranchInst successor beyond the actual number %d", branch->getNumSuccessors()
 	    ERROR;
     }
@@ -516,9 +516,15 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
         llvm::BasicBlock *block;
         block = builder->GetInsertBlock();
         llvm::TerminatorInst *inst = block->getTerminator();
-        if(inst)
-            block->getInstList().insert(inst, ans);
-        else
+        if(inst) {
+            //XXX check 3.8
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION == 8
+            llvm::BasicBlock::InstListType &insList = block->getInstList();
+            insList.insert(insList.begin(), ans);
+#else
+            block->getInstList().insert(ans);
+#endif
+        } else
             builder->Insert(ans);
     } else    
         ans = builder->Insert(ans);

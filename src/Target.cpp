@@ -104,9 +104,15 @@ SEXP
 R_TargetLibraryInfo_new(SEXP r_triple)
 {
 //    std::string triple(CHAR(STRING_ELT(r_triple, 0)));
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
     llvm::Triple triple(CHAR(STRING_ELT(r_triple, 0)));
     llvm::TargetLibraryInfo *ans = new llvm::TargetLibraryInfo(triple);
     return(R_createRef(ans, "TargetLibraryInfo"));
+#else
+    PROBLEM "TargetLibraryInfo creationg is not supported in this version of Rllvm"
+            ERROR;
+                                              
+#endif
 }
 
 
@@ -138,10 +144,14 @@ extern "C"
 SEXP
 R_TargetMachine_addAnalysisPasses(SEXP r_targetMachine, SEXP r_passManager)
 {
+#if  LLVM_VERSION==3 && LLVM_MINOR_VERSION < 7
     llvm::TargetMachine *targetMachine = GET_REF(r_targetMachine, TargetMachine);
-    llvm::PassManager *passManager = GET_REF(r_passManager, PassManager);
+    llvm::legacy::PassManager *passManager = GET_REF(r_passManager, legacy::PassManager);
     targetMachine->addAnalysisPasses(*passManager);
-
+#else
+    PROBLEM "addAnalysisPasses removed from LLVM after 3.6"
+        ERROR;
+#endif
     return(R_NilValue);
 }
 
@@ -149,14 +159,20 @@ extern "C"
 SEXP
 R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SEXP r_out, SEXP r_fileType)
 {
+#if  LLVM_VERSION==3 && LLVM_MINOR_VERSION < 7
     llvm::TargetMachine *targetMachine = GET_REF(r_targetMachine, TargetMachine);
-    llvm::PassManager *passManager = GET_REF(r_passManager, PassManager);
+    llvm::legacy::PassManager *passManager = GET_REF(r_passManager, legacy::PassManager);
     llvm::formatted_raw_ostream *out;
     out = GET_REF(r_out, formatted_raw_ostream);
 
+    // passManager is now a legacy::PassManager not a PassManagerBase
     bool ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
     /* ans is true if addPasses... failed */
     return(ScalarLogical(ans == true));
+#else
+    PROBLEM "addPassesToEmitFile does not yet work with the legacy::PassManager"
+        ERROR;
+#endif
 }
 
 extern "C"

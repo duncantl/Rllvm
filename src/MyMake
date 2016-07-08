@@ -1,0 +1,9 @@
+SRC=$(shell ls *.cpp)
+OBJ=$(patsubst %.cpp,%.o,$(SRC))
+
+all: $(OBJ)
+
+%.o: %.cpp  Makevars
+	-R CMD COMPILE $<
+
+

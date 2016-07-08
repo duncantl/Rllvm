@@ -87,10 +87,8 @@ R_getFunctionParamNames(SEXP r_func)
 
     SEXP ans;
     PROTECT(ans = NEW_CHARACTER(n));
-    llvm::Value *el;
     for(int i = 0; i < n ; i++, it++) {
-        el = it;
-	llvm::StringRef str = el->getName();
+        llvm::StringRef  str = it->getName(); 
 	
         SET_STRING_ELT(ans, i, str.data() ? mkChar(str.data()) : R_NaString);
     }
@@ -115,7 +113,7 @@ R_getFunctionArgs(SEXP r_func)
     it = fun->arg_begin();
     llvm::Value *el;
     for(int i = 0; i < n ; i++, it++) {
-        el = it;
+        el = &(*it) ; //XXX  compiles. But is this reference to the persistent parameter object???
         SET_VECTOR_ELT(ans, i, R_createRef(el, "Argument"));
     }
     UNPROTECT(1);
@@ -219,12 +217,21 @@ R_showModule(SEXP r_module, SEXP asString)
     verifyModule(*Mod); //XXX Check
 #endif
 
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8 
     llvm::PassManager PM;
+#else
+    // llvm::PassManager<llvm::Module> PM;
+    llvm::legacy::PassManager PM;
+#endif
+
     std::string str;
     llvm::raw_string_ostream to(str);
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
     PM.add(llvm::createPrintModulePass(&llvm::outs())); //XXX fix
+#elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
+    PM.add(llvm::createPrintModulePass(LOGICAL(asString)[0] ? to : llvm::outs())); // llvm::outs()));
 #else
+    // with new PassManager this is addPass
     PM.add(llvm::createPrintModulePass(LOGICAL(asString)[0] ? to : llvm::outs())); // llvm::outs()));
 #endif
 
@@ -255,7 +262,12 @@ R_Module_getDataLayout(SEXP r_module)
 
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
     const char *str = mod->getDataLayout().c_str();
+#elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION == 8
+    const char *str = mod->getDataLayout().getStringRepresentation().c_str();
+#elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION == 7
+    const char *str = mod->getDataLayout().getStringRepresentation().c_str();
 #else
+    // 3.6
     const char *str = mod->getDataLayout()->getStringRepresentation().c_str();
 #endif
 
@@ -301,13 +313,21 @@ R_Module_getFunctionList(SEXP r_module)
     int n, i = 0;
     SEXP rans, names;
 
-    llvm::iplist<llvm::Function> &funclist = mod->getFunctionList();
+
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
+//    llvm::iplist<llvm::Function> &funclist = mod->getFunctionList();
+    const llvm::Module::FunctionListType &funclist(mod->getFunctionList());
+#else
+    const llvm::Module::FunctionListType &funclist(mod->getFunctionList());
+#endif
+
     n = funclist.size();
 
     PROTECT(rans = NEW_LIST(n));
     PROTECT(names = NEW_CHARACTER(n));
 
-    for(llvm::iplist<const llvm::Function>::iterator it = funclist.begin(); it != funclist.end(); it++, i++)
+    for(/*llvm::iplist<const llvm::Function>::iterator*/
+    llvm::Module::FunctionListType::const_iterator it = funclist.begin(); it != funclist.end(); it++, i++)
     {
         const llvm::Function *curfunc = &(*it);
         SET_STRING_ELT(names, i, mkChar(curfunc->getName().data()));
@@ -330,13 +350,15 @@ R_Module_getGlobalList(SEXP r_module)
     int n, i = 0;
     SEXP rans, names;
 
-    llvm::iplist<llvm::GlobalVariable> &funclist = mod->getGlobalList();
+//    llvm::iplist<llvm::GlobalVariable> &funclist = mod->getGlobalList();
+    llvm::Module::GlobalListType &funclist(mod->getGlobalList());
     n = funclist.size();
 
     PROTECT(rans = NEW_LIST(n));
     PROTECT(names = NEW_CHARACTER(n));
 
-    for(llvm::iplist<const llvm::GlobalVariable>::iterator it = funclist.begin(); it != funclist.end(); it++, i++)
+    for(/*llvm::iplist<const llvm::GlobalVariable>::iterator*/
+    llvm::Module::GlobalListType::iterator it = funclist.begin(); it != funclist.end(); it++, i++)
     {
         const llvm::GlobalVariable *curfunc = &(*it);
         SET_STRING_ELT(names, i, mkChar(curfunc->getName().data()));
@@ -426,11 +448,15 @@ extern "C"
 SEXP
 R_Module_CloneModule(SEXP r_module)
 {
-    llvm::Module *module, *ans;
+    llvm::Module *module;
     module = GET_REF(r_module, Module); 
-    ans = llvm::CloneModule(module);
-
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
+    llvm::Module *ans = llvm::CloneModule(module);
     return(R_createRef(ans, "Module"));
+#else
+    std::unique_ptr<llvm::Module> ans(llvm::CloneModule(module));
+    return(R_createRef(ans.get(), "Module"));
+#endif
 }
 
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
@@ -514,17 +540,21 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
     }
 
 
-    llvm::Module *ans = NULL;
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5    
+    llvm::Module *ans = NULL;
     std::string msg;
     ans = llvm::ParseBitcodeFile(buf, *context, &msg);
     if(!ans) {
         PROBLEM "failed to read bitcode %s", msg.c_str()
          ERROR;
     }
+
+    return(R_createRef(ans, "Module"));    
 #else
 //XXX CHECK!
-#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 6
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION == 8
+    llvm::ErrorOr<std::unique_ptr<llvm::Module>> err = llvm::parseBitcodeFile(buf->getMemBufferRef(), *context);
+#elif LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 6
     llvm::ErrorOr<llvm::Module *> err =  llvm::parseBitcodeFile(buf->getMemBufferRef(), *context);
 #else
     llvm::ErrorOr<llvm::Module *> err =  llvm::parseBitcodeFile(buf, *context);
@@ -533,10 +563,10 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
         PROBLEM "failed to read bitcode %s", err.getError().message().c_str()
          ERROR;
     }
-    ans = err.get();
+//    llvm::Module *ans = NULL;
+//    std::unique_ptr<llvm::Module> ans(err.get());
+    return(R_createRef((const void *) &(err.get()), "Module"));    
 #endif
-
-    return(R_createRef(ans, "Module"));    
 }
 
 
@@ -582,7 +612,8 @@ R_Module_getNamedMDList(SEXP r_mod)
   PROTECT(rans = NEW_LIST(n));
   PROTECT(names = NEW_CHARACTER(n));
 
-  for(llvm::iplist<const llvm::NamedMDNode>::iterator it = node.begin(); it != node.end(); it++, i++) {
+  for(/*llvm::iplist<const llvm::NamedMDNode>::iterator*/
+      llvm::Module::const_named_metadata_iterator it = node.begin(); it != node.end(); it++, i++) {
         const llvm::NamedMDNode *cur = &(*it);
         SET_STRING_ELT(names, i, mkChar(cur->getName().data()));
         SET_VECTOR_ELT(rans, i, R_createRef(cur, "NamedMDNode"));
