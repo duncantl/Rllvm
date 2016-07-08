@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+<articleinfo>
+<title>Efficient Sampling of CSV File in R</title>
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+See the StatSci paper for a more comprehensive description.
+</para>
+<para>
+<r:function><![CDATA[
+Fgets  =
+function(file)
+  fgets(ptr, 1000L, file)
+]]></r:function>
+
+<r:function><![CDATA[
+readSelectedLines =
+function(lineSkip, file)
+    sapply(lineSkip, readTo, file)
+]]></r:function>
+
+<r:function><![CDATA[
+readTo = 
+function(numLines, con)
+{   
+    ans = ""
+    for(i in 1:numLines)
+       ans = Fgets(con)
+    ans
+}
+]]></r:function>
+</para>
+
+
+<para id="compile" thread="compile">
+<r:code>
+library(RLLVMCompile)
+mod = Module()
+</r:code>
+
+<r:code thread="compile">
+llvmAddSymbol("fgets")
+FILEType = pointerType(Int32Type)
+declareFunction(list(StringType, StringType, Int32Type, FILEType), 
+                  "fgets", mod)
+</r:code>
+<r:code>
+lineType = arrayType(Int8Type, 1000)
+var = createGlobalVariable("line", mod, val = string(1000))
+</r:code>
+<r:code>
+
+Fgets.c = compileFunction(Fgets, StringType, FILEType, mod)
+</para>
+
+
+<r:code id="source">
+xmlSourceFunctions("sampleCSV1.Rdb")
+</r:code>
+</section>
+</article>
