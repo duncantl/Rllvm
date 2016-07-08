@@ -1,3 +1,8 @@
+#
+# This is no longer used. See clang.R
+#
+#
+
 LLVM_CONFIG=llvm-config  #     $(HOME)/Downloads/llvm-2.8/Release/bin/llvm-config 
 LLVM_CFLAGS=`$(LLVM_CONFIG) --cflags`
 

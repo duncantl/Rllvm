@@ -25,7 +25,10 @@ inc = c("~/LLVM3.6/clang+llvm-3.6.0-x86_64-apple-darwin/include",
         "~/LLVM3.6/clang+llvm-3.6.0-x86_64-apple-darwin/include/llvm",
         "~/LLVM3.6/clang+llvm-3.6.0-x86_64-apple-darwin/include/clang")
 
-tu = createTU(f, args = args, includes = inc)
+inc = c("/usr/local/include", "/usr/local/include/llvm")
+ args = c("-DNDEBUG", "-D_GNU_SOURCE", "-D__STDC_CONSTANT_MACROS", "-D__STDC_FORMAT_MACROS", "-D__STDC_LIMIT_MACROS", "-std=c++11", "-fvisibility-inlines-hidden", "-fno-exceptions", "-fno-rtti", "-fno-common", "-Woverloaded-virtual", "-Wcast-qual")
+
+tu = createTU(f, args = args, includes = inc, verbose = TRUE)
 
 llvm = getCppClasses(tu, numClasses = 800, fileFilter = "llvm", nodesOnly = TRUE)
 
