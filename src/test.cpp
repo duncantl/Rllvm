@@ -173,5 +173,6 @@ R_testPointer()
  return(R_createRef(mod, "Module"));
 }
 #else
-static int bar;
+enum {RED, GREEN, BLUE};
+//static int bar;
 #endif
