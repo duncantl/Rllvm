@@ -10,6 +10,9 @@ function()
 .onLoad =
 function(...)
 {
+ if(getOption("Rllvm.autoInitialize", TRUE))
+     InitializeNativeTarget()
+    
   types = getTypeDefs()
   e = getNamespace("Rllvm")
   mapply(utils::assignInNamespace,
@@ -22,7 +25,4 @@ function(...)
   mapply(utils::assignInNamespace,
           c("SEXPType", sprintf("%sSXPType", names(tmp)[-1])),
           tmp, MoreArgs = list(ns = e))
-  
-  if(getOption("Rllvm.autoInitialize", TRUE))
-     InitializeNativeTarget()
 }

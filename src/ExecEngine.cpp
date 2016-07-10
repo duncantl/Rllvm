@@ -5,7 +5,14 @@
 #include <llvm/ExecutionEngine/JIT.h>
 #endif
 
-#include <llvm/ExecutionEngine/MCJIT.h>
+// Don't do this for LLVM 3.8
+// #include <llvm/ExecutionEngine/MCJIT.h>
+// It results in 
+//   LLVM ERROR: Target does not support MC emission!
+// or 
+//   Pointer to fn's code was null after getPointerToFunction
+// when we use .llvm()
+
 
 #if LLVM_VERSION < 3
 #include <llvm/Target/TargetSelect.h>
@@ -96,7 +103,7 @@ R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel)
 #else
                                    module
 #endif
-                             ).setErrorStr(&errStr).setEngineKind(llvm::EngineKind::JIT).setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]).create();
+        ).create() /* .setErrorStr(&errStr).setEngineKind(llvm::EngineKind::JIT).setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]).create() */;
     if(!EE) {
         PROBLEM "failed to create execution engine: %s", errStr.c_str()
             ERROR;
