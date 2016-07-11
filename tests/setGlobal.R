@@ -2,11 +2,18 @@ library(Rllvm)
 InitializeNativeTarget()
 mod = Module("global")
 
-#XXXX This doesn't work currently.
-mod[["gvpi"]] = pi
-mod[["status"]] = FALSE
 
+mod[["gvpi"]] = pi
+mod[["gvint"]] = 13L
+
+mod[["status"]] = FALSE 
+showModule(mod)
 mod[["status", value = TRUE]]
 
-mod[["status"]] = FALSE
+mod[["status"]] = TRUE
+showModule(mod)
+mod[["status", value = TRUE]]
 
+
+# creating status is equivalent to 
+#createGlobalVariable("ll", mod, , as(FALSE, "Value"))
