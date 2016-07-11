@@ -1,5 +1,5 @@
 library(Rllvm)
-ff = simpleFunction("sw", Int32Type, n = Int32Type)
+ff = simpleFunction("sw", Int32Type, n = Int32Type, .createLocalVars = TRUE)
 ir = ff$ir
 ctx = getContext(ff$mod)
 
