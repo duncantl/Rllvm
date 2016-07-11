@@ -15,10 +15,20 @@ function(type = "SEXP", useClass = FALSE)
 }
 
 makeSEXPTypes =
+    #
+    #  called in onLoad()  with rawPointer = TRUE since StructType hasn't been defined at that point.
+    #
+    #  rawPointer controls the C++ code we call in structType() and pointerType() as to whether
+    #  we return an externalptr or if we create an instance of the StructType or PointerType class.
+    #  When called from onLoad(), these classes are not yet visible to the C++ code.
+    #  We could get them and pass them to the C++ code.
+    #  
 function( rawPointer = FALSE)
 {
    ans = list()
-   types = list()   
+   types = list()
+
+     # Describe the contents of a SEXPRECStruct
    ref = structType(list(type = Int32Type), "SEXPRECStruct", rawPointer = rawPointer, withNames = FALSE)
    if(rawPointer)
       ref = new("StructType", ref = ref)
@@ -35,14 +45,15 @@ function( rawPointer = FALSE)
        # so that they all look the same to LLVM but our classes
        # in R identify the particular type of SEXP when this is necessary.
        # So no:    tmp = pointerType(ref)  # structType(ref,  sprintf("%sSXP", i))
-      tmp = new(sprintf("%sSXPType", i), tmp)
+      className = sprintf("%sSXPType", i)
+      tmp = new(className, tmp)
       assign(i, tmp, SEXPTypes)
       ans[[i]] = tmp@ref
       types[[i]] = tmp
    }
-   
+
    .Call("R_setRLLVMTypes", ans, ids)
-   # ans
+
    types
 }
 
