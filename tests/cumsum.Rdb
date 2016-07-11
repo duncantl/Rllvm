@@ -331,7 +331,7 @@ Cumsum, the built-in <r:func>cumsum</r:func>
 implemented in C and
 our LLVM-generated routine.
 <r:code>
-N = 1e7
+N = 1e4
 x = as.numeric(1:N)
 ans = numeric(length(x))
 
@@ -378,14 +378,14 @@ all.equal(val, cumsum(x))
 </para>
 
 <r:code>
-N = 1e7
+N = 1e4
 x = as.numeric(1:N)
 ans = numeric(length(x))
 
 interp = replicate(10, system.time({Cumsum(x)}))
 native =  replicate(10, system.time({cumsum(x)}))
 ll = replicate(10, system.time({.llvm(fun, x = x, ans = ans, n = length(x), .all = TRUE, .ee = ee)$ans}))
-(rowMeans(interp)/rowMeans(ll))[1:3]
+print((rowMeans(interp)/rowMeans(ll))[1:3])
 </r:code>
 
 <para>
