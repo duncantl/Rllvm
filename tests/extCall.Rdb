@@ -158,7 +158,7 @@ ir$createBr(ret)
 </para>
 <para>
 Finally, we complete the return <r:class>Block</r:class> by just
-return the value of <r:var>ans</r:var>. We
+returning the value of <r:var>ans</r:var>. We
 have to load the value and then return it.
 <r:code>
 ir$setInsertPoint(ret)
@@ -172,8 +172,14 @@ We have to tell LLVM how to find the external runif that is not part of the modu
 but is referenced in our routine.  We can do this by explicitly finding
 the address of the routine via the R function <r:func>getNativeSymbolInfo</r:func>
 <r:code>
-llvmAddSymbol(runif = getNativeSymbolInfo("runif")$address)
+info = getNativeSymbolInfo("runif")
+llvmAddSymbol(runif = info$address)
 </r:code>
+<ignore>
+<r:code>
+.Call("R_DynamicLibrary_LoadLibraryPermanently", info$package[["path"]])
+</r:code>
+</ignore>
 We can then invoke the new routine using <r:func>.llvm</r:func>:
 <r:code>
 print(.llvm(fun))
