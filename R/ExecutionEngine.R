@@ -76,7 +76,7 @@ function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .a
 #  .args = lapply(.args, function(x) if(is(x, "Function")) getPointerToFunction(x, .ee)@ref else x)
 
   if(length(.duplicate))
-    .args[.duplicate] =  lapply(.args[.duplicate], function(x) .Call('Rf_duplicate', x))
+    .args[.duplicate] =  lapply(.args[.duplicate], function(x) .Call('Rllvm_Rf_duplicate', x))
 
   
    ans = .Call("R_callFunction", .x, .args, .ee)
