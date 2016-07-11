@@ -1,3 +1,4 @@
+#if 0
 //===-- examples/HowToUseJIT/HowToUseJIT.cpp - An example use of the JIT --===//
 //
 //                     The LLVM Compiler Infrastructure
@@ -130,4 +131,6 @@ void do_llvm_main() {
   delete EE;
   llvm_shutdown();
 }
-
+#else
+enum {A};
+#endif

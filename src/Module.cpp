@@ -575,9 +575,15 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
         PROBLEM "failed to read bitcode %s", err.getError().message().c_str()
          ERROR;
     }
+
     llvm::Module *mod = NULL;
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION < 7
+    mod = err.get();
+#else
     mod = err.get().get();
     err.get().release();
+#endif
+
     return(R_createRef((const void *) mod, "Module"));    
 #endif
 }

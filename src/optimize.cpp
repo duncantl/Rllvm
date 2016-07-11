@@ -92,7 +92,12 @@ R_PassManager_run(SEXP r_passMgr, SEXP r_module)
 
 // For 3.5
 //#include <llvm/PassManager.h>
-#include <llvm/IR/PassManager.h>
+#if 1   //XXX  LLVM_VERSION ==3 && LLVM_MINOR_VERSION == 6
+#include <llvm/IR/LegacyPassManager.h>
+#else
+#include <llvm/IR/PassManager.h> //XXXX
+#endif
+
 
 extern "C"
 SEXP
