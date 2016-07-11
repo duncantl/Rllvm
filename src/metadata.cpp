@@ -126,6 +126,15 @@ R_NamedMDNode_getOperands(SEXP r_node)
 }
 
 
+extern "C"
+SEXP
+R_NamedMDNode_getName(SEXP r_node)
+{
+    llvm::NamedMDNode *node = GET_REF(r_node, NamedMDNode);
+    std::string str = node->getName();
+    return( ScalarString(str.data() ? mkChar(str.data()) : R_NaString) );
+}
+
 
 
 
