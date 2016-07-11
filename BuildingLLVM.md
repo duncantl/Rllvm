@@ -1,6 +1,8 @@
 To install LLVM, you can download a binary distribution from
-(http://llvm.org/releases/download.html)[http://llvm.org/releases/download.html].
+[http://llvm.org/releases/download.html](http://llvm.org/releases/download.html).
 These are pre-built binaries that mostly work.
+Of course, you have a great deal of more flexibility (and more work)
+by creating your own version of LLVM.
 
 # Building From Source
 
@@ -31,7 +33,7 @@ Then re-run the configuration script for LLVM.
 
 # Alternative Instructions
 
-An alternative description of how to build LLVM is available  
+An alternative description of how to build LLVM is available at
 [http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html](http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html)
 
 
@@ -41,4 +43,7 @@ In order to be able to invoke existing routines that we do not create within our
 needs to be compiled  with support for libffi - the foreign function interface.
 
 
-Coincidentally, we have an R package that provides libffi in R - [Rffi](http://www.omegahat.net/Rffi).
+Coincidentally, we have an R package that provides libffi in R - [Rffi](http://www.omegahat.net/Rffi) - 
+that allows one to invoke arbitrary compiled (C) routines. There is also the rdyncall package that provides
+another facility for this with some additional features.
+

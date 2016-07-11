@@ -96,6 +96,30 @@ if test -r R/targets.R ; then
  chmod  +w R/targets.R
 fi
 
+dnl #########################################################################################
+
+
+
+# pkgconfig
+# 
+AC_PATH_PROG(PKG_CONFIG, pkg-config)
+
+if test -r /usr/local/lib/libffi.a ; then
+  FFI_LIB="-L/usr/local/lib -lffi"
+fi
+
+if test -n "$PKG_CONFIG" ; then
+  TMP=`$PKG_CONFIG --libs libffi`
+  if test "$?" = 0 ; then
+    echo "found libffi via pkg-config"
+    FFI_LIB=$TMP
+  fi
+fi
+
+
+
+AC_SUBST(FFI_LIB)
+
 AC_OUTPUT(src/Makevars)
 AC_OUTPUT(R/targets.R)
 AC_OUTPUT(R/llvmVersion.R)
