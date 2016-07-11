@@ -5967,4 +5967,4 @@ fi
 chmod  -w R/targets.R
 
 
-echo "`${LLVM_CONFIG} --cxxflags --ldflags`"
+echo "Compile & Link flags:  `${LLVM_CONFIG} --cxxflags --ldflags`"
