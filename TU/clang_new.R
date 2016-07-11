@@ -8,6 +8,10 @@ tu = createTU(f, args = args, includes = inc, verbose = TRUE)
 options(nwarnings = 10000)
 enums = getEnums(tu)
 
+if(FALSE) {
+   klasses = getCppClasses(tu)
+}
+
 
 
 if(FALSE) {
