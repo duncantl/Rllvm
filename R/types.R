@@ -23,13 +23,8 @@ setAs("Type", "character",
         .Call("R_Type_print", from))
 
 
-TypeIDEnums = structure(c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 
-                           12L, 13L, 14L, 15L, 16L, 9L, 10L),
-                         .Names = c("VoidTyID", "HalfTyID", 
-                                    "FloatTyID", "DoubleTyID", "X86_FP80TyID", "FP128TyID", "PPC_FP128TyID", 
-                                    "LabelTyID", "MetadataTyID", "X86_MMXTyID", "IntegerTyID", "FunctionTyID", 
-                                     "StructTyID", "ArrayTyID", "PointerTyID", "VectorTyID", "NumTypeIDs", 
-                                     "LastPrimitiveTyID", "FirstDerivedTyID"))
+TypeIDEnums = TypeID  # comes from the version specific enums
+
 
 getTypeID =
 function(x, ...)
