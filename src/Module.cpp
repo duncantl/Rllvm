@@ -256,6 +256,15 @@ R_Module_dump(SEXP r_module)
 
 extern "C"
 SEXP
+R_Module_getDataLayoutRef(SEXP r_module)
+{
+    llvm::Module *mod = GET_REF(r_module, Module);
+    const llvm::DataLayout dl = mod->getDataLayout();
+    return(R_createRef(&dl, "DataLayout"));    
+}
+
+extern "C"
+SEXP
 R_Module_getDataLayout(SEXP r_module)
 {
     llvm::Module *mod = GET_REF(r_module, Module);

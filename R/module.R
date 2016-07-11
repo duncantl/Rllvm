@@ -260,8 +260,12 @@ function()
 
 
 setMethod("getDataLayout", "Module",
-           function(from, ...)
-             .Call("R_Module_getDataLayout", from))
+           function(from, asRef = FALSE, ...) {
+              if(asRef)
+                .Call("R_Module_getDataLayoutRef", from)                  
+              else
+                .Call("R_Module_getDataLayout", from)
+          })
 
 setMethod("setDataLayout", "Module",
           function(x, value,  ...) {

@@ -52,3 +52,4 @@ Collate: llvmVersion.R classDefs.R manual_generics.R BinaryOpEnums.R
          ascii.R
          user.R
          phi.R
+         datalayout.R

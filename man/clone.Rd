@@ -35,7 +35,7 @@ clone(x, ...)
 eraseFromParent(x, delete = TRUE, ...)
 getCalledFunction(obj, ...)
 getContext(x, ...)
-getDataLayout(from, ...)
+getDataLayout(from, asRef = FALSE, ...)
 getDescription(x, ...)
 getElementTypes(x, ...)
 getModule(obj, ...)
@@ -68,7 +68,10 @@ set. Currently, there are only methods for\code{setDataLayout} for a  \code{Modu
     from the parent but also destroy the object}
   \item{from}{the object whose data layout will be set}
   \item{value}{a character string describing the data layout. See the
-    LLVM documentation for the \code{Module} class \url{http://llvm.org/docs/LangRef.html#data-layout}.}
+    LLVM documentation for the \code{Module} class
+    \url{http://llvm.org/docs/LangRef.html#data-layout}.}
+  \item{asRef}{scalar logical indicating whether we want a reference to
+    the DataLayout object or just a description of it.}
 }
 %\value{}
 \references{

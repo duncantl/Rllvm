@@ -492,3 +492,7 @@ exportMethods("[[")
 
 export(setIncomingBlock, addIncoming, getBasicBlockIndex, getIncomingValueForBlock, hasConstantValue)
 
+
+# DataLayout
+export(isLittleEndian, getPointerSize, getStackAlignment, getPointerTypeSize, getTypeAllocSize, getABITypeAlignment)
+
