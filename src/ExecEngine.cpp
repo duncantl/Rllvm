@@ -21,11 +21,19 @@
 #endif
 
 
+
+#include "llvm/Support/DynamicLibrary.h"
+
 extern "C"
 void
 R_InitializeNativeTarget()
 {
     llvm::InitializeNativeTarget();
+
+    // https://github.com/sampsyo/llvm-ei/issues/1
+    std::string ErrorStr;
+   llvm::sys::DynamicLibrary::LoadLibraryPermanently(0, &ErrorStr);
+
 }
 
 extern "C"
@@ -99,11 +107,11 @@ R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel)
 
     llvm::ExecutionEngine *EE = llvm::EngineBuilder(
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
-                                  std::unique_ptr<llvm::Module>(module)
+                                      std::unique_ptr<llvm::Module>(module)  // XXX
 #else
                                    module
 #endif
-        ).create() /* .setErrorStr(&errStr).setEngineKind(llvm::EngineKind::JIT).setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]).create() */;
+        ).setErrorStr(&errStr).setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]).create(); // setEngineKind(llvm::EngineKind::JIT).
     if(!EE) {
         PROBLEM "failed to create execution engine: %s", errStr.c_str()
             ERROR;
@@ -149,9 +157,13 @@ R_ExecutionEngine_addModule(SEXP r_execEngine, SEXP r_mods)
     llvm::Module *m;
     for(int i = 0 ; i < Rf_length(r_mods); i++) {
         m = GET_REF(VECTOR_ELT(r_mods, i), Module);
+//XXXX FIX THIS unique_ptr here.
+//        std::unique_ptr<llvm::Module> tmp(m);
+//        std::unique_ptr<llvm::Module> tmp = std::unique_ptr<llvm::Module>(m);
+//        tmp.release();
         ee->addModule(
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
-                       std::unique_ptr<llvm::Module>(m)
+            std::unique_ptr<llvm::Module>(m)
 #else
                        m
 #endif
