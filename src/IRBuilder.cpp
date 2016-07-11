@@ -830,7 +830,9 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
         std::unique_ptr<llvm::Module> tmp;
         tmp = llvm::parseIRFile(fn, err, *context);
         mod = tmp.get();
-        tmp.reset(NULL);
+        tmp.release();
+//        tmp.reset(NULL);
+        
         // mod = llvm::parseIRFile(fn, err, *context).get();
 #else
         mod = llvm::ParseIRFile(fn, err, *context);
