@@ -13,7 +13,7 @@ extern "C"
 SEXP
 R_setRLLVMTypes(SEXP r_type_ptrs, SEXP r_ids)
 {
-  int i;
+  unsigned int i;
   if(Rf_length(r_type_ptrs) != sizeof(rLLVMTypes)/sizeof(rLLVMTypes[0])) {
       PROBLEM "error in the number of the C and R types for referring to SEXP types"
           ERROR;
@@ -30,7 +30,7 @@ int
 isSEXPType(const llvm::Type *ty)
 {
   int ans = -1;
-  for(int i = 0; i < sizeof(rLLVMTypes)/sizeof(rLLVMTypes[0]); i++) {
+  for(unsigned int i = 0; i < sizeof(rLLVMTypes)/sizeof(rLLVMTypes[0]); i++) {
 	if(ty == rLLVMTypes[i].type) {
            return(rLLVMTypes[i].sexpType);
 	}
