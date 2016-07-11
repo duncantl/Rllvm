@@ -28,7 +28,8 @@ names(m)
 #
 # read into an existing module
 
-m = Module("bob")
-parseAssembly(tt, m, asText = TRUE)
-showModule(m)
+mod = Module("bob")
+mod = parseAssembly(tt, mod, asText = TRUE)
+showModule(mod)
+stopifnot(length(names(mod)) >  0)  # XXX Currently failing
 
