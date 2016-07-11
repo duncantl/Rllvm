@@ -1,8 +1,7 @@
 getTypeDefs =
-function(namespace)
+function()
 {
    types = .Call("R_getTypeDefinitions")
-#   typeClass = getClass("Type", .Force = TRUE, where = namespace)
    names(types) = c("Void", "Label", "Float", "Double", "Int1", "Int8", "Int16", 
                      "Int32", "Int64", "FloatPtr", "DoublePtr", "Int32Ptr", "String")
 
@@ -18,7 +17,7 @@ function(...)
      InitializeNativeTarget()
     
   e = getNamespace("Rllvm")
-  types = getTypeDefs(e)
+  types = getTypeDefs()
  
   mapply(utils::assignInNamespace,
          paste(names(types), "Type", sep = ""),
