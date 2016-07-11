@@ -1,5 +1,6 @@
 library(RLLVMCompile)
 
+if(FALSE) {
 fib1 =
 function(n)
 {
@@ -13,10 +14,15 @@ function(n)
 }
 
 fc = compileFunction(fib1, Int32Type, Int32Type)
+} else {
+  m = parseIR(system.file("IR", "fib.ll", package = "Rllvm"))
+  fc = m$fib
+}
+
+
 bb = getBlocks(fc)
 
 getParent(bb[[1]]) # same as fc.
-
 ins = getBlockInstructions(bb[[1]])
 
 getParent(ins[[1]])
