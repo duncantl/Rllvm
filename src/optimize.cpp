@@ -68,7 +68,12 @@ extern "C"
 SEXP
 R_optimizeFunction(SEXP r_func, SEXP r_passMgr)
 {
+#if LLVM_VERSION ==3 && (LLVM_MINOR_VERSION == 8 || LLVM_MINOR_VERSION == 7)
+  llvm::legacy::FunctionPassManager *mgr = GET_REF(r_passMgr, legacy::FunctionPassManager);
+#else
   llvm::FunctionPassManager *mgr = GET_REF(r_passMgr, FunctionPassManager);
+#endif
+
   llvm::Function *func = GET_REF(r_func, Function);
   mgr->run(*func);
   return(ScalarLogical(TRUE));

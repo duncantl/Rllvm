@@ -104,7 +104,7 @@ SEXP
 R_TargetLibraryInfo_new(SEXP r_triple)
 {
 //    std::string triple(CHAR(STRING_ELT(r_triple, 0)));
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 7
     llvm::Triple triple(CHAR(STRING_ELT(r_triple, 0)));
     llvm::TargetLibraryInfo *ans = new llvm::TargetLibraryInfo(triple);
     return(R_createRef(ans, "TargetLibraryInfo"));

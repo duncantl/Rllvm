@@ -217,7 +217,7 @@ R_showModule(SEXP r_module, SEXP asString)
     verifyModule(*Mod); //XXX Check
 #endif
 
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8 
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 7 
     llvm::PassManager PM;
 #else
     // llvm::PassManager<llvm::Module> PM;
@@ -564,9 +564,9 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
     return(R_createRef(ans, "Module"));    
 #else
 //XXX CHECK!
-#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION == 8
+#if LLVM_VERSION ==3 && (LLVM_MINOR_VERSION == 8 || LLVM_MINOR_VERSION == 7)
     llvm::ErrorOr<std::unique_ptr<llvm::Module>> err = llvm::parseBitcodeFile(buf->getMemBufferRef(), *context);
-#elif LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 6
+#elif LLVM_VERSION ==3 && LLVM_MINOR_VERSION == 6
     llvm::ErrorOr<llvm::Module *> err =  llvm::parseBitcodeFile(buf->getMemBufferRef(), *context);
 #else
     llvm::ErrorOr<llvm::Module *> err =  llvm::parseBitcodeFile(buf, *context);

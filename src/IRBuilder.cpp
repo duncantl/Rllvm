@@ -518,7 +518,7 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
         llvm::TerminatorInst *inst = block->getTerminator();
         if(inst) {
             //XXX check 3.8
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION == 8
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5 // == 8
             llvm::BasicBlock::InstListType &insList = block->getInstList();
             insList.insert(insList.begin(), ans);
 #else
