@@ -64,3 +64,16 @@ printInt(int i)
 {
     REprintf("%d\n", i);
 }
+
+
+
+
+/*
+ We don't seem to be able to use getNativeSymbolInfo("Rf_duplicate") anymore.
+ */
+extern "C"
+SEXP
+Rllvm_Rf_duplicate(SEXP x)
+{
+    return(Rf_duplicate(x));
+}
