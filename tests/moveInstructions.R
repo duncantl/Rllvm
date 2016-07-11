@@ -15,16 +15,16 @@ l2 = ir$createLoad(j)
 
 
 ir$createReturn()
-showModule(m)
+print(showModule(m))
 
 moveBefore(l1, j)
-showModule(m)
+print(showModule(m))
 
 insertBefore(j, i)
-showModule(m)
+print(showModule(m))
 
 insertAfter(j, i)
-showModule(m)
+print(showModule(m))
 
 
 

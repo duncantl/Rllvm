@@ -63,6 +63,9 @@ run(fun, "abc")
 run(fun, "abcdefghij")
 </r:code>
 
+<r:code>
+run(fun, paste(rep(letters, 10000), collapse = "."))
+</r:code>
 
 </para>
 

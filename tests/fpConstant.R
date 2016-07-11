@@ -12,3 +12,4 @@ k = createDoubleConstant(.5)
 ir$createRet(k)
 
 showModule(mod)
+.llvm(fun)
