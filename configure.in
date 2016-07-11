@@ -100,22 +100,39 @@ dnl ############################################################################
 
 
 
+
+if test -z "$FFI_LIB" ; then
 # pkgconfig
 # 
-AC_PATH_PROG(PKG_CONFIG, pkg-config)
+   AC_PATH_PROG(PKG_CONFIG, pkg-config)
 
-if test -r /usr/local/lib/libffi.a ; then
-  FFI_LIB="-L/usr/local/lib -lffi"
-fi
+  if test -r /usr/local/lib/libffi.a ; then
+    FFI_LIB="-L/usr/local/lib -lffi"
+  fi
 
-if test -n "$PKG_CONFIG" ; then
-  TMP=`$PKG_CONFIG --libs libffi`
-  if test "$?" = 0 ; then
-    echo "found libffi via pkg-config"
-    FFI_LIB=$TMP
+  if test -n "$PKG_CONFIG" ; then
+     TMP=`$PKG_CONFIG --libs libffi`
+     if test "$?" = 0 ; then
+        echo "found libffi via pkg-config"
+        FFI_LIB=$TMP
+     fi
+  fi
+else
+echo "FFI_LIB set $FFI_LIB"
+  if test -d "$FFI_LIB" ; then
+     if test -r "$FFI_LIB/libffi.a" ; then
+        echo "Found libffi in $FFI_LIB"
+        FFI_LIB="-L$FFI_LIB -lffi"
+     else
+        echo "Cannot find libffi.a in $FFI_LIB"
+     fi
+  else
+    TMP=`echo "$FFI_LIB" | cut -c -1-2`
+    if ! test "$TMP" = "-L" ; then
+      echo "****** $FFI_LIB is set but is not a directory and does not start with -L. This may cause problems!"
+    fi
   fi
 fi
-
 
 
 AC_SUBST(FFI_LIB)
