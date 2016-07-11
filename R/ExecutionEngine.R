@@ -158,3 +158,14 @@ function(exeEng, val)
 {
   .Call("R_ExecutionEngine_setVerifyModules", exeEng, as.logical(val))
 }
+
+
+
+finalizeEngine =
+function(engine)
+{
+   if(!is(engine, "ExecutionEngine"))
+     stop("can only finalize an ExecutionEngine")
+   
+  .Call("R_ExecutionEngine_finalize", engine)
+}
