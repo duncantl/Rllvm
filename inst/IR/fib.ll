@@ -1,67 +1,73 @@
 ; ModuleID = 'fib.c'
-target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:64-s0:64:64-f80:128:128-n8:16:32:64-S128"
-target triple = "x86_64-apple-macosx10.7.0"
+target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-apple-macosx10.11.0"
 
+; Function Attrs: nounwind ssp uwtable
 define i32 @fib(i32 %n) #0 {
-entry:
-  %n.addr = alloca i32, align 4
-  store i32 %n, i32* %n.addr, align 4
-  %0 = load i32* %n.addr, align 4
-  %cmp = icmp slt i32 %0, 2
-  br i1 %cmp, label %cond.true, label %cond.false
+  %1 = alloca i32, align 4
+  store i32 %n, i32* %1, align 4
+  %2 = load i32, i32* %1, align 4
+  %3 = icmp slt i32 %2, 2
+  br i1 %3, label %4, label %6
 
-cond.true:                                        ; preds = %entry
-  %1 = load i32* %n.addr, align 4
-  br label %cond.end
+; <label>:4                                       ; preds = %0
+  %5 = load i32, i32* %1, align 4
+  br label %14
 
-cond.false:                                       ; preds = %entry
-  %2 = load i32* %n.addr, align 4
-  %sub = sub nsw i32 %2, 1
-  %call = call i32 @fib(i32 %sub)
-  %3 = load i32* %n.addr, align 4
-  %sub1 = sub nsw i32 %3, 2
-  %call2 = call i32 @fib(i32 %sub1)
-  %add = add nsw i32 %call, %call2
-  br label %cond.end
+; <label>:6                                       ; preds = %0
+  %7 = load i32, i32* %1, align 4
+  %8 = sub nsw i32 %7, 1
+  %9 = call i32 @fib(i32 %8)
+  %10 = load i32, i32* %1, align 4
+  %11 = sub nsw i32 %10, 2
+  %12 = call i32 @fib(i32 %11)
+  %13 = add nsw i32 %9, %12
+  br label %14
 
-cond.end:                                         ; preds = %cond.false, %cond.true
-  %cond = phi i32 [ %1, %cond.true ], [ %add, %cond.false ]
-  ret i32 %cond
+; <label>:14                                      ; preds = %6, %4
+  %15 = phi i32 [ %5, %4 ], [ %13, %6 ]
+  ret i32 %15
 }
 
+; Function Attrs: nounwind ssp uwtable
 define i32 @fib1(i32 %n) #0 {
-entry:
-  %retval = alloca i32, align 4
-  %n.addr = alloca i32, align 4
-  store i32 %n, i32* %n.addr, align 4
-  %0 = load i32* %n.addr, align 4
-  %cmp = icmp eq i32 %0, 0
-  br i1 %cmp, label %if.then, label %lor.lhs.false
+  %1 = alloca i32, align 4
+  %2 = alloca i32, align 4
+  store i32 %n, i32* %2, align 4
+  %3 = load i32, i32* %2, align 4
+  %4 = icmp eq i32 %3, 0
+  br i1 %4, label %8, label %5
 
-lor.lhs.false:                                    ; preds = %entry
-  %1 = load i32* %n.addr, align 4
-  %cmp1 = icmp eq i32 %1, 1
-  br i1 %cmp1, label %if.then, label %if.end
+; <label>:5                                       ; preds = %0
+  %6 = load i32, i32* %2, align 4
+  %7 = icmp eq i32 %6, 1
+  br i1 %7, label %8, label %10
 
-if.then:                                          ; preds = %lor.lhs.false, %entry
-  %2 = load i32* %n.addr, align 4
-  store i32 %2, i32* %retval
-  br label %return
+; <label>:8                                       ; preds = %5, %0
+  %9 = load i32, i32* %2, align 4
+  store i32 %9, i32* %1, align 4
+  br label %18
 
-if.end:                                           ; preds = %lor.lhs.false
-  %3 = load i32* %n.addr, align 4
-  %sub = sub nsw i32 %3, 1
-  %call = call i32 @fib1(i32 %sub)
-  %4 = load i32* %n.addr, align 4
-  %sub2 = sub nsw i32 %4, 2
-  %call3 = call i32 @fib1(i32 %sub2)
-  %add = add nsw i32 %call, %call3
-  store i32 %add, i32* %retval
-  br label %return
+; <label>:10                                      ; preds = %5
+  %11 = load i32, i32* %2, align 4
+  %12 = sub nsw i32 %11, 1
+  %13 = call i32 @fib1(i32 %12)
+  %14 = load i32, i32* %2, align 4
+  %15 = sub nsw i32 %14, 2
+  %16 = call i32 @fib1(i32 %15)
+  %17 = add nsw i32 %13, %16
+  store i32 %17, i32* %1, align 4
+  br label %18
 
-return:                                           ; preds = %if.end, %if.then
-  %5 = load i32* %retval
-  ret i32 %5
+; <label>:18                                      ; preds = %10, %8
+  %19 = load i32, i32* %1, align 4
+  ret i32 %19
 }
 
-attributes #0 = { nounwind ssp uwtable "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf"="true" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #0 = { nounwind ssp uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="core2" "target-features"="+cx16,+fxsr,+mmx,+sse,+sse2,+sse3,+ssse3" "unsafe-fp-math"="false" "use-soft-float"="false" }
+
+!llvm.module.flags = !{!0}
+!llvm.ident = !{!1}
+
+!0 = !{i32 1, !"PIC Level", i32 2}
+!1 = !{!"clang version 3.8.0 (tags/RELEASE_380/final)"}
