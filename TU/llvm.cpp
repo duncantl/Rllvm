@@ -10,4 +10,8 @@
 
 #include <llvm/IR/Type.h>
 
+#include <llvm/IR/PassManager.h>
+
+#include <llvm/Passes/PassBuilder.h>
+
 
