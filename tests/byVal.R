@@ -1,3 +1,5 @@
+# This illustrates creating a routine that is called with 2 structures passed by value not as pointers to a struct instance.
+
 library(Rllvm)
 
 mod = Module()
