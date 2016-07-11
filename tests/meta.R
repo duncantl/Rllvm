@@ -1,9 +1,15 @@
 library(Rllvm)
 m = Module()
 
-setMetadata(m, "foo", 1L)
+#setMetadata(m, "foo", 1L)
 setMetadata(m, "bar", 3.1415)
 setMetadata(m, "str", "a string")
+
+# Fails with a cast error.
+#  !0 = !{Assertion failed: (isa<X>(Val) && "cast<Ty>() argument of incompatible type!"), function cast, file /Users/duncan/LLVM3.8/llvm-3.8.0.src/include/llvm/Support/Casting.h, line 237.
+# But it happens with either foo or bar, but not for str.
+showModule(m)
+
 
 all.nmd = getMetadata(m)
 
