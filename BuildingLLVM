@@ -21,3 +21,14 @@ to point to the fully qualified paths to gcc and g++, respectively, e.g.
   export CXX=$HOME/local/bin/g++
 
 Then re-run the configuration script for LLVM.
+
+
+
+
+An alternative description of how to build LLVM is available  
+(http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html)[http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html]
+
+
+
+In order to be able to invoke existing routines that we do not create within our own modules, LLVM
+needs to be compiled  with support for libffi - the foreign function interface.
