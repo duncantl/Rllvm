@@ -9,8 +9,7 @@ setGeneric("getType",
 
 setMethod("getType", "Value",
            function(obj, ...) {
-              ans = .Call("R_Value_getType", obj)
-              ans
+              .Call("R_Value_getType", obj)
         })
 
 
