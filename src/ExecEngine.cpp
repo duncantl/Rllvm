@@ -238,3 +238,16 @@ R_ExecutionEngine_getGlobalValue(SEXP r_gv, SEXP r_convert)
     return(convertGenericValueToR(gval->getUnderlyingObject(), gval->getType()));
 }
 #endif
+
+
+
+
+/* finalize engine must be called before invoking code compiled with MC Jit */
+extern "C"
+SEXP
+R_ExecutionEngine_finalize(SEXP r_ee)
+{
+   llvm::ExecutionEngine *EE = GET_REF(r_ee, ExecutionEngine);
+   EE->finalizeObject();
+   return(R_NilValue);
+}
