@@ -7,6 +7,7 @@ function(.name, retType = VoidType, ..., .types = list(...), mod = Module(),
    fun = Function(.name, retType, .types, module = mod)
    
    ir = IRBuilder(b <- Block(fun))
+   vars = NULL
    
    if(length(.types)) {
       parms = getParameters(fun)
@@ -16,8 +17,7 @@ function(.name, retType = VoidType, ..., .types = list(...), mod = Module(),
                          ir$createStore(param, var)
                          var
                        }, .types, names(.types), parms)
-   } else
-     vars = NULL
+   } 
    
    list(ir = ir, params = parms, vars = vars, module = mod, fun = fun, block = b)
 }
