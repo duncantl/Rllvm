@@ -74,7 +74,9 @@ setMethod("getOperands", "MDNode",
             .Call("R_MDNode_getOperands", x))
 
 
-
+setMethod("getName", "NamedMDNode",
+           function(obj, ...)
+            .Call("R_NamedMDNode_getName", obj))
 
 setMethod("getNumOperands", "NamedMDNode",
            function(x, ...)
