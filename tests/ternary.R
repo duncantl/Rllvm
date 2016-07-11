@@ -4,7 +4,7 @@ fun = Function("foo", Int32Type, list(n = Int32Type), module = m)
 ir = IRBuilder(Block(fun))
 
 #
-#
+# Return 1 if n < 3, otherwise 100
 #
 
 
@@ -20,5 +20,8 @@ showModule(m)
 #     ir$createRet(s)
 # but that rewrites the code and removes the select.
 
+
+.llvm(fun, 1L)
+.llvm(fun, 4L)
 
 
