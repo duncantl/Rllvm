@@ -1,3 +1,9 @@
+To install LLVM, you can download a binary distribution from
+(http://llvm.org/releases/download.html)[http://llvm.org/releases/download.html].
+These are pre-built binaries that mostly work.
+
+# Building From Source
+
 We can build LLVM and clang from source.
 The instructions are available at, for example,
   http://clang.llvm.org/get_started.html
@@ -23,12 +29,16 @@ to point to the fully qualified paths to gcc and g++, respectively, e.g.
 Then re-run the configuration script for LLVM.
 
 
-
+# Alternative Instructions
 
 An alternative description of how to build LLVM is available  
 (http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html)[http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html]
 
 
+# Calling external routines and the Foreign Function Interface
 
 In order to be able to invoke existing routines that we do not create within our own modules, LLVM
 needs to be compiled  with support for libffi - the foreign function interface.
+
+
+Coincidentally, we have an R package that provides libffi in R - (Rffi)[http://www.omegahat.net/Rffi].
