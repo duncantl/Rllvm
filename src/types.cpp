@@ -82,6 +82,8 @@ R_pointerType(SEXP r_type, SEXP r_noClass, SEXP r_addrSpace)
 }
 
 
+
+// These two routines are essentially identical!
 extern "C"
 SEXP
 R_Type_getID(SEXP r_type)
@@ -89,6 +91,16 @@ R_Type_getID(SEXP r_type)
     llvm::Type *ty = GET_TYPE(r_type);
     return(ScalarInteger(ty->getTypeID()));
 }
+
+extern "C"
+SEXP
+R_Type_getTypeID(SEXP r_type)
+{
+    llvm::Type *ty = GET_TYPE(r_type);
+    llvm::Type::TypeID id = ty->getTypeID();
+    return( ScalarInteger(id) );
+}
+
 
 extern "C"
 SEXP
@@ -113,14 +125,6 @@ R_Type_getDescription(SEXP r_type)
 #endif
 }
 
-extern "C"
-SEXP
-R_Type_getTypeID(SEXP r_type)
-{
-    llvm::Type *ty = GET_TYPE(r_type);
-    llvm::Type::TypeID id = ty->getTypeID();
-    return( ScalarInteger(id) );
-}
 
 extern "C"
 SEXP
