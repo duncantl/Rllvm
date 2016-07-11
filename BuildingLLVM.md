@@ -32,7 +32,7 @@ Then re-run the configuration script for LLVM.
 # Alternative Instructions
 
 An alternative description of how to build LLVM is available  
-(http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html)[http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html]
+[http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html](http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html)
 
 
 # Calling external routines and the Foreign Function Interface
@@ -41,4 +41,4 @@ In order to be able to invoke existing routines that we do not create within our
 needs to be compiled  with support for libffi - the foreign function interface.
 
 
-Coincidentally, we have an R package that provides libffi in R - (Rffi)[http://www.omegahat.net/Rffi].
+Coincidentally, we have an R package that provides libffi in R - [Rffi](http://www.omegahat.net/Rffi).
