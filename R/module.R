@@ -215,6 +215,7 @@ readBitcode =
 function(src, context = NULL)
 {
  # src = as.character(src)
+  src = path.expand(src)
   if(is.character(src) && !file.exists(src))
     stop("no file named ", src)
   .Call("R_ParseBitcodeFile", src, context, as)
