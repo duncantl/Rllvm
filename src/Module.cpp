@@ -419,13 +419,23 @@ R_ParseAssemblyString(SEXP r_str, SEXP r_module, SEXP r_context)
         module = NULL;
 
     const char *text = CHAR(STRING_ELT(r_str, 0));
+    bool ok = false;
+// Tidy this up to use if(err) and avoid ok.
 #if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 6
-    module = llvm::parseAssemblyString(text, /* module, */ err, *context).get();
+    if(module) {
+//        std::unique_ptr<llvm::MemoryBuffer> buf = llvm::MemoryBuffer::getMemBuffer(std::string(text));
+//        ok = llvm::parseAssemblyInto(buf->getMemBufferRef(), *module, err);
+        ok = ! llvm::parseAssemblyInto(llvm::MemoryBufferRef(std::string(text), std::string("dummy")), *module, err);
+    } else {
+        module = llvm::parseAssemblyString(text, /* module, */ err, *context).release();
+        ok = (module != NULL);
+    }
 #else
     module = llvm::ParseAssemblyString(text, module, err, *context);
+    ok = (module != NULL);
 #endif
-    if(!module) {
-        PROBLEM  "problem reading assembler code"
+    if(!ok) {
+        PROBLEM  "problem reading assembler code: (line %d, column %d)  %s", err.getLineNo(), err.getColumnNo(), err.getMessage().data()
             ERROR;
     }
     return(R_createRef(module, "Module"));
@@ -450,13 +460,15 @@ R_Module_CloneModule(SEXP r_module)
 {
     llvm::Module *module;
     module = GET_REF(r_module, Module); 
+
+    llvm::Module *ans ;
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
-    llvm::Module *ans = llvm::CloneModule(module);
-    return(R_createRef(ans, "Module"));
+    ans = llvm::CloneModule(module);
 #else
-    std::unique_ptr<llvm::Module> ans(llvm::CloneModule(module));
-    return(R_createRef(ans.get(), "Module"));
+    ans = llvm::CloneModule(module).release();
 #endif
+
+    return(R_createRef(ans, "Module"));
 }
 
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
@@ -563,9 +575,10 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
         PROBLEM "failed to read bitcode %s", err.getError().message().c_str()
          ERROR;
     }
-//    llvm::Module *ans = NULL;
-//    std::unique_ptr<llvm::Module> ans(err.get());
-    return(R_createRef((const void *) &(err.get()), "Module"));    
+    llvm::Module *mod = NULL;
+    mod = err.get().get();
+    err.get().release();
+    return(R_createRef((const void *) mod, "Module"));    
 #endif
 }
 
