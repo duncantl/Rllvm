@@ -259,8 +259,13 @@ SEXP
 R_Module_getDataLayoutRef(SEXP r_module)
 {
     llvm::Module *mod = GET_REF(r_module, Module);
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 6
     const llvm::DataLayout dl = mod->getDataLayout();
     return(R_createRef(&dl, "DataLayout"));    
+#else
+    const llvm::DataLayout *dl = mod->getDataLayout();
+    return(R_createRef(dl, "DataLayout"));    
+#endif
 }
 
 extern "C"
