@@ -49,6 +49,8 @@ include files (*inc*) are to be found and to specify the version number of
 LLVM (*version*).  This then reads the relevant header files (via the llvm.cpp
 file in the TU/ directory) and extracts the enumerated constants.
 
+The code doesn't automatically generate the z_enumDefs...R file. This is to avoid
+overwriting the existing code. Instead, one has to explicitly chose to create the code.
 In order to have the R file generate the z_enumDefs....R file, set the option 
 `writeEnums` to `TRUE`
 ```
