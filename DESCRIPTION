@@ -55,3 +55,4 @@ Collate: llvmVersion.R classDefs.R manual_generics.R BinaryOpEnums.R
          phi.R
          datalayout.R
          DIBuilder.R
+         procEnumValues.R

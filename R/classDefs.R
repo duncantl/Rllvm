@@ -25,6 +25,14 @@ setClass("Value", contains = "RC++Reference")
 setClass("BasicBlock", contains = "Value")
 
 
+setClass("DIBuilder", contains = "RC++Reference")
+setClass("DICompileUnit", contains = "RC++Reference")
+setClass("DISubprogram", contains = "RC++Reference")
+setClass("DIType", contains = "RC++Reference")
+setClass("DISubroutineType", contains = "RC++Reference")
+
+
+
 setAs("Value", "character",
         function(from)
             .Call("R_Value_print", from))

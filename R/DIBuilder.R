@@ -51,7 +51,7 @@ function(builder,baseType, name)
 debugSetLocation = 
 function(builder, func, lineNo, colNo)
 {
-  .Call("R_IRBuilder_SetLocation", as(builder, "DIBuilder"), func, as.integer(lineNo), as.integer(colNo))
+  .Call("R_IRBuilder_SetLocation", as(builder, "IRBuilder"), func, as.integer(lineNo), as.integer(colNo))
 }
 
 

@@ -496,3 +496,13 @@ export(setIncomingBlock, addIncoming, getBasicBlockIndex, getIncomingValueForBlo
 # DataLayout
 export(isLittleEndian, getPointerSize, getStackAlignment, getPointerTypeSize, getTypeAllocSize, getABITypeAlignment)
 
+
+
+# These function names are likely to change.
+export(DIBuilder, finalizeDIBuilder, newDebugCompileUnit, newDebugFunction, newDebugLocalVariable, newDebugBasicType, newDebugFunctionType, newDebugPointerType, debugSetLocation)
+
+exportClasses(DIBuilder, DICompileUnit, DISubprogram, DIType, DISubroutineType)
+
+export(finalizeEngine)
+
+
