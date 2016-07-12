@@ -7,6 +7,12 @@
 <items>
 
 <item>
+Some of the enums exceed the maximum integer size. Change how we generate the code to recognize this and leave them as
+numeric.  Change code that expects an integer to check and deal with the potentially larger values, i.e. don't convert
+to int.
+</item>
+
+<item>
 accessor for a BranchInst object to be able to get the target block.
 </item>
 
