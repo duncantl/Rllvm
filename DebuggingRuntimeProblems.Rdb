@@ -1,0 +1,98 @@
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:c="http://www.C.org"
+	 xmlns:omg="http://www.omegahat.org"
+	 xmlns:sh="http://www.shell.org">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Data Science Initiative</orgdiv>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+The problem is quite simple. We compile against
+LLVM 3.6, 3.7 or 3.8 and we cannot invoke 
+<r:func>.llvm</r:func> to call a routine we create via <r:pkg>Rllvm</r:pkg>.
+There are so many layers in between the creation of the routine and invoking it.
+To debug this, we first copy one of the examples in the LLVM source -
+examples/HowToUseJIT/HowToJuseJIT.cpp.
+We put this in its own directory, change the name of the routine <c:routine>main</c:routine>
+to <c:routine>do_llvm_main</c:routine>.
+Then we create a shared library using 
+<sh:code>
+R CMD SHLIB eg_from_llvm.cpp  -o foo.so
+</sh:code>
+Next we run <r/> and load the shared library
+<r:code>
+dyn.load("foo.so")
+</r:code>
+Then we call the routine:
+<r:code>
+.C("do_llvm_main")
+</r:code>
+This produces
+<r:output><![CDATA[
+We just constructed this LLVM module:
+
+; ModuleID = 'test'
+
+define i32 @add1(i32 %AnArg) {
+EntryBlock:
+  %0 = add i32 1, %AnArg
+  ret i32 %0
+}
+
+define i32 @foo() {
+EntryBlock:
+  %0 = tail call i32 @add1(i32 10)
+  ret i32 %0
+}
+
+
+Running foo: Result: 11
+list()
+]]></r:output>
+So all well works as expected.
+</para>
+<para>
+Importantly, the compilation and link details are in the <file>Makevars</file> file
+<programlisting><![CDATA[
+LLVM_CONFIG=/usr/local/bin/llvm-config
+
+PKG_CPPFLAGS= -DLLVM_VERSION=3 -DLLVM_MINOR_VERSION=8 -DLLVM_VERSION_NUMER=3.8.0 -DNEW_LLVM_ATTRIBUTES_SETUP=1 -DLLVM_DATALAYOUT_H_IN_IR=1
+PKG_CXXFLAGS= $(shell $(LLVM_CONFIG) --cxxflags | sed -e 's/-O[0-9]//g') 
+ALL_LIBS:= $(shell $(LLVM_CONFIG) --ldflags) $(ALL_LIBS)
+PKG_LIBS=$(shell $(LLVM_CONFIG) --ldflags --libs --system-libs) -lstdc++
+SHLIB_CXXLDFLAGS:=$(shell $(LLVM_CONFIG) --ldflags) $(SHLIB_CXXLDFLAGS)
+]]></programlisting>
+This is copied from the <omg:pkg>Rllvm</omg:pkg> package. So this is the same as the compilation and linking we use for
+the package. However, when we include this <file>eg_from_llvm.cpp</file> in that package and then invoke that routine
+(with no initialization), we get an error.
+<r:output><![CDATA[
+Running foo: LLVM ERROR: Target does not support MC emission!
+]]></r:output>
+We see the contents of the Module on the screen as we do above, but invoking the routine fails!
+What is the difference between this as a stand-alone shared library and the <omg:pkg>Rllvm</omg:pkg>package?
+</para>
+
+
+<para>
+Do we initialize the package differently? We want to be able to compare the shared library
+in the <omg:pkg>Rllvm</omg:pkg>
+</para>
+
+
+</section>
+
+
+</article>
