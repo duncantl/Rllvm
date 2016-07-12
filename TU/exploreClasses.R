@@ -1,5 +1,6 @@
 # Source
-klasses = getCppClasses(tu)
+source("clang_new.R")
+k = klasses = getCppClasses(tu)
 
 #Instruction classes
 grep("Inst$", names(k), value = TRUE)
