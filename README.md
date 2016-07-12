@@ -7,4 +7,4 @@ efficiently optimize.
 
 
 For examples, see the
-[RLLVM page on Omegahat](http://www.omegahat.org/Rllvm/).
+[RLLVM page on Omegahat](http://www.omegahat.net/Rllvm/).
