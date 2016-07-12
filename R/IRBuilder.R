@@ -448,13 +448,6 @@ function(builder, vec, elt, idx)
 }
 
 
-createPHI =
-function(builder, type, numReservedVals)
-{
-   .Call("R_IRBuilder_CreatePHI", builder, type, as.integer(numReservedVals))
-}
-
-
 
 if(FALSE) {
 # Old version < 3.4
