@@ -6,9 +6,9 @@ You can also compile LLVM from source. See (BuildingLLVM.md).
 The configuration script needs to find the llvm-config executable.
 There are three ways to specify this:
  1. Use `--configure-args='--with-llvm-config=/path/to/llvm-config'` in the call to `R CMD INSTALL ... Rllvm`
- 1. Add the directory containing llvm-config to your PATH environment variable.
+ 1. Add the directory containing `llvm-config` to your **PATH** environment variable.
  2. Alternatively, set the environment LLVM_CONFIG to the fully-qualified name of the llvm-config
-  executable  (including llvm-config at the end so that $LLVM_CONFIG refers to the executable, not the directory).
+  executable  (including llvm-config at the end so that **$LLVM_CONFIG** refers to the executable, not the directory).
 
 
 # FFI
