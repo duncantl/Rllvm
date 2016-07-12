@@ -10,6 +10,8 @@ There are three ways to specify this:
  2. Alternatively, set the environment LLVM_CONFIG to the fully-qualified name of the llvm-config
   executable  (including llvm-config at the end so that **$LLVM_CONFIG** refers to the executable, not the directory).
 
+This allows you to specify the location across multiple calls (3) but not in your path,
+or to specify it for one installation (1), or "permanently" via (2).
 
 # FFI
 Your version of LLVM may use the foreign function interface (FFI) library, but is not explicitly linked  to it.
