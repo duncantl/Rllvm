@@ -40,8 +40,13 @@ extern "C"
 SEXP
 R_DataLayout_getStackAlignment(SEXP r_datalayout)
 {
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
     llvm::DataLayout *dl = GET_REF(r_datalayout, DataLayout);
     return ( ScalarInteger( dl->getStackAlignment() ));
+#else
+    PROBLEM "not implemented for this version of LLVM"
+        ERROR;
+#endif
 }
 
 
