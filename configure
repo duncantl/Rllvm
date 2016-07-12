@@ -642,6 +642,7 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+with_llvm_config
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1255,6 +1256,11 @@ if test -n "$ac_init_help"; then
 
   cat <<\_ACEOF
 
+Optional Packages:
+  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-llvm-config            full path to executable for llvm-config
+
 Some influential environment variables:
   CXX         C++ compiler command
   CXXFLAGS    C++ compiler flags
@@ -1734,8 +1740,17 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-if test -z "${LLVM_CONFIG}" ; then
 
+
+# Check whether --with-llvm-config was given.
+if test "${with_llvm_config+set}" = set; then :
+  withval=$with_llvm_config; LLVM_CONFIG="${withval}"
+fi
+
+
+
+
+if test -z "${LLVM_CONFIG}" ; then
   # Extract the first word of "llvm-config", so it can be a program name with args.
 set dummy llvm-config; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -1774,7 +1789,6 @@ else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
 fi
-
 
 
   if test -z "${LLVM_CONFIG}" ; then

@@ -1,9 +1,12 @@
 AC_INIT(src/Rllvm.h)
 
-if test -z "${LLVM_CONFIG}" ; then
- 
-  AC_PATH_PROG(LLVM_CONFIG, llvm-config)
 
+AC_ARG_WITH(llvm-config, [  --with-llvm-config            full path to executable for llvm-config], LLVM_CONFIG="${withval}")
+
+
+
+if test -z "${LLVM_CONFIG}" ; then
+  AC_PATH_PROG(LLVM_CONFIG, llvm-config)
   if test -z "${LLVM_CONFIG}" ; then
     echo "cannot find llvm-config in your path. Make certain it is installed and in your path"
     exit 1;
