@@ -23,3 +23,37 @@ FFI_LIB in the form
 ```
 Alternatively, you can specify the value as a directory and the configure script will check if libffi.a 
 is available there and then expand the string to include the -L and -lffi parts.
+
+
+
+
+# New Versions of LLVM
+
+New releases of LLVM appear regularly. Often the C++ API in LLVM
+changes and so the C++ code in Rllvm/src won't compile with the new release.
+Typically, this requires a few hours to correct by adding conditional code to the C++ files
+to handle the previous and new APIs.
+
+Most importantly, when we introduce a new major version of LLVM (i.e. 3.9 from 3.8),
+it is *essential* to generate a new file (R/z_enumDefs_<major>.<minor>.R) that contains
+the enumerated constants from the LLVM header files.
+Using values from a different LLVM can lead to very hard to identify run-time errors.
+However, there is a built-in safety check. The files R/z_enumDefs_<major>.<minor>.R
+have code that is only enabled for the corresponding version of LLVM.
+This is determined at installation time, not run-time.
+
+To generate a new R/z_enum_efs....R file, we use the code in
+TU/clang_new.R. This requires the RCIndex package be installed. We need to
+to  modify the R code in clang_new.R to specify where the
+include files (*inc*) are to be found and to specify the version number of
+LLVM (*version*).  This then reads the relevant header files (via the llvm.cpp
+file in the TU/ directory) and extracts the enumerated constants.
+
+In order to have the R file generate the z_enumDefs....R file, set the option 
+`writeEnums` to `TRUE`
+```
+options(writeEnums = TRUE)
+```
+
+Run this code from within the TU/ directory.
+
