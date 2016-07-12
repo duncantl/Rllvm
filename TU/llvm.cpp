@@ -14,4 +14,6 @@
 
 #include <llvm/Passes/PassBuilder.h>
 
+#include <llvm/Support/Dwarf.h>
+
 
