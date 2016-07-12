@@ -1,8 +1,12 @@
 #include "Rllvm.h"
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
+
 #if LLVM_VERSION <= 3 && LLVM_MINOR_VERSION < 6
 #include <llvm/ExecutionEngine/JIT.h>
+#else
+#include "llvm/ExecutionEngine/Interpreter.h"
+//#include <llvm/ExecutionEngine/MCJIT.h>
 #endif
 
 // Don't do this for LLVM 3.8
@@ -19,7 +23,6 @@
 #else
 #include <llvm/Support/TargetSelect.h>
 #endif
-
 
 
 #include "llvm/Support/DynamicLibrary.h"
