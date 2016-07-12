@@ -1,6 +1,6 @@
 To install the Rllvm package, you need to have installed LLVM itself.
 You can download prebuilt binary distributions for this from the LLVM Web site.
-You can also compile LLVM from source. See (BuildingLLVM.md).
+You can also compile LLVM from source. See [BuildingLLVM.md](BuildingLLVM.md).
 
 # Finding LLVM 
 The configuration script needs to find the llvm-config executable.
@@ -14,7 +14,7 @@ This allows you to specify the location across multiple calls (3) but not in you
 or to specify it for one installation (1), or "permanently" via (2).
 
 # FFI
-Your version of LLVM may use the foreign function interface (FFI) library, but is not explicitly linked  to it.
+Your version of LLVM may (and should) use the foreign function interface (FFI) library, but is not explicitly linked  to it.
 The configuration script will attempt to locate libffi.a/.dylib/.so.   It uses pkg-config, if that is available.
 If the libffi library is in a non-standard location, you can specify it by setting the environment variable
 FFI_LIB in the form
