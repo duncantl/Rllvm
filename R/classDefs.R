@@ -17,15 +17,8 @@ setClass("raw_fd_ostream", contains = "raw_ostream")
 setClass("raw_string_ostream", contains = "raw_ostream")
 setClass("formatted_raw_ostream", contains = "raw_ostream")
 setClass("raw_svector_ostream", contains = "raw_ostream")
-setAs("raw_svector_ostream", "character",
-       function(from) {
-           .Call("R_raw_svector_ostream_as_character", from)
-       })
-raw_svector_ostream =
-function(len = 1000L)
-{
-    .Call("R_raw_svector_ostream")
-}
+
+
 
 setClass("Module", contains = "RC++Reference")
 setClass("IRBuilder", contains = "RC++Reference")
