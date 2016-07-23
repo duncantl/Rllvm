@@ -506,3 +506,10 @@ exportClasses(DIBuilder, DICompileUnit, DISubprogram, DIType, DISubroutineType)
 export(finalizeEngine)
 
 
+
+
+exportClass("RFunctionJITEventListener", "ObjectFile", "LoadObjectInfo")
+
+export(getHostCPUFeatures, getHostCPUName)
+exportClasses("raw_svector_ostream")
+export(raw_svector_ostream)
