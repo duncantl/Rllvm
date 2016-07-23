@@ -1,3 +1,6 @@
+#ifndef R_LLVM_H
+#define R_LLVM_H 1
+
 #if LLVM_VERSION >=3 && LLVM_MINOR_VERSION >= 3
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -119,3 +122,7 @@ SEXP R_getFunctionAttributes_logical(llvm::Attributes attr);
 #endif
 
 #endif
+
+
+#endif // #define R_LLVM_H
+
