@@ -340,7 +340,7 @@ exportMethods(getDataLayout, setDataLayout)
 
 
 export(addPass)
-export(passManager)
+export(passManager, functionPassManager)
 
 export(llvmVersion)
 
