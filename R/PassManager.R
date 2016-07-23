@@ -4,9 +4,14 @@ function(mgr, pass)
   .Call("R_PassManagerBase_Add", mgr, pass)
 }
 
+functionPassManager = 
+function(module)
+{
+    passManager(module, TRUE)
+}
 
 passManager =
-function(module, functionManager = !missing(module))
+function(module, functionManager = FALSE)  # !missing(module))
 {
   .Call("R_PassManager_new", module, as.logical(functionManager))
 }
