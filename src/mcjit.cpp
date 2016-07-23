@@ -20,9 +20,13 @@ R_runModule(SEXP r_module, SEXP r_args)
 
     llvm::Module *m = GET_REF(r_module, Module);
 
-    llvm::ExecutionEngine *ee;
+    llvm::ExecutionEngine *ee = NULL;
 //    std::unique_ptr<llvm::Module> mod(m);
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
     ee = llvm::EngineBuilder(std::unique_ptr<llvm::Module>(m)).create();
+#else
+    ee = llvm::EngineBuilder(m).create();
+#endif
 //    mod.release();
 //    ee->reset();
     Fun f = NULL;

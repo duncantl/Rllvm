@@ -1,3 +1,5 @@
+#if !( LLVM_VERSION <= 3 && LLVM_MINOR_VERSION < 7 )
+
 #include "Rllvm.h"
 
 #if LLVM_VERSION <= 3 && LLVM_MINOR_VERSION < 2
@@ -223,3 +225,6 @@ R_IRBuilder_SetLocation(SEXP r_builder, SEXP r_func, SEXP r_lineNo, SEXP r_colNo
 
     return(R_NilValue);
 } 
+
+
+#endif  // version > 3.5

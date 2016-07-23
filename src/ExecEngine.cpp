@@ -9,6 +9,7 @@
 #include <llvm/ExecutionEngine/MCJIT.h>
 #endif
 
+// WRONG:
 // Don't do this for LLVM 3.8
 // #include <llvm/ExecutionEngine/MCJIT.h>
 // It results in 
@@ -211,7 +212,7 @@ R_ExecutionEngine_FindFunctionNamed(SEXP r_execEngine, SEXP r_id)
 }
 
 
-#if LLVM_MAJOR_VERSION == 3 && LLVM_MINOR_VERSION > 4
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 4
 extern "C"
 SEXP
 R_ExecutionEngine_setVerifyModules(SEXP r_execEngine, SEXP r_val)

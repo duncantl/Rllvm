@@ -12,12 +12,17 @@ Or ? LLVMTargetMachineEmitToMemoryBuffer
 
 RFunctionJITEventListener::RFunctionJITEventListener(SEXP fun)
 {
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
     expr = Rf_allocVector(LANGSXP, 3);
+#else
+    expr = Rf_allocVector(LANGSXP, 4);
+#endif
     R_PreserveObject(expr);
     SETCAR(expr, fun);
 }
 
 
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
 void
 RFunctionJITEventListener::NotifyObjectEmitted(const llvm::object::ObjectFile &Obj,
                                                const llvm::RuntimeDyld::LoadedObjectInfo &L) 
@@ -27,8 +32,26 @@ RFunctionJITEventListener::NotifyObjectEmitted(const llvm::object::ObjectFile &O
     int error = 0;
     R_tryEval(expr, R_GlobalEnv, &error);
 }
-
-void RFunctionJITEventListener::NotifyFreeingObject(const llvm::object::ObjectFile &Obj) 
+#else
+void 
+    RFunctionJITEventListener::NotifyFunctionEmitted(const llvm::Function &fun,
+                                                     void *data, size_t len,
+                                                     const EmittedFunctionDetails &details) 
 {
+//XXX Not tested!
+    SEXP cur = CDR(expr);
+    SETCAR(cur, R_createRef(&fun, "Function", "native symbol"));
+    cur = CDR(cur);
+    SEXP raw;
+    SETCAR(cur, raw = NEW_RAW(len));
+    memcpy(RAW_POINTER(raw), data, len);
+    cur = CDR(cur);
+//XXX Need to define EmittedFunctionDetails class as a reference to a struct and then provide accessors for its elements.
+// It has a LineStart, MachineFunction* and a vector of LineStart elements.
+// Provide $ operator to access these.
+    SETCAR(cur, R_createRef(&details, "EmittedFunctionDetails", "native symbol"));
 
+    int error = 0;
+    R_tryEval(expr, R_GlobalEnv, &error);
 }
+#endif
