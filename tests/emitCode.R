@@ -1,15 +1,13 @@
+# Show the assembler code generated from the fibonacci module.
 library(Rllvm)
 
 mod = parseIR(system.file("IR", "fib.ll", package = "Rllvm"))
 pm = passManager(mod, FALSE)
 
-tri = getDefaultTargetTriple() 
-trgt = lookupTarget(tri)
-machine = createTargetMachine(trgt, tri, getHostCPUName())
+#tri = getDefaultTargetTriple() 
+#trgt = lookupTarget(tri)
+machine = createTargetMachine() # trgt, tri, getHostCPUName())
 
-
-#stream = rawStringOstream()
-#fstream = formattedRawOstream(stream)
 
 fstream = raw_svector_ostream()
 status = addPassesToEmitFile(machine, pm, fstream, 0L)

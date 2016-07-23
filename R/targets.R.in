@@ -34,7 +34,7 @@ function(triple)
 
 
 createTargetMachine =
-function(target, triple, cpu, features = "", options = list())
+function(target = lookupTarget(triple), triple = getDefaultTargetTriple(), cpu = getHostCPUName(), features = "", options = list())
 {
   .Call("R_Target_createTargetMachine", target, as.character(triple), as.character(cpu), as.character(features), options)
 }
