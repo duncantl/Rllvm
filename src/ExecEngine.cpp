@@ -5,8 +5,8 @@
 #if LLVM_VERSION <= 3 && LLVM_MINOR_VERSION < 6
 #include <llvm/ExecutionEngine/JIT.h>
 #else
-#include "llvm/ExecutionEngine/Interpreter.h"
-//#include <llvm/ExecutionEngine/MCJIT.h>
+// #include "llvm/ExecutionEngine/Interpreter.h"
+#include <llvm/ExecutionEngine/MCJIT.h>
 #endif
 
 // Don't do this for LLVM 3.8
@@ -34,7 +34,7 @@ R_InitializeNativeTarget()
     llvm::InitializeNativeTarget();
 
     // https://github.com/sampsyo/llvm-ei/issues/1
-    std::string ErrorStr;
+   std::string ErrorStr;
    llvm::sys::DynamicLibrary::LoadLibraryPermanently(0, &ErrorStr);
 
 }
@@ -114,7 +114,7 @@ R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel)
 #else
                                    module
 #endif
-        ).setErrorStr(&errStr).setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]).create(); // setEngineKind(llvm::EngineKind::JIT).
+        ).setErrorStr(&errStr).setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]).setEngineKind(llvm::EngineKind::JIT).create(); // setEngineKind(llvm::EngineKind::JIT).
     if(!EE) {
         PROBLEM "failed to create execution engine: %s", errStr.c_str()
             ERROR;
@@ -254,3 +254,35 @@ R_ExecutionEngine_finalize(SEXP r_ee)
    EE->finalizeObject();
    return(R_NilValue);
 }
+
+
+
+extern "C"
+SEXP
+R_ExecutionEngine_runStaticConstructorsDestructors(SEXP r_execEngine, SEXP r_isDtors)
+{
+    llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
+    ee->runStaticConstructorsDestructors(LOGICAL(r_isDtors)[0]);
+    return(R_NilValue);
+}
+
+
+#include "JITEventListener.h"
+
+extern "C"
+SEXP
+R_ExecutionEngine_RegisterJITEventListener(SEXP r_ee, SEXP r_listener)
+{
+    llvm::JITEventListener *listener;
+    if(TYPEOF(r_listener) == CLOSXP)
+        listener = new RFunctionJITEventListener(r_listener);
+    else
+        PROBLEM "not implemented yet"
+            ERROR;
+
+   llvm::ExecutionEngine *EE = GET_REF(r_ee, ExecutionEngine);
+   EE->RegisterJITEventListener(listener);
+   return(R_createRef(listener, "RFunctionJITEventListener", "native symbol"));
+}
+
+
