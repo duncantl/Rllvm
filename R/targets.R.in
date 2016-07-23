@@ -59,3 +59,17 @@ function(obj)
 {
   .Call("R_DataLayout_getStringRepresentation", as(obj, "DataLayout"))
 }
+
+
+getHostCPUName =
+function()
+{
+    .Call("R_getHostCPUName")
+}
+
+
+getHostCPUFeatures =
+function()
+{
+    .Call("R_getHostCPUFeatures")
+}
