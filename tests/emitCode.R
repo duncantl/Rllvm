@@ -2,13 +2,10 @@
 library(Rllvm)
 
 mod = parseIR(system.file("IR", "fib.ll", package = "Rllvm"))
-pm = passManager(mod, FALSE)
-
-#tri = getDefaultTargetTriple() 
-#trgt = lookupTarget(tri)
-machine = createTargetMachine() # trgt, tri, getHostCPUName())
+pm = passManager(mod) # Regular pass manager, not FunctionPassManager
 
 
+machine = createTargetMachine()
 fstream = raw_svector_ostream()
 status = addPassesToEmitFile(machine, pm, fstream, 0L)
 
