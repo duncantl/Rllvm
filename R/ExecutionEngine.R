@@ -1,3 +1,4 @@
+#!!! See z_enumDefs...  Use those, not these hard-coded ones that won't be updated if the LLVM values change.
 CodeGenOpt_None = 0L
 CodeGenOpt_Less = 1L
 CodeGenOpt_Default = 2L
@@ -169,3 +170,9 @@ function(engine)
    
   .Call("R_ExecutionEngine_finalize", engine)
 }
+
+
+
+setClass("RFunctionJITEventListener", contains = "RC++Reference")
+setClass("ObjectFile", contains = "RC++Reference")
+setClass("LoadObjectInfo", contains = "RC++Reference")
