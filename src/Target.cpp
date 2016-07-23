@@ -155,6 +155,7 @@ R_TargetMachine_addAnalysisPasses(SEXP r_targetMachine, SEXP r_passManager)
     return(R_NilValue);
 }
 
+
 extern "C"
 SEXP
 R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SEXP r_out, SEXP r_fileType)
@@ -170,8 +171,16 @@ R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SE
     /* ans is true if addPasses... failed */
     return(ScalarLogical(ans == true));
 #else
-    PROBLEM "addPassesToEmitFile does not yet work with the legacy::PassManager"
-        ERROR;
+
+    llvm::TargetMachine *targetMachine = GET_REF(r_targetMachine, TargetMachine);
+    llvm::legacy::PassManager *passManager = GET_REF(r_passManager, legacy::PassManager);
+    llvm::raw_pwrite_stream *out;
+    out = GET_REF(r_out, raw_pwrite_stream);
+
+    // passManager is now a legacy::PassManager not a PassManagerBase
+    bool ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
+    /* ans is true if addPasses... failed */
+    return(ScalarLogical(ans == true));
 #endif
 }
 
@@ -232,3 +241,40 @@ R_getDefaultTargetTriple()
     std::string tri = llvm::sys::getDefaultTargetTriple();
     return(mkString(tri.c_str()));
 }
+
+
+extern "C"
+SEXP
+R_getHostCPUName()
+{
+    std::string tri = llvm::sys::getDefaultTargetTriple();
+    llvm::StringRef ref = llvm::sys::getHostCPUName();
+    return(ScalarString(mkChar(ref.data())));
+}
+
+extern "C"
+SEXP
+R_getHostCPUFeatures()
+{
+    llvm::StringMap<bool> Features;
+    if(llvm::sys::getHostCPUFeatures(Features)) {
+        SEXP ans, names;
+        int num = 0;
+        for(llvm::StringMap<bool>::iterator i = Features.begin(); i != Features.end(); ++i, num++) { }
+
+        PROTECT(names = NEW_CHARACTER(num));
+        PROTECT(ans = NEW_LOGICAL(num));
+        num = 0;
+        for(llvm::StringMap<bool>::iterator i = Features.begin(); i != Features.end(); ++i, num++) { 
+            LOGICAL(ans)[num] = i->getValue();
+            SET_STRING_ELT(names, num, mkChar(i->first().data()));
+        }
+        SET_NAMES(ans, names);
+        return(ans);
+    } else
+       return(R_NilValue);
+}
+
+
+
+
