@@ -204,6 +204,25 @@ R_Function_getParent(SEXP r_func)
 #endif
 
 
+#if 0
+// Machine Instruction Representation (MIR)
+#include <llvm/CodeGen/Passes.h>
+extern "C"
+SEXP
+R_showMIR(SEXP r_module, SEXP asString)
+{
+    std::string str;
+    llvm::raw_string_ostream to(str);
+    llvm::legacy::PassManager PM;
+//  createPrintMIRPass() is a MachineFunctionPass, not a Pass.
+    PM.add(llvm::createPrintMIRPass(to));
+    llvm::Module *Mod = GET_REF(r_module, Module);
+    PM.run(*Mod);
+    return(ScalarString(mkChar(str.data())));
+}
+#endif
+
+
 
 extern "C"
 SEXP
