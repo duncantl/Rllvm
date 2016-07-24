@@ -47,6 +47,7 @@ R_getPassManager(SEXP r_module, SEXP r_ee, SEXP r_level)
 #define ADD add
 #endif
 
+//  mgr->ADD(llvm::createBasicAliasAnalysisPass());
   // Promote allocas to registers.
   mgr->ADD(llvm::createPromoteMemoryToRegisterPass());
   // Do simple "peephole" optimizations and bit-twiddling optzns.
@@ -58,6 +59,7 @@ R_getPassManager(SEXP r_module, SEXP r_ee, SEXP r_level)
   // Simplify the control flow graph (deleting unreachable blocks, etc).
   mgr->ADD(llvm::createCFGSimplificationPass());
 #endif
+
   mgr->doInitialization();
 
   return(R_createRef(mgr, "FunctionPassManager"));
@@ -124,6 +126,6 @@ R_PassManager_new(SEXP r_mod, SEXP r_fnMgr)
         return(R_createRef(fm, "FunctionPassManager"));
     } else {
         llvm::legacy::PassManager *m = new llvm::legacy::PassManager();        
-        return(R_createRef(m, "PassManager"));
+        return(R_createRef(m, "LegacyPassManager"));
     }
 }
