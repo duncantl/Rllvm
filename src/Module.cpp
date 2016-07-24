@@ -189,41 +189,6 @@ R_foo()
       ERROR;
 }
 
-
-
-#if 0 /* This is available from the parent method R_GlobalValue_getParent */
-extern "C"
-SEXP
-R_Function_getParent(SEXP r_func)
-{
-    llvm::Function *fun;
-    fun =  GET_REF(r_func, Function);
-    llvm::Module * m = fun->getParent();
-    return(R_createRef(m, "Module"));
-}
-#endif
-
-
-#if 0
-// Machine Instruction Representation (MIR)
-#include <llvm/CodeGen/Passes.h>
-extern "C"
-SEXP
-R_showMIR(SEXP r_module, SEXP asString)
-{
-    std::string str;
-    llvm::raw_string_ostream to(str);
-    llvm::legacy::PassManager PM;
-//  createPrintMIRPass() is a MachineFunctionPass, not a Pass.
-    PM.add(llvm::createPrintMIRPass(to));
-    llvm::Module *Mod = GET_REF(r_module, Module);
-    PM.run(*Mod);
-    return(ScalarString(mkChar(str.data())));
-}
-#endif
-
-
-
 extern "C"
 SEXP
 R_showModule(SEXP r_module, SEXP asString)
@@ -700,6 +665,42 @@ R_Module_getMDKindNames(SEXP r_mod)
   UNPROTECT(1);
 #endif
   return(ans);
+}
+#endif
+
+
+#if 1 /* This is available from the parent method R_GlobalValue_getParent */
+extern "C"
+SEXP
+R_Function_getParent(SEXP r_func)
+{
+    llvm::Function *fun;
+    fun =  GET_REF(r_func, Function);
+    llvm::Module * m = fun->getParent();
+    return(R_createRef(m, "Module"));
+}
+#endif
+
+
+
+#if 0
+// Machine Instruction Representation (MIR)
+#include <llvm/IR/PassManager.h>
+#include <llvm/CodeGen/Passes.h>
+extern "C"
+SEXP
+R_showMIR(SEXP r_module, SEXP asString)
+{
+    std::string str;
+    llvm::raw_string_ostream to(str);
+    llvm::PassManager<llvm::Function> PM;
+//  createPrintMIRPass() is a MachineFunctionPass, not a Pass.
+    PM.addPass(llvm::createPrintMIRPass(to));
+//    llvm::Module *Mod = GET_REF(r_module, Module);
+//    PM.run(&*Mod);
+    llvm::Function *func = GET_REF(r_module, Function);
+    PM.run(*func);
+    return(ScalarString(mkChar(str.data())));
 }
 #endif
 
