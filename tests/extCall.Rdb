@@ -181,7 +181,7 @@ llvmAddSymbol(runif = info$address)
 </r:code>
 </ignore>
 We can then invoke the new routine using <r:func>.llvm</r:func>:
-<r:code>
+<r:code eval="false">
 print(.llvm(fun))
 </r:code>
 </para>
@@ -200,6 +200,7 @@ to the function just once and the passing it explicitly in the
 call to run:
 <r:code>
 ee = ExecutionEngine(as(fun, "Module"))
+finalizeEngine(ee)
 system.time(replicate(1000, .llvm(fun, .ee = ee)))
 </r:code>
 
