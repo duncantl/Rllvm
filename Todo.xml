@@ -1,10 +1,71 @@
 <?xml-stylesheet type="text/xsl" href="XSL/Todo.xsl" ?> 
 <topics
-	 xmlns:r="http://www.r-project.org">
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:c="http://www.C.org"
+	 xmlns:sh="http://www.shell.org">
 
 <topic>
 <title>Things To Note</title>
 <items>
+<item>
+parseIR("loop.ll") fails.
+<sh:code>
+clang -S -emit-llvm  loop.c -o loop.ll
+</sh:code>
+<c:code>
+void
+foo()
+{
+    double x = 0;
+    while(1) {
+	x++;
+    }
+}
+</c:code>
+</item>
+
+<item>
+tests/stringpointer.R
+tests/stringpointer2.R
+tests/gep.R and uncomment the last line.
+</item>
+<item>
+Verify we are using the MCJIT and machine code and not an interpreter.
+<br/>
+Use lldb? Compare speed?
+</item>
+
+<item>
+Sort out the new PassManager.
+<br/>
+<c:code><![CDATA[
+llvm::PassManager<llvm::Function> PM;
+]]></c:code>
+</item>
+
+<item>
+Generate MIR code.
+<br/>
+See bottom of Module.cpp.
+Do we need the new PassManager or the legacy::PassManager.
+If the latter, then the add() method doesn't work since MIRPass is a FunctionPass, not a Pass.
+If we use the new <![CDATA[PassManager<llvm::Function>]]>, then we 
+<br/>
+Did we see this in llvm-src/tools/llc/llc.cpp?  It seems to have been there, but not now.
+See http://llvm-cs.pcc.me.uk/tools/llc/llc.cpp
+</item>
+
+<item>
+Ensure enums are correct. (In RCIndex and RCUDA)
+</item>
+
+<item>
+Examine the assembler code generated. See emitCode.R
+</item>
+
+<item>
+Compile the RCIndex collector update functions. - Doesn't belong here.
+</item>
 
 <item>
 Some of the enums exceed the maximum integer size. Change how we generate the code to recognize this and leave them as
