@@ -1,6 +1,12 @@
 pointerType =
 function(elType, rawPointer = FALSE, addrspace = 0L)
 {
+   if(identical(elType, VoidType)) {
+       # In 3.8, pointerType doesn't work for VoidType - not a valid element type for pointer.
+       # See the IR output from a void * parameter.
+       elType = Int8Type
+   }
+     
    ans = .Call("R_pointerType", elType, as.logical(rawPointer), as.integer(addrspace))
    if(rawPointer)
      new("PointerType", ref = ans)
