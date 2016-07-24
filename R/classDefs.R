@@ -45,7 +45,7 @@ setClass("Argument", contains = "Value")
 
 setClass("PassManagerBase", contains = "RC++Reference")
 setClass("FunctionPassManager", contains = "PassManagerBase")
-setClass("PassManager", contains = "PassManagerBase")
+setClass("LegacyPassManager", contains = "PassManagerBase")
 
 # if llvm 3.1, otherwise Instruction extends RC++Reference
 # setClass("Instruction", contains = "RC++Reference")

@@ -25,7 +25,7 @@ function(module, execEngine = ExecutionEngine(module), level = 3L)
 #setMethod("run", c("FunctionPassManager", "Function")
 
 
-setMethod("run", c("PassManager"),
+setMethod("run", c("LegacyPassManager"),
            function(.x, mod, ...) {
              .Call("R_PassManager_run", .x, mod)
            })
