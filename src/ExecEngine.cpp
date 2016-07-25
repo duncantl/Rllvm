@@ -32,7 +32,7 @@ extern "C"
 void
 R_InitializeNativeTarget()
 {
-    llvm::InitializeNativeTarget();
+   llvm::InitializeNativeTarget();
 
     // https://github.com/sampsyo/llvm-ei/issues/1
    std::string ErrorStr;
