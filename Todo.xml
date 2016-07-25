@@ -7,7 +7,9 @@
 <topic>
 <title>Things To Note</title>
 <items>
-
+<item>
+tests/metadata.R  lists not working.
+</item>
 <item>
 Avoid the duplicate enum variable names, e.g., Add in BinOp and BinaryOps. We need the second.
 <br/>
