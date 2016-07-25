@@ -15,10 +15,12 @@ mod[["l", ee = ee]]
 
 mod[c("r", "i")]
 
-if(require(RLLVMCompile)) {
-  f = function() { return(10) }
+if(TRUE && require(RLLVMCompile)) {
+    # Adding a function to the module and then the same function
+    # but with a different name.
+  f = function() { return(10.4) }
   fc = compileFunction(f, DoubleType, mod = mod)
   fc = compileFunction(f, DoubleType, mod = mod, name = "g")  
 
-  names(mod)
+  print(names(mod))
 }
