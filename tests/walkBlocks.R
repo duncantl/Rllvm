@@ -1,6 +1,8 @@
-library(RLLVMCompile)
+library(Rllvm)
 
-if(FALSE) {
+if(TRUE) {
+    
+library(RLLVMCompile)    
 fib1 =
 function(n)
 {
@@ -21,9 +23,14 @@ fc = compileFunction(fib1, Int32Type, Int32Type)
 
 
 bb = getBlocks(fc)
+length(bb)
+names(bb)
 
 getParent(bb[[1]]) # same as fc.
-ins = getBlockInstructions(bb[[1]])
+stopifnot(identical(getParent(bb[[1]]), fc))
 
+ins = getBlockInstructions(bb[[1]])
 getParent(ins[[1]])
+
+llvmDump(bb[[1]])
 
