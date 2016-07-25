@@ -7,6 +7,28 @@
 <topic>
 <title>Things To Note</title>
 <items>
+
+<item>
+Avoid the duplicate enum variable names, e.g., Add in BinOp and BinaryOps. We need the second.
+<br/>
+Should we expose/include those for anonymous enums?
+Which ones are actually used/needed? We can look through the methods we support and 
+their arguments and return types and look for enums.
+<br/>
+
+When there are duplicates, how do we want to handle this.
+Consider the 
+BinaryOps::Add and BinOp::Add.
+Clearly, we can have Add in the *Values vector for each.
+The only issue is the "loose" variable Add for each which will conflict.
+We could use the unusual/overloaded name
+<r:code>
+`BinOp::Add`
+</r:code>
+This is the name of a symbol in R
+</item>
+
+
 <item>
 parseIR("loop.ll") fails.
 <sh:code>
@@ -29,6 +51,7 @@ tests/stringpointer.R
 tests/stringpointer2.R
 tests/gep.R and uncomment the last line.
 </item>
+
 <item>
 Verify we are using the MCJIT and machine code and not an interpreter.
 <br/>
