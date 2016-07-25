@@ -12,13 +12,17 @@ names(els)
 
 
 # just exploring. These mean nothing.
+#XXX These don't work - using a list()
 setMetadata(m, "Rtypes", list("numeric", "integer", "logical"))
 setMetadata(m, "Rvectors", list("numeric", 200L, "integer", 200L, "logical", 1L))
 setMetadata(m, "Rvectors", list("abc", 2)) # numeric
 
+# But when the value is a string, it does.
+setMetadata(m, "Rtypes", 'numeric,integer,logical')
 
 
-if(FALSE) {
+
+if(TRUE) {
 library(RLLVMCompile)
 Dnorm = function(x, mu = 0, sd = 1)
          1/sqrt(2 * pi * sd^2) * exp( - .5*( (x-mu)/sd ) ^2)
