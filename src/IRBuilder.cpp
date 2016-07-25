@@ -246,6 +246,29 @@ R_BranchInst_getSuccessor(SEXP r_branch, SEXP r_i)
 }
 
 
+extern "C"
+SEXP
+R_BranchInst_getNumOperands(SEXP r_branch)
+{
+    llvm::BranchInst *branch;
+    branch = GET_REF(r_branch, BranchInst);
+    return(ScalarInteger(branch->getNumOperands()));
+}
+
+extern "C"
+SEXP
+R_BranchInst_getOperand(SEXP r_branch, SEXP r_i)
+{
+    llvm::BranchInst *branch;
+    branch = GET_REF(r_branch, BranchInst);
+    if( (unsigned) INTEGER(r_i)[0] >= branch->getNumOperands()) {
+	PROBLEM "asking to retrieve a BranchInst operand beyond the actual number %d", branch->getNumOperands()
+	    ERROR;
+    }
+    return(R_createRef(branch->getOperand(INTEGER(r_i)[0]), "Value"));
+}
+
+
 
 
 extern "C"
