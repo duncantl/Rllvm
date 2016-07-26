@@ -1,9 +1,6 @@
 # This is an R version of the example in the tutorial
 #   http://llvm.org/releases/2.6/docs/tutorial/JITTutorial1.html
 #
-#
-#
-
 library(Rllvm)
 
 InitializeNativeTarget()
@@ -29,6 +26,7 @@ tmp = binOp(ir, FAdd, tmp, params$z)
 createReturn(ir, tmp)
 # now we have defined fun. So we verify the module
 verifyModule(mod)
+showModule(mod)
 
 val = run(fun, 2, 10, 3, .ee = ExecutionEngine(mod))
 print(val)  # should be 2 * 10 + 3 = 23

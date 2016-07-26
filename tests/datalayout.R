@@ -16,14 +16,13 @@ ty = structType(list(a = Int32Type, b = DoubleType, c = getIntegerType(2)), "bob
 
 getABITypeAlignment(dl, Int32Type)
 getABITypeAlignment(dl, DoubleType)
-# Fail
+
+
+# Fail - seq fault
 getABITypeAlignment(dl, ty)
 
 # Fail.
 getTypeAllocSize(dl, ty)
 
-
-
-
-#Fail
+# Fail
 getPointerTypeSize(dl, pointerType(Int32Type))

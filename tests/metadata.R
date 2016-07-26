@@ -13,6 +13,7 @@ names(els)
 
 # just exploring. These mean nothing.
 #XXX These don't work - using a list()
+message("These are not working properly")
 setMetadata(m, "Rtypes", list("numeric", "integer", "logical"))
 setMetadata(m, "Rvectors", list("numeric", 200L, "integer", 200L, "logical", 1L))
 setMetadata(m, "Rvectors", list("abc", 2)) # numeric
@@ -20,6 +21,7 @@ setMetadata(m, "Rvectors", list("abc", 2)) # numeric
 # But when the value is a string, it does.
 setMetadata(m, "Rtypes", 'numeric,integer,logical')
 
+m
 
 
 if(TRUE) {
