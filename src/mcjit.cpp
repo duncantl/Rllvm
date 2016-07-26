@@ -2,6 +2,8 @@
 
 We are testing the MCJIT.
 
+R_fib is the C code compiled at installation of Rllvm.
+
  */
 #include "Rllvm.h"
 
@@ -9,13 +11,24 @@ We are testing the MCJIT.
 
 typedef int (*Fun)(int);
 
-const int N = 1000;
 
+SEXP
+test_fib(SEXP r_args, Fun f, int NumReps)
+{
+    SEXP r_ans = allocVector(REALSXP, Rf_length(r_args));
+
+    for(int i = 0; i < Rf_length(r_args); i++) {
+        for(int j = 0; j < NumReps; j++)
+          REAL(r_ans)[i] = (double) f(INTEGER(r_args)[i]);
+    }
+
+    return(r_ans);
+}
 
 //  Use MCJIT to generate machine code. Then test it.
 extern "C"
 SEXP
-R_runModule(SEXP r_module, SEXP r_args)
+R_runModule(SEXP r_module, SEXP r_args, SEXP r_num)
 {
 
     llvm::Module *m = GET_REF(r_module, Module);
@@ -31,15 +44,16 @@ R_runModule(SEXP r_module, SEXP r_args)
 //    ee->reset();
     Fun f = NULL;
     f = (Fun) ee->getFunctionAddress(std::string("fib"));
-    SEXP r_ans = allocVector(REALSXP, Rf_length(r_args));
     f(2); // force compilation ??
+    return(test_fib(r_args, f, INTEGER(r_num)[0]));
+}
 
-    for(int i = 0; i < Rf_length(r_args); i++) {
-        for(int j = 0; j < N; j++)
-          REAL(r_ans)[i] = (double) f(INTEGER(r_args)[i]);
-    }
-
-    return(r_ans);
+extern "C"
+SEXP
+R_test_mcjit_fib(SEXP r_args, SEXP r_fun, SEXP r_num)
+{
+    Fun f = (Fun) R_ExternalPtrAddr(r_fun);
+    return(test_fib(r_args, f, INTEGER(r_num)[0]));
 }
 
 
@@ -60,14 +74,7 @@ fib(int n)
 
 extern "C"
 SEXP
-R_fib(SEXP r_args)
+R_fib(SEXP r_args, SEXP r_num)
 {
-
-    SEXP r_ans = allocVector(REALSXP, Rf_length(r_args));
-    for(int i = 0; i < Rf_length(r_args); i++) {
-        for(int j = 0; j < N; j++)
-            REAL(r_ans)[i] = (double) fib(INTEGER(r_args)[i]);
-    }
-
-    return(r_ans);
+    return(test_fib(r_args, (Fun) &fib, INTEGER(r_num)[0]));
 }
