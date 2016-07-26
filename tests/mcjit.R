@@ -1,5 +1,5 @@
 library(Rllvm)
-m = parseIR("inst/IR/fib.ll")
+m = parseIR(system.file("IR", "fib.ll", package = "Rllvm"))
 ee = ExecutionEngine(m, Rllvm:::Aggressive)
 finalizeEngine(ee)
 
@@ -9,7 +9,7 @@ finalizeEngine(ee)
 funptr = getPointerToFunction(m$fib, ee)
 
 n = 3:20
-N = 1e5L
+N = 1e2L
  # Using the generated routine  from our LLVM module
 tm1 = system.time(a <- .Call("R_test_mcjit_fib", n, funptr@ref, N))
  # The pure C version.
