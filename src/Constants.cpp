@@ -69,7 +69,7 @@ R_Constant_getGetElementPtr( SEXP r_constant, SEXP r_index, SEXP r_inBounds) // 
 //       idx.push_back(llvm::ConstantInt::get(*ctxt, llvm::APInt(32, llvm::StringRef("0"), 10)));
 
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 6
-    ans = llvm::ConstantExpr::getGetElementPtr(cons->getType(), cons, idx, LOGICAL(r_inBounds)[0]);
+    ans = llvm::ConstantExpr::getGetElementPtr(NULL /*cons->getType()*/, cons, idx, LOGICAL(r_inBounds)[0]);
 #else
     ans = llvm::ConstantExpr::getGetElementPtr(cons, idx, LOGICAL(r_inBounds)[0]);
 #endif

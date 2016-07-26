@@ -18,3 +18,5 @@ setInitializer(gvar, p)
 
 x = getGlobalValue(m[["ptr"]], ee)
 
+print(x)
+
