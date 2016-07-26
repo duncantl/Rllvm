@@ -7,9 +7,17 @@
 <topic>
 <title>Things To Note</title>
 <items>
+
+<item>
+Don't seem to be able to invoke routines with arbitrary signatures.
+The runFunction routine in the MCJIT seems very limited.
+We may have to use the Rffi/rdyncall package directly.
+</item>
+
 <item>
 tests/metadata.R  lists not working.
 </item>
+
 <item>
 Avoid the duplicate enum variable names, e.g., Add in BinOp and BinaryOps. We need the second.
 <br/>
