@@ -186,6 +186,17 @@ R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SE
 
 extern "C"
 SEXP
+R_TargetMachine_setFastISel(SEXP r_targetMachine, SEXP r_val)
+{
+    llvm::TargetMachine *targetMachine = GET_REF(r_targetMachine, TargetMachine);
+    targetMachine->setFastISel(LOGICAL(r_val)[0]);
+    return(R_NilValue);
+}
+
+
+
+extern "C"
+SEXP
 R_Target_getName(SEXP r_target)
 {
     llvm::Target *target = GET_REF(r_target, Target);
