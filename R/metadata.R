@@ -11,7 +11,7 @@ setGeneric("setMetadata",
 setMethod("setMetadata",
           c("Module", "character"),
           function(x, id, values, context = getContext(x), ...) {
-            setMetadata(getMetadata(x, id, create = TRUE), values = values, context = context, ...)
+             setMetadata(getMetadata(x, id, create = TRUE), values = values, context = context, ...)
           })
 
 setMethod("setMetadata",
@@ -32,12 +32,14 @@ setGeneric("getMetadata",
            function(module, id, ...)
             standardGeneric("getMetadata"))
 
+
 setMethod("getMetadata", c("Module", "character"),
           function(module, id, create = FALSE)
             if(create)
                .Call("R_getOrInsertNamedMetadata", module, as.character(id))
             else
-                .Call("R_Module_getNamedMetadata", module, as.character(id)))
+               .Call("R_Module_getNamedMetadata", module, as.character(id)))
+
 
 setMethod("getMetadata", c("Module", "missing"),
           function(module, id)
@@ -125,3 +127,12 @@ setMethod("[", c("MDNode", "missing"),
            function(x, i, j, ...) {
              getOperands(x)[]
            })
+
+
+
+
+setMethod("getParent", "NamedMDNode",
+          function(x) {
+              .Call("R_NamedMDNode_getParent", x)
+          })
+

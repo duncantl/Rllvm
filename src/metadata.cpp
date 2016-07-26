@@ -25,6 +25,17 @@ R_NamedMDNode_addOperand(SEXP r_namedNode, SEXP r_node)
 }
 
 
+extern "C"
+SEXP
+R_NamedMDNode_getParent(SEXP r_namedNode)
+{
+    llvm::NamedMDNode *namedNode = GET_REF(r_namedNode, NamedMDNode);
+    llvm::Module *mod = namedNode->getParent();
+    return(R_createRef(mod, "NamedMDNode"));    
+}
+
+
+
 
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
 #define MD_TYPE Metadata
