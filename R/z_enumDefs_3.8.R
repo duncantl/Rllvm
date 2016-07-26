@@ -2734,8 +2734,8 @@ NA_integer_, NA_integer_), .Names = c("N_GSYM", "N_FNAME", "N_FUN",
 ##########################
 
 `Xchg` = 0L
-`Add` = 1L
-`Sub` = 2L
+`BinOp::Add` = 1L
+`BinOp::Sub` = 2L
 `And` = 3L
 `Nand` = 4L
 `Or` = 5L
