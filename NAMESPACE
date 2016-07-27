@@ -517,3 +517,5 @@ export(raw_svector_ostream)
 
 
 export(setFastISel)
+
+export(getAssemblyCode)
