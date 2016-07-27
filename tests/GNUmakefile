@@ -1,5 +1,10 @@
-ifndef DYN_DOCS
-DYN_DOCS=$(HOME)/Classes/StatComputing/XDynDocs/inst
+ifndef CLANG
+ CLANG=clang
 endif
 
-include $(DYN_DOCS)/Make/Makefile
+CC=$(CLANG)
+
+%.bc: %.c
+	$(CC) $(OPT_LEVEL) -emit-llvm $< -c -o $@
+
+

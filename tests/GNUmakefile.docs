@@ -1,0 +1,5 @@
+ifndef DYN_DOCS
+DYN_DOCS=$(HOME)/GitWorkingArea/XDynDocs/inst
+endif
+
+include $(DYN_DOCS)/Make/Makefile
