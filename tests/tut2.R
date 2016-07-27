@@ -1,9 +1,16 @@
 # This the second example from the JIT tutorial in llvm-2.6
 # and covers computing the GCD.
+# if(x == y)
+#   return x;
+# else if(x < y)
+#   return gcd(x, y - x);
+# else
+#   return gcd(x - y, y);
+
 
 library(Rllvm)
 
-InitializeNativeTarget()
+#InitializeNativeTarget()
 
 mod = Module("test.gcd")
 
@@ -42,6 +49,10 @@ createReturn(ir, val)
 
 
 verifyModule(mod)
+
+
+if(FALSE) {
+
 val = run(fun, 30L, 20L)
  run(fun, 3L, 9L)
  run(fun, 30L, 32L)
@@ -49,6 +60,6 @@ val = run(fun, 30L, 20L)
  run(fun, 3000L, 30000L)
 
  run(fun, 3000, 30000)
-
+}
 
 

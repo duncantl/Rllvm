@@ -67,7 +67,7 @@ setGeneric("run",
 
 .llvmCallFunction =
 function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .all = FALSE,
-          .duplicate = .duplicateArgs(.x)) 
+          .duplicate = .duplicateArgs(.x), .ffi = TRUE) 
 {
   if(!is(.x, "Function"))
     stop("argument to .llvm must be a Function")
@@ -80,8 +80,17 @@ function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .a
     .args[.duplicate] =  lapply(.args[.duplicate], function(x) .Call('Rllvm_Rf_duplicate', x))
 
   finalizeEngine(.ee)
-  
-  ans = .Call("R_callFunction", .x, .args, .ee)
+
+    #
+  if( !is.logical(.ffi) || .ffi) {
+#  if(!missing(.ffi) || .ffi) {
+      ans = if(is(.ffi, "CIF"))      
+               .llvmFFI(.x, .args, .ee, cif = .ffi)
+            else
+               .llvmFFI(.x, .args, .ee)
+  } else 
+      ans = .Call("R_callFunction", .x, .args, .ee)
+
 
   if(.all)
      append(ans, structure(.args, names = names(.args)))
@@ -119,11 +128,22 @@ function()
 
 
 
-getPointerToFunction =
+getPointerToFunction = getPointerToRoutine =
 function(fun, execEngine)
 {
-   .Call("R_ExecutionEngine_getPointerToFunction", execEngine, fun)
+   execEngine = as(execEngine, "ExecutionEngine")
+   finalizeEngine(execEngine)
+   .Call("R_ExecutionEngine_getPointerToFunction", execEngine, as(fun, "Function"))
 }
+
+getFunctionAddress =
+function(funName, execEngine)
+{
+   execEngine = as(execEngine, "ExecutionEngine")
+   finalizeEngine(execEngine)
+   .Call("R_ExecutionEngine_getFunctionAddress", execEngine, as(fun, "character"))
+}
+
 
 getPointerToGlobal =
 function(var, execEngine)
@@ -131,7 +151,7 @@ function(var, execEngine)
    .Call("R_ExecutionEngine_getPointerToGlobal", execEngine, var)
 }
 
-findFunction =
+findRoutine =
 function(funcName, execEngine)
 {
    .Call("R_ExecutionEngine_FindFunctionNamed", execEngine, as.character(funcName))

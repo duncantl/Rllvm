@@ -28,8 +28,19 @@ createReturn(ir, tmp)
 verifyModule(mod)
 showModule(mod)
 
-val = run(fun, 2, 10, 3, .ee = ExecutionEngine(mod))
+ee = ExecutionEngine(mod)
+
+if(FALSE) {
+  val = run(fun, 2, 10, 3, .ee = ee)
+} else  {
+  library(Rffi)
+  sig = CIF(doubleType, list(doubleType, doubleType, doubleType))
+  funptr = getPointerToFunction(fun, ee)
+  val = callCIF(sig, funptr@ref, 2, 10, 3)
+}
+
 print(val)  # should be 2 * 10 + 3 = 23
+
 
 #foo = makeRFunfunction(fun)   # create the R code to call this routine.
                                # performing the coercions, etc.
