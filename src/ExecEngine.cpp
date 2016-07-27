@@ -190,6 +190,18 @@ R_ExecutionEngine_getPointerToFunction(SEXP r_execEngine, SEXP r_func)
 
 extern "C"
 SEXP
+R_ExecutionEngine_getFunctionAddress(SEXP r_execEngine, SEXP r_func)
+{
+    llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
+    uint64_t  ans = ee->getFunctionAddress(std::string(CHAR(STRING_ELT(r_func, 0))));
+PROBLEM "not implemented yet.  uint64_t as pointer"
+    ERROR;
+//    return(R_createRef(ans, "NativeFunctionPointer", "native symbol"));
+}
+
+
+extern "C"
+SEXP
 R_ExecutionEngine_getPointerToGlobal(SEXP r_execEngine, SEXP r_var)
 {
     llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);

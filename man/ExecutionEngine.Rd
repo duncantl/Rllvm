@@ -1,7 +1,8 @@
 \name{ExecutionEngine}
 \alias{ExecutionEngine}
-\alias{findFunction}
+\alias{findRoutine}
 \alias{getPointerToFunction}
+\alias{getPointerToRoutine}
 \alias{getPointerToGlobal}
 \alias{getGlobalValue}
 \alias{addModule}
