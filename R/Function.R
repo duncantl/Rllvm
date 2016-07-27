@@ -285,3 +285,11 @@ setAs("Function", "character",
            sapply(blocks, function(b) paste(sapply(getBlockInstructions(b), as, "character"), collapse = "\n"))
         })
 
+
+setMethod("getMetadata", c("Function", "character"),
+           function(obj, id, ...)
+              .Call("R_Function_getMetadata", obj, id))
+
+setMethod("getMetadata", c("Function", "numeric"),
+           function(obj, id, ...)
+              .Call("R_Function_getMetadata", obj, as.integer(id)))

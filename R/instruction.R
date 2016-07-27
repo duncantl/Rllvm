@@ -95,3 +95,12 @@ setMethod("removeFromParent", "BasicBlock",
 setMethod("eraseFromParent", "Instruction",
           function(x, delete = TRUE, ...)  
             .Call("R_Instruction_eraseFromParent", x, as(delete, "logical")))
+
+
+setMethod("getMetadata", c("Instruction", "character"),
+           function(obj, id, ...)
+              .Call("R_Instruction_getMetadata", obj, id))
+
+setMethod("getMetadata", c("Instruction", "numeric"),
+           function(obj, id, ...)
+              .Call("R_Instruction_getMetadata", obj, as.integer(id)))

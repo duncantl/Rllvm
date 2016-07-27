@@ -28,22 +28,19 @@ setMethod("setMetadata",
           })
 
 
-setGeneric("getMetadata",
-           function(module, id, ...)
-            standardGeneric("getMetadata"))
 
 
 setMethod("getMetadata", c("Module", "character"),
-          function(module, id, create = FALSE)
+          function(obj, id, create = FALSE)
             if(create)
-               .Call("R_getOrInsertNamedMetadata", module, as.character(id))
+               .Call("R_getOrInsertNamedMetadata", obj, as.character(id))
             else
-               .Call("R_Module_getNamedMetadata", module, as.character(id)))
+               .Call("R_Module_getNamedMetadata", obj, as.character(id)))
 
 
 setMethod("getMetadata", c("Module", "missing"),
-          function(module, id)
-            .Call("R_Module_getNamedMDList", module))
+          function(obj, id)
+            .Call("R_Module_getNamedMDList", obj))
 
 
 

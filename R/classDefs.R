@@ -262,7 +262,11 @@ setMethod("getValue", "NamedMDNode",
            })
           
 
-
+# experiment. May change.
+setMethod("getValue", "Metadata",
+           function(x, ...) {
+              gsub("^!", "",  as(x, "character"))
+           })
 
 setGeneric("onlyReadsMemory",
             function(x, ...)
@@ -278,4 +282,6 @@ setMethod("onlyReadsMemory", "Argument",
 
 
 
-
+setGeneric("getMetadata",
+           function(obj, id, ...)
+              standardGeneric("getMetadata"))

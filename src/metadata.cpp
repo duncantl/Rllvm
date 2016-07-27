@@ -31,7 +31,7 @@ R_NamedMDNode_getParent(SEXP r_namedNode)
 {
     llvm::NamedMDNode *namedNode = GET_REF(r_namedNode, NamedMDNode);
     llvm::Module *mod = namedNode->getParent();
-    return(R_createRef(mod, "NamedMDNode"));    
+    return(R_createRef(mod, "Module"));    
 }
 
 

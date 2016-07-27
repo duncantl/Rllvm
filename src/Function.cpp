@@ -371,3 +371,41 @@ R_Function_isVarArg(SEXP r_func)
 
 
 
+extern "C"
+SEXP
+R_Function_hasMetadata(SEXP r_func)
+{
+    llvm::Function *func = GET_REF(r_func, Function);
+    return(ScalarLogical(func->hasMetadata()));
+}
+
+
+extern "C"
+SEXP
+R_Function_getMetadata(SEXP r_func, SEXP r_kind)
+{
+    llvm::Function *func = GET_REF(r_func, Function);
+    llvm::MDNode *node;
+    if(TYPEOF(r_kind) == STRSXP) 
+        node = func->getMetadata(llvm::StringRef(CHAR(STRING_ELT(r_kind, 0))));
+    else
+        node = func->getMetadata((unsigned) INTEGER(r_kind)[0]);
+
+    return(R_createRef(node, "MDNode"));
+}
+
+extern "C"
+SEXP
+R_Function_setMetadata(SEXP r_func, SEXP r_kind, SEXP r_node)
+{
+    llvm::Function *func = GET_REF(r_func, Function);
+    llvm::MDNode *node = GET_REF(r_node, MDNode);
+    if(TYPEOF(r_kind) == STRSXP) 
+        func->setMetadata(llvm::StringRef(CHAR(STRING_ELT(r_kind, 0))), node);
+    else
+        func->setMetadata((unsigned) INTEGER(r_kind)[0], node);
+
+    return(R_NilValue);
+}
+
+

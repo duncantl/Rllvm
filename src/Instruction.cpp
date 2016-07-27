@@ -216,5 +216,29 @@ R_Instruction_moveBefore(SEXP r_base, SEXP r_inst)
 }
 
 
+extern "C"
+SEXP
+R_Instruction_getMetadata(SEXP r_inst, SEXP r_kind)
+{
+    llvm::Instruction *inst = GET_REF(r_inst, Instruction);
+    llvm::MDNode *node;
+    if(TYPEOF(r_kind) == STRSXP) 
+        node = inst->getMetadata(llvm::StringRef(CHAR(STRING_ELT(r_kind, 0))));
+    else
+        node = inst->getMetadata( (unsigned) INTEGER(r_kind)[0]);
+    return(R_createRef(node, "MDNode"));
+}
 
+extern "C"
+SEXP
+R_Instruction_setMetadata(SEXP r_inst, SEXP r_kind, SEXP r_node)
+{
+    llvm::Instruction *inst = GET_REF(r_inst, Instruction);
+    llvm::MDNode *node = GET_REF(r_node, MDNode);
+    if(TYPEOF(r_kind) == STRSXP) 
+        inst->setMetadata(llvm::StringRef(CHAR(STRING_ELT(r_kind, 0))), node);
+    else
+        inst->setMetadata((unsigned) INTEGER(r_kind)[0], node);
 
+    return(R_NilValue);
+}
