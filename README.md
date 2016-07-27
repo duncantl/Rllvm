@@ -20,4 +20,7 @@ We might shift to the [rdyncall](http://r-forge.r-project.org/R/?group_id=2086) 
 
 These packages are not yet on CRAN.
 
-Related packages are [Rffi](https://github.com/omegahat/Rffi), Rllvm (this one), [RLLVMCompile](https://github.com/duncantl/RLLVMCompile), [RCUDA](https://github.com/duncantl/RCUDA).
+Related packages are [Rffi](https://github.com/omegahat/Rffi), Rllvm (this one),
+[RLLVMCompile](https://github.com/duncantl/RLLVMCompile),
+[RCUDA](https://github.com/duncantl/RCUDA),
+[RCIndex](https://github.com/omegahat/RClangSimple).
