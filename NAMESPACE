@@ -1,7 +1,8 @@
 useDynLib(Rllvm)
 
-import(RAutoGenRunTime)
+#import(RAutoGenRunTime)
 import(methods)
+import(Rffi)
 
 export(llvmDump)
 exportMethods(llvmDump)
@@ -189,7 +190,7 @@ exportMethods(Optimize)
 
 export(setLinkage)
 
-export(findFunction, getPointerToFunction)
+export(findRoutine, getPointerToFunction, getPointerToRoutine, getFunctionAddress)
 
 export(createDoubleConstant)
 
