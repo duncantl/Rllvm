@@ -59,4 +59,5 @@ Collate: llvmVersion.R classDefs.R manual_generics.R
          procEnumValues.R
 	 streams.R
 	 ffi.R
+	 assembler.R
 

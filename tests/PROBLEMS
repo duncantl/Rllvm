@@ -3,8 +3,11 @@ clone2.R
 mangle.R
 meta.R
 metadataRaw.R
+
 verify.R
 
+
+clone - getting the pointer to the routine in the cloned module yields NULL.
 
 verify.R is intentionally broken. It exits when using the Debug+Assert build.
 
