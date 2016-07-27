@@ -5,24 +5,18 @@ funcAttributes.R
 mangle.R
 meta.R
 metadataRaw.R
-optimize.R
 paramAttributes.R
 moveInstructions.R
-parseAssembler.R
 readBitcode.R
 setAttrs.R
-tut1.R
-tut2.R
 verify.R
-writeBitcode.R
 
 
 
-tut1.R tut2.R writeBitcode.R optimize.R parseAssembler.R 
+[Fixed with .llvmFFI()] tut1.R tut2.R writeBitcode.R optimize.R parseAssembler.R 
    cannot make the call to the function via run()
 verify.R is intentionally broken. It exits when using the Debug+Assert build.
 
 readBitcode.R depends on tut1.R and hard codes where it is run from and relies on experiments/ in the top-level directory!
-
 
 paramAttributes.R - looks like a serious memory problem. Run with echo = TRUE and not and get an error or a segfault.
