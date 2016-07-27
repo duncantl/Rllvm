@@ -16,6 +16,7 @@ This unfortunately has very limited ability to invoke routines compiled via Rllv
 i.e., using the .llvm() and run() functions.   Acccordingly, we have implemented a
 simple (but reasonably comprehensive) mechanism to invoke these routines.
 We use the [Rffi](https://github.com/omegahat/Rffi) package to do this.
+We might shift to the [rdyncall](http://r-forge.r-project.org/R/?group_id=2086) package.
 
 These packages are not yet on CRAN.
 
