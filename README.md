@@ -19,4 +19,4 @@ We use the [Rffi](https://github.com/omegahat/Rffi) package to do this.
 
 These packages are not yet on CRAN.
 
-Related packages are [Rffi](https://github.com/omegahat/Rffi), [Rllvm](https://github.com/duncantl/Rllvm), [RLLVMCompile](https://github.com/duncantl/RLLVMCompile), [RCUDA](https://github.com/duncantl/RCUDA).
+Related packages are [Rffi](https://github.com/omegahat/Rffi), Rllvm (this one), [RLLVMCompile](https://github.com/duncantl/RLLVMCompile), [RCUDA](https://github.com/duncantl/RCUDA).
