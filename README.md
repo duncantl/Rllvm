@@ -18,6 +18,10 @@ simple (but reasonably comprehensive) mechanism to invoke these routines.
 We use the [Rffi](https://github.com/omegahat/Rffi) package to do this.
 We might shift to the [rdyncall](http://r-forge.r-project.org/R/?group_id=2086) package.
 
+So this package now requires the [Rffi](https://github.com/omegahat/Rffi) package.
+This comes with its own version of libffi, but will find a more up-to-date version
+if it is installed (see pkg-config). 
+
 These packages are not yet on CRAN.
 
 Related packages are [Rffi](https://github.com/omegahat/Rffi), Rllvm (this one),
