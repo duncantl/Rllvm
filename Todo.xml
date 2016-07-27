@@ -8,7 +8,18 @@
 <title>Things To Note</title>
 <items>
 
-<item>
+<item status="done">
+parseIR() should raise an error if the file isn't there or the contents are empty or we don't get a Module back.
+<br/>
+Problem was system.file() returning "". So now check this.
+</item>
+
+
+<item status="verify">
+getDataLayout  - the C++ level object is on the stack so can't take its address and have it persist.
+</item>
+
+<item status="check">
 Do we support putting metadata on an instruction. Appears not!
 And on a function?
 KindID, Kind and MDNode?
