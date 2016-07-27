@@ -20,9 +20,9 @@ getFuncAttributes(m[["foo"]])
 
 # distance.ir is from an old version of LLVM.
 # Need to recreate via RLLVMCompile (or write the C code ourselves).
-m = parseIR(system.file("IR", "distance.ir", package = "Rllvm"))
-getFuncAttributes(m[["dist"]])
-setFuncAttributes(m[["dist"]], "NoUnwind")    # "Alignment", "NoCapture")
+m = parseIR(system.file("IR", "distance.ll", package = "Rllvm"))
+getFuncAttributes(m[["distance"]])
+setFuncAttributes(m[["distance"]], "NoUnwind")    # "Alignment", "NoCapture")
 showModule(m)
-getFuncAttributes(m[["dist"]])
+getFuncAttributes(m[["distance"]])
 

@@ -48,11 +48,11 @@ extern "C"
 SEXP
 R_new_Mangler(SEXP r_dataLayout)
 {
-    llvm::DataLayout *dataLayout = GET_REF(r_dataLayout, DataLayout);
     llvm::Mangler *ans;
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 6
     ans = new llvm::Mangler();
 #else
+    llvm::DataLayout *dataLayout = GET_REF(r_dataLayout, DataLayout);
     ans = new llvm::Mangler(dataLayout);
 #endif
     return(R_createRef(ans, "Mangler"));
@@ -75,6 +75,8 @@ R_Mangler_getNameWithPrefix_GV(SEXP r_mangler, SEXP r_GV, SEXP r_CannotUsePrivat
     UNPROTECT(1);
     return(ans);
 }
+
+
 #endif
 
 #endif

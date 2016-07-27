@@ -1,22 +1,18 @@
 clone.R
 clone2.R
-datalayout.R
-funcAttributes.R
 mangle.R
 meta.R
 metadataRaw.R
-paramAttributes.R
-moveInstructions.R
-readBitcode.R
-setAttrs.R
 verify.R
 
 
-
-[Fixed with .llvmFFI()] tut1.R tut2.R writeBitcode.R optimize.R parseAssembler.R 
-   cannot make the call to the function via run()
 verify.R is intentionally broken. It exits when using the Debug+Assert build.
 
 readBitcode.R depends on tut1.R and hard codes where it is run from and relies on experiments/ in the top-level directory!
 
 paramAttributes.R - looks like a serious memory problem. Run with echo = TRUE and not and get an error or a segfault.
+
+
+[Fixed with .llvmFFI()] tut1.R tut2.R writeBitcode.R optimize.R parseAssembler.R 
+   cannot make the call to the function via run()
+[Fixed] datalayout.R  - for 3.7 onwards, the datalayout is on the stack, not a reference. So 

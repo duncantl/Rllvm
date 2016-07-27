@@ -4,7 +4,7 @@ endif
 
 CC=$(CLANG)
 
-%.bc: %.c
+%.bc: %.ll
 	$(CC) $(OPT_LEVEL) -emit-llvm $< -c -o $@
 
 
