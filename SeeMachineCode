@@ -1,0 +1,27 @@
+
+
+addPassesToEmitFile
+  https://groups.google.com/forum/#!topic/llvm-dev/XZC-xX-Z9zs
+
+  https://cgit.freedesktop.org/mesa/mesa/tree/src/gallium/auxiliary/gallivm/lp_bld_debug.cpp
+
+  http://eli.thegreenplace.net/2012/11/24/life-of-an-instruction-in-llvm/
+  http://eli.thegreenplace.net/2013/02/25/a-deeper-look-into-the-llvm-code-generator-part-1
+
+  ObjectBufferStream.
+
+
+NativeAsmPrinter
+  
+
+
+JITEventListener
+    http://stackoverflow.com/questions/18411372/print-x86-assembly-instead-of-getting-machine-code-from-executionengine
+   Deal with ObjectFile and LoadedObjectInfo in the event handler.
+
+
+
+LLDB
+  A debugger can show the machine code so we can use that.
+
+Other
