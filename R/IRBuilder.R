@@ -421,6 +421,12 @@ function(content, context = NULL, asText = is(content, "AsIs") || !file.exists(c
       content = path.expand(content)
     else
       content = paste(as.character(content), collapse = "\n")
+
+   if(asText && content == "")
+      stop("no content")
+   if(!asText && !file.exists(content))
+      stop(paste("no such file ", content))
+
     
    .Call("R_llvm_ParseIRFile", content, as.logical(asText), context)
 }
