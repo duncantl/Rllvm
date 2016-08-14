@@ -519,3 +519,7 @@ export(raw_svector_ostream)
 export(setFastISel)
 
 export(getAssemblyCode)
+
+
+# This one looks for the nameReturnType metadata to identify the name of the R variable identifying the type.
+export(getFunctionReturnType)

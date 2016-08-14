@@ -23,8 +23,42 @@ function(name, retType, paramTypes = list(), module = Module(), varArgs = FALSE,
   
   if(length(attrs))
      setFuncAttributes(fun, .attrs = attrs)
+
+  if(is(retType, "StringType"))
+     addStringTypeReturn(fun)
+  
   fun
 }
+
+addStringTypeReturn =
+function(fun, mod = as(fun, "Module"))
+{
+     setMetadata(mod, sprintf("%sReturnType", getName(fun)), "StringType")    
+}
+
+
+getFunctionReturnType =
+    #
+    # This is a very simple wrapper around Rllvm's getReturnType.
+    # Importantly, it checks the metadata in the module (or the Function) to see if an i8* really corresponds to a string type.
+    # When compileFunction() creates a Function (or we declare one), we can check the class of the poiner type to see if it is a string type and not
+    # a generic pointer. If so, that function adds metadata
+    #    funNameReturnType  StringType
+function(fun)
+{
+    md = getMetadata(as(fun, "Module"), sprintf("%sReturnType", getName(fun)))
+    if(!is.null(md)) {
+       str = getValue(md)
+       str = gsub('^"|"$', "", str)
+       if(str != "" && exists(str) && is(ty <- get(str), "Type"))
+           return(ty)
+    }
+    
+    getReturnType(fun)
+}
+
+
+
 
 setMethod("names", c("Function"),
            function(x) {
