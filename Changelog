@@ -1,3 +1,22 @@
+Version 0.9-0
+
+	*  To differentiate between StringType and generic pointers, we add metadata to the module
+	   for the return type of a Function.  (Will add more support for parameters, etc.)
+
+	*  show() method for the different SEXPType objects displays their class to differentiate
+	them. Same for StringType.
+
+	*  
+
+
+
+
+
+Version 0.8-0	
+
+
+
+
 	*  getSuccessor(), getNumSuccessors() deal with ReturnInst correctly.
 
 	*  moveAfter() generic and  method for Block
