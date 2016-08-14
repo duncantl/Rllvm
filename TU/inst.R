@@ -5,16 +5,20 @@ tu = createTU("instructions.cc", includes = c("~/local/include",
                 args = c("-D__STDC_LIMIT_MACROS=1", "-D__STDC_CONSTANT_MACROS=1"))
 
 top = as(tu, "CXCursor")
-
 length(top)
+
+      # Only the immediate children.  Get their cursor kind
 tt = table(sapply(children(top), getCursorKind))
 names(tt) = names(CXCursorKind)[match(as.integer(names(tt)), CXCursorKind)]
 
+  # find the children that are namespace llvm {
 is.llvm = sapply(children(top), function(x) getCursorKind(x) == CXCursor_Namespace && getName(x) == "llvm")
 llvmNs = children(top)[is.llvm]
 
+# Get the last of these - why the last? There may be instructions elsewhere.
 insCur = llvmNs[[length(llvmNs)]]
 length(insCur)
+getFileName(insCur)   
 
 getCursorKinds =
 function(x)    
@@ -24,11 +28,19 @@ function(x)
   ans
 }
 
+# Get the class declarations
 k = sapply(children(insCur), getCursorKind) == CXCursor_ClassDecl
-classCursors = children(insCur)[k]
+classCursors = children(insCur)[k]  # 44
 
 insClassNames = sapply(classCursors, RCIndex::getName)
 names(classCursors) = insClassNames
+
+# Seems like this isn't necessarily capturing all the instructions that could be in other .h files.
+# Use exploreClasses.R and then  classMatrix.R
+#
+# APInt is not an Instruction. Nor is ConstantRange
+#
+
 
 library(Rllvm)
 RllvmClassnames = getClasses("package:Rllvm")
@@ -49,6 +61,9 @@ setdiff(insClassNames, RllvmClassnames)
 # 31] "IntToPtrInst"       "PtrToIntInst"       "BitCastInst"       
 # 34] "AddrSpaceCastInst" 
 
+# The ones that don't exist (by manually checking)
+# APInt, ConstantRange, AddrSpaceCastInst.
+# 
 
 
 # Let's look at BranchInst
