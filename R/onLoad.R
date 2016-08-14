@@ -7,7 +7,7 @@ function()
 
       # Make the Type objects, not externalptr objects. Thanks to Christoph Klein (doktorschiwago)
       # for suggesting this.
-   lapply(types, function(x) new("Type", ref = x))
+   mapply(function(x, klass) new(klass, ref = x), types, c(rep("Type", length(types) - 1), "StringType"))
 }
 
 .onLoad =
