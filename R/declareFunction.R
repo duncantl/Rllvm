@@ -22,12 +22,18 @@ function(def, name, mod, linkage = ExternalLinkage)
            parms = parms[-i]
       }
 
-     fun = Function(name, ret, parms, module = mod, varArgs = varArgs)      
+     fun = Function(name, ret, parms, module = mod, varArgs = varArgs)
+
+          # add metadata to indicate a string and not a generic pointer.
+      if(is(ret, "StringType"))
+         addStringTypeReturn(fun)
+      
    } else
       fun = def
 
   if(!is.na(linkage))
      setLinkage(fun, linkage)
+
   
   fun
 }
