@@ -8,6 +8,17 @@
 <title>Things To Note</title>
 <items>
 
+<item>
+lapply/sapply methods for a block to loop over the instructions
+</item>
+<item>
+?? show() methods for Instructions and BasicBlock call llvmDump() ?
+</item>
+
+<item>
+Allow putting comments on instructions, e.g., what the literal R type corresponds to symbolically STRSXP
+</item>
+
 <item status="done">
 parseIR() should raise an error if the file isn't there or the contents are empty or we don't get a Module back.
 <br/>
