@@ -95,6 +95,7 @@ setClass('FPExtInst', contains = 'CastInst')
 setClass('PtrToIntInst', contains = 'CastInst')
 setClass('IntToPtrInst', contains = 'CastInst')
 setClass('BitCastInst', contains = 'CastInst')
+setClass('AddrSpaceCastInst', contains = 'CastInst')
 setClass('CmpInst', contains = 'Instruction')
 setClass('ICmpInst', contains = 'CmpInst')
 setClass('FCmpInst', contains = 'CmpInst')
@@ -131,6 +132,14 @@ setClass("VectorType", contains = "SequentialType")
 
 setClass("FunctionType", contains = "Type")
 
+ # A separate class so we can identify a StringType from a generic pointer since now they both use i8*
+setClass("StringType", contains = "Type") 
+
+setMethod("show", "StringType",
+          function(object) {
+              cat(class(object), "\n")
+          })
+
 
 # R specific types
 setClass("SEXPType", contains = "PointerType")
@@ -140,6 +149,11 @@ setClass("REALSXPType", contains = "SEXPType")
 setClass("STRSXPType", contains = "SEXPType")
 setClass("VECSXPType", contains = "SEXPType")
 setClass("CHARSXPType", contains = "SEXPType")
+
+setMethod("show", "SEXPType",
+          function(object) {
+              cat(class(object), "\n")
+          })
 
 
 
