@@ -65,12 +65,14 @@ function(type, ffi = getTypes()[c("void", "sint8", "sint32", "sint64", "float", 
         doubleType
     else  if(sameType(type, StringType))
         stringType
-    else  if(sameType(type, pointerType(Int8Type)))
-        Rffi::pointerType
-    else  if(sameType(type, pointerType(Int32Type)))
-        Rffi::pointerType    
     else  if(sameType(type, SEXPType))
         sexpType
+    else if(sameType(type, pointerType(Int8Type)))
+        Rffi::pointerType
+    else  if(sameType(type, pointerType(Int32Type)))
+        Rffi::pointerType
+    else if(isPointerType(type))
+        Rffi::pointerType
     else
         stop("not handled yet")
 }
