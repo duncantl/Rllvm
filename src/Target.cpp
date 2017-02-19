@@ -53,7 +53,7 @@ R_Target_createTargetMachine(SEXP r_target, SEXP r_triple, SEXP r_cpu, SEXP r_fe
     else  {
         /* taken from Halide's CodeGen.cpp */
         defaultOpts.LessPreciseFPMADOption = true;
-#ifdef LLV_HAS_NOFRAMEPOINTERELIM
+#ifdef LLVM_HAS_NOFRAMEPOINTERELIM
         defaultOpts.NoFramePointerElim = false;
 #endif
 #ifdef LLVM_HAS_NOFRAMEPOINTERELIMNONLEAF
@@ -80,7 +80,10 @@ R_Target_createTargetMachine(SEXP r_target, SEXP r_triple, SEXP r_cpu, SEXP r_fe
 #ifdef LLVM_HAS_TRAPFUNCNAME
         defaultOpts.TrapFuncName = "";
 #endif
+
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 9
         defaultOpts.PositionIndependentExecutable = true;
+#endif
 
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 5
         defaultOpts.EnableSegmentedStacks = false;
@@ -95,7 +98,11 @@ R_Target_createTargetMachine(SEXP r_target, SEXP r_triple, SEXP r_cpu, SEXP r_fe
     }
 
     ans = tgt->createTargetMachine(triple, std::string(CHAR(STRING_ELT(r_cpu, 0))),
-                                   std::string(CHAR(STRING_ELT(r_features, 0))), *opts);
+                                   std::string(CHAR(STRING_ELT(r_features, 0))), *opts
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 9
+                                   , llvm::Optional<llvm::Reloc::Model>()
+#endif
+                                   );
     return(R_createRef(ans, "TargetMachine"));
 }
 
@@ -128,6 +135,29 @@ R_TargetMachine_getDataLayout(SEXP r_tm)
     return(R_createRef(ans, "DataLayout"));
 }
 #endif
+
+#if 0
+extern "C"
+SEXP
+R_TargetMachine_createDataLayout(SEXP r_tm)
+{
+    llvm::TargetMachine *tm = GET_REF(r_tm, TargetMachine);
+    const llvm::DataLayout *ans = & (tm->createDataLayout());
+    return(R_createRef(ans, "DataLayout"));
+}
+#endif
+
+extern "C"
+SEXP
+R_TargetMachine_getDataLayoutString(SEXP r_tm)
+{
+    llvm::TargetMachine *tm = GET_REF(r_tm, TargetMachine);
+    const llvm::DataLayout ans = tm->createDataLayout();
+    std::string str = ans.getStringRepresentation();
+    return(ScalarString(mkChar(str.c_str())));
+}
+
+
 
 extern "C"
 SEXP
