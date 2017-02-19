@@ -853,8 +853,10 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
     llvm::LLVMContext *context;
     if(Rf_length(r_context))
         context = (GET_REF(r_context, LLVMContext)); // llvm::cast<llvm::LLVMContext> 
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 9
     else
         context = & llvm::getGlobalContext();
+#endif
 
     std::string fn(CHAR(STRING_ELT(r_content, 0)));
 
@@ -862,7 +864,13 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
         llvm::MemoryBuffer *buf;
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
         buf = llvm::MemoryBuffer::getMemBuffer(fn).get();
-        mod = llvm::parseIR(buf->getMemBufferRef(), err, *context).get();
+        llvm::MemoryBufferRef ref = buf->getMemBufferRef();
+   printf("buffer: (# chars %zu) %s\n",  ref.getBufferSize(), ref.getBufferStart());
+
+        std::unique_ptr<llvm::Module> tmp;
+        tmp = llvm::parseIR(ref, err, *context);
+        mod = tmp.get();
+        tmp.release();
 #else
         buf = llvm::MemoryBuffer::getMemBuffer(fn);
         mod = llvm::ParseIR(buf, err, *context);
