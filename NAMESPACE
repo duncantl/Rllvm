@@ -377,8 +377,8 @@ export(getNumOperands, getOperand)
 exportMethods(getNumOperands, getOperand)
 
 
-export(sapply)
-exportMethods(sapply)
+export(sapply, lapply)
+exportMethods(sapply, lapply)
 
 
 exportClasses(raw_string_ostream, formatted_raw_ostream)
@@ -523,3 +523,7 @@ export(getAssemblyCode)
 
 # This one looks for the nameReturnType metadata to identify the name of the R variable identifying the type.
 export(getFunctionReturnType)
+
+
+export(getDataLayoutString)
+exportMethods(getDataLayoutString)
