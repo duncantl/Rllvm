@@ -18,3 +18,24 @@ function(machine, val = TRUE)
 {
    .Call("R_TargetMachine_setFastISel", as(machine, "TargetMachine"), as.logical(val))
 }
+
+# See http://llvm.org/docs/LangRef.html#langref-datalayout
+setGeneric("getDataLayoutString",
+           function(obj, ...)
+               standardGeneric("getDataLayoutString"))
+
+#tmp = 
+#function(obj = createTargetMachine())
+#{
+#    .Call("R_TargetMachine_getDataLayoutString", as(obj, "TargetMachine"))
+#}
+
+setMethod("getDataLayoutString", "TargetMachine",
+          function(obj, ...)
+            .Call("R_TargetMachine_getDataLayoutString", as(obj, "TargetMachine")))
+
+setMethod("getDataLayoutString", "missing",
+            function(obj, ...)
+               getDataLayoutString(createTargetMachine(), ...))
+
+          
