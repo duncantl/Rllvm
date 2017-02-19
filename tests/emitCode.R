@@ -1,4 +1,8 @@
 # Show the assembler code generated from the fibonacci module.
+
+# Now in getAssemblyCode() function
+#
+
 library(Rllvm)
 
 mod = parseIR(system.file("IR", "fib.ll", package = "Rllvm"))
