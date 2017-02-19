@@ -78,7 +78,7 @@ R_Function_getGC(SEXP r_func)
 {
     llvm::Function *func = GET_REF(r_func, Function);
     const char *str;
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION == 8
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 8
     str = func->getGC().c_str();
 #else
     str = func->getGC();  //XXX Define for 3.5 and check others. 3.8 returns a std::string
@@ -186,6 +186,17 @@ R_Function_getParam(SEXP r_func,  SEXP r_whichParam)
      return(R_createRef(el, "Argument"));
 }
 
+
+extern "C"
+SEXP
+R_Function_getContext(SEXP r_func)
+{
+    llvm::Function *func = GET_REF(r_func, Function);
+    llvm::LLVMContext *ctxt;
+    ctxt = &(func->getContext());
+    return(R_createRef(ctxt, "LLVMContext"));
+}
+
 extern "C"
 SEXP
 R_setFunctionParamNames(SEXP r_func, SEXP r_names)
@@ -218,7 +229,7 @@ typedef llvm::Attributes::AttrVal AttrKind;
 #endif
 
 SEXP
-R_Argument_setAttrs(llvm::Argument *arg, SEXP r_vals)
+R_Argument_setAttrs(llvm::Argument *arg, SEXP r_vals, llvm::LLVMContext *ctxt)
 {
         /* now have the parameter, so set the values. */
   llvm::AttrBuilder builder;
@@ -231,7 +242,7 @@ R_Argument_setAttrs(llvm::Argument *arg, SEXP r_vals)
      We need to know which one it is. Same for getting the string below for the return.
      Shall we determine the index in this routine or require the caller to specify it.
    */
-  llvm::AttributeSet attrs = llvm::AttributeSet::get(llvm::getGlobalContext(), 1/*!!!!*/, builder);
+  llvm::AttributeSet attrs = llvm::AttributeSet::get(*ctxt, 1/*!!!!*/, builder);
 #else
   llvm::Attributes attrs;
   attrs = llvm::Attributes::get(llvm::getGlobalContext() , builder);
@@ -272,12 +283,32 @@ R_Function_setParamAttributes(SEXP r_func,  SEXP r_whichParam, SEXP r_vals)
 
 extern "C"
 SEXP
-R_Argument_setAttributes(SEXP r_arg, SEXP r_vals)
+R_Argument_setAttributes(SEXP r_arg, SEXP r_vals, SEXP r_context)
 {
      llvm::Argument *arg = GET_REF(r_arg, Argument);
-     return(R_Argument_setAttrs(arg, r_vals));
+     llvm::LLVMContext *ctxt = GET_REF(r_context, LLVMContext);
+
+     if(!ctxt)
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 9
+         ctxt = &llvm::getGlobalContext();
+#else
+         ctxt = &(arg->getParent()->getContext());
+#endif
+
+     return(R_Argument_setAttrs(arg, r_vals, ctxt));
 }
 
+
+
+extern "C"
+SEXP
+R_Argument_getParent(SEXP r_arg)
+{ 
+     llvm::Argument *arg = GET_REF(r_arg, Argument);
+     llvm::Function *ans;
+     ans = arg->getParent();
+     return(R_createRef(ans, "Function"));    
+}
 
 extern "C"
 SEXP
