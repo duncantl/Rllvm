@@ -174,9 +174,11 @@ See http://llvm-cs.pcc.me.uk/tools/llc/llc.cpp
 Ensure enums are correct. (In RCIndex and RCUDA)
 </item>
 
-<item>
+<item status="done">
 Check the code that generates the raw assembler code (x86 instructions) properly terminates the string.
-tests/emitCode.R
+tests/emitCode.R or tests/addOne.R
+<br/>
+raw_svector_ostream doesn't ensure NULL terminated string. So we use mkCharLen().
 </item>
 
 <item>
