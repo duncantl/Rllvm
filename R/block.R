@@ -1,6 +1,8 @@
 setMethod("show", "BasicBlock",
           function(object) {
-             cat("[BasicBlock] %", getName(object), "\n", sep = "")
+            cat("[BasicBlock] %", if(!is.na(getName(object))) getName(object) else "", "\n", sep = "")
+                #XXX Add the name if it is not NA
+            cat(sapply(object[], as, "character"), sep = "\n")
           })
 
 Block =
@@ -127,9 +129,18 @@ if(!isGeneric("sapply"))
                function (X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE)
                  standardGeneric("sapply"))
 
+if(!isGeneric("lapply"))
+  setGeneric("lapply",
+             function (X, FUN, ...)
+                 standardGeneric("lapply"))
+
 setMethod("sapply", "BasicBlock",
           function (X, FUN, cast = TRUE, ..., simplify = TRUE, USE.NAMES = TRUE)
              sapply(getBlockInstructions(X, cast = cast), FUN, ..., simplify = simplify, USE.NAMES = USE.NAMES))
+
+setMethod("lapply", "BasicBlock",
+          function (X, FUN, cast = TRUE, ...)
+             sapply(getBlockInstructions(X, cast = cast), FUN, ...))
 
 
 
