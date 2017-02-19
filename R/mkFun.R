@@ -17,7 +17,10 @@ function(func, .ee = ExecutionEngine(as(func, "Module")))
   parms = alist(a= )
   parms = structure(replicate(length(params@names), parms), names = params@names)
   
-  f = function() {}
+  f = function() {
+        .checkModule()
+        
+      }
   formals(f) = parms
   formals(f)[["..."]] = parms[[1]]
   
@@ -28,8 +31,25 @@ function(func, .ee = ExecutionEngine(as(func, "Module")))
   e[[3]] = al
 
   
-  body(f)[[2]] = e 
+  body(f)[[3]] = e 
+browser()  
+  body(f)[[4]] = quote(run(func, .args = .args, .ee = .ee, ...)) # substitute(run(func, .args = .args, .ee = .ee, ...)) # , list(func = func, .ee = .ee))
+
+
+  .module = as(func, "Module")
+  .modString = as(.module, "character")
+  .funcName = getName(func)
   
-  body(f)[[3]] =  substitute(run(func, .args = .args, .ee = .ee, ...), list(func = func, .ee = .ee))
+  .checkModule =
+      function() {
+          if(identical(func@ref, new("externalptr"))) { 
+             .mod <<- Rllvm::parseIR(.modString, asText = TRUE)
+             func <<- .mod[[ .funcName ]]
+             .ee <<- Rllvm::ExecutionEngine(.mod)
+          }
+      }
+  
+  rm(e, al, i, parms, params)
+  
   f
 }
