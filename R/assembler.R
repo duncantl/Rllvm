@@ -2,13 +2,22 @@
 getAssemblyCode =
 function(module)
 {
-    pm = passManager(mod) # Regular pass manager, not FunctionPassManager
+    module = as(module, "Module")
+
+    if(getDataLayout(module) == "")
+       stop("the Module needs a datalayout specification")
+    
+    pm = passManager(module) # Regular pass manager, not FunctionPassManager
 
     machine = createTargetMachine()
     fstream = raw_svector_ostream()
-    status = addPassesToEmitFile(machine, pm, fstream, Rllvm:::CGFT_AssemblyFile)
+    status = addPassesToEmitFile(machine, pm, fstream, CGFT_AssemblyFile)
 
-    run(pm, mod)
+    run(pm, module)
 
-    as(fstream, "character")
+    new("AssemblerCode", as(fstream, "character"))
 }
+
+
+setClass("AssemblerCode", contains = "character")
+setMethod("show", "AssemblerCode", function(object) cat(object, sep = "\n"))
