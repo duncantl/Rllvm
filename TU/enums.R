@@ -17,7 +17,8 @@ enums = getEnums(tu)
 
 
 if(FALSE) {
- source("utils.R")
+# source("utils.R")
+ library(RCodeGen)    
  ids = grep("(^__|::)", names(enums), invert = TRUE, value = TRUE) # remove llvm:: , std::, __lx
  Rfilename = sprintf("../R/z_enumDefs_%d.%d.R", version[1], version[2])
  con = file(Rfilename, "w")
