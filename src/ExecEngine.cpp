@@ -93,9 +93,11 @@ extern "C"
 void
 R_InitializeCppBackendTarget()
 {
+#if 0  // LLVM_VERSION <= 3 || (LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 9)
     LLVMInitializeCppBackendTarget();
     LLVMInitializeCppBackendTargetInfo();
     LLVMInitializeCppBackendTargetMC();
+#endif
 }
 #endif
 
