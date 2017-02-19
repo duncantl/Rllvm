@@ -124,5 +124,14 @@ SEXP R_getFunctionAttributes_logical(llvm::Attributes attr);
 #endif
 
 
+
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 8) || LLVM_VERSION >= 4
+llvm::LLVMContext & getLLVMGlobalContext();
+#define LLVM_GLOBAL_CONTEXT getLLVMGlobalContext()
+#else
+#define LLVM_GLOBAL_CONTEXT llvm::getGlobalContext()
+#endif
+
+
 #endif // #define R_LLVM_H
 

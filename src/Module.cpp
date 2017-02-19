@@ -12,7 +12,11 @@ extern "C"
 SEXP
 R_getGlobalContext()
 {
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 9
     return(R_createRef(&llvm::getGlobalContext(), "LLVMContext"));
+#else
+    return(R_createRef(&getLLVMGlobalContext(), "LLVMContext"));    
+#endif
 }
 
 extern "C"
@@ -24,7 +28,7 @@ R_new_Module(SEXP r_name, SEXP r_context)
     if(Rf_length(r_context))
         context = (GET_REF(r_context, LLVMContext)); // llvm::cast<llvm::LLVMContext> 
     else
-        context = & llvm::getGlobalContext();
+        context = & LLVM_GLOBAL_CONTEXT /* & llvm::getGlobalContext()*/;
 
     ans = new llvm::Module(CHAR(STRING_ELT(r_name, 0)), *context);
 
@@ -264,7 +268,7 @@ R_Module_getDataLayout(SEXP r_module)
     const char *str = mod->getDataLayout().c_str();
 #elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION == 8
     const char *str = mod->getDataLayout().getStringRepresentation().c_str();
-#elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION == 7
+#elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 7
     const char *str = mod->getDataLayout().getStringRepresentation().c_str();
 #else
     // 3.6
@@ -411,7 +415,7 @@ R_ParseAssemblyString(SEXP r_str, SEXP r_module, SEXP r_context)
     if(Rf_length(r_context))
         context = (GET_REF(r_context, LLVMContext)); // llvm::cast<llvm::LLVMContext> 
     else
-        context = & llvm::getGlobalContext();
+        context = & LLVM_GLOBAL_CONTEXT /* llvm::getGlobalContext()*/;
 
     if(length(r_module))
         module = GET_REF(r_module, Module); 
@@ -514,7 +518,7 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
     if(Rf_length(r_context))
         context = (GET_REF(r_context, LLVMContext)); // llvm::cast<llvm::LLVMContext> 
     else
-        context = & llvm::getGlobalContext();
+        context = & LLVM_GLOBAL_CONTEXT /*llvm::getGlobalContext()*/;
 
     llvm::MemoryBuffer *buf = NULL;
 
@@ -564,7 +568,7 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
     return(R_createRef(ans, "Module"));    
 #else
 //XXX CHECK!
-#if LLVM_VERSION ==3 && (LLVM_MINOR_VERSION == 8 || LLVM_MINOR_VERSION == 7)
+#if LLVM_VERSION ==3 && (LLVM_MINOR_VERSION >= 8 || LLVM_MINOR_VERSION == 7)
     llvm::ErrorOr<std::unique_ptr<llvm::Module>> err = llvm::parseBitcodeFile(buf->getMemBufferRef(), *context);
 #elif LLVM_VERSION ==3 && LLVM_MINOR_VERSION == 6
     llvm::ErrorOr<llvm::Module *> err =  llvm::parseBitcodeFile(buf->getMemBufferRef(), *context);
@@ -579,9 +583,12 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
     llvm::Module *mod = NULL;
 #if LLVM_VERSION ==3 && LLVM_MINOR_VERSION < 7
     mod = err.get();
-#else
+#elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 8
     mod = err.get().get();
     err.get().release();
+#else
+    mod = err.get();
+    err.release();
 #endif
 
     return(R_createRef((const void *) mod, "Module"));    
@@ -708,3 +715,21 @@ R_showMIR(SEXP r_module, SEXP asString)
 
 
 
+
+
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 8) || LLVM_VERSION >= 4
+llvm::LLVMContext *gcontext = NULL;
+
+llvm::LLVMContext &
+getLLVMGlobalContext()
+{
+    if(!gcontext) {
+       gcontext = new llvm::LLVMContext();
+       if(!gcontext)
+           PROBLEM "cannot create an LLVMContext"
+           ERROR;
+    }
+
+    return(*gcontext);
+}
+#endif

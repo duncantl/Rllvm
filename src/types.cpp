@@ -14,7 +14,7 @@ extern "C"
 SEXP
 R_getTypeDefinitions()
 {
-    llvm::LLVMContext &ctxt = llvm::getGlobalContext();
+    llvm::LLVMContext &ctxt = LLVM_GLOBAL_CONTEXT  /*llvm::getGlobalContext()*/;
 
 //    const llvm::Type *types[] = {
     struct TypeName types[] = {
@@ -33,7 +33,8 @@ R_getTypeDefinitions()
         ty(Int8Ptr)
     };
 
-    int n = sizeof(types)/sizeof(types[0]);
+    
+ int n = sizeof(types)/sizeof(types[0]); // 13 at present.
 
     SEXP ans;
     PROTECT(ans = NEW_LIST(n));
@@ -54,7 +55,7 @@ R_IntegerType_get(SEXP r_context, SEXP r_bits)
 {
     llvm::LLVMContext *ctxt;
     if(Rf_length(r_context) == 0) {
-        ctxt = &llvm::getGlobalContext();
+        ctxt = & LLVM_GLOBAL_CONTEXT  /*llvm::getGlobalContext()*/;
     } else 
         ctxt = (GET_REF(r_context, LLVMContext)); 
 
@@ -194,7 +195,7 @@ R_StructType_create(SEXP elTypes, SEXP name, SEXP r_context, SEXP r_isPacked, SE
     int n;
 
     if(Rf_length(r_context) == 0) {
-        ctxt = &llvm::getGlobalContext();
+        ctxt = &LLVM_GLOBAL_CONTEXT  /*llvm::getGlobalContext()*/;
     } else 
         ctxt = (GET_REF(r_context, LLVMContext)); 
 
@@ -349,4 +350,51 @@ R_Type_print(SEXP r_type)
     llvm::raw_string_ostream OS(str);
     ty->print(OS);
     return(ScalarString(mkChar( OS.str().c_str())));
+}
+
+
+
+
+struct TypeSize {
+    const char *name;
+    size_t size;
+};
+
+#define DO(x)  { #x, sizeof(x) }
+
+extern "C"
+SEXP
+R_get_sizeof()
+{
+   struct TypeSize vals[] = {   DO(int),
+        DO(bool),
+        DO(short),
+        DO(short int),
+        DO(long),
+        DO(long int),
+        DO(long long),
+        DO(long long int),
+        DO(char),
+        DO(char16_t),
+        DO(char32_t),
+        DO(wchar_t),
+        DO(char *),
+        DO(void *),
+        DO(float),
+        DO(double),
+        DO(long double)
+    };
+
+   int i, n;
+   n = sizeof(vals)/sizeof(vals[0]);
+   SEXP r_ans, names;
+   PROTECT(r_ans = NEW_NUMERIC(n));
+   PROTECT(names = NEW_CHARACTER(n));
+   for(i = 0; i < n ; i++) {
+       REAL(r_ans)[i] = vals[i].size;
+       SET_STRING_ELT(names, i, mkChar(vals[i].name));
+   }
+   SET_NAMES(r_ans, names);
+   UNPROTECT(2);
+   return(r_ans);
 }
