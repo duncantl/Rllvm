@@ -28,7 +28,9 @@ R_initPassRegistry(SEXP r_registry)
     llvm::initializeCodeGen(*Registry);
     llvm::initializeLoopStrengthReducePass(*Registry);
     llvm::initializeLowerIntrinsicsPass(*Registry);
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION < 9
     llvm::initializeUnreachableBlockElimPass(*Registry);
+#endif
 
     return(R_NilValue);
 }
@@ -39,6 +41,7 @@ R_initPassRegistry(SEXP r_registry)
 #include  <llvm/Transforms/Scalar.h>
 
 #if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 5
+#undef isNull
 #include <llvm/LinkAllPasses.h>
 #endif
 
@@ -65,7 +68,7 @@ R_CREATE_PASS(createGlobalMergePass)
 #else
 // In 3.7, this takes 3 arguments - 1 of which is optional.
 // const TargetMachine *TM, unsigned MaximalOffset
-#pragma message "Enable for 3.7"
+#pragma message "Note for Rllvm: enable GlobalMergePass for 3.7 and higher"
 #endif
 
 R_CREATE_FUNPASS(createAggressiveDCEPass)
@@ -77,7 +80,9 @@ R_CREATE_FUNPASS(createDemoteRegisterToMemoryPass)
 
 R_CREATE_PASS(createLICMPass)
 R_CREATE_PASS(createSROAPass)
+#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION < 9
 R_CREATE_PASS(createScalarReplAggregatesPass)
+#endif
 R_CREATE_PASS(createIndVarSimplifyPass)
 R_CREATE_PASS(createLoopStrengthReducePass)
 R_CREATE_FUNPASS(createReassociatePass)
