@@ -1,3 +1,4 @@
+#define R_NO_REMAP 1
 #include "Rllvm.h"
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
@@ -77,8 +78,15 @@ R_optimizeFunction(SEXP r_func, SEXP r_passMgr)
 #endif
 
   llvm::Function *func = GET_REF(r_func, Function);
+
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 9
   mgr->run(*func);
-  return(ScalarLogical(TRUE));
+#else
+  llvm::AnalysisManager<llvm::Function> AM;
+  mgr->run(*func, AM);
+#endif
+
+  return(Rf_ScalarLogical(TRUE));
 }
 
 
@@ -89,7 +97,7 @@ R_PassManager_run(SEXP r_passMgr, SEXP r_module)
   llvm::legacy::PassManager *mgr = GET_REF(r_passMgr, legacy::PassManager);
   llvm::Module *module = GET_REF(r_module, Module);
   mgr->run(*module);
-  return(ScalarLogical(TRUE));
+  return(Rf_ScalarLogical(TRUE));
 }
 
 // For 3.5
@@ -108,7 +116,7 @@ R_PassManagerBase_Add(SEXP r_mgr, SEXP r_pass)
     llvm::PassManagerBase *mgr = GET_REF(r_mgr, PassManagerBase);
     llvm::Pass *pass = GET_REF(r_pass, Pass);
     mgr->add(pass);
-    return(ScalarLogical(TRUE));
+    return(Rf_ScalarLogical(TRUE));
 }
 
 
