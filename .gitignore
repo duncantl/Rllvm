@@ -6,7 +6,6 @@ src/Makevars
 a.out.dSYM
 R/llvmVersion.R
 R/targets.R
-
-
-
-
+TAGS
+ToFix
+XSL
