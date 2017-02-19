@@ -9,10 +9,56 @@
 <items>
 
 <item>
+Should getTerminator() set the class from the actual class of the instruction or just use the  generic TerminatorInst ?
+</item>
+
+ <item>
+Set the target on a module?
+getDefaultTargetTriple() gets us the value. How to set it?
+<br/>
+setTargetTriple(mod, triple)
+ </item>
+<item status="done">
+<r:code>
+str = getDataLayoutString()
+setDataLayout(m, str)
+</r:code> 
+
+<br/>
+Add the target  and datalayout string to a Module.
+Needed for getAssemblyCode()
+<br/>
+getDefaultTargetTriple()
+
+We can get the datalayout string with
+tm = createTargetMachine()
+.Call("R_TargetMachine_getDataLayoutString", tm)
+Then how do we set it on the Module.
+Do we set the DataLayout() itself. How do we get the DataLayout() as TargetMachine returns it not as a reference.
+</item>
+
+<item status="done">
+Parsing a module from a string doesn't seem to want to work.
+In the CompilerBook directory, 
+<r:code>
+library(Rllvm)
+m1 = parseIR("Rllvm/fib_basic_unoptimized.ll")
+m2 = parseIR( as(m1, "character"), asText = TRUE)
+</r:code>
+We weren't release()'ing  the unique pointer.
+</item>
+
+
+<item>
+When printing a Function object (or Module, etc.) , check it is still valid.
+</item>
+
+<item status="done">
 lapply/sapply methods for a block to loop over the instructions
 </item>
-<item>
-?? show() methods for Instructions and BasicBlock call llvmDump() ?
+
+<item status="done">
+ show() methods for Instructions and BasicBlock call llvmDump() ?
 </item>
 
 <item>
@@ -40,7 +86,7 @@ KindID, Kind and MDNode?
 Should setMetadata() return the NamedMDNode?
 </item>
 
-<item>
+<item status="done">
 Don't seem to be able to invoke routines with arbitrary signatures.
 The runFunction routine in the MCJIT seems very limited.
 We may have to use the Rffi/rdyncall package directly.
@@ -94,10 +140,14 @@ tests/stringpointer2.R
 tests/gep.R and uncomment the last line.
 </item>
 
-<item>
+<item status="check">
 Verify we are using the MCJIT and machine code and not an interpreter.
 <br/>
 Use lldb? Compare speed?
+<br/>
+Sure seems like we are using it in terms of speed.
+See the test code in src/mjit.c that  we wrote to call test_fib multiple times.
+We seem off by about 10%.
 </item>
 
 <item>
@@ -125,7 +175,12 @@ Ensure enums are correct. (In RCIndex and RCUDA)
 </item>
 
 <item>
-Examine the assembler code generated. See emitCode.R
+Check the code that generates the raw assembler code (x86 instructions) properly terminates the string.
+tests/emitCode.R
+</item>
+
+<item>
+Examine the assembler code generated.  See tests/emitCode.R
 </item>
 
 <item>
