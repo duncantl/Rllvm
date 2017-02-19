@@ -1,0 +1,1 @@
+Use enums.R to generate the z_enumDefs_<version>.R file in ../R/
