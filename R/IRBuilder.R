@@ -27,7 +27,7 @@ function(builder, instruction)
 
 
 
-binOp =
+binOp = 
 function(builder, op, x, y, id = character())
 {
      # incomplete. The idea is to recognize symbols in R such as + or - and
