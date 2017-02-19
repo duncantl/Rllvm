@@ -212,9 +212,23 @@ function(func, simplify = TRUE)
 }
 
 
+setAs("Argument", "LLVMContext",
+       function(from) {
+           getContext(getParent(from))
+       })
+
+setMethod("getParent", "Argument",
+           function(x, ...)
+             .Call("R_Argument_getParent", x))
+
+setMethod("getContext", "Function",
+             function(x, ...)
+                .Call("R_Function_getContext", x))
+
 
 setParamAttributes =
-function(arg, values, force = FALSE)
+    # context added for 3.9
+function(arg, values, context = NULL, force = FALSE)
 {
    if(!is(arg, "Argument"))
      stop("need an Argument object to set the attributes")
@@ -222,7 +236,7 @@ function(arg, values, force = FALSE)
   if(!force)
      values = matchFuncAttributes(unlist(values))
    
-  .Call("R_Argument_setAttributes", arg, as.integer(values))
+  .Call("R_Argument_setAttributes", arg, as.integer(values), as(context, "LLVMContext"))
 }
 
   
