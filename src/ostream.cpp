@@ -1,6 +1,6 @@
 #include "Rllvm.h"
 
-#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 5
+#if (LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 5) || LLVM_VERSION >= 4
 #include <llvm/Support/FileSystem.h>
 #endif
 
@@ -29,7 +29,7 @@ R_new_formatted_raw_ostream(SEXP r_stream, SEXP r_delete)
 
     llvm::raw_ostream *stream =  GET_REF(r_stream, raw_ostream);
     llvm::formatted_raw_ostream *ans;
-#if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 7
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 7) || LLVM_VERSION >= 4
     ans = new llvm::formatted_raw_ostream(*stream);
 #else
     ans = new llvm::formatted_raw_ostream(*stream, LOGICAL(r_delete)[0]);
@@ -92,21 +92,39 @@ extern "C"
 SEXP
 R_new_raw_fd_ostream(SEXP r_filename, SEXP r_flags)
 {
+#if LLVM_VERSION >= 4
+    std::error_code err;
+#else
     std::string err;
+#endif
     llvm::raw_fd_ostream *ans;
 
-#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 5
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 5) || LLVM_VERSION >= 4
     llvm::sys::fs::OpenFlags flags = llvm::sys::fs::OpenFlags::F_None;
     if(Rf_length(r_flags))
         flags = (llvm::sys::fs::OpenFlags) INTEGER(r_flags)[0];
+#if LLVM_VERSION >= 4
     ans = new llvm::raw_fd_ostream(CHAR(STRING_ELT(r_filename, 0)), err, flags);
+#else
+    ans = new llvm::raw_fd_ostream(CHAR(STRING_ELT(r_filename, 0)), err, flags);
+#endif
 #else
     ans = new llvm::raw_fd_ostream(CHAR(STRING_ELT(r_filename, 0)), err);
 #endif
+
+#if LLVM_VERSION >= 4
+    if(err) {
+        PROBLEM "%s",
+            err.message().c_str()
+            ERROR;
+    }
+#else
     if(!err.empty()) {
-        PROBLEM "%s", err.c_str()
+        PROBLEM "%s",
+            err.c_str()
         ERROR;
     }
+#endif
     return(R_createRef(ans, "raw_fd_ostream"));
 }
 #endif

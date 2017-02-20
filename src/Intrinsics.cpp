@@ -1,5 +1,5 @@
 #include "Rllvm.h"
-#if LLVM_VERSION >=3 && LLVM_MINOR_VERSION >= 3
+#if (LLVM_VERSION >=3 && LLVM_MINOR_VERSION >= 3) || LLVM_VERSION >= 4
 #include <llvm/IR/Intrinsics.h>
 #else
 #include <llvm/Intrinsics.h>

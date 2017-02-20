@@ -112,7 +112,7 @@ R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel)
     llvm::Module *module = GET_REF(r_module, Module);
 
     llvm::ExecutionEngine *EE = llvm::EngineBuilder(
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5) || LLVM_VERSION >= 4
                                       std::unique_ptr<llvm::Module>(module)  // XXX
 #else
                                    module
@@ -168,7 +168,7 @@ R_ExecutionEngine_addModule(SEXP r_execEngine, SEXP r_mods)
 //        std::unique_ptr<llvm::Module> tmp = std::unique_ptr<llvm::Module>(m);
 //        tmp.release();
         ee->addModule(
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5) || LLVM_VERSION >= 4
             std::unique_ptr<llvm::Module>(m)
 #else
                        m
@@ -196,8 +196,9 @@ R_ExecutionEngine_getFunctionAddress(SEXP r_execEngine, SEXP r_func)
 {
     llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
     uint64_t  ans = ee->getFunctionAddress(std::string(CHAR(STRING_ELT(r_func, 0))));
-PROBLEM "not implemented yet.  uint64_t as pointer"
-    ERROR;
+//XXXX
+ PROBLEM "not implemented yet.  uint64_t as pointer"
+  ERROR;
 //    return(R_createRef(ans, "NativeFunctionPointer", "native symbol"));
 }
 

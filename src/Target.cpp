@@ -1,7 +1,7 @@
 #include "Rllvm.h"
 #include <llvm/Support/TargetRegistry.h>
 
-#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 7
+#if (LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 7) || LLVM_VERSION >= 4
 #include <llvm/Analysis/TargetLibraryInfo.h>
 #else
 #include <llvm/Target/TargetLibraryInfo.h>
@@ -99,7 +99,7 @@ R_Target_createTargetMachine(SEXP r_target, SEXP r_triple, SEXP r_cpu, SEXP r_fe
 
     ans = tgt->createTargetMachine(triple, std::string(CHAR(STRING_ELT(r_cpu, 0))),
                                    std::string(CHAR(STRING_ELT(r_features, 0))), *opts
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 9
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 9) || LLVM_VERSION >= 4
                                    , llvm::Optional<llvm::Reloc::Model>()
 #endif
                                    );
@@ -125,7 +125,7 @@ R_TargetLibraryInfo_new(SEXP r_triple)
 
 
 
-#if !(LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5)
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION <= 5)
 extern "C"
 SEXP
 R_TargetMachine_getDataLayout(SEXP r_tm)

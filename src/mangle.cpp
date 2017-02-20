@@ -2,7 +2,7 @@
 
 #include <llvm/Target/TargetMachine.h>
 
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 5
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 5) || LLVM_VERSION >= 4
 #include <llvm/IR/Mangler.h>
 #else
 #include <llvm/Target/Mangler.h>

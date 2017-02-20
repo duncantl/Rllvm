@@ -78,7 +78,7 @@ R_Function_getGC(SEXP r_func)
 {
     llvm::Function *func = GET_REF(r_func, Function);
     const char *str;
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 8
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 8) || LLVM_VERSION >= 4
     str = func->getGC().c_str();
 #else
     str = func->getGC();  //XXX Define for 3.5 and check others. 3.8 returns a std::string

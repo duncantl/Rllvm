@@ -94,7 +94,9 @@ R_CREATE_FUNPASS(createFlattenCFGPass)
 R_CREATE_PASS(createStructurizeCFGPass)
 R_CREATE_PASS(createLoopSimplifyPass)
 R_CREATE_FUNPASS(createMemCpyOptPass)
+#if LLVM_VERSION < 4
 R_CREATE_FUNPASS(createCodeGenPreparePass)
+#endif
 R_CREATE_FUNPASS(createInstructionSimplifierPass)
 R_CREATE_FUNPASS(createSinkingPass)
 

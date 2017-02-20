@@ -2,7 +2,7 @@
 #if LLVM_VERSION <= 3 && LLVM_MINOR_VERSION < 2
 #include <llvm/Support/IRBuilder.h>
 #else
-#if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 3
+#if (LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 3) || LLVM_VERSION >= 4
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/SourceMgr.h>
@@ -541,7 +541,7 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
         llvm::TerminatorInst *inst = block->getTerminator();
         if(inst) {
             //XXX check 3.8
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 5
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 5) || LLVM_VERSION >= 4
             llvm::BasicBlock::InstListType &insList = block->getInstList();
             insList.insert(insList.begin(), ans);
 #else
@@ -862,7 +862,7 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
 
     if(LOGICAL(r_inMemory)[0])  {
         llvm::MemoryBuffer *buf;
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5) || LLVM_VERSION >= 4
         buf = llvm::MemoryBuffer::getMemBuffer(fn).get();
         llvm::MemoryBufferRef ref = buf->getMemBufferRef();
    printf("buffer: (# chars %zu) %s\n",  ref.getBufferSize(), ref.getBufferStart());
@@ -876,7 +876,7 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
         mod = llvm::ParseIR(buf, err, *context);
 #endif
     } else { 
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5) || LLVM_VERSION >= 4
         std::unique_ptr<llvm::Module> tmp;
         tmp = llvm::parseIRFile(fn, err, *context);
         mod = tmp.get();
@@ -1004,7 +1004,7 @@ R_IRBuilder_CreateInvoke(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_normal,
     return(R_createRef(ans, "InvokeInst"));
 }
 
-#if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 7
+#if (LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 7) || LLVM_VERSION >= 4
 extern "C"
 SEXP
 R_IRBuilder_CreateStructGEP(SEXP r_builder, SEXP r_type, SEXP r_value, SEXP r_index, SEXP r_id) 

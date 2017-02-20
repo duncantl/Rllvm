@@ -43,10 +43,13 @@ R_NamedMDNode_getParent(SEXP r_namedNode)
 #define MD_TYPE Value
 #endif
 
+
+
 extern "C"
 SEXP
 R_NamedMDNode_addOperand1(SEXP r_namedNode, SEXP r_vals, SEXP r_context)
 {
+NOT_FOR_VERSION4(
     llvm::NamedMDNode *namedNode = GET_REF(r_namedNode, NamedMDNode);
     if(!namedNode) {
         PROBLEM "NULL NamedMDNode pass to addOperand"
@@ -61,6 +64,7 @@ R_NamedMDNode_addOperand1(SEXP r_namedNode, SEXP r_vals, SEXP r_context)
     llvm::MDNode *node = llvm::MDNode::get(*context, vals);
 
     namedNode->addOperand(node);
+    )
     return(R_NilValue);
 }
 
@@ -71,6 +75,11 @@ extern "C"
 SEXP
 R_MDNode_get(SEXP r_context, SEXP r_vals)
 {
+#if (LLVM_VERSION >= 4) 
+  PROBLEM "not working with LLVM4.0 yet"
+     ERROR;
+  return(R_NilValue);
+#else
     int nels = Rf_length(r_vals);
 #if 1
     std::vector<llvm::MD_TYPE *> args; // does this disappear and we lose the elements?
@@ -87,6 +96,7 @@ R_MDNode_get(SEXP r_context, SEXP r_vals)
     llvm::LLVMContext *context = GET_REF(r_context, LLVMContext);
     llvm::MDNode *ans = llvm::MDNode::get(*context, vals);
     return(R_createRef(ans, "MDNode"));
+#endif
 }
 
 
@@ -164,6 +174,11 @@ extern "C"
 SEXP
 R_MDNode_getOperands(SEXP r_node)
 {
+#if (LLVM_VERSION >= 4) 
+  PROBLEM "not working with LLVM4.0 yet"
+     ERROR;
+  return(R_NilValue);
+#else
     llvm::MDNode *node = GET_REF(r_node, MDNode);
     unsigned int numEls = node->getNumOperands();
     SEXP ans, names;
@@ -181,6 +196,7 @@ R_MDNode_getOperands(SEXP r_node)
     SET_NAMES(ans, names);
     UNPROTECT(2);
     return(ans);
+#endif
 }
 
 

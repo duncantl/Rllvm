@@ -7,7 +7,6 @@
 #endif
 
 
-
 extern "C"
 SEXP
 R_getGlobalContext()
@@ -205,7 +204,7 @@ R_showModule(SEXP r_module, SEXP asString)
     verifyModule(*Mod); //XXX Check
 #endif
 
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 7 
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 7)
     llvm::PassManager PM;
 #else
     // llvm::PassManager<llvm::Module> PM;
@@ -247,7 +246,7 @@ SEXP
 R_Module_getDataLayoutRef(SEXP r_module)
 {
     llvm::Module *mod = GET_REF(r_module, Module);
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 6
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 6) || LLVM_VERSION >= 4
 //XXXX
   
     const llvm::DataLayout *dl = new llvm::DataLayout(mod);  // mod->getDataLayout();
@@ -268,7 +267,7 @@ R_Module_getDataLayout(SEXP r_module)
     const char *str = mod->getDataLayout().c_str();
 #elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION == 8
     const char *str = mod->getDataLayout().getStringRepresentation().c_str();
-#elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 7
+#elif (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 7) || LLVM_VERSION >= 4
     const char *str = mod->getDataLayout().getStringRepresentation().c_str();
 #else
     // 3.6
@@ -425,7 +424,7 @@ R_ParseAssemblyString(SEXP r_str, SEXP r_module, SEXP r_context)
     const char *text = CHAR(STRING_ELT(r_str, 0));
     bool ok = false;
 // Tidy this up to use if(err) and avoid ok.
-#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 6
+#if (LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 6) || LLVM_VERSION >= 4
     if(module) {
 //        std::unique_ptr<llvm::MemoryBuffer> buf = llvm::MemoryBuffer::getMemBuffer(std::string(text));
 //        ok = llvm::parseAssemblyInto(buf->getMemBufferRef(), *module, err);
@@ -480,7 +479,12 @@ R_Module_CloneModule(SEXP r_module)
 #endif
 
 #include <llvm/Support/MemoryBuffer.h>
+#if LLVM_VERSION < 4
 #include <llvm/Bitcode/ReaderWriter.h>
+#else
+#include <llvm/Bitcode/BitcodeWriter.h>
+#include <llvm/Bitcode/BitcodeReader.h>
+#endif
 
 #if 1
 extern "C"
@@ -548,7 +552,7 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
     } else {
         //  Dealing with a raw() vector from R. So contents are in memory already.
        llvm::StringRef ref((const char *) RAW(r_input), Rf_length(r_input));
-#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 6
+#if (LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 6) || LLVM_VERSION >= 4
        buf = llvm::MemoryBuffer::getMemBuffer(ref, "", false).get();        
 #else
        buf = llvm::MemoryBuffer::getMemBuffer(ref, "", false);        
@@ -568,7 +572,9 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
     return(R_createRef(ans, "Module"));    
 #else
 //XXX CHECK!
-#if LLVM_VERSION ==3 && (LLVM_MINOR_VERSION >= 8 || LLVM_MINOR_VERSION == 7)
+#if LLVM_VERSION >= 4
+    llvm::Expected<std::unique_ptr<llvm::Module>> err = llvm::parseBitcodeFile(buf->getMemBufferRef(), *context);
+#elif (LLVM_VERSION ==3 && (LLVM_MINOR_VERSION >= 8 || LLVM_MINOR_VERSION == 7)) 
     llvm::ErrorOr<std::unique_ptr<llvm::Module>> err = llvm::parseBitcodeFile(buf->getMemBufferRef(), *context);
 #elif LLVM_VERSION ==3 && LLVM_MINOR_VERSION == 6
     llvm::ErrorOr<llvm::Module *> err =  llvm::parseBitcodeFile(buf->getMemBufferRef(), *context);
@@ -576,14 +582,23 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
     llvm::ErrorOr<llvm::Module *> err =  llvm::parseBitcodeFile(buf, *context);
 #endif
     if(!err) {
-        PROBLEM "failed to read bitcode %s", err.getError().message().c_str()
+#if LLVM_VERSION >= 4
+       PROBLEM "failed to read bitcode!"
          ERROR;
+//See llvm/Support/Error.h
+//        err.handleErrors(std::move(err), .......)
+//           err.takeError().message().c_str()
+#else
+        PROBLEM "failed to read bitcode %s", 
+                    err.getError().message().c_str()
+         ERROR;
+#endif
     }
 
     llvm::Module *mod = NULL;
 #if LLVM_VERSION ==3 && LLVM_MINOR_VERSION < 7
     mod = err.get();
-#elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 8
+#elif (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 8) || LLVM_VERSION >= 4
     mod = err.get().get();
     err.get().release();
 #else

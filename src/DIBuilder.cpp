@@ -5,7 +5,7 @@
 #if LLVM_VERSION <= 3 && LLVM_MINOR_VERSION < 2
 #include <llvm/Support/IRBuilder.h>
 #else
-#if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 3
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 3)  || LLVM_VERSION >= 4
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/SourceMgr.h>
@@ -42,11 +42,25 @@ R_new_DIBuilder_CU(SEXP r_dibuilder, SEXP r_filename, SEXP r_dir, SEXP r_lang, S
     llvm::DICompileUnit* ans;
 
 //XXX???  do these StringRef's copy their contents. R may GC them.
+#if LLVM_VERSION <= 3
     ans = builder->createCompileUnit(INTEGER(r_lang)[0], 
                                      llvm::StringRef(CHAR(STRING_ELT(r_filename, 0))), 
                       	             llvm::StringRef(CHAR(STRING_ELT(r_dir, 0))), 
                                      llvm::StringRef(CHAR(STRING_ELT(r_producer, 0))), 
                                      0, "", 0);
+#else
+ PROBLEM "This doesn't work with LLVM4.0 yet"
+     ERROR;
+#if 0
+    ans = builder->createCompileUnit(INTEGER(r_lang)[0], 
+                                     llvm::DIFile(CHAR(STRING_ELT(r_filename, 0)))
+                                     llvm::StringRef(CHAR(STRING_ELT(r_producer, 0))),
+                                     true, // isOptimized
+                                     llvm::StringRef(CHAR(STRING_ELT(r_flags, 0))),
+                                     0 // run-time version
+                                    );
+#endif
+#endif
 
 	 //llvm::DIRef<llvm::DICompileUnit> ans2=ans;
     return(R_createRef(ans, "DICompileUnit"));
@@ -132,10 +146,23 @@ R_DIBuilder_CreateLocalVariable(SEXP r_builder, SEXP r_ir_builder, SEXP r_sp, SE
                                      SP, varName, Unit, asInteger(r_lineNo),
                                      di_type, false, 0, idx);
 #else
+//XXX allow caller to specify llvm::DINode::FlagZero
     if(idx == 0)
-       D = builder->createAutoVariable(SP, varName, Unit, asInteger(r_lineNo), di_type, false, 0);
+        D = builder->createAutoVariable(SP, varName, Unit, asInteger(r_lineNo), di_type, false, 
+#if  LLVM_VERSION >= 4
+                llvm::DINode::FlagZero
+#else
+                              0
+#endif
+              );
     else
-       D = builder->createParameterVariable(SP, varName, idx, Unit, asInteger(r_lineNo), di_type, false, 0);
+       D = builder->createParameterVariable(SP, varName, idx, Unit, asInteger(r_lineNo), di_type, false, 
+#if  LLVM_VERSION >= 4
+                llvm::DINode::FlagZero
+#else
+                              0
+#endif
+            );
 #endif
 
     llvm::Instruction *Call = builder->insertDeclare(
@@ -153,12 +180,16 @@ R_DIBuilder_CreateBasicType(SEXP r_builder,SEXP r_name, SEXP r_size, SEXP r_alig
     llvm::DIBuilder *builder;
     builder = GET_REF(r_builder, DIBuilder);
 
-	const char * name=CHAR(STRING_ELT(r_name, 0));
-	int size=asInteger(r_size);
-	int align=asInteger(r_align);
-	int dwarf_type=asInteger(r_dwarf_type);
+	const char * name = CHAR(STRING_ELT(r_name, 0));
+	int size = asInteger(r_size);
+	int dwarf_type = asInteger(r_dwarf_type);
 
+#if LLVM_VERSION >= 4
+	llvm::DIType* ans = builder->createBasicType(llvm::StringRef(name), size, (unsigned) dwarf_type);
+#else
+	int align = asInteger(r_align);
 	llvm::DIType* ans = builder->createBasicType(llvm::StringRef(name), size, align, dwarf_type);
+#endif
 	return(R_createRef(ans,"DIType"));
 }
 
