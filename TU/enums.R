@@ -1,13 +1,14 @@
 library(RCIndex)
 #tu = createTU("llvm.cpp", includes = c("/Users/duncan/local/include", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/usr/include/c++/4.2.1/tr1"))
 
-version = c(3, 9)
+version = c(4, 0)
 llvmDir = sprintf("/Users/duncan/LLVM%d.%d/clang+llvm-%d.%d.0-macosx-apple-darwin/include", version[1], version[2], version[1], version[2])
 
 llvmDir = "/Users/duncan/LLVM3.6/clang+llvm-3.6.0-x86_64-apple-darwin/include"
 llvmDir = path.expand("~/LLVM3.4/clang+llvm-3.4.2-x86_64-apple-darwin10.9/include")
 
 llvmDir = "/Users/duncan/LLVM3.9/clang+llvm-3.9.0-x86_64-apple-darwin/include"
+llvmDir = "/Users/duncan/LLVM4.0/clang+llvm-4.0.0-rc2-x86_64-apple-darwin/include"
 
 stopifnot(file.exists(llvmDir))
 
