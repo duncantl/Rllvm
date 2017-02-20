@@ -13,9 +13,10 @@ b = Block(f)
 ir = IRBuilder(b)
 ir$createReturn(ir$binOp(Add, x, createConstant(ir, 1L, Int32Type)))
 
+print(showModule(m))
 
 # Check the code does what we think
-sapply(c(1, 10, 12), function(x) .llvm(f, x))
+#sapply(c(1, 10, 12), function(x) .llvm(f, x))
 
 
 # We need to specify the data layout string
@@ -26,6 +27,9 @@ getDataLayout(m)
 showModule(m)
 
 print(getAssemblyCode(m))
+
+# Check the code does what we think
+sapply(c(1, 10, 12), function(x) .llvm(f, x))
 
 # Add the triple identifying the platform.
 setTargetTriple(m, getDefaultTargetTriple())
