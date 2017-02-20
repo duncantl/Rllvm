@@ -9,6 +9,15 @@
 <items>
 
 <item>
+Compile against 3.9.1 - tests/addOne.R fails.
+<br/>
+Type of return doesn't match type of declared return type!
+Is this a global context issue?
+<br/>
+If we add the datalayout before invoking the routine, things are better but still fail.
+</item>
+
+<item>
 Should getTerminator() set the class from the actual class of the instruction or just use the  generic TerminatorInst ?
 </item>
 
@@ -459,6 +468,15 @@ Need the -xc++ argument for  libclang to force C++.
 </item>
 
 
+</items>
+</topic>
+
+<topic>
+<title>LLVM 4.0</title>
+<items>
+<item>
+Module.cpp and parseBitCodeFile - deal with the llvm::Expected object and error message.
+</item>
 </items>
 </topic>
 
