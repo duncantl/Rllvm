@@ -1,7 +1,7 @@
 #ifndef R_LLVM_H
 #define R_LLVM_H 1
 
-#if LLVM_VERSION >=3 && LLVM_MINOR_VERSION >= 3
+#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 3) || LLVM_VERSION >= 4
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 //#include <llvm/DerivedTypes.h>
@@ -31,7 +31,10 @@
 #include <llvm/Support/FormattedStream.h>
 #include <llvm/Support/MathExtras.h>
 #include <llvm/Pass.h>
-#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 7
+#if LLVM_VERSION >= 4
+#include <llvm/IR/PassManager.h>
+#include <llvm/IR/LegacyPassManager.h>
+#elif (LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 7) 
 //#include <llvm/IR/PassManager.h>
 #include <llvm/IR/LegacyPassManager.h>
 #else
@@ -40,7 +43,7 @@
 #include <llvm/ADT/SmallVector.h>
 
 
-#if LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 5
+#if (LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 5) || LLVM_VERSION >= 4
 #include <llvm/IR/Verifier.h>
 #include <llvm/IR/IRPrintingPasses.h>
 #else
@@ -51,7 +54,7 @@
 
 #include <Rdefines.h>
 
-#if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 2
+#if LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 2 || LLVM_VERSION >= 4
 #define LLVM_VERSION_THREE_TWO 1
 #endif
 
@@ -131,6 +134,15 @@ llvm::LLVMContext & getLLVMGlobalContext();
 #else
 #define LLVM_GLOBAL_CONTEXT llvm::getGlobalContext()
 #endif
+
+
+
+#if LLVM_VERSION >= 4
+#define NOT_FOR_VERSION4(a) PROBLEM "This does not compile as-is for LLVM4.0 or higher" ERROR;
+#else
+#define NOT_FOR_VERSION4(a) a
+#endif
+
 
 
 #endif // #define R_LLVM_H
