@@ -7,6 +7,8 @@ InitializeNativeTarget()
 mod = Module("global")
 ee = ExecutionEngine(mod)
 
+ctxt = getGlobalContext()
+
 one = createIntegerConstant(-101L)
 gvar = createGlobalVariable("gv", mod, Int32Type, val = one)
 
@@ -16,10 +18,12 @@ e = Block(fun, "entry")
 ir = IRBuilder(e)
 
 v = ir$createLoad(gvar)
-ans = ir$binOp(Add, v, createIntegerConstant(1L, as(ir, "LLVMContext")))
+# Add is defined in two enums
+ans = ir$binOp(BinaryOps[["Add"]], v, createIntegerConstant(1L, ctxt))
 v = ir$createStore(ans, gvar)
 v = ir$createLoad(gvar)
-ir$createRet(v)
+ret = ir$createRet(v)
+
 
 verifyModule(mod)
 showModule(mod, FALSE)
