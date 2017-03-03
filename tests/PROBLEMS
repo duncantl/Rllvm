@@ -1,3 +1,48 @@
+LLVM3.9
+
+
+byVal.R  - Now an unused argument. was context issue
+clone.R  - NULL for routine to call.
+clone2.R - same as clone.R
+ffi.R -  NULL for routine being called in FFI
+emitCode.R - seg faults
+funcAttributes.R
+globalVars.Rdb - error related to a constant.
+
+meta.R - abort via assertion
+
+WARNINGS:
+ globalSet.R  - warning
+ globalVarInit.R
+
+
+PROBLEMS
+globals.R - problem with RLLVMCompile part of this if enabled.
+
+RUNS:
+global.R -
+mcjit.R - parseIR
+jitevents.R - parseIR() again.
+getUses.R - parseIR() issue again like ffi.R
+mangle.R - but check it is doing what we want?
+globalGet.R
+globalArrays.R
+bitWidth
+datalayout
+extCall.Rdb works and is far from trivial.
+ffi2.R
+gep.R
+addOne.R - same as createGlobal.R
+createGlobal.R - type issue again - see clone.R
+      The createRet() call returns a Value of type void!
+      The module is messed up with a ret in the second  line but with 
+       a store and load following it.  There are two ret instructions.
+      Looks like the enums may be out of sync. No - just Add redefined as an enum.
+-------------------
+
+
+
+
 clone.R
 clone2.R
 mangle.R
