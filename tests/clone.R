@@ -15,7 +15,7 @@ m2 = clone(mod)
 message("*** cloned module  **")
 showModule(m2)
 
-ee2 = ExecutionEngine(mod)
+ee2 = ExecutionEngine(m2)
 #finalizeEngine(ee2)
 start = run(m2$get, .ee = ee2) # Note that this is -101
 replicate(20, run(m2$foo, .ee = ee2))
