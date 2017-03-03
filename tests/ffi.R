@@ -28,7 +28,7 @@ fun = mod$bar
 # UNREACHABLE executed at /Users/duncan/LLVM3.8/llvm-3.8.0.src/lib/ExecutionEngine/MCJIT/MCJIT.cpp:575!
 #
 #   .llvm(fun, 10, 20L, 30L, .4, .ffi = FALSE)
-
+ee = ExecutionEngine(mod)
 .llvm(fun, 10, 20L, 30L, .4, .ee = ee)
 
 # If we have the CIF, we can pass it to avoid recomputing it.
