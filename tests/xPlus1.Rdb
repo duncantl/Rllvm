@@ -137,7 +137,7 @@ xi = ir$createLoad(ir$createGEP(a, idx))
 Then add 1 to this:
 
 <r:code>
-tmp = ir$binOp(FAdd, 1.0, xi)
+tmp = ir$binOp(BinaryOps["FAdd"], 1.0, xi)
 </r:code>
 Next we store the result back in x[i].
 
@@ -156,7 +156,7 @@ We just need to increment i.
 
 <r:code>
 i = ir$createLoad(iv)
-inc = ir$binOp(Add, i, 1L)
+inc = ir$binOp(BinaryOps["Add"], i, 1L)
 ir$createStore(inc, iv)
 </r:code>
 

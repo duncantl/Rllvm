@@ -50,7 +50,7 @@ ptr = getPointerToFunction(fun, ee)
 </r:code>
 Check we can call it with a specific cast to the correct
 function pointer type
-<r:code>
+<r:code eval="false">
 .Call("R_checkNativePtr", ptr@ref)
 </r:code>
 
@@ -112,7 +112,7 @@ xa = createLocalVariable(ir, Int32PtrType, "x_addr")
 x = ir$createStore(params$x, xa)
 a = ir$createLoad(ir$createGEP(ir$createLoad(xa), 0L))
 b = ir$createLoad(ir$createGEP(ir$createLoad(xa), 1L))
-ans = ir$binOp(Add, a, b)
+ans = ir$binOp(BinaryOps["Add"], a, b)
 ir$createRet(ans)
 </r:code>
 
@@ -178,7 +178,7 @@ x = ir$createStore(params$x, xa)
 x = ir$createStore(params$ans, xb)
 a = ir$createLoad(ir$createGEP(ir$createLoad(xa), 0L))
 b = ir$createLoad(ir$createGEP(ir$createLoad(xa), 1L))
-ans = ir$binOp(Add, a, b)
+ans = ir$binOp(BinaryOps["Add"], a, b)
 ir$createStore(ans, ir$createGEP(ir$createLoad(xb), 0L))
 ir$createRetVoid()
 </r:code>

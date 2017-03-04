@@ -1,25 +1,76 @@
 LLVM3.9
 
+extCall.Rdb - runs; takes a long time.
 
-byVal.R  - Now an unused argument. was context issue
-clone.R  - NULL for routine to call.
-clone2.R - same as clone.R
-ffi.R -  NULL for routine being called in FFI
-emitCode.R - seg faults
-funcAttributes.R
-globalVars.Rdb - error related to a constant.
+../explorations/fgets.Rdb - Need to specify the signature for Fgets when compiling readTo.  Should be in the same module already??
+clone2.R  - depends on ../explorations/fgets.Rdb so fix that first.
+
+FAILS:
+cumsum.Rdb - optimization seg fault.
+rw2d.Rdb - optimize, seg fault.
+xPlus1.Rdb - optimize, seg faults
+
+optimize.R - reading bob.ll. Need to generate?? Where is bob ?
+meta.R    - aborts
 
 meta.R - abort via assertion
+verify.R - aborts
+
+
+
+
 
 WARNINGS:
  globalSet.R  - warning
  globalVarInit.R
 
 
+WORKED-AROUND
+walkBlocks with compiling function via RLLVMCompile.
+etadata.R - Optimize. Works if we compileFunction(,optimize = FALSE)
+
+
 PROBLEMS
 globals.R - problem with RLLVMCompile part of this if enabled.
 
 RUNS:
+walkBlocks.R - segfaults if we compile the function our self. Optimization step?  Different Code for 3.9 with FunctionPassManager and an AnalysisManager.  In call to Optimize().  But if we read the fib.ll,  it is fine.
+
+tut2.R
+emitCode.R - 
+byVal.R  - Now an unused argument. was context issue
+struct.R          
+globalVars.Rdb - error related to a constant.
+stringPointer.R   
+rffiCall.Rdb - no R_checkNativePtr symbol but commented this out for now.
+strings.Rdb
+funcAttributes.R
+metadataRaw.R"     
+byVal.R           
+setAttrs.R
+emitCode.R
+mkRFun.R
+setGlobal.R       
+simplest.R        
+rw1.R             
+paramAttributes.R
+tut1.R   
+moveInstructions.R
+stringPointer2.R 
+parseAssembler.R  
+readBitcode.R     
+fpConstant.R      
+store.R           
+store1.R          
+store2.R          
+context.R         
+switch.R
+types.R           
+ternary.R
+writeBitcode.R
+void.R
+clone.R  - NULL for routine to call.
+ffi.R -  NULL for routine being called in FFI
 global.R -
 mcjit.R - parseIR
 jitevents.R - parseIR() again.

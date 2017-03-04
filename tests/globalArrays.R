@@ -9,8 +9,13 @@ m[["d"]] = ty
 setInitializer(m[["d"]], constantAggregateZero(ty))
 
 ee = ExecutionEngine(m)
-m[["i", ee = ee]]
-m[["d", ee = ee]]
+i = m[["i", ee = ee]]
+d = m[["d", ee = ee]]
+
+print(length(i))
+print(length(d))
+
+# Use a different initializer
 
 
 

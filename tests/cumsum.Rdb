@@ -248,7 +248,7 @@ load that.
 
 <r:code>
 a = ir$createLoad(iv)  # load i
-b = ir$binOp(Sub, a, ir$createConstant(1L))  # subtract 1 from i
+b = ir$binOp(BinaryOps["Sub"], a, ir$createConstant(1L))  # subtract 1 from i
 r = ir$createLoad(ans.ref)  # load ans
 idx = ir$createSExt(b, 64L) #  index for ans[i-1]
 ans.i1 = ir$createLoad(ir$createGEP(r, idx))
@@ -270,7 +270,7 @@ This is the very same idiom as for loading an element of <r:var>ans</r:var> abov
 <para>
 Now we can add these two values xi and ans.i1
 <r:code>
-tmp = ir$binOp(FAdd, ans.i1, xi)
+tmp = ir$binOp(BinaryOps["FAdd"], ans.i1, xi)
 </r:code>
 Note that we had to know these were two real-valued variables.
 </para>
@@ -298,7 +298,7 @@ branch back to cond
 
 <r:code>
 i = ir$createLoad(iv)
-inc = ir$binOp(Add, i, 1L)
+inc = ir$binOp(BinaryOps["Add"], i, 1L)
 ir$createStore(inc, iv)
 </r:code>
 Now we jump back to the top of the loop:
@@ -306,6 +306,13 @@ Now we jump back to the top of the loop:
 ir$createBr(cond)
 </r:code>
 </para>
+
+<para>
+<r:code>
+showModule(mod)
+</r:code>
+</para>
+
 </section>
 
 <section>

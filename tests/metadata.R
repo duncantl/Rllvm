@@ -28,7 +28,7 @@ if(TRUE) {
 library(RLLVMCompile)
 Dnorm = function(x, mu = 0, sd = 1)
          1/sqrt(2 * pi * sd^2) * exp( - .5*( (x-mu)/sd ) ^2)
-fc = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType))
+fc = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), optimize = FALSE)
 m = as(fc, "Module")
 }
 

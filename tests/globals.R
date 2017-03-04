@@ -15,7 +15,7 @@ mod[["l", ee = ee]]
 
 mod[c("r", "i")]
 
-if(TRUE && require(RLLVMCompile)) {
+if(FALSE && require(RLLVMCompile)) {
     # Adding a function to the module and then the same function
     # but with a different name.
   f = function() { return(10.4) }

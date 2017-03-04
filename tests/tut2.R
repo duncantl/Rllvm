@@ -38,12 +38,12 @@ createCondBr(ir, xlty, b.true2, b.false2)
 
 
 setInsertPoint(ir, b.true2)
-ylessx = binOp(ir, Sub, params$y, params$x)
+ylessx = binOp(ir, BinaryOps[["Sub"]], params$y, params$x)
 val = createCall(ir, fun, params$x, ylessx)
 createReturn(ir, val)
 
 setInsertPoint(ir, b.false2)
-diff = binOp(ir, Sub, params$x, params$y)
+diff = binOp(ir, BinaryOps["Sub"], params$x, params$y)
 val = createCall(ir, fun, params$y, diff)
 createReturn(ir, val)
 

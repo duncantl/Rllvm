@@ -11,7 +11,7 @@ f = Function("addOne", Int32Type, list(x = Int32Type), module = m)
 x = getParameters(f)[[1]]
 b = Block(f)
 ir = IRBuilder(b)
-ir$createReturn(ir$binOp(Add, x, createConstant(ir, 1L, Int32Type)))
+ir$createReturn(ir$binOp(BinaryOps["Add"], x, createConstant(ir, 1L, Int32Type)))
 
 print(showModule(m))
 

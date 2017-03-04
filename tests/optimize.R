@@ -4,7 +4,7 @@ m = parseIR("bob.ll")
 
 fun = m$foo
 
-N = 1000
+N = 10
 tm1 = system.time(replicate(N, .llvm(fun, 3, 12, 4)))
 
 ee = ExecutionEngine(m)
