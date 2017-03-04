@@ -853,10 +853,17 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
     llvm::LLVMContext *context;
     if(Rf_length(r_context))
         context = (GET_REF(r_context, LLVMContext)); // llvm::cast<llvm::LLVMContext> 
+    else {
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 9
-    else
         context = & llvm::getGlobalContext();
+#else
+        context = & getLLVMGlobalContext();
+/*
+        PROBLEM "Need to pass an LLVMContext"
+            ERROR;
+*/
 #endif
+    }
 
     std::string fn(CHAR(STRING_ELT(r_content, 0)));
 
