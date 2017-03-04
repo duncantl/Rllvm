@@ -228,7 +228,7 @@ setMethod("getContext", "Function",
 
 setParamAttributes =
     # context added for 3.9
-function(arg, values, context = NULL, force = FALSE)
+function(arg, values, context = getGlobalContext(), force = FALSE)
 {
    if(!is(arg, "Argument"))
      stop("need an Argument object to set the attributes")
