@@ -1,24 +1,14 @@
 LLVM3.9
 
-extCall.Rdb - runs; takes a long time.
-
 ../explorations/fgets.Rdb - Need to specify the signature for Fgets when compiling readTo.  Should be in the same module already??
 clone2.R  - depends on ../explorations/fgets.Rdb so fix that first.
 
 FAILS:
-cumsum.Rdb - optimization seg fault.
-rw2d.Rdb - optimize, seg fault.
-xPlus1.Rdb - optimize, seg faults
-
-optimize.R - reading bob.ll. Need to generate?? Where is bob ?
-meta.R    - aborts
-
 meta.R - abort via assertion
-verify.R - aborts
 
 
-
-
+OKAY:
+verify.R - aborts intentionally.  And if the debug+assert calls abort() then the process dies.
 
 WARNINGS:
  globalSet.R  - warning
@@ -34,6 +24,11 @@ PROBLEMS
 globals.R - problem with RLLVMCompile part of this if enabled.
 
 RUNS:
+rw2d.Rdb - optimize, seg fault.
+cumsum.Rdb - optimization seg fault.
+xPlus1.Rdb - optimize, seg faults
+extCall.Rdb - runs
+optimize.R - reading bob.ll. Need to generate?? Where is bob ?
 walkBlocks.R - segfaults if we compile the function our self. Optimization step?  Different Code for 3.9 with FunctionPassManager and an AnalysisManager.  In call to Optimize().  But if we read the fib.ll,  it is fine.
 
 tut2.R

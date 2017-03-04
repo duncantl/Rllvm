@@ -135,11 +135,11 @@ and the store this in x[i]
 <r:code>
 ir$setInsertPoint(h)
 a = ir$createLoad(iv)
-b = ir$binOp(Sub, a, one)
+b = ir$binOp(BinaryOps["Sub"], a, one)
 r = ir$createLoad(xa)
 idx = ir$createSExt(b, 64L)
 x.prev = ir$createLoad(ir$createGEP(r, idx))
-nw = ir$binOp(Add, x.prev, ir$createLoad(delta))
+nw = ir$binOp(BinaryOps["Add"], x.prev, ir$createLoad(delta))
 a = ir$createLoad(xa)
 i = ir$createLoad(iv)
 idx = ir$createSExt(i, 64L)
@@ -150,7 +150,7 @@ ir$createStore(nw, xi)
 Next we copy y[i-1] to y[i]
 <r:code>
 a = ir$createLoad(iv)
-b = ir$binOp(Sub, a, one)
+b = ir$binOp(BinaryOps["Sub"], a, one)
 r = ir$createLoad(ya)
 idx = ir$createSExt(b, 64L)
 y.prev = ir$createLoad(ir$createGEP(r, idx))
@@ -171,7 +171,7 @@ then jumps to the loop condition.
 <r:code>
 ir$setInsertPoint(increment)
 i = ir$createLoad(iv)
-inc = ir$binOp(Add, i, 1L)
+inc = ir$binOp(BinaryOps["Add"], i, 1L)
 ir$createStore(inc, iv)
 ir$createBr(cond)
 </r:code>
@@ -182,11 +182,11 @@ ir$createBr(cond)
 ir$setInsertPoint(v)
 
 a = ir$createLoad(iv)
-b = ir$binOp(Sub, a, one)
+b = ir$binOp(BinaryOps["Sub"], a, one)
 r = ir$createLoad(ya)
 idx = ir$createSExt(b, 64L)
 y.prev = ir$createLoad(ir$createGEP(r, idx))
-nw = ir$binOp(Add, y.prev, ir$createLoad(delta))
+nw = ir$binOp(BinaryOps["Add"], y.prev, ir$createLoad(delta))
 a = ir$createLoad(ya)
 i = ir$createLoad(iv)
 idx = ir$createSExt(i, 64L)
@@ -195,7 +195,7 @@ ir$createStore(nw, yi)
 
 
 a = ir$createLoad(iv)
-b = ir$binOp(Sub, a, one)
+b = ir$binOp(BinaryOps["Sub"], a, one)
 r = ir$createLoad(xa)
 idx = ir$createSExt(b, 64L)
 x.prev = ir$createLoad(ir$createGEP(r, idx))
@@ -222,6 +222,7 @@ other implementations.  Our compiled code references the
 <c:func>runif</c:func> routine and so needs to be able to find that.
 We do this before running the code as it only needs to be done once.
 <r:code>
+print(showModule(mod))
 ee = ExecutionEngine(mod)
 Optimize(mod, ee)
 llvmAddSymbol(runif = getNativeSymbolInfo("runif")$address)
@@ -231,7 +232,7 @@ llvmAddSymbol(runif = getNativeSymbolInfo("runif")$address)
 We'll set the number of steps to something quite large so that we measure sufficiently
 lengthy computations:
 <r:code>
-n = 1e7
+n = 1e4
 </r:code>
 
 </para>
@@ -249,6 +250,7 @@ interp = system.time({rw2d1(n)})
 <para>
 Now we run the compiled code
 <r:code>
+print(showModule(fun))
 doit = 
 function(n = 1000000) {
  x = integer(n)

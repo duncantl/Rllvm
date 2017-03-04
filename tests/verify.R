@@ -12,6 +12,7 @@ bar = Function('bar', Int32Type, paramTypes = list( SEXPType ), mod)
 block = Block(foo, 'entry')
 ir = IRBuilder(block)
 
+    # Passing the wrong type to bar()
 createCall(ir, bar, createDoubleConstant(3.14))
 createRet(ir, createIntegerConstant(0))
 

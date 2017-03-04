@@ -492,12 +492,13 @@ The numbers below need to be re-run as I was compiling clang and llvm at the sam
 </para>
 
 <para>
-How much overhead does the <r:func>run</r:func> function add
-<r:code>
+How much overhead does the <r:func>run</r:func> function add?
+(Can't use this direct approach now as LLVM doesn't provide FFI. We do this ourselves in <omg:pkg>Rllvm</omg:pkg>.)
+<r:code eval="false">
 ll.rawRun = replicate(10, system.time({ .Call("R_callFunction", fun, .args = list(x = x, ans = ans, n = length(x)), ee)}))
 </r:code>
 
-<r:code>
+<r:code eval="false">
 (rowMeans(ll)/rowMeans(ll.rawRun))[1:3]
 <r:output><![CDATA[
 user.self  sys.self   elapsed 
@@ -544,7 +545,7 @@ times = list(interpreted = interp,
 	      native = native, 
               llvm.run = ll, 
               cCode = cnative,
-              llvm.dotC = ll.rawRun,
+#              llvm.dotC = ll.rawRun,
               llvm.CallFunction = ll.runDirect)
 timings = do.call(rbind, lapply(times, t))
 timings = as.data.frame(timings[, 1:3])
