@@ -217,6 +217,7 @@ ir$createRetVoid()
 Let's test this with
 <r:code>
 llvmAddSymbol(fopen = getNativeSymbolInfo("fopen")$address)
+ee = ExecutionEngine(mod)
 ff = .llvm(fun, "tmp", "r", .ee = ee)
 </r:code>
 </para>
@@ -250,6 +251,7 @@ ir$createRetVoid()
 We can test this and close the handle we opened above with
 <r:code>
 llvmAddSymbol(fclose = getNativeSymbolInfo("fclose")$address)
+ee = ExecutionEngine(m)
 ff = .llvm(Fclose, ff, .ee = ee)
 </r:code>
 </para>
