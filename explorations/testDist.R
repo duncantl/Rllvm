@@ -1,3 +1,6 @@
+
+source("distance.R")
+
 p = 10
 n1 = 1000
 n2 = 999

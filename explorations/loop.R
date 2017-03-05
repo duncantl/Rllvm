@@ -48,7 +48,7 @@ distc = compileFunction(dist, REALSXPType, list(DoublePtrType, DoublePtrType, In
 ee = ExecutionEngine(mod)
 Optimize(mod)
 
-if(FALSE) {
+if(TRUE) {
 .llvm(fc, 1e3L, .ee = ee)
 .llvm(fc, 1e8L, .ee = ee)
 
