@@ -30,12 +30,27 @@ function(builder, instruction)
 binOp = 
 function(builder, op, x, y, id = character())
 {
-     # incomplete. The idea is to recognize symbols in R such as + or - and
-     # map those to the corresponding enum values.
    fun = deparse(substitute(op))
-   if(is.function(op))
+   if(is.function(op))  {
+            # incomplete. The idea is to recognize symbols in R such as + or - and
+            # map those to the corresponding enum values. However, it is not clear
+            # whether to use the integer or numeric values.
       op = fun
+   } else if(is.character(op)) {
+       i = match(op, names(BinaryOps))
+       if(is.na(i))
+          stop(op, " is not a valid Binary Operator name. See BinaryOps")
+       op = BinaryOps[i]
+   }
 
+   if(! (op %in% BinaryOps) ) {
+      if(fun %in% c("Add", "Sub") || fun %in% Opcode)
+          msg = paste(" You seem to have used", fun, "which is an Opcode with the same name as a BinaryOp")
+      else
+          msg = character()
+      stop(op, " is not a valid Binary Operator value. See the vector BinaryOps.", msg)
+   }
+   
    if(isBasicType(x))
      x = makeConstant(builder, x)
    if(isBasicType(y))
