@@ -28,6 +28,7 @@ iv = ir$createLocalVariable(Int32Type, "tmp")
 ir$createBr(body)
 
 ir$setInsertPoint(body)
+# BinaryOps["Add"]
 val = ir$binOp(Add, params$x, params$y)
 ir$createReturn(val)
 

@@ -6,7 +6,7 @@ fun2 = function(x) {
 	return(res)
 }
 
-# dont move the uper function in the file, because the line numbers are encoded in the debug data!!
+# dont move the upper function in the file, because the line numbers are encoded in the debug data!!
 #set the path to the script here, otherwise gdb cant display source lines
 
 absPath = sprintf("%s/DIBuilder.R", getwd())

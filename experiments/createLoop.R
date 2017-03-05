@@ -2,7 +2,7 @@ library(Rllvm)
 
 createLoop =
   #
-  # This takes a variable, a length variable and bulds a loop.
+  # This takes a variable, a length variable and builds a loop.
   #
   #
 function(var, len, body, fun, ir = IRBuilder(), module = NULL)

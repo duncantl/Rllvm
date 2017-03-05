@@ -32,7 +32,7 @@ ir$createStore(params$x, ptmp)
 ir$createBr(body)
 
 ir$setInsertPoint(body)
-val = ir$binOp(Add, params$x, params$y)
+val = ir$binOp(BinaryOps["Add"], params$x, params$y)
 ir$createStore(ptmp, val)
 ir$createReturn(tmp)
 

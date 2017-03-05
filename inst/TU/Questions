@@ -1,0 +1,14 @@
+Q Why does
+ sapply(llvm, getFileName)
+include files from LLVM3.8 when we were focusing on LLVM3.9
+
+Answer: Because RCIndex is installed against LLVM3.8 and so it looks for the 
+ standard C++ files in that location.
+
+Q Why duplicate class names in `llvm`, e.g. LoopBase?
+Anwer: Templates and then specific instantiation of the template.
+How many templates do we have?
+  table(sapply(llvm, function(x) names(x$kind)))
+
+    CXCursor_ClassDecl CXCursor_ClassTemplate 
+                   354                    279 

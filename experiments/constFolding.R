@@ -1,9 +1,15 @@
+# The LLVM code does not implement that.
+# Instead, the routine computes 2 * pi * x[i] and puts it into a result array.
+#
+# We write the LLVM IR code in the "obvious" way. The compilation step reduces it significantly.
+#
+#
 foo =
 function(x)
 {
    ans = numeric(length(x))
    for(i in x)
-      ans[i] = sin(2 * pi * x)
+      ans[i] = (2 * pi * x[i])
    ans
 }
 
@@ -66,22 +72,22 @@ params = getParameters(fun)
 
       # update i as i = i + 1
     i = ir$createLoad(iv)
-    inc = ir$binOp(Add, i, 1L)
+    inc = ir$binOp(BinaryOps["Add"], i, 1L)
     ir$createStore(inc, iv)
     ir$createBr(cond)
 
 
 ee = ExecutionEngine(mod)
 verifyModule(mod)
-showModule(mod)
+before = showModule(mod, TRUE)
 
-if(FALSE) {
+if(TRUE) {
 mgr = getPassManager(mod, ee)
 Optimize(fun, mgr)
 
 
 cat("************ Optimized\n")
-showModule(mod)
+after = showModule(mod, TRUE)
 
 funs = getModuleFunctions(mod)
 names(funs)
@@ -92,4 +98,7 @@ names(funs[[1]]) # the parameters
 
 x = as.numeric(1:10)
 ans = numeric(10)
-run(fun, x = x, length(x), ans = ans, .all = TRUE)$ans
+ans = run(fun, x = x, length(x), ans = ans, .all = TRUE)$ans
+
+all.equal(2*pi*x, ans)
+
