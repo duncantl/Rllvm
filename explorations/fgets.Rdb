@@ -84,7 +84,7 @@ by specifying  its signature.
 We can do this explicitly by creating a <r:class>Function</r:class> object
 or using the <r:func>declareFunction</r:func> helper function:
 <r:code thread="manual">
-fgets = declareFunction(list(stringType, stringType, Int32Type, FILEType), "fgets", mod) 
+fgets = declareFunction(list(StringType, StringType, Int32Type, FILEType), "fgets", mod) 
 </r:code>
 If we are using <r:func>compileFunction</r:func> in <omg:pkg>RLLVMCompile</omg:pkg>,
 we could specify this information via <r:arg>.routineInfo</r:arg> parameter of <r:func>compileFunction</r:func>.
@@ -136,7 +136,7 @@ function(file)
 </r:code>
 Then we can compile the function using <r:func>compileFunction</r:func>
 <r:code eval="false">
-fun = compileFunction(Fgets, stringType, list(FILEType), mod, name = "Fgets")
+fun = compileFunction(Fgets, StringType, list(FILEType), mod, name = "Fgets")
 </r:code>
 The following changes the return type to a pointer to an integer.
 <r:code eval="false">
@@ -186,7 +186,7 @@ FILE *fopen(const char *, const char *)
 </c:code>
 We can create a wrapper to this routine with
 <r:code thread="fopen">
-mod = Module()
+#mod = Module()
 fopen = Function("fopen", FILEType, list(StringType, StringType), module = mod)
 fun = Function("Fopen", FILEType, list(file = StringType, mode = StringType), module = mod)
 b = Block(fun, "entry")
@@ -236,7 +236,8 @@ void fclose(FILE *);
 This is even simpler than our previous routines.
 We can create the wrapper with
 <r:code thread="fclose">
-m = Module()
+#m = Module()
+m = mod
 fclose = Function("fclose", VoidType, list(FILEType), module = m)
 Fclose = Function("Fclose", VoidType, list(FILEType), module = m)
 b = Block(Fclose, "entry")
@@ -262,7 +263,7 @@ ff = .llvm(Fclose, ff, .ee = ee)
 
 
 <section>
-<title></title>
+<title>Reading Multiple Lines to a Particular Line Number</title>
 <r:function><![CDATA[
 readTo =
 function(n, file)
@@ -281,7 +282,8 @@ function(n, file)
 <q>Can we get away without creating tmp outside of the loop.</q>
 
 <r:code>
-rr = compileFunction(readTo, stringType, list(Int32Type, FILEType), mod, name = "readTo")
+#debug(RLLVMCompile:::`compile.=`)
+rr = compileFunction(readTo, StringType, list(Int32Type, FILEType), mod, name = "readTo")
 </r:code>
 
 

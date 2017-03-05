@@ -337,10 +337,22 @@ function(x, len, mu, sigma, ans)
 library(XML)
 #xmlSourceFunctions("../Rllvm/explorations/fuseLoop.Rdb")
 mod = Module("vec")
-d = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE)
-fc = compileFunction(Dnorm_v, VoidType, list(DoublePtrType, Int32Type, DoubleType, DoubleType, DoublePtrType), name = "Dnorm_v", .insertReturn = FALSE)
+d = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE, module = mod)
+fc = compileFunction(Dnorm_v, VoidType, list(DoublePtrType, Int32Type, DoubleType, DoubleType, DoublePtrType), name = "Dnorm_v", .insertReturn = FALSE, module = mod)
 </r:code>
 
+</para>
+
+
+<para>
+x = rnorm(10)
+ans = numeric(length(x))
+ans = .llvm(fc, x, length(x), 0, 1, ans = ans, .all = TRUE)$ans
+all.equal(dnorm(x), ans)
+</para>
+
+
+<para>
 <r:function><![CDATA[
 Dnorm_v <-
 function(x, mu, sigma, ans)
