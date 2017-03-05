@@ -3,6 +3,7 @@
 # This compiles expressions such as
 #   Reduce(`+`, Map(log, Map(dnorm, x, mu, sigma)))
 #
+# See expandGrid.R also for an example
 #
 
 library(RLLVMCompile)
@@ -48,7 +49,7 @@ if(TRUE) {
   Optimize(mod)
 }
 
-if(FALSE) {
+if(TRUE) {
   # note tested!
   mod = Module("fuse")
   d = compileFunction(Dnorm, DoubleType, list(DoubleType, DoubleType, DoubleType), .insertReturn = TRUE, mod = mod)
@@ -56,7 +57,7 @@ if(FALSE) {
 }
 
 
-if(FALSE) {
+if(TRUE) {
   x = rnorm(1e5)
   a = .llvm(fc, x, 0, 1, length(x), .ee = ee)
   b = sum(log(dnorm(x)))
@@ -73,6 +74,8 @@ if(TRUE) {
 #  tm.b = system.time(replicate(20, sum(log(dnorm(x)))))
 
 
+  print(median((tm.b/tm.a)[3,]))
+  
   tm.a = replicate(20, system.time(.llvm(fc, x, 0, 1, length(x), .ee = ee)))
   tm.b = replicate(20, system.time(sum(log(dnorm(x)))))
   res = structure(list(llvm = tm.a, r = tm.b), session = sessionInfo(), when = Sys.time(), system = Sys.info())

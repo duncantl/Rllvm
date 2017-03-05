@@ -28,9 +28,7 @@ function(n)
 
 tm.30 = time(n)
 
-
-
-apply(tm.30, 2, function(x) x/min(x))
+print(apply(tm.30, 2, function(x) x/min(x)))
 
 res = structure(tm.30, session = sessionInfo(), system = Sys.info(), when = Sys.time(), n = n)
 id = sprintf("fib.tm.30_%s_%s_gcc", Sys.info()["nodename"], Sys.info()["sysname"])
