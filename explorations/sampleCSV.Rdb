@@ -174,7 +174,8 @@ Fgets = Function("Fgets", StringType, list(FILEType), module = mod)
 <para>
 <r:code>
 source("sampleCSV.R")
-compileFunction(f.readUpTo, stringType, list(FILEType, Int32Type), name = "f.readUpTo", mod = mod)
+fun = compileFunction(f.readUpTo, StringType, list(FILEType, Int32Type), name = "f.readUpTo", mod = mod)
+print(showModule(mod))
 </r:code>
 
 <comment>See readUpTo.ll for what clang generates for the bitcode.
