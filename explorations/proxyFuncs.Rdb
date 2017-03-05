@@ -68,7 +68,8 @@ function(name, returnType, types = list())
 ]]></r:function>
 
 <invisible>
-<r:code>source("createProxy.R")</r:code>
+<r:code eval="false">source("createProxy.R")</r:code>
+library(RLLVMCompile)
 </invisible>
 </para>
 <para>
@@ -131,17 +132,19 @@ We can now invoke this function/routine with
 <section>
 <title>Programmatically Obtaining the Type Information</title>
 
+
 <para>
 We have show how we can create the proxy routine
 using the type information.
 The next step is to automate obtaining this type information.
 We have several possible mechanisms.
-We can use gcc-xml to dump information about C code into XML.
+We can nuse gcc-xml to dump information about C code into XML.
 This is the approach <r:pkg>rdyncall</r:pkg> uses and provides.
 I have two other approaches - <omg:pkg>RGCCTranslationUnit</omg:pkg>
 and <omg:pkg>RCIndex</omg:pkg>.
 </para>
 
+<section r:eval="false">
 <para>
 To use <omg:pkg>RGCCTranslationUnit</omg:pkg>,
 we have to compile our <c/> code to create a tu file.
@@ -260,7 +263,7 @@ sapply(rgvars, function(x) tuLLVMType(x@type))
 </r:code>
 </para>
 </ignore>
-
+</section>
 
 </section>
 <section>
@@ -275,7 +278,7 @@ However, we only want the descriptions of the routines, so we can
 use
 <r:code>
 library(RCIndex)
-funs = getFunctions("fib.c")
+funs = getRoutines("fib.c")
 </r:code>
 We can specify flags for the compiler via the <r:arg>args</r:arg> parameter of <r:func>parseTU</r:func>.
 </para>
@@ -287,7 +290,7 @@ However, we did have to install the clang libraries.
 <note>
 <para>
 If we want to read the 
-<r:code>
+<r:code eval="false">
 tu = parseTU("fib.c")
 </r:code>
 Then we can use <r:func>visitTU</r:func> to traverse the nodes.
@@ -312,7 +315,7 @@ node.  These are all <r:class>CXCursor</r:class> objects.
 <para>
 We can find the nature of the return type with
 <r:code>
-getTypeKind(f$returnType)
+getTypeKind(f@returnType)
 <r:output><![CDATA[
 Int 
  17 
@@ -327,7 +330,7 @@ e.g. <r:var>CXType_Int</r:var>.
 We can also as many questions of the type, e.g. is it a constant, its size, etc.
 For example,
 <r:code>
-getSizeOf(f$returnType)
+getSizeOf(f@returnType)
 </r:code>
 yields 4.
 </para>
@@ -335,7 +338,7 @@ yields 4.
 <para>
 We can also query the function's parameters:
 <r:code>
-sapply(f$params, getTypeKind)
+sapply(f@params, getTypeKind)
 </r:code>
 </para>
 
