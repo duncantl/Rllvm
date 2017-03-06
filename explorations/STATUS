@@ -1,0 +1,66 @@
+GPUS - untested
+nvptrx.Rdb
+nvvmUtils.R
+ptx_direct_grid.R
+ptx_direct_simple.R
+ptx_direct.R
+ptx_nvvm_add.R
+ptx_nvvm_conditional.R
+ptx_nvvm.R
+ptx_nvvm1.R
+ptx_test.R
+ptx.R
+ptxNVVMExample.Rdb
+
+
+JUST NOTES
+MapReduce.Rdb
+expandGrid.R
+iterators.R
+iterators.Rdb
+MapReduce.R
+regexp.Rdb  - use GCCTU to read regex header files. Switch to RCIndex.
+
+
+FAILS
+sampleCSV1.Rdb - can't find a variable named ptr when compiling, i.e. the variable is not in the R code, but in the compilation unit.
+dnorm.Rdb - segfaults on createLoad()
+globalStringVar.Rdb - type issue for global variable. String versus array!
+distance.Rdb - bad signature of call.
+trycpp.R - seg faults in createTargetMachine()
+
+
+
+RUNS
+proxyFuncs.Rdb - 
+fgets.Rdb
+sampleCSV.Rdb - doesn't actually run the compiled code.
+fuseLoop.Rdb - needed the module to be the same when compiling Dnorm and Dnorm_v in the second half of the document.
+backend.R - trivial - just calls parseIR() and showModule()
+fuseLoop.R
+fib.R
+fopen.R - simple proxy
+constArg.R - but the onlyReadsMemory() is TRUE before we set it.
+globalString.R
+simpleGlobalString.R
+loop.R
+testDoubleSet.R
+testSEXP.R - simple allocation of a SEXP and return it. 
+distance.R - just defines R functions
+testDist.R - all R code. Timings for Dist().
+tmp.R - just defines R functions makeCall, writeMapCall
+
+sampleCSV.R - just defines functions
+
+sapply.R - wrong type in a CallInst. Uses RLLVMCompile.  Looks like the compiler is 
+    allocating an VECSXP (list) rather than an INTSXP (integer) and then calling
+    SET_VECTOR_ELT().  But it would need to create a SEXP rather than insert the int.
+  NOW: Failing on INTEGER(r_ans)[i] - can't get the type.
+    Can get around this by computing INTEGER(r_ans) outside of loop. But need to deal with it generally.
+
+
+
+BAD tests
+manualFib.R - bad test as no if statement
+
+EMPTY:
