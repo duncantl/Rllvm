@@ -18,6 +18,8 @@
 
 \alias{removeFromParent,BasicBlock-method}
 
+\alias{getPredecessor}
+\alias{getSuccessor}
 
 
 \title{Create an LLVM block}
@@ -34,6 +36,8 @@
 }
 \usage{
 Block(fun, id = character(), context = getGlobalContext(), n = 1)
+getPredecessor(x, single = TRUE)
+getSuccessor(x, single = TRUE)
 }
 \arguments{
   \item{fun}{the function for which this block is to be created}
@@ -46,6 +50,11 @@ Block(fun, id = character(), context = getGlobalContext(), n = 1)
   \item{context}{the LLVM context in which to create the block}
   \item{n}{the number of blocks to create. This is currently ignored.
    The idea is that we can create multiple blocks in a single call for convenience.}
+
+ \item{x}{a \code{BasicBlock} object}
+ \item{single}{a logical value, indicating whether to use the
+ getSinglePredecessor method or getUniquePredecessor method, or
+ the same distinction for a successor.}
 }
 
 \value{
