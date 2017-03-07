@@ -1,29 +1,33 @@
+LLVM4.0
+
+
+
 LLVM3.9
 
 ../explorations/fgets.Rdb - Need to specify the signature for Fgets when compiling readTo.  Should be in the same module already??
 clone2.R  - depends on ../explorations/fgets.Rdb so fix that first.
 
 FAILS:
-meta.R - abort via assertion
+meta1.R - abort via assertion
 
 
 OKAY:
 verify.R - aborts intentionally.  And if the debug+assert calls abort() then the process dies.
 
 WARNINGS:
- globalSet.R  - warning
+ globalSet.R  - warning use setInitializer()
  globalVarInit.R
 
 
 WORKED-AROUND
-walkBlocks with compiling function via RLLVMCompile.
-etadata.R - Optimize. Works if we compileFunction(,optimize = FALSE)
-
+metadata.R - Optimize. Works if we compileFunction(,optimize = FALSE)
 
 PROBLEMS
 globals.R - problem with RLLVMCompile part of this if enabled.
 
 RUNS:
+walkBlocks 
+meta.R
 rw2d.Rdb - optimize, seg fault.
 cumsum.Rdb - optimization seg fault.
 xPlus1.Rdb - optimize, seg faults

@@ -1,6 +1,6 @@
 library(Rllvm)
 
-if(FALSE) {
+if(TRUE) {
     
 library(RLLVMCompile)    
 fib1 =
