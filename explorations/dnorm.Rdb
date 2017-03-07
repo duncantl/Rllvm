@@ -133,8 +133,8 @@ We are using the <r:class>IRBuilder</r:class> to create
 a local variable and an assignment/store instructions.
 The instructions are added to the currently active block  in the
 <r:class>IRBuilder</r:class> object.
-The form <r:expr>ir$createLocalVariable(...)</r:expr>
-is equivalent to <r:expr>createLocalVariable(ir, ...)</r:expr>
+The form <r:expr eval="false">ir$createLocalVariable(...)</r:expr>
+is equivalent to <r:expr eval="false">createLocalVariable(ir, ...)</r:expr>
 </para>
 
 <para>
@@ -173,14 +173,16 @@ ir = sfun$ir
 
 <para>
 We now focus on performing the computations.
-We'll first compute <r:expr>(x - mean)/sd</r:expr>.
+We'll first compute <r:expr eval="false">(x - mean)/sd</r:expr>.
 Then we can multiply this by itself to get the square of the value.
 We first subtract <r:var>mean</r:var> from <r:var>x</r:var>.
 To do this, we have to load the values from each variable.
 We do this with
 <r:code>
-x = ir$createLoad(sfun$vars$x)
-mean = ir$createLoad(sfun$vars$mean)
+#x = ir$createLoad(sfun$params$x)
+#mean = ir$createLoad(sfun$params$mean)
+x = sfun$params$x
+mean = sfun$params$mean
 </r:code>
 Here we are using <r/> variables to temporarily store the instructions to load the <llvm/>
 values. 
@@ -195,7 +197,7 @@ There are others such as <r:var>FAdd</r:var> and <r:func>FMul</r:func>
 and also values for integer operations (e.g. <r:var>Add</r:var>, <r:var>Sub</r:var>).
 So we create  the subtraction instruction with
 <r:code>
-delta = ir$binOp(FSub, x, mean)
+delta = ir$binOp(BinaryOps["FSub"], x, mean)
 </r:code>
 Again, we assign this to an <r/> variable so we can use it when creating another instruction.
 </para>
@@ -203,12 +205,13 @@ Again, we assign this to an <r/> variable so we can use it when creating another
 Next we divide the centered value by <r:var>sd</r:var>.
 Again, we have to load the value of this local variable with
 <r:code>
-sd = ir$createLoad(sfun$vars$sd)
+#sd = ir$createLoad(sfun$params$sd)
+sd = sfun$params$sd
 </r:code>
 Given this, we can use <r:func>binOp</r:func> to perform the division
 with 
 <r:code>
-scaled = ir$binOp(FDiv,  delta, sd)
+scaled = ir$binOp(BinaryOps["FDiv"],  delta, sd)
 </r:code>
 </para>
 <para>
@@ -218,7 +221,7 @@ We first have to define this variable and with
 tmp = ir$createLocalVariable(DoubleType, "tmp")
 </r:code>
 Here we know the type of the variable. We could also have calculated it from
-the <r:class>Value</r:class> object in <r:var>scale</r:var> via <r:expr>getType(scale)</r:expr>.
+the <r:class>Value</r:class> object in <r:var>scaled</r:var> via <r:expr>getType(scaled)</r:expr>.
 To store the value in this variable, we create the instruction
 <r:code>
 ir$createStore(scaled, tmp)
@@ -232,7 +235,8 @@ We could call the <c:func>pow</c:func> routine, however, it is easier and more
 efficient to simply multiply the value by itself.
 We load it twice and call <r:func>binOp</r:func> again, e.g.
 <r:code>
-ir$createStore(ir$binOp(FMul, ir$createLoad(tmp), ir$createLoad(tmp)), tmp)
+tmpv = ir$createLoad(tmp)
+ir$createStore(ir$binOp(BinaryOps["FMul"], tmpv, tmpv), tmp)
 </r:code>
 Here, we also stored the result back into the <r:var>tmp</r:var> variable
 in the <llvm/> code. 
@@ -243,27 +247,27 @@ the <llvm/> variables can be confusing.)
 
 <para>
 We can now compute the actual result as a 
-<r:expr>1/(sd * sqrt(2 * pi)) * exp( - .5 * tmp)</r:expr>
+<r:expr eval="false">1/(sd * sqrt(2 * pi)) * exp( - .5 * tmp)</r:expr>
 This is a binary operation (multiplication)
 in which each operand is also a complex expression.
 </para>
 
 <para>
-Let's generate the code to compute <r:expr>1/(sd * sqrt(2*pi))</r:expr>.  This is a binary
+Let's generate the code to compute <r:expr eval="false">1/(sd * sqrt(2*pi))</r:expr>.  This is a binary
 operation (/) with a constant (1) and another expression.  We can
 compute the denominator first since the numerator is a simple constant
-value.  We can replace <r:expr>sqrt(2*pi)</r:expr> with 2.506628275
+value.  We can replace <r:expr eval="false">sqrt(2*pi)</r:expr> with 2.506628275
 since this is a constant/invariant, i.e. does not depend on the inputs.
 So we compute the numerator with
 <r:code>
-numerator = ir$binOp(FMul, 
-                     ir$createLoad(sfun$vars$sd),
+numerator = ir$binOp(BinaryOps["FMul"], 
+                     sd,
                      ir$createConstant(sqrt(2*pi)))
 </r:code>
 We can now compute the constant in the density function
 with 
 <r:code>
-term1 = ir$binOp(FDiv, ir$createConstant(1), numerator)
+term1 = ir$binOp(BinaryOps["FDiv"], ir$createConstant(1), numerator)
 </r:code>
 Note that here we are exploiting  the fact
 that the expression <r:expr>1</r:expr> in <r/> yields
@@ -276,7 +280,7 @@ desired type.
 </para>
 <para>
 We now focus on the second term in our result
-<r:expr>exp(-.5 * tmp)</r:expr>
+<r:expr eval="false">exp(-.5 * tmp)</r:expr>
 This is a call to the routine <c:func>exp</c:func>
 and takes a single argument.
 We'll compute that argument first in order to have it available
@@ -284,7 +288,7 @@ to make the call.
 At this point, we can readily see that this is a  binary operation
 and we create it with
 <r:code>
-exponent = ir$binOp(FMul, ir$createConstant(-.5), ir$createLoad(tmp))
+exponent = ir$binOp(BinaryOps["FMul"], ir$createConstant(-.5), ir$createLoad(tmp))
 </r:code>
 Here we assign the instruction to the <r/> variable <r:var>exponent</r:var>,
 but not to any <llvm/> variable.
@@ -327,6 +331,65 @@ ir$createReturn(ans)
 </para>
 
 
+<para>
+We can examine the IR code:
+<r:code>
+print(showModule(sfun$module))
+<r:output><![CDATA[
+; ModuleID = '2017-03-06 14:57:04'
+source_filename = "2017-03-06 14:57:04"
+
+define double @dnorm(double %x, double %mean, double %sd) {
+  %1 = fsub double %x, %mean
+  %2 = fdiv double %1, %sd
+  %tmp = alloca double
+  store double %2, double* %tmp
+  %3 = load double, double* %tmp
+  %4 = fmul double %3, %3
+  store double %4, double* %tmp
+  %5 = fmul double %sd, 0x40040D931FF62705
+  %6 = fdiv double 1.000000e+00, %5
+  %7 = load double, double* %tmp
+  %8 = fmul double -5.000000e-01, %7
+  %9 = call double @exp(double %8)
+  %10 = fmul double %6, %9
+  ret double %10
+}
+
+declare double @exp(double)
+]]></r:output>
+</r:code>
+</para>
+
+
+<para>
+We can then optimize the function. This will remove the unnecessary variable tmp.
+<r:code>
+Optimize(sfun$fun)
+<r:output><![CDATA[
+; ModuleID = '2017-03-06 14:57:04'
+source_filename = "2017-03-06 14:57:04"
+target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
+
+define double @dnorm(double %x, double %mean, double %sd) {
+  %1 = fsub double %x, %mean
+  %2 = fdiv double %1, %sd
+  %3 = fmul double %2, %2
+  %4 = fmul double %sd, 0x40040D931FF62705
+  %5 = fdiv double 1.000000e+00, %4
+  %6 = fmul double %3, -5.000000e-01
+  %7 = call double @exp(double %6)
+  %8 = fmul double %5, %7
+  ret double %8
+}
+
+declare double @exp(double)
+]]></r:output>
+</r:code>
+</para>
+
+
+
 <section>
 <title>Calling the routine</title>
 
@@ -342,7 +405,7 @@ We can test this routine works as we intend.
 </section>
 
 
-<section>
+<section  r:eval="true">
 <title>Vectorizing the <c:func>dnorm</c:func> routine</title>
 <altTitle>Vectorizing the dnorm() routine</altTitle>
 
@@ -463,7 +526,7 @@ routine.
 </para>
 <para>
 Testing the loop condition is quite simple.
-We want to evaluate <r:expr>i &lt; n</r:expr>.
+We want to evaluate <r:expr eval="false">i &lt; n</r:expr>.
 This is a binary comparison of two integer values.
 We use <r:func>createICmp</r:func> to perform this.
 Like the <r:func>binOp</r:func> function, this allows us to 
@@ -471,7 +534,8 @@ specify which comparison to make (e.g. <r:var>ICMP_EQ</r:var>, <r:var>ICMP_SLT</
 along with the two operands.
 We create first have to load these operands. We can do this with
 <r:code>
-ok = ir$createICmp(ICMP_SLT, ir$createLoad(i), ir$createLoad(vfun$vars$n))
+ii = ir$createLoad(i)
+ok = ir$createICmp(ICMP_SLT, ii, vfun$params$n)
 </r:code>
 We assign this to the <r/> variable <r:var>ok</r:var> as a convenient
 name.  We then use this to determine to which block to branch.  We
@@ -519,7 +583,7 @@ ir$setInsertBlock(bodyBlock)
 As we mentioned, we could inline the computations that
 we created for our <c:func>dnorm</c:func> routine we created earlier.
 However, it will be simpler to just call that routine. 
-To do so, we need three arguments: <r:expr>x[i]</r:expr>, <r:arg>mean</r:arg> and <r:arg>sd</r:arg>.
+To do so, we need three arguments: <r:expr eval="false">x[i]</r:expr>, <r:arg>mean</r:arg> and <r:arg>sd</r:arg>.
 We can load the latter two via <r:func>createLoad</r:func> and <r:expr>vfun$vars</r:expr>.
 The first argument is a little more complicated. This is the i-th element of 
 our array/vector. We access it via a pointer to a <c:type>double</c:type>.
@@ -536,7 +600,8 @@ idx = ir$createSExt(ir$createLoad(i), 64L)
 Now, we can access the element
 <r:code>
 print(vfun$vars$x)
-xload = ir$createLoad(vfun$vars$x)
+#xload = ir$createLoad(vfun$params$x)
+xload = vfun$params$x
 el = ir$createGEP(xload, idx)
 </r:code>
 </para>
@@ -544,22 +609,23 @@ el = ir$createGEP(xload, idx)
 We now have the three arguments to the <c:func>dnorm</c:func> routine.
 We create the call instruction with
 <r:code>
+v = ir$createLoad(el)
 call = ir$createCall(sfun$fun, 
-                     ir$createLoad(el), 
-                     ir$createLoad(vfun$vars$mean), 
-                     ir$createLoad(vfun$vars$sd))
+                     v,
+                     vfun$params$mean, 
+                     vfun$params$sd)
 </r:code>
 </para>
 <para>
 Before finishing with this call, we have to assign the
-result of the call back to <r:expr>x[i]</r:expr>.
+result of the call back to <r:expr eval="false">x[i]</r:expr>.
 This is similar to accessing the element, but here
 we assign to it.
 Again, we need a GEP instruction to access the element of the array
 <r:code>
 idx = ir$createSExt(ir$createLoad(i), 64L)
-xp = ir$createLoad(vfun$vars$x)
-el = ir$createGEP(xp, idx)
+#xp = ir$createLoad(vfun$params$x)
+el = ir$createGEP(vfun$params$x, idx)
 </r:code>
 We can now assign the result to it using a store instruction:
 <r:code>
@@ -576,7 +642,7 @@ create a new block to do this.
 In this case, it seems unnecessary to create this new block.
 So we increment <c:var>i</c:var> with
 <r:code>
-inc = ir$binOp(Add, ir$createLoad(i), ir$createConstant(1L))
+inc = ir$binOp("Add", ir$createLoad(i), ir$createConstant(1L))
 ir$createStore(inc, i)
 </r:code>
 We branch back to the loop-condition test with
@@ -616,7 +682,7 @@ So we can test our routine with
 <r:test>
 mod = vfun$mod
 x = rnorm(10)
-dx = .llvm(mod$v_dnorm, x, length(x), 0, 1)
+dx = .llvm(mod$v_dnorm, x, length(x), 0, 1, .all = TRUE)
 </r:test>
 When we look at <r:var>dx</r:var>, we see it contains the value <r:null/>.
 This is because <r:func>.llvm</r:func> returns the value returned by the routine
@@ -750,7 +816,7 @@ tm[,3]/tm[3,3]
 <para>
 We break down the expression into the different binary operators
 and calls to functions (i.e. <r:func>sqrt</r:func>).
-We start with <r:expr>2*pi</r:expr> and create the instruction
+We start with <r:expr eval="false">2*pi</r:expr> and create the instruction
 to compute this with
 </para>
 </ignore>

@@ -24,14 +24,15 @@ regexp.Rdb  - use GCCTU to read regex header files. Switch to RCIndex.
 
 FAILS
 sampleCSV1.Rdb - can't find a variable named ptr when compiling, i.e. the variable is not in the R code, but in the compilation unit.
-dnorm.Rdb - segfaults on createLoad()
+       We have line as a global variable, but we need `ptr` to be a global variable that points to that.
 globalStringVar.Rdb - type issue for global variable. String versus array!
-distance.Rdb - bad signature of call.
 trycpp.R - seg faults in createTargetMachine()
 
 
 
 RUNS
+dnorm.Rdb - segfaults on createLoad()
+distance.Rdb - bad signature of call.   Needs .integerLiterals = FALSE.  Check results
 proxyFuncs.Rdb - 
 fgets.Rdb
 sampleCSV.Rdb - doesn't actually run the compiled code.
