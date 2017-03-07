@@ -166,7 +166,7 @@ function(X, Y, nx = nrow(X), ny = nrow(Y), p = ncol(X))
 }
 ]]></r:function>
 We'd like to conclude this with
-<r:code>
+<r:code eval="false">
 matrix(ans, nx, ny, byrow = TRUE)
 </r:code>
 However, we'll leave this to <r/> code that calls this function.
@@ -225,7 +225,7 @@ library(RLLVMCompile)
 mod = Module()
 declareFunction(list(VoidType, Int32Type), "printInt", mod)
 llvmAddSymbol("printInt")
-distc = compileFunction(dist, REALSXPType, list(DoublePtrType, DoublePtrType, Int32Type, Int32Type, Int32Type), module = mod)
+distc = compileFunction(dist, REALSXPType, list(DoublePtrType, DoublePtrType, Int32Type, Int32Type, Int32Type), module =mod, .integerLiterals = FALSE)
 </r:code>
 
 <r:test id="run">
