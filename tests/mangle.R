@@ -14,12 +14,9 @@ if(FALSE) {
 
 
 mangler = .Call("R_new_Mangler", NULL)
-nm1 = .Call("R_Mangler_getNameWithPrefix_GV", mangler, f, TRUE)
+nm1 = .Call("R_Mangler_getNameWithPrefix_GV", mangler, f, TRUE, TRUE)
 print(nm1)
 
-#!!!! is this even appropriate ???
-if(FALSE) {
-g = Function("foo", VoidType, list(DoubleType), mod)
-nm2 = .Call("R_Mangler_getNameWithPrefix_GV", mangler, g, TRUE)
-#print(c(nm1, nm2)) # pretty boring as these are the same, and the same as the names we gave them.
-}
+g = Function("bar", VoidType, list(DoubleType), mod)
+nm2 = .Call("R_Mangler_getNameWithPrefix_GV", mangler, g, TRUE, TRUE)
+print(c(nm1, nm2)) # pretty boring as these are the same, and the same as the names we gave them.
