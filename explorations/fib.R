@@ -14,6 +14,7 @@ library(compiler)
 
 fibc = cmpfun(fib)
 fc = compileFunction(fib, Int32Type, Int32Type)
+print(showModule(fc))
 ee = ExecutionEngine(as(fc, "Module"), "Aggressive")
 
 .llvm(fc, 20, .ee = ee)
