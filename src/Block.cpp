@@ -19,13 +19,31 @@ R_new_BasicBlock(SEXP r_context, SEXP r_name, SEXP r_fun)
 
 extern "C"
 SEXP
-R_BasicBlock_getTerminator(SEXP r_block)
+R_BasicBlock_getTerminator(SEXP r_block, SEXP r_genericClass)
 {
 
     llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
     llvm::TerminatorInst *ans = block->getTerminator();
-   
-    return(ans ? R_createRef(ans, "TerminatorInst") : R_NilValue);
+    if(!ans)
+       return(R_NilValue);
+    
+    const char *className = "TerminatorInst";
+    if(!LOGICAL(r_genericClass)[0]) {
+        if(llvm::ReturnInst::classof(ans))
+            className = "ReturnInst";
+        else if(llvm::BranchInst::classof(ans))
+            className = "BranchInst";
+        else if(llvm::SwitchInst::classof(ans))
+            className = "SwitchInst";
+        else if(llvm::IndirectBrInst::classof(ans))
+            className = "IndirectBrInst";
+        else if(llvm::ResumeInst::classof(ans))
+            className = "ResumeInst";
+        else if(llvm::CatchSwitchInst::classof(ans))
+            className = "CatchSwitchInst";
+// InvokeInst ??
+    }
+    return(R_createRef(ans, className)); 
 }
 
 extern "C"
@@ -128,6 +146,22 @@ R_BasicBlock_getPredecessor(SEXP r_block, SEXP r_single)
 
     return(pre ? R_createRef(pre, "BasicBlock") : R_NilValue);
 }
+
+
+extern "C"
+SEXP
+R_BasicBlock_getSuccessor(SEXP r_block, SEXP r_single)
+{
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    llvm::BasicBlock *pre;
+    if(LOGICAL(r_single)[0])
+       pre = block->getSingleSuccessor();
+    else
+       pre = block->getUniqueSuccessor();
+
+    return(pre ? R_createRef(pre, "BasicBlock") : R_NilValue);
+}
+
 
 
 #if 1
