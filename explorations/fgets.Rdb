@@ -99,10 +99,10 @@ llvmAddSymbol(fgets = getNativeSymbolInfo("fgets")$address)
 
 <para>
 We'll compile the code manually here rather than using <r:func>compileFunction</r:func> (which we do below).
-We create the <r:func>Function</r:func> object, and for simplicity, we'll have it not return any value.
-(We should have it return the value of the call to <c:func>fgets</c:func>.)
+We create the <r:func>Function</r:func> object.
+We have it return the value of the call to <c:func>fgets</c:func>.
 <r:code thread="manual">
-fun = Function("Fgets", VoidType, list(file = FILEType), module = mod)
+fun = Function("Fgets", StringType, list(file = FILEType), module = mod)
 b = Block(fun)
 ir = IRBuilder(b)
 </r:code>
@@ -118,7 +118,11 @@ ir$createCall(fgets, ll, sz, f)
 </r:code>
 Finally, we return from our compiled routine:
 <r:code thread="manual">
-ir$createRetVoid()
+ir$createReturn(ir$createLoad(.ptr))
+</r:code>
+
+<r:code>
+print(showModule(mod))
 </r:code>
 </para>
 
@@ -393,6 +397,10 @@ readSelectedLines(c(3, 10, 10), ff, ee)
 This  is faster than calling the version of:
 <r:test id="makeInputs">
 targetFile = "sample.csv"
+if(!file.exists(targetFile)) {
+  cat("Creating", targetFile, "\n")
+  cat(1:1e8, sep = "\n", file = targetFile)
+}
 N = 1e3
 lineNums = sort(as.integer(sample(1e8, N)))
 lineSkips = as.integer(diff(c(0L, lineNums)))
