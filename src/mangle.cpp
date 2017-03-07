@@ -32,7 +32,7 @@ R_Mangler_getNameWithPrefix_GV(SEXP r_mangler, SEXP r_GV, SEXP r_isImplicitlyPri
     llvm::GlobalValue *GV = GET_REF(r_GV, GlobalValue);
     llvm::SmallString<128> out;
 
-    mangler->getNameWithPrefix(out,  GV, LOGICAL(r_isImplicitlyPrivate)[0], LOGICAL(r_UseGlobalPrefix)[0]);
+    mangler->getNameWithPrefix(out, GV, LOGICAL(r_isImplicitlyPrivate)[0], LOGICAL(r_UseGlobalPrefix)[0]);
     SEXP ans;
     PROTECT(ans = NEW_CHARACTER(1));
     SET_STRING_ELT(ans, 0, mkChar(out.c_str()));
