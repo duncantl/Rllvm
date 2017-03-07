@@ -11,7 +11,7 @@
 #
 
 .llvmFFI =
-function(fun, args, .ee, cif = genCIF(fun), ...)
+function(fun, args, .ee, cif = genCIF(fun), .all = FALSE, ...)
 {
    if(is(fun, "Function"))
       funptr = getPointerToFunction(fun, .ee)
@@ -20,7 +20,7 @@ function(fun, args, .ee, cif = genCIF(fun), ...)
    else
        stop("I'm confused! I need an LLVM Function object or an externalptr.")
    
-   callCIF(cif, funptr@ref, .args = args, ...)
+   callCIF(cif, funptr@ref, .args = args, ..., returnInputs = .all)
 }
 
 
