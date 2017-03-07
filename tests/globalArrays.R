@@ -17,5 +17,10 @@ print(length(d))
 
 # Use a different initializer
 
+ty = arrayType(DoubleType, 10)
+m[["o"]] = ty
+#setInitializer(m[["i"]], createConstant(3.1415))
+
+
 
 
