@@ -527,3 +527,5 @@ export(getFunctionReturnType)
 
 export(getDataLayoutString)
 exportMethods(getDataLayoutString)
+
+export(getPredecessor, getSuccessor)
