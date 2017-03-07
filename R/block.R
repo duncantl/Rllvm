@@ -16,10 +16,11 @@ function(fun, id = character(), context = getGlobalContext(), n = 1)
 
 
 getTerminator =
-function(block)
+function(block, genericClass = TRUE)
 {
    block = as(block, "BasicBlock")
-   .Call("R_BasicBlock_getTerminator", block)
+   .Call("R_BasicBlock_getTerminator", block, as.logical(genericClass))
+
 }
 
 getFirstNonPHI =
@@ -157,4 +158,10 @@ getPredecessor =
 function(x, single = TRUE)
 {
   .Call("R_BasicBlock_getPredecessor", as(x, "BasicBlock"), as.logical(single)) 
+}
+
+getSuccessor =
+function(x, single = TRUE)
+{
+  .Call("R_BasicBlock_getSuccessor", as(x, "BasicBlock"), as.logical(single)) 
 }
