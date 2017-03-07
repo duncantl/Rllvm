@@ -85,9 +85,10 @@ function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .a
   if( !is.logical(.ffi) || .ffi) {
 #  if(!missing(.ffi) || .ffi) {
       ans = if(is(.ffi, "CIF"))      
-               .llvmFFI(.x, .args, .ee, cif = .ffi)
+               .llvmFFI(.x, .args, .ee, cif = .ffi, .all = .all)
             else
-               .llvmFFI(.x, .args, .ee)
+               .llvmFFI(.x, .args, .ee, .all = .all)
+      return(ans)
   } else 
       ans = .Call("R_callFunction", .x, .args, .ee)
 
