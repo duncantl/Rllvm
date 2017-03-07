@@ -4,29 +4,73 @@
 	 xmlns:c="http://www.C.org"
 	 xmlns:sh="http://www.shell.org">
 
+
+
+
+<title>Rllvm Todo List</title>
+
+<topic>
+<title>General</title>
+<items>
+<item>
+Compile the RCIndex collector update functions, e.g. readCppClasses. - Doesn't belong here.
+</item>
+</items>
+</topic>
+
 <topic>
 <title>Things To Note</title>
 <items>
 
 <item>
+Examine the assembler code generated.  See tests/emitCode.R
+</item>
+
+<item status="done">
 Compile against 3.9.1 - tests/addOne.R fails.
 <br/>
 Type of return doesn't match type of declared return type!
-Is this a global context issue?
+Is this a global context issue? No it is that the variable Add is not from
+BinaryOps anymore but overwritten by a later enum.
 <br/>
-If we add the datalayout before invoking the routine, things are better but still fail.
 </item>
+
+</items>
+</topic>
+
+
+<topic>
+<title>LLVM 4.0</title>
+<items>
+<item>
+Module.cpp and parseBitCodeFile - deal with the llvm::Expected object and error message.
+</item>
+</items>
+</topic>
+
+<topic>
+<title>Main</title>
+<items>
 
 <item>
-Should getTerminator() set the class from the actual class of the instruction or just use the  generic TerminatorInst ?
+experiments/array.R doesn't seem to be working.
+Getting the array "m" after calling foo() doesn't get the updated values.
 </item>
 
- <item>
+<item status="done">
+Should getTerminator() set the class from the actual class of the instruction or just use the  generic TerminatorInst ?
+<br/>
+Now, Optionally done with genericClass = FALSE.
+</item>
+
+ <item status="done">
 Set the target on a module?
 getDefaultTargetTriple() gets us the value. How to set it?
 <br/>
 setTargetTriple(mod, triple)
  </item>
+
+
 <item status="done">
 <r:code>
 str = getDataLayoutString()
@@ -72,6 +116,8 @@ lapply/sapply methods for a block to loop over the instructions
 
 <item>
 Allow putting comments on instructions, e.g., what the literal R type corresponds to symbolically STRSXP
+<br/>
+Use instruction-level metadata?
 </item>
 
 <item status="done">
@@ -126,8 +172,11 @@ This is the name of a symbol in R
 </item>
 
 
-<item>
+<item status="done">
 parseIR("loop.ll") fails.
+<br/>
+Works fine if generated with the corresponding version of clang as the llvm used
+by Rllvm.
 <sh:code>
 clang -S -emit-llvm  loop.c -o loop.ll
 </sh:code>
@@ -143,10 +192,14 @@ foo()
 </c:code>
 </item>
 
-<item>
+<item status = "high">
+tests/gep.R and uncomment the last line to create the GEP
+<br/>
+Works: 
+<pre>
 tests/stringpointer.R
 tests/stringpointer2.R
-tests/gep.R and uncomment the last line.
+</pre>
 </item>
 
 <item status="check">
@@ -191,14 +244,6 @@ raw_svector_ostream doesn't ensure NULL terminated string. So we use mkCharLen()
 </item>
 
 <item>
-Examine the assembler code generated.  See tests/emitCode.R
-</item>
-
-<item>
-Compile the RCIndex collector update functions. - Doesn't belong here.
-</item>
-
-<item>
 Some of the enums exceed the maximum integer size. Change how we generate the code to recognize this and leave them as
 numeric.  Change code that expects an integer to check and deal with the potentially larger values, i.e. don't convert
 to int.
@@ -206,6 +251,8 @@ to int.
 
 <item>
 accessor for a BranchInst object to be able to get the target block.
+<br/>
+Is this getSuccessor()?
 </item>
 
 <item>
@@ -214,7 +261,7 @@ The C++ code exists.
 </item>
 
 <item>
-Query parameters (or attributes?) on Argument.
+Query parameters (or do we mean attributes?) on Argument.
 </item>
 
 <item>
@@ -283,7 +330,7 @@ Build on Windows
 </item>
 
 
-<item>
+<item status="done">
 update the enums for 3.3. The TypeIDs were off. Manually fixed.
 <br/>
 Need to make the old ones for llvm 3.2 available for installation.
@@ -330,6 +377,8 @@ Could cast.
 How to handle a struct as a parameter.
 Have to match the ABI.
 Does it depend on the nature of the elements of the struct.
+<br/>
+See tests/struct.R and also the CXCursor example ( exists ? where?)
 </item>
 
 <item status="low">
@@ -468,21 +517,6 @@ Need the -xc++ argument for  libclang to force C++.
 </item>
 
 
-</items>
-</topic>
-
-<topic>
-<title>LLVM 4.0</title>
-<items>
-<item>
-Module.cpp and parseBitCodeFile - deal with the llvm::Expected object and error message.
-</item>
-</items>
-</topic>
-
-<topic>
-<title>Main</title>
-<items>
 
 <item status="done">
 Enums for LinkageTypes, etc.
@@ -504,8 +538,9 @@ Get name of actual class of LLVM C++ objects.
 Use isa()
 </item>
 
-<item>
+<item status="done">
 getPredecessor() method for BasicBlock.
+And getSuccessor().
 </item>
 
 <item>
@@ -612,7 +647,7 @@ except on OS X. Have to find another way to access them to be able to
 invoke them from LLVM.
 Perhaps we can persuade the LLVM linker to use the 
 libR.{so,Rdylib}
-<xml:ns></xml:ns></item>
+</item>
 
 <item status="low">
 Compile access to R connections.
@@ -733,6 +768,7 @@ Methods for IRBuilder
 <br/>
 See the TU interface generation.
 <br/>
+<pre>
 [gone] CreateUnwind, 
 
 ?CreateNeg, CreateNot ?
@@ -753,9 +789,7 @@ CreateInboundsGEP  (is this equivalent getGetElementPtr?)
 
 All of the SExtOrOther, etc. methods.
 
-
 [Test] CreateInvoke - allows continuation to branch based on how the called function returns - normal or resume.
-
 
 [done] CreateZExt (zero extension of integer), CreateSExt (sign extension of integer)
 [Done] CreateSwitch (multiway switch) - addCase,
@@ -765,9 +799,16 @@ All of the SExtOrOther, etc. methods.
 [Done] CreateExtractElemet
 [Done] CreateInsertElement
 [Done] CreateSelect   - ternary operator
+</pre>
 </item>
 
-<item>
+<item status="done">
+[done] .llvm( .all = FALSE) still returns the inputs.
+</item>
+
+<item status="done">
+See experiments/functionPointer.R
+<br/>
 Also allow passing in a function pointer to an LLVM generated
 routine as a type of argument, i.e. a function pointer.
 For example, the distance computation where we specify the 
