@@ -532,8 +532,8 @@ function(builder, value, type, id = "")
 
 
 
-createPhi = createPHI =
-function(build, type, numReservedValues, id = character())
+createPhi =
+function(builder, type, numReservedValues, id = character())
 {
   .Call("R_IRBuilder_CreatePHI", as(builder, "IRBuilder"), as(type, "Type"), as.integer(numReservedValues), as.character(id))
 }
