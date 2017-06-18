@@ -125,7 +125,7 @@ if(all(llvmVersion() == c( 3 ,  7 ))) {
 ##########################
 
 `ReturnIndex` = NA
-`FunctionIndex` = 4294967295L
+`FunctionIndex` = 4294967295
 
 
 
@@ -160,7 +160,7 @@ if(all(llvmVersion() == c( 3 ,  7 ))) {
 `LLVMStackAlignment` = 469762048L
 `LLVMReturnsTwice` = 536870912L
 `LLVMUWTable` = 1073741824L
-`LLVMNonLazyBind` = 2147483648L
+`LLVMNonLazyBind` = 2147483648
 
 
 
@@ -2679,8 +2679,8 @@ NA_integer_, NA_integer_), .Names = c("N_GSYM", "N_FNAME", "N_FUN",
 
 ##########################
 
-`DW_TAG_invalid` = 4294967295L
-`DW_VIRTUALITY_invalid` = 4294967295L
+`DW_TAG_invalid` = 4294967295
+`DW_VIRTUALITY_invalid` = 4294967295
 `DWARF_VERSION` = 4L
 `DW_PUBTYPES_VERSION` = 2L
 `DW_PUBNAMES_VERSION` = 2L

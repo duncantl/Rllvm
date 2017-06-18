@@ -128,7 +128,7 @@ if(all(llvmVersion() == c( 3 ,  8 ))) {
 ##########################
 
 `ReturnIndex` = NA
-`FunctionIndex` = 4294967295L
+`FunctionIndex` = 4294967295
 
 
 
@@ -265,9 +265,9 @@ if(all(llvmVersion() == c( 3 ,  8 ))) {
 
 ##########################
 
-`DW_TAG_invalid` = 4294967295L
-`DW_VIRTUALITY_invalid` = 4294967295L
-`DW_MACINFO_invalid` = 4294967295L
+`DW_TAG_invalid` = 4294967295
+`DW_VIRTUALITY_invalid` = 4294967295
+`DW_MACINFO_invalid` = 4294967295
 `DWARF_VERSION` = 4L
 `DW_PUBTYPES_VERSION` = 2L
 `DW_PUBNAMES_VERSION` = 2L
@@ -1418,7 +1418,7 @@ NA), .Names = c("SC_Invalid", "IMAGE_SCN_TYPE_NOLOAD", "IMAGE_SCN_TYPE_NO_PAD",
 `CVL_LineNumberEndDeltaBits` = 7L
 `CVL_LineNumberEndDeltaMask` = NA
 `CVL_MaxLineNumber` = NA
-`CVL_IsStatement` = 2147483648L
+`CVL_IsStatement` = 2147483648
 `CVL_MaxColumnNumber` = NA
 
 
