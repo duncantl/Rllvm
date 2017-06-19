@@ -1,0 +1,18 @@
+* Loading the library, by default, calls the InitializeNativeTarget.
+  You can avoid this by setting the R option Rllvm.autoInitialize to FALSE.
+
+* To start creating code, you create a module (Module).
+
+* Then call Function() to declare a function.
+   You specify the return type and the types of the parameters.
+
+* Create one or more Block() objects.
+  These are used to house the instructions that are related to each
+  other. The different blocks allow us to jump between them and avoid
+  other instructions.
+
+
+  
+
+
+
