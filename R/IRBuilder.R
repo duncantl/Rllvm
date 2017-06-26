@@ -257,7 +257,9 @@ function(builder, val, type, id = character(), Z = TRUE)
    if(is(type, "numeric"))
       type =  switch(as.character(type),
                      "32" = Int32Type,
-                     "64" = Int64Type)
+                     "64" = Int64Type,
+                      getIntegerType(type))
+
    .Call("R_IRBuilder_CreateSExt", builder, val, type, as.character(id), as.logical(Z))
 }
 
