@@ -12,6 +12,13 @@
 <topic>
 <title>General</title>
 <items>
+
+<item>
+See in Rllvm if we can run optimizer passes and then look at the resulting IR?
+Does this even make sense? Specifically thinking of mem2reg and seeing the alloca disappear
+and the phi nodes appear.
+</item>
+
 <item>
 Compile the RCIndex collector update functions, e.g. readCppClasses. - Doesn't belong here.
 </item>
