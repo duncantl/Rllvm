@@ -13,10 +13,12 @@
 <title>General</title>
 <items>
 
-<item>
+<item status="done">
 See in Rllvm if we can run optimizer passes and then look at the resulting IR?
 Does this even make sense? Specifically thinking of mem2reg and seeing the alloca disappear
 and the phi nodes appear.
+<br/>
+Of course!
 </item>
 
 <item>
