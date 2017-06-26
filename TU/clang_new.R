@@ -11,7 +11,7 @@ inc = c("/usr/local/include", "/usr/local/include/llvm", "/Users/duncan/R-3.3-de
 f = "llvm.cpp"
 # "Compiler" arguments
 args = c("-xc++", "-DNDEBUG", "-D_GNU_SOURCE", "-D__STDC_CONSTANT_MACROS", "-D__STDC_FORMAT_MACROS", "-D__STDC_LIMIT_MACROS",
-         "-std=c++11", "-fvisibility-inlines-hidden", "-fno-exceptions", "-fno-rtti", "-fno-common", "-Woverloaded-virtual",
+    "-std=c++11", "-fvisibility-inlines-hidden", "-fno-exceptions", "-fno-rtti", "-fno-common", "-Woverloaded-virtual",
          "-Wcast-qual",
         "-DLLVM_VERSION=3", "-DLLVM_MINOR_VERSION=8", "-DNEW_LLVM_ATTRIBUTES_SETUP")
 
