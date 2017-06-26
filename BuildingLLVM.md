@@ -21,6 +21,9 @@ We can build LLVM and clang from source.
 The instructions are available at, for example,
   http://clang.llvm.org/get_started.html
 
+It is often useful to compile clang at the same time (to ensure the same version).
+For this, see below.
+
 On some machines, you will need to have a more recent version of 
 GCC to build LLVM and/or clang.  You can install this in your own
 directory. You install GCC from source with, e.g.,
@@ -42,6 +45,20 @@ to point to the fully qualified paths to gcc and g++, respectively, e.g.
 Then re-run the configuration script for LLVM.
 
 
+# Compiling Clang with LLVM
+
+Download the clang source code, named cfe,
+extra clang tools, compiler-rt (runtime), libcxx.
+You extract these source archives into the following sub-directories
+of the top-level llvm source tree:
+
+|code|directory|Notes|
+|------|------|-----|
+|cfe|tools/clang|rename the cfe directory to clang (or create a symbolic link)|
+|clang-tools-extra|tools/clang/tools/||
+|compiler-rt|projects|
+|libcxx|projects|
+
 # Alternative Instructions
 
 An alternative description of how to build LLVM is available at
@@ -59,4 +76,5 @@ Install the libffi package (downloading it from [https://sourceware.org/libffi/]
 Coincidentally, we have an R package that provides libffi in R - [Rffi](http://www.omegahat.net/Rffi) - 
 that allows one to invoke arbitrary compiled (C) routines. There is also the rdyncall package that provides
 another facility for this with some additional features.
+The Rllvm package uses the Rffi package to invoke the routines we generate with LLVM.
 
