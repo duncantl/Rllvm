@@ -113,8 +113,11 @@ setMethod("getElementTypes", "StructType",
              .Call("R_StructType_getElementTypes", x, PACKAGE = "Rllvm"))
 
 setGeneric("getElementType",
-            function(type, direct = TRUE)
-              standardGeneric("getElementType"))
+            function(type, direct = TRUE) {
+              if(direct)
+                .Call("R_Type_getPointerElementType", type)                   
+              standardGeneric("getElementType")
+            })
 
 setMethod("getElementType", "ANY",
            function(type, direct = TRUE) 
@@ -122,19 +125,26 @@ setMethod("getElementType", "ANY",
 
 setMethod("getElementType", "REALSXPType",
            function(type, direct = TRUE) {
-             if(direct)
-                .Call("R_Type_getPointerElementType", type)
-             else
-                DoubleType
+              DoubleType
       })
+
+
+setMethod("getElementType", "VECSXPType",
+           function(type, direct = TRUE) {
+               SEXPType
+      })
+
 
 setMethod("getElementType", "INTSXPType",
            function(type, direct = TRUE) {
-             if(direct)
-                .Call("R_Type_getPointerElementType", type)
-             else
-                Int32Type
+               Int32Type
       })
+
+setMethod("getElementType", "LGLSXPType",
+           function(type, direct = TRUE) {
+               Int32Type
+      })
+
 
 
 arrayType =
