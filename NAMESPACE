@@ -474,7 +474,7 @@ export(insertAtEnd)
 
 export(isLandingPad, getLandingPadInst)
 
-export(createPHI,createPhi)
+export(createPhi)
 
 
 export(getBlockGraph)
