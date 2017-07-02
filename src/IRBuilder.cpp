@@ -418,6 +418,11 @@ extern "C"
 SEXP
 R_IRBuilder_CreateLoad(SEXP r_builder, SEXP r_val, SEXP r_isVolatile, SEXP r_id)
 {
+    if(r_val == R_NilValue) {
+        PROBLEM  "NULL value for createLoad"
+        ERROR;
+    }
+
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
 
@@ -1115,8 +1120,8 @@ SEXP
 R_PHINode_addIncoming(SEXP r_phi, SEXP r_val, SEXP r_block)
 {
     llvm::PHINode *phi = GET_REF(r_phi, PHINode);
+    llvm::Value *val = GET_REF(r_val, Value);
     llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
-    llvm::Value *val = GET_REF(r_block, Value);
 
     phi->addIncoming(val, block);
     return(R_NilValue);
@@ -1156,4 +1161,14 @@ R_PHINode_hasConstantValue(SEXP r_phi)
     llvm::Value *val;
     val = phi->hasConstantValue();
     return(val ? R_createRef(val, "Value") : R_NilValue);
+}
+
+
+extern "C"
+SEXP
+R_createFwdRef_for_phi(SEXP r_type)
+{
+    llvm::Type *type = GET_REF(r_type, Type);
+    llvm::Argument *arg = new llvm::Argument(type);
+    return(R_createRef(arg, "Argument"));
 }
