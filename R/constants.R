@@ -52,6 +52,14 @@ function(val, context = getGlobalContext(), type = NULL, bitwidth = 32L, radix =
 
 .tmp = function(val, context = getGlobalContext(), type = NULL, bitwidth = 32L, radix = 10L, ...)
 {
+     # if the caller didn't specify the bitwidth but the type, use the type's bitwidth.
+  if(!is.null(type)) {
+     bw = getIntegerBitWidth(type)
+     if(missing(bitwidth))
+        bitwidth = bw
+     else if(bitwidth != bw)
+         stop("diffferent integer bitwidths")
+  }
    createIntegerConstant(as.character(val), context, type, bitwidth, radix)
 }
 setMethod("createIntegerConstant", c("integer"), .tmp)
