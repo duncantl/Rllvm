@@ -298,7 +298,7 @@ export(readBitcode, writeBitcode)
 
 export(getGlobalValue)
 
-export(getIntegerBitWidth)
+export(getIntegerBitWidth, getIntSize)
 export(getIntrinsicID, getIntrinsic, getIntrinsicName, isIntrinsicOverloaded, isIntrinsic)
 
 export(setInitializer)
