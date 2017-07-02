@@ -39,7 +39,7 @@ function(x, ...)
     TypeIDEnums[match(ans, TypeIDEnums)]
 }
 
-getIntegerBitWidth = 
+getIntSize = getIntegerBitWidth = 
   function(x, ...) {
      if(!isIntegerType(x))
         stop("must be an integer type to query the bit width")
