@@ -536,10 +536,11 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
     
     if(Rf_length(r_size)) {
         llvm::Value *size = GET_REF(r_size, Value);
-        ans = new llvm::AllocaInst(type, size, makeTwine(r_id));
+        //XXX add 0 here for LLVM 5.0 and 2 lines below.  Autoconf.
+        ans = new llvm::AllocaInst(type, 0, size, makeTwine(r_id));
     } else
-        ans = new llvm::AllocaInst(type, makeTwine(r_id));            
-
+        ans = new llvm::AllocaInst(type, 0, makeTwine(r_id));            
+    
     if(LOGICAL(r_beforeTerminator)[0]) {
         llvm::BasicBlock *block;
         block = builder->GetInsertBlock();

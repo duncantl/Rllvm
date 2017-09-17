@@ -169,17 +169,19 @@ SEXP
 R_Function_getParam(SEXP r_func,  SEXP r_whichParam)
 {
      llvm::Function *func = GET_REF(r_func, Function);
-     unsigned i, num = INTEGER(r_whichParam)[0];
-     llvm::Function::ArgumentListType &args = func->getArgumentList();
-     if(num >= args.size()) {
-         PROBLEM "invalid parameter index, only %d parameters", (int) args.size()
+     unsigned i, num = INTEGER(r_whichParam)[0], nargs;
+//     llvm::Function::ArgumentListType &args = func->getArgumentList();
+     nargs = func->arg_size(); /* args.size() */     
+     if(num >= nargs) {
+         PROBLEM "invalid parameter index, only %d parameters", (int) nargs
              ERROR;
      }
 
 // llvm::Argument *a = args[num];
 
-     llvm::Function::ArgumentListType::iterator arg = args.begin();
-
+// pre llvm5    llvm::Function::ArgumentListType::iterator arg = args.begin();
+     llvm::Function::arg_iterator arg = func->arg_begin();
+     
      for(i = 0 ; i < num; i++, arg++) {  }
         llvm::Argument *el;
         el = &(*arg); //XXX 3.8 // Don't use arg.getNodePtrUnchecked() as that is internal, but leave it here for a note.
@@ -202,8 +204,8 @@ SEXP
 R_setFunctionParamNames(SEXP r_func, SEXP r_names)
 {
      llvm::Function *func = GET_REF(r_func, Function);
-     llvm::Function::ArgumentListType &args = func->getArgumentList();
-     int num = args.size();
+//     llvm::Function::ArgumentListType &args = func->getArgumentList();
+     int num = func->arg_size(); //args.size();
 
      if(Rf_length(r_names) < num) {
          PROBLEM "fewer names provided than parameters for function %s (%d versus %d)", func->getName().data(), Rf_length(r_names), num
@@ -211,8 +213,9 @@ R_setFunctionParamNames(SEXP r_func, SEXP r_names)
          num = Rf_length(r_names);
       }
 
-     llvm::Function::ArgumentListType::iterator arg = args.begin();
-
+//  pre llvm5   llvm::Function::ArgumentListType::iterator arg = args.begin();
+     llvm::Function::arg_iterator arg = func->arg_begin();
+     
      for(int i = 0 ; i < num; i++, arg++) {  
          arg->setName( CHAR(STRING_ELT(r_names, i)));
      }
@@ -241,14 +244,23 @@ R_Argument_setAttrs(llvm::Argument *arg, SEXP r_vals, llvm::LLVMContext *ctxt)
   /* The 1 here appears to be the position/index of the argument. They start at 1 and move up. 
      We need to know which one it is. Same for getting the string below for the return.
      Shall we determine the index in this routine or require the caller to specify it.
-   */
+  */
+#if 0  
   llvm::AttributeSet attrs = llvm::AttributeSet::get(*ctxt, 1/*!!!!*/, builder);
 #else
+  llvm::AttributeSet attrs = llvm::AttributeSet::get(*ctxt, builder);  
+#endif  
+#else   // NEW_LLVM_ATTRIBUTES_SETUP
   llvm::Attributes attrs;
   attrs = llvm::Attributes::get(llvm::getGlobalContext() , builder);
 #endif
-  arg->addAttr(attrs);
 
+#if LLVM_VERSION >= 5
+  arg->addAttrs(builder);
+#else
+  arg->addAttr(attrs);
+#endif
+  
 #ifdef  NEW_LLVM_ATTRIBUTES_SETUP
   std::string str = attrs.getAsString(0);          /*XXX WHat should the Idx argument be? */
   return(str.data() ? mkString(str.data()) : R_NaString);
@@ -379,7 +391,11 @@ R_Function_getAttributes(SEXP r_func)
      llvm::Function *func = GET_REF(r_func, Function);
 
 #ifdef  NEW_LLVM_ATTRIBUTES_SETUP
+#if LLVM_VERSION >= 5
+     llvm::AttributeList attrs;     
+#else
      llvm::AttributeSet attrs;
+#endif     
      attrs = func->getAttributes();
      return(R_getFunctionAttributes_logical(attrs));
 #else

@@ -6,8 +6,14 @@ static int x;
 //#include <llvm/Attributes.h>
 #ifdef NEW_LLVM_ATTRIBUTES_SETUP
 #define LLVM_ATTR_KIND(val) llvm::Attribute::val
+#if LLVM_VERSION >= 5
+#define FUN_INDEX llvm::AttributeList::FunctionIndex
+#else
+#define FUN_INDEX llvm::AttributeSet::FunctionIndex
+#endif
+
 #define SET_EL(val) \
-    LOGICAL(ans)[i] = attr.hasAttribute(llvm::AttributeSet::FunctionIndex, llvm::Attribute::val); \
+    LOGICAL(ans)[i] = attr.hasAttribute(FUN_INDEX, llvm::Attribute::val); \
     SET_STRING_ELT(names, i++, mkChar(#val));
 #else
 #define LLVM_ATTR_KIND(val) llvm::Attributes::val
@@ -21,11 +27,15 @@ static int x;
 SEXP
 R_getFunctionAttributes_logical(
 #ifdef NEW_LLVM_ATTRIBUTES_SETUP
-    llvm::AttributeSet attr
+#if LLVM_VERSION >= 5
+    llvm::AttributeList
+#else        
+    llvm::AttributeSet
+#endif    
 #else
-    llvm::Attributes attr
+    llvm::Attributes 
 #endif
-   )
+                  attr  )
 {
     SEXP ans, names;
        /* Get the number correct. */

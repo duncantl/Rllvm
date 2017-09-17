@@ -52,7 +52,9 @@ R_Target_createTargetMachine(SEXP r_target, SEXP r_triple, SEXP r_cpu, SEXP r_fe
         opts = GET_REF(r_opts, TargetOptions);
     else  {
         /* taken from Halide's CodeGen.cpp */
+#ifdef LLVM_HAS_LESSPRECISEFPMADOPTION
         defaultOpts.LessPreciseFPMADOption = true;
+#endif        
 #ifdef LLVM_HAS_NOFRAMEPOINTERELIM
         defaultOpts.NoFramePointerElim = false;
 #endif
@@ -197,7 +199,9 @@ R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SE
     out = GET_REF(r_out, formatted_raw_ostream);
 
     // passManager is now a legacy::PassManager not a PassManagerBase
-    bool ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
+    bool ans = false;
+//XXX    
+    ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
     /* ans is true if addPasses... failed */
     return(ScalarLogical(ans == true));
 #else
@@ -208,7 +212,8 @@ R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SE
     out = GET_REF(r_out, raw_pwrite_stream);
 
     // passManager is now a legacy::PassManager not a PassManagerBase
-    bool ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
+    bool ans = false;
+    ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
     /* ans is true if addPasses... failed */
     return(ScalarLogical(ans == true));
 #endif

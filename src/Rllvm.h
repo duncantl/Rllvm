@@ -117,7 +117,13 @@ extern llvm::Twine makeTwine(SEXP);
 // For 3.3, we need
 #ifdef NEW_LLVM_ATTRIBUTES_SETUP
 #include <llvm/IR/Attributes.h>
-SEXP R_getFunctionAttributes_logical(llvm::AttributeSet attr);
+SEXP R_getFunctionAttributes_logical(
+#if LLVM_VERSION >= 5
+    llvm::AttributeList
+#else    
+    llvm::AttributeSet
+#endif
+                                attr);
 #else
 #include <llvm/Attributes.h>
 SEXP R_getFunctionAttributes_logical(llvm::Attributes attr);

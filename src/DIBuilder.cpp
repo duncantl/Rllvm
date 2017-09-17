@@ -17,7 +17,11 @@
 #endif
 
 #include <llvm/IR/DIBuilder.h>
+#if 0 // for < 5, use this. Put in configure.ac
 #include <llvm/Support/Dwarf.h>
+#else
+#include <llvm/BinaryFormat/Dwarf.h>
+#endif
 #include <llvm/IR/Metadata.h>
 
 //extern "C" void __jit_debug_register_code();
@@ -201,7 +205,11 @@ R_DIBuilder_CreatePointerType(SEXP r_builder, SEXP r_type, SEXP r_name) {
     llvm::DIType *baseType = GET_REF(r_type, DIType);
     const char * name = CHAR(STRING_ELT(r_name, 0));
 
-    llvm::DIType* ans = builder->createPointerType(baseType,sizeof(void*),0,llvm::StringRef(name));
+    llvm::DIType* ans = builder->createPointerType(baseType, sizeof(void*), 0,
+#if LLVM_VERSION >= 5                                                   
+                                                   llvm::None,
+#endif                                                   
+                                                   llvm::StringRef(name));
 
     return(R_createRef(ans,"DIType"));
 }
