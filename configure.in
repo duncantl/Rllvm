@@ -78,6 +78,17 @@ void foo() {
    [echo "Using old Attributes (<= 3.2)"; LLVM_DATALAYOUT_H_IN_IR=""];)
 
 
+AC_COMPILE_IFELSE([
+AC_LANG_SOURCE(
+#include <llvm/IR/Attributes.h>
+void foo() {
+llvm::TargetOptions dflt;
+dflt.LessPreciseFPMADOption = true;
+}
+)], [echo "LessPreciseFPMADOption available"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAS_LESSPRECISEFPMADOPTION=1"], 
+   [echo "LessPreciseFPMADOption NOT available" ];)
+
+
 
 
 LLVM_TARGETS="`${LLVM_CONFIG} --targets-built`"
@@ -90,6 +101,7 @@ AC_SUBST(LLVM_MINOR_VERSION)
 AC_SUBST(LLVM_TARGETS)
 AC_SUBST(NEW_LLVM_ATTRIBUTES_SETUP)
 AC_SUBST(LLVM_DATALAYOUT_H_IN_IR)
+AC_SUBST(LLVM_CFLAGS)
 
 echo ""
 echo "*** llvm-config ${LLVM_CONFIG}"
