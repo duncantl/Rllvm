@@ -14,13 +14,13 @@
 function(fun, args, .ee, cif = genCIF(fun), .all = FALSE, ...)
 {
    if(is(fun, "Function"))
-      funptr = getPointerToFunction(fun, .ee)
-   else if(is(fun, "externalptr"))
+      funptr = getPointerToFunction(fun, .ee)@ref
+   else if(typeof(fun) == "externalptr")  # is(fun, "externalptr"))
        funptr = fun
    else
        stop("I'm confused! I need an LLVM Function object or an externalptr.")
    
-   callCIF(cif, funptr@ref, .args = args, ..., returnInputs = .all)
+   callCIF(cif, funptr, .args = args, ..., returnInputs = .all)
 }
 
 
