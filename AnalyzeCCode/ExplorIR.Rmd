@@ -61,7 +61,7 @@ We can optimize the IR that is generated when we create it:
 
 We then read this into R with
 ```
-o = parseIR("~/NickUThesis/SimpleCPackage/src/simple_optimized.ll")
+o = parseIR("simple_optimized.ll")
 ```
 
 The definition of the simpleCall routine is then
