@@ -529,3 +529,8 @@ export(getDataLayoutString)
 exportMethods(getDataLayoutString)
 
 export(getPredecessor, getSuccessor)
+
+
+export(getClassName)
+
+export(blocks, incoming_values)
