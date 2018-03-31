@@ -37,6 +37,9 @@ R_Function_onlyReadsMemory(SEXP r_func)
 
 
 
+
+
+
 extern "C"
 SEXP
 R_Function_setOnlyReadsMemory(SEXP r_func, SEXP r_val)
@@ -354,10 +357,10 @@ R_LLVM_ARG_HAS(StructRet)
 
 extern "C"
 SEXP
-R_Argument_onlyReadsMemory(SEXP r_func)
+R_Argument_onlyReadsMemory(SEXP r_arg)
 {
-    llvm::Argument *func = GET_REF(r_func, Argument);
-    return(ScalarLogical(func->onlyReadsMemory()));
+    llvm::Argument *arg = GET_REF(r_arg, Argument);
+    return(ScalarLogical(arg->onlyReadsMemory()));
 }
 
 #if 0
