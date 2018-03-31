@@ -44,6 +44,11 @@ to point to the fully qualified paths to gcc and g++, respectively, e.g.
 
 Then re-run the configuration script for LLVM.
 
+```
+cmake -DCMAKE_INSTALL_PREFIX=/usr  -DLLVM_ENABLE_FFI=ON -DLLVM_BUILD_LLVM_DYLIB=ON \
+-DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD="host;X86;NVPTX;CppBackend" ..
+```
+(Don't forget the .. at the end.)
 
 # Compiling Clang with LLVM
 
