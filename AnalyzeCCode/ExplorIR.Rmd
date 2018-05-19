@@ -77,7 +77,7 @@ entry:
 ins = getBlocks(o$simpleCall)[[1]][]
 ```
 
-There are two instructions - a call and an return.
+There are two instructions - a call and a return.
 The return instruction returns the call instruction.
 The call instruction has 3 elements (`length(ins[[1]])`).
 
@@ -111,7 +111,6 @@ So at this point we know that we are returning a numeric vector of length 10.
 This routine returns either an integer() or a numeric() vector.
 
 We get all the blocks and then find the one with the return instruction. 
-
 ```
 b = getBlocks(o$bar)
 ```
