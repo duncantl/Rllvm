@@ -1,11 +1,45 @@
 <article
 	 xmlns:sh="http://www.shell.org"
 	 xmlns:r="http://www.r-project.org"
-	 xmlns:c="http://www.C.org">
+	 xmlns:c="http://www.C.org"
+	 xmlns:omg="http://www.omegahat.org">
+<section>
+<title>Getting <r/> Type Information from <c/> Code</title>
+
+
+<para>
+We look at the influence.c file in the stats package in the base R code.
+This has one routine named <c:func>influence</c:func>
+which is invoked from R code via the <r:func>.Call</r:func> mechanism.
+We are interested in programmatically determining what it returns.
+In fact, it returns a list with either 3 or 4 elements.
+In the case of 4 elements, these are named
+hat, coefficients, sigma, wt.res.
+If only 3 elements are returned, the coefficients is not included.
+This is controlled by the second argument <c:var>do_coef</c:var>, a scalar logical.
+<ul>
+<li>hat is a numeric vector of length n, the number of rows in the QR matrix passed in the first argument to the routine.
+</li>
+<li>coefficients is a matrix with numeric elements and dimension n and k.
+  k is the integer value in the mqr list in the element named rank.</li>
+<li>sigma is a numeric vector of length n</li>
+<li>wt.res is the value passed in the third argument to the routine.
+ It is also passed to the <fortran/> routine lminfl. (Are the values modified in the routine?)</li>
+</ul>
+</para>
+
+
+<para>
+  We start by generating the IR from the C code.
+  We do this via a make file. However, here is the command
 <sh:code>
 /Users/duncan/LLVM/LLVM5.0.1/llvm-5.0.1.src/build/bin/clang -I/Users/duncan/R-3.4.4/include -DNDEBUG   -I/usr/local/include -fPIC -O2 -S -emit-llvm influence.c -o influence.ir
 </sh:code>
+Note that we need to use the same version of clang as the LLVM libraries we use in <omg:pkg>Rllvm</omg:pkg>.
+</para>
 
+
+<para>
 <r:code>
 library(Rllvm)
 m = parseIR("influence.ir")   
@@ -20,7 +54,9 @@ f = m$influence
 b = getBlocks(f)  
 </r:code>
 There are 17 blocks
+</para>
 
+<para>
 
 We find the return instruction(s):
 <r:code>
@@ -81,7 +117,7 @@ the value in the logical scalar passed to the routine as an argument <c:param>do
 
 What is interesting about the <c:func>influence</c:func> routine is that
 it inserts named elements into the list it returns and we want to know their types.
-
+</para>
 
 <para>
 Rather than looking at how the value of ans was created, let's look at the variable ans itself.
@@ -171,8 +207,8 @@ as(v[[3]][[1]][[2]][[1]][[1]], 'character')
 [1] "  %call = tail call %struct.SEXPREC* @getListElement(%struct.SEXPREC* %mqr, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i64 0, i64 0)) #3"
 ]]></r:output>
 </r:code>
-So this comes from the call <c:code>nrows(qr)</c:code> and <c:var>qr</c:var> comes from
-<c:code>qr = getListElement(mqr, "qr")</c:code>.
+So this comes from the call <c:expr>nrows(qr)</c:expr> and <c:var>qr</c:var> comes from
+<c:expr>qr = getListElement(mqr, "qr")</c:expr>.
 </para>
 
 
@@ -183,7 +219,7 @@ We can see this with
 <r:code>
 getName(usrs[[6]][[2]][[1]])
 </r:code>  
-which gives R_NamesSymbol as the name of the global variable.
+which gives <c:var>R_NamesSymbol</c:var> as the name of the global variable.
 </para>
 <para>
 The third argument to this is a call.
@@ -199,6 +235,8 @@ This comes in other code.
 So, like the list we are returning, we have to find this call
 and then which instructions use it to find the names of the elements.
 </para>
+
+
 
 <section>
 <title>Finding the Names</title>
@@ -292,7 +330,62 @@ getOpcode(bof) # add
 
 
 <para>
-Let's find the 
+  Let's look at SET_VECTOR_ELT inside the if() body.
+  This is
+<r:code>
+i = usrs[[4]]
+</r:code>
+We can get the block/parent of this with
+<r:code>
+getParent(i)
+</r:code>
+We have lost the "if" aspect in the IR
+that we had in the AST.
+The "if" is in the name of the block and other labels.
 </para>
 
+<para>
+We can find which blocks lead to this block.
+<r:code>
+a = getPredecessor(getParent(i))
+</r:code>
+
+We look at the terminator to see what condition brings us to
+the body of the if statement in which the SET_VECTOR_ELT occurs.
+<r:code>
+br = getTerminator(a)
+</r:code>
+This is a simple branch.
+We branch to the SET_VECTOR_ELT part if this false.
+We know this because 
+<r:code>
+identical(getSuccessor(br, 2), getParent(i))
+</r:code>
+is <r:true/>.
+
+</para>
+<para>
+The condition for the branch is
+<r:code>
+cond = br[[1]]
+</r:code>
+and looks like
+<r:output><![CDATA[
+[1] "  %tobool43 = icmp eq i32 %12, 0"
+]]></r:output>
+This involves the variable named %12 in the IR.
+We can get this variable by accessing the first element
+of the condition.
+This is a LoadInst, so we follow that to get
+<r:code>
+getName(cond[[1]][[1]])
+</r:code>
+Here we asked for the name.
+<r:code>
+getType(cond[[1]][[1]])
+</r:code>
+</para>
+
+
+</section>
 </article>

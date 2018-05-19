@@ -7,3 +7,8 @@ OPT_LEVEL=-O3
 
 %_optimized.ll: %.c GNUmakefile
 	$(CLANG) $(OPT_LEVEL) $(CFLAGS) -S -emit-llvm -o $@ $<
+
+
+# -DNDEBUG   -I/usr/local/include -fPIC  -O2 -g -Wall -S -emit-llvm foo.c -o foo.ir
+
+
