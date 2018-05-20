@@ -151,7 +151,7 @@ llvm::LLVMContext & getLLVMGlobalContext();
 
 
 
-const char  * const  getLLVMClassName(llvm::Value *obj);
+const char * getLLVMClassName(llvm::Value *obj);
 
 #endif // #define R_LLVM_H
 
