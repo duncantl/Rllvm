@@ -86,7 +86,7 @@ SEXP
 R_Value_getAllUses(SEXP r_val)
 {
     llvm::Value *val = GET_REF(r_val, Value);
-    llvm::Value::use_iterator ib = val->use_begin(), ie = val->use_end();
+    llvm::Value::const_use_iterator ib = val->use_begin(), ie = val->use_end();
     int ctr = 0;
     for( ; ib != ie; ib++, ctr++) {}
 
@@ -95,13 +95,64 @@ R_Value_getAllUses(SEXP r_val)
     ib = val->use_begin();
     ie = val->use_end();
     for(ctr = 0 ; ib != ie ; ib++, ctr++)  {
-        llvm::Use &u = *ib;
+//        llvm::Use &u = *ib;
+        const llvm::Use *u = &(*ib);
         SET_VECTOR_ELT(ans, ctr, R_createRef(u, "Use"));
     }
 
     
     UNPROTECT(1);
     return(ans);
+}
+
+
+#if 0
+extern "C"
+SEXP
+R_Value_getAllUsers(SEXP r_val)  // Note the r - Users not Uses
+{
+    llvm::Value *val = GET_REF(r_val, Value);
+    llvm::Value::const_user_iterator ib = val->user_begin(), ie = val->user_end();
+    int ctr = 0;
+    for( ; ib != ie; ib++, ctr++) {}
+
+    SEXP ans;
+    PROTECT(ans = NEW_LIST(ctr));
+    ib = val->user_begin();
+    ie = val->user_end();
+/*    
+    for(ctr = 0 ; ib != ie ; ib++, ctr++)  {
+        const llvm::User *u = *ib;
+        SET_VECTOR_ELT(ans, ctr, R_createRef(u, "User"));
+    }
+*/
+//    const llvm::User *u;
+    int n = ctr;
+    ctr = 0;
+    for(auto u : val->users()) {
+//    for(ctr = 0, u = val->users(); ctr < n; ctr++)  {
+        SET_VECTOR_ELT(ans, ctr++, R_createRef(u, "User"));
+    }
+
+    UNPROTECT(1);
+    return(ans);
+}
+#endif
+
+extern "C"
+SEXP
+R_Use_get(SEXP r_val)
+{
+    llvm::Use *use = GET_REF(r_val, Use);
+    return(R_createRef(use->get(), "Value"));
+}
+
+extern "C"
+SEXP
+R_Use_getUser(SEXP r_val)
+{
+    llvm::Use *use = GET_REF(r_val, Use);
+    return(R_createRef(use->getUser(), "User"));
 }
 
 
