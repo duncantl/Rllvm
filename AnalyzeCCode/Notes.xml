@@ -1,0 +1,40 @@
+<article>
+
+<section>
+<title></title>
+
+<para>
+Consider the C code  (from foo.c:len_character)
+<c:code>
+    int n = INTEGER(r_n)[0];
+    ans = NEW_INTEGER(n);`
+</c:code>
+
+When we don't optimize the code, the IR generated is
+<c:code>
+  store %struct.SEXPREC* %0, %struct.SEXPREC** %2, align 8
+  %6 = load %struct.SEXPREC*, %struct.SEXPREC** %2, align 8
+  %7 = call i32* @INTEGER(%struct.SEXPREC* %6)
+  %8 = getelementptr inbounds i32, i32* %7, i64 0
+  %9 = load i32, i32* %8, align 4
+  store i32 %9, i32* %4, align 4
+  %10 = load i32, i32* %4, align 4
+  %11 = sext i32 %10 to i64
+  %12 = call %struct.SEXPREC* @Rf_allocVector(i32 13, i64 %11)
+</c:code>
+
+However, when we optimize the code (with -O2 or -O3), we get
+<programlisting><![CDATA[
+  %call = tail call i32* @INTEGER(%struct.SEXPREC.2* %r_n) #2
+  %0 = load i32, i32* %call, align 4, !tbaa !3
+  %conv = sext i32 %0 to i64
+  %call1 = tail call %struct.SEXPREC.2* @Rf_allocVector(i32 13, i64 %conv) #2
+]]></programlisting>
+
+Note the call to INTEGER() which returns the address of the collection of int *.
+This is also the location of the first element. Since that is what we want (the <c:expr>[0]</c:expr> element),
+the load call gets the value.  This is  the same as the more verbose getelemenptr in the unoptimized version
+above.
+</para>
+</section>  
+</article>

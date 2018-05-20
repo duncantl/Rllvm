@@ -119,3 +119,20 @@ matrix()
     ans = Rf_allocMatrix(INTSXP, 40, 100);
     return(ans);
 }
+
+
+
+SEXP
+cond_type(SEXP i)
+{
+    int ty;
+    if(LOGICAL(i))
+	ty = INTSXP;
+    else
+	ty = REALSXP;
+
+    SEXP ans;
+    ans = Rf_allocVector(ty, 10);
+    return(ans);
+}
+

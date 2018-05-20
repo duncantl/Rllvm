@@ -387,5 +387,21 @@ getType(cond[[1]][[1]])
 </para>
 
 
+<section>
+<title></title>
+
+<para>
+For the returned list, we find the code that inserts the elements into the list:
+<r:code>
+w = sapply(usrs, function(x) is(x, "CallInst") && getName(getCalledFunction(x)) == "SET_VECTOR_ELT")
+</r:code>
+Now we can get their types
+<r:code>
+vals = lapply(usrs[w], `[[`, 3)
+</r:code>
+</para>
+</section>
+
+
 </section>
 </article>
