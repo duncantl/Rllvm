@@ -20,7 +20,6 @@ function(block, genericClass = TRUE)
 {
    block = as(block, "BasicBlock")
    .Call("R_BasicBlock_getTerminator", block, as.logical(genericClass))
-
 }
 
 getFirstNonPHI =
@@ -164,4 +163,11 @@ getSuccessor =
 function(x, single = TRUE)
 {
   .Call("R_BasicBlock_getSuccessor", as(x, "BasicBlock"), as.logical(single)) 
+}
+
+
+isEHPad =
+function(block)
+{
+   .Call("R_Block_isEHPad", block)
 }
