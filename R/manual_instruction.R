@@ -39,6 +39,11 @@ setMethod("[[", c("Instruction", "numeric"),
              getOperand(x, i)
            })
 
+setMethod("[", c("Instruction", "numeric"),
+           function(x, i, j, ...) {
+              lapply(i, function(i) getOperand(x, i))
+           })
+
 
 setMethod("getOperands", "Instruction",
            function(x, ...) {
