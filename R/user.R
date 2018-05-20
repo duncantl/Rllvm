@@ -1,5 +1,5 @@
-
-getAllUsers =
+#??? Is this working??
+xgetAllUsers =
 function(obj, ...)
    .Call("R_User_getAllUsers", as(obj, "User"))
 
@@ -22,3 +22,13 @@ function(user, to, from)
 {
     .Call("R_User_replaceUsesOfWith", as(user, "User"), as(from, "Value"), as(to, "Value"))
 }
+
+
+getUser =
+function(u, ...)
+{
+    ans = .Call("R_Use_getUser", u)
+    as(ans, getClassName(ans))
+}
+
+
