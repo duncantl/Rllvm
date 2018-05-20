@@ -69,10 +69,12 @@ function(x, ...)
             
 
     } else if(id == "R_do_new_object") {
-        class = kall[[1]]
-        class[[1]]
-        browser()
-        ans = class
+        nm = kall[[1]]
+        if(is(nm, "CallInst") && getName(getCalledFunction(nm)) == "R_do_MAKE_CLASS") 
+            nm = nm[[1]]   # Now have a ConstantExpr for eg. rklass.  But need the string.
+
+        val = findValue(nm)
+        ans = structure(list(className = val),  class = "S4Instance")
     } else {
         ans = kall
     }
@@ -113,10 +115,30 @@ setMethod("findValue", "SExtInst",
            function(val, rtype = FALSE, ...) 
                findValue(val[[1]]))
 
+setMethod("findValue", "GetElementPtrInst",
+           function(val, rtype = FALSE, ...) 
+               findValue(val[[1]]))
+
 
 setMethod("findValue", "CallInst",
           function(val, rtype = FALSE, ...) {
 browser()
+          })
+
+
+setMethod("findValue", "ConstantExpr",
+          function(val, rtype = FALSE, ...) {
+              findValue(as(val, "Instruction"))
+          })
+
+setMethod("findValue", "GlobalVariable",
+          function(val, rtype = FALSE, ...) {
+              findValue(getInitializer(val))
+          })
+
+setMethod("findValue", "ConstantDataSequential",
+          function(val, rtype = FALSE, ...) {
+              .Call("R_ConstantDataSequential_getAsCString", val)              
          })
 
 

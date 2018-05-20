@@ -298,7 +298,38 @@ So this is a call to Rf_mkChar.
 Its only argument is the string.
 In this case, it is a literal value, a <r:class>ConstantExpr</r:class>.
 LLVM stores this in a GlobalVariable within the module.
-<fix>Implement getting this. Can use the name of the .str.3</fix>
+<fix>Implement getting this. Can use the name of the .str.3
+See code in class.R and getType.R and added to Rllvm.
+Works, but may not be best way to do this. So probably needs
+some robustifying.
+<r:code>
+ii = as(cexpr, "Instruction")
+ii[[1]]  # GlobalVariable
+
+getName(ii[[1]])
+
+v = .Call("R_GlobalVariable_getInitializer", ii[[1]])
+
+v is a Constant.
+
+getValue(v)
+fails 'don't know the class is of the Value"
+It is "ConstantDataArray"
+
+
+A different approach gives 4 values, but incorrect values.
+m[[".str.1", value = TRUE]]
+
+
+setMethod("show", "Value", function(x) print(as(x,'character')))
+
+#getValue(ii[[1]])
+
+# Operands
+ii[[2]]
+ii[[3]]
+</r:code>
+</fix>
 
 </para>
 
@@ -388,18 +419,19 @@ getType(cond[[1]][[1]])
 
 
 <section>
-<title></title>
+<title>Types of the Elements</title>
 
 <para>
 For the returned list, we find the code that inserts the elements into the list:
-<r:code>
+<r:code><![CDATA[
 w = sapply(usrs, function(x) is(x, "CallInst") && getName(getCalledFunction(x)) == "SET_VECTOR_ELT")
-</r:code>
+]]></r:code>
 Now we can get their types
 <r:code>
 vals = lapply(usrs[w], `[[`, 3)
 </r:code>
 </para>
+
 </section>
 
 

@@ -7,6 +7,8 @@ endif
 CFLAGS=-I$(R_HOME)/include
 OPT_LEVEL=-O3
 
+XDYNDOCS=$(HOME)/GitWorkingArea/XDynDocs/inst
+
 %.ll: %.c GNUmakefile
 	$(CLANG) $(CFLAGS) -S -emit-llvm -o $@ $<
 
@@ -18,4 +20,7 @@ OPT_LEVEL=-O3
 	$(CLANG) $(CFLAGS) $(OPT_LEVEL) -S -emit-llvm  $< -o $@
 # -DNDEBUG   -I/usr/local/include -fPIC  -O2 -g -Wall -S -emit-llvm foo.c -o foo.ir
 
+
+%.html: %.xml
+	$(MAKE) -f $(XDYNDOCS)/Make/Makefile $@
 
