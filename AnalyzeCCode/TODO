@@ -1,4 +1,10 @@
 + .Internal, .Primitive    Base R API -   no protection barrier
+
+
+1. Sort out the row numbers on the table when we restore the results and then add new ones.
+   Need to make them unique. Otherwise can delete the wrong one.yes
+   s
+
 + .C - type of input, type of output.  Nice to have would be inputs and output and input-output.
 + .Call - type of input, type of output
 + .C/.Call - in R recommended packages, e.g., stat
