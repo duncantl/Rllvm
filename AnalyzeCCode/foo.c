@@ -3,12 +3,12 @@
 SEXP
 ifoo()
 {
-    return(ScalarInteger(10));
-}
+    return(ScalarInteger (10) );
+ }
 
 
 SEXP
-ifoo2()
+ifoo2Icons   ()
 {
     SEXP ans = ScalarInteger(10);
     return(ans);
@@ -136,3 +136,30 @@ cond_type(SEXP i)
     return(ans);
 }
 
+
+
+int GlobalVals[] = {2, 100, 1092};
+
+typedef struct {
+    int n;
+    double *vals;
+} S;
+
+
+
+SEXP
+R_globalExtptr()
+{
+    return(R_MakeExternalPtr(GlobalVals, Rf_install("GlobalVals"), Rf_install("GlobalVals")));
+}
+
+#include <stdlib.h>
+
+SEXP
+R_allocExtptr()
+{
+    S * ptr = (S *) malloc(sizeof(S));
+    ptr->n = 10;
+    ptr->vals = (double *) malloc(sizeof(double) * ptr->n);
+    return(R_MakeExternalPtr(ptr, Rf_install("GlobalVals"), Rf_install("GlobalVals")));
+}
