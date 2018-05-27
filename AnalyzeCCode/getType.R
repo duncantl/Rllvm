@@ -5,16 +5,40 @@ function(fun, blocks = getBlocks(fun))
     isRet = sapply(terms, is, 'ReturnInst')
     rets = terms[isRet]
     ans = lapply(rets, function(x) getCallType(x[[1]]))
+    # Can we ever have multiple returns???
+
+    ans = mapply(compListTypes, ans, rets, SIMPLIFY = FALSE)
+
     if(length(rets) == 1)
         ans[[1]]
     else
         ans
 }
 
+compListTypes =
+function(x, ret)
+{
+  if(!(inherits(x, "RVector") && x$type == "VECSXP"))
+      return(x)
+
+  usrs = getAllUsers(ret[[1]])
+  w = sapply(usrs, function(x) is(x, "CallInst") && getName(getCalledFunction(x)) == "SET_VECTOR_ELT")
+
+  els = lapply(usrs[w], function(x) getCallType(x[[3]]))
+
+  x$els = els
+  x
+}
+
 
 setGeneric("getCallType",
            function(x, ...) {
                standardGeneric("getCallType")
+           })
+
+setMethod("getCallType", "Argument",
+          function(x, ...) {
+              list(type = "SEXP")
            })
 
 setMethod("getCallType", "PHINode",
@@ -76,7 +100,7 @@ function(x, ...)
         # We want the type of the object and whether it was allocated.
         tmp = getExtPtrObj(kall[[1]])
         ans = structure(c(tmp, tag = findValue(kall[[2]][[1]])), class = "RExternalPtr")
-browser()
+#browser()
     } else if(id == "R_do_new_object") {
         nm = kall[[1]]
         if(is(nm, "CallInst") && getName(getCalledFunction(nm)) == "R_do_MAKE_CLASS") 
@@ -85,7 +109,7 @@ browser()
         val = findValue(nm)
         ans = structure(list(className = val),  class = "S4Instance")
     }  else if(id == "Rf_coerceVector") {
-        browser()
+#        browser()
         ans = NULL # Fix.
     }  else {
         ans = kall
@@ -105,8 +129,10 @@ setGeneric("findValue",
            })
 
 setMethod("findValue", "ANY",
-          function(val, rtype = FALSE, ...)
-              browser())
+          function(val, rtype = FALSE, ...) {
+              cat("findValue default", class(val), "\n")
+              browser()
+          })
 
 tmp = function(val, rtype = FALSE, ...)  findValue(val[[1]])
 setMethod("findValue", "BitCastInst", tmp)
@@ -154,7 +180,15 @@ setMethod("findValue", "CallInst",
                  return(structure(ans, class = c(ans, "Coerce" )))
              }
 
-              browser()
+              if(fn == "Rf_nrows") {
+                  ans = findValue(val[[1]])
+                  if(!is.null(ans))
+                      return(structure(ans, class = c(ans, "SymbolicNrows" )))
+              }
+
+              if(fn != "getListElement")
+                  browser()
+              
               NULL
           })
 
