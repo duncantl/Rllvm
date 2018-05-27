@@ -163,3 +163,38 @@ These are the length of the third argument and the value
 of the first argument.  (Note n is the number of columns.)
 
 
+
+
+
+##
+Consider 
+```
+#include <Rdefines.h>
+
+SEXP
+foo(SEXP n, SEXP prob)
+{
+    int k;
+    prob = coerceVector(prob, REALSXP);
+    k = length(prob);
+    return(allocMatrix(INTSXP, k, asInteger(n)));
+}
+```
+
+```
+m = parseIR("tmp.ir")
+z = compReturnType(m$foo)
+```
+
+```
+class(z)
+z$type
+```
+So we have a matrix that has integer cells.
+
+The dimensions are given by
+```
+z$dims
+```
+The number of columns is the value of n, the first parameter.
+The number of columns is the symbolic length of the parameter named prob, the second parameter.
