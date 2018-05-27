@@ -1,14 +1,17 @@
-git status
+# AnalyzeCCode
 
-git commit -m "..."
-git push
+The purpose of this is to explore how we can use LLVM and Rllvm
+to analyze C/C++ code.
 
-cd
-cd -
-ls
-git clone https://github.com/Jasig/mod_auth_cas.git
+Ultimately, we want to be able to do the following types of operations
+1. Find the type of an R object returned by a .Call()/.External() routine.
+1. Find the lengths, dimensions, etc. of R objects.
+1. Find which objects have the same or related lengths, dimensions, etc.
+1. Find the types of the R objects used in a .Call()/.External() routine.
+1. Identify who allocated the memory used for data in external pointers.
 
-s
+
+We have two general approaches - analyze 
 1. the Abstract Syntax Tree (AST)
 1. the Intermediate Representation (IR) output from the compilation of code before it is converted
    to machine code.
@@ -93,4 +96,54 @@ Non-R related C code that has multiple return statements.
 
 ### eg.R
 Some early exploration code for finding the type from IR code.
+
+### eg3.R
+This is for exploring how to determine the specific R types for a .Call
+(or .External).
+
+
+
+
+
+## stats/src/random.c 
+
+```
+make -f ~/GitWorkingArea/Rllvm/AnalyzeCCode/GNUmakefile random.ir CFLAGS="-I../../../include -DHAVE_CONFIG_H"
+```
+
+#### Check  For some reason, we get Rf_envLength() in the .ir when it was a called as length().
+This is because of the inlined length routine and its switch().
+The 6 elements in the PHI in which we found this are not the switch. See if.end9 block.
+
+Why does the switch have negative values?
+There are 9 elements in the IR switch, and also 9 in the C code switch.
+IR: 10, 13, 14, 15, -16, 9, -13, -12, -8
+C:  10, 13, 14, 15,  16, 9,  19,  20, 24
+This is an i5 comparison - 5 bit integer - in the switch.
+This corresponds to +/- 2^4
+Take 20.  20 = 16 + 4 = 10100 = -
+24:            16 + 8 = 11000 = -8
+
+random.ir:1860
+  %retval.0.i = phi i32 [ 1, %sw.default.i ], 
+                        [ %call8.i, %sw.bb7.i ],   Rf_envlength()
+						[ 0, %if.end9 ],           coerceVector(), length, switch.
+						[ %2, %sw.bb1.i ],         computes length from the SEXP      (@1820)
+						[ 0, %sw.bb4.i ], 
+						[ %inc.i, %while.body.i ]
+   But we know the type from coerceVector()
+   
+
+
+Consider do_rmultinom
+
+```
+m = parseIR("random.ir")
+z = compReturnType(m$do_rmultinom)
+```
+We get back an INTSXP RMatrix which is correct.
+We don't currently get the dimensions.
+These are the length of the third argument and the value
+of the first argument.  (Note n is the number of columns.)
+
 

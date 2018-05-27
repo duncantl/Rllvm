@@ -138,6 +138,8 @@ cond_type(SEXP i)
 
 
 
+/*************************/
+
 int GlobalVals[] = {2, 100, 1092};
 
 typedef struct {
@@ -146,6 +148,11 @@ typedef struct {
 } S;
 
 
+
+/*
+  This returns a pointer to a global variable  that should not be freed.
+  R_allocExtptr below returns a pointer to malloc'ed memory.
+ */
 
 SEXP
 R_globalExtptr()
@@ -162,4 +169,71 @@ R_allocExtptr()
     ptr->n = 10;
     ptr->vals = (double *) malloc(sizeof(double) * ptr->n);
     return(R_MakeExternalPtr(ptr, Rf_install("GlobalVals"), Rf_install("GlobalVals")));
+}
+
+
+/* This is an example of not using Rf_install() directly for the tag. */
+
+SEXP TagName;
+
+SEXP
+R_globalSymExtptrTag()
+{
+    return(R_MakeExternalPtr(GlobalVals, TagName, Rf_install("GlobalVals")));
+}
+
+void
+init()
+{
+    TagName = Rf_install("TagNameSymbolValue");
+}
+
+
+/***********************/
+
+/* Inputs 
+ */
+
+SEXP
+r_inputs(SEXP a, SEXP b)
+{
+    if(INTEGER(a)[0]) {
+	double d = asReal(b);
+    }
+
+    return(ScalarInteger(1));
+}
+
+
+SEXP
+r_inputs2(SEXP a, SEXP b)
+{
+    if(INTEGER(a)[0]) {
+	double d = asReal(b);
+    } else {
+	SEXP el = VECTOR_ELT(b, INTEGER(a)[1]);
+    }
+
+    return(ScalarInteger(1));
+}
+
+
+SEXP
+r_inputs3(SEXP a, SEXP b)
+{
+    double total = 0;
+    for(int i = 0;i < LENGTH(a); i++)
+	total += INTEGER(a)[i] + REAL(b)[i];
+
+    return(ScalarReal(total));
+}
+
+
+
+SEXP
+r_inputs4(SEXP a, SEXP b)
+{
+    const char *str = CHAR(STRING_ELT(a, 0));
+
+    return(R_NilValue);
 }

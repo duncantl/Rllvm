@@ -68,6 +68,15 @@ function(x, ...)
                       ), class = "RScalar")
             
 
+    }  else if(id == "R_MakeExternalPtr") {
+        # We'll just assume the tag and prot are of the form Rf_install("literal").
+        # We'll extend this later.  Could be a global variable that was initialized
+        # to a symbol at some point.
+
+        # We want the type of the object and whether it was allocated.
+        tmp = getExtPtrObj(kall[[1]])
+        ans = structure(c(tmp, tag = findValue(kall[[2]][[1]])), class = "RExternalPtr")
+browser()
     } else if(id == "R_do_new_object") {
         nm = kall[[1]]
         if(is(nm, "CallInst") && getName(getCalledFunction(nm)) == "R_do_MAKE_CLASS") 
@@ -75,7 +84,10 @@ function(x, ...)
 
         val = findValue(nm)
         ans = structure(list(className = val),  class = "S4Instance")
-    } else {
+    }  else if(id == "Rf_coerceVector") {
+        browser()
+        ans = NULL # Fix.
+    }  else {
         ans = kall
     }
 
@@ -85,7 +97,6 @@ function(x, ...)
 
 setGeneric("findValue",
            function(val, rtype = FALSE, ...) {
-               cat("findValue generic", rtype, "\n")
                ans = standardGeneric("findValue")
                if(rtype) {
                    mapRType(ans)
@@ -96,6 +107,12 @@ setGeneric("findValue",
 setMethod("findValue", "ANY",
           function(val, rtype = FALSE, ...)
               browser())
+
+tmp = function(val, rtype = FALSE, ...)  findValue(val[[1]])
+setMethod("findValue", "BitCastInst", tmp)
+setMethod("findValue", "GetElementPtrInst", tmp)
+#setMethod("findValue", "OverflowingBinaryOperator", tmp)
+
 
 setMethod("findValue", "ConstantInt",
           function(val, rtype = FALSE, ...) 
@@ -122,7 +139,23 @@ setMethod("findValue", "GetElementPtrInst",
 
 setMethod("findValue", "CallInst",
           function(val, rtype = FALSE, ...) {
-browser()
+              fn = getName(getCalledFunction(val))
+              if(fn %in% c("Rf_asInteger", "Rf_asLogical", "Rf_asReal")) {
+                  return(findValue(val[[1]]))
+              }
+
+              if(grepl("^Rf_.*length$", fn)) {
+                  ans = findValue(val[[1]])
+                  return(structure(ans, class = c(ans, "SymbolicLength" )))                  
+              }
+
+             if(fn == "Rf_coerceVector") {
+                 ans = findValue(val[[1]])
+                 return(structure(ans, class = c(ans, "Coerce" )))
+             }
+
+              browser()
+              NULL
           })
 
 
@@ -139,8 +172,20 @@ setMethod("findValue", "GlobalVariable",
 setMethod("findValue", "ConstantDataSequential",
           function(val, rtype = FALSE, ...) {
               .Call("R_ConstantDataSequential_getAsCString", val)              
-         })
+          })
 
+
+setMethod("findValue", "Argument",
+          function(val, rtype = FALSE, ...) {
+              structure(getName(val), class = "Parameter")
+          })
+
+setMethod("findValue", "PHINode",
+          function(val, rtype = FALSE, ...) {
+              ans = lapply(val[seq(1, length = length(val))], findValue, rtype, ...)
+              names(ans) = sapply(val[seq(1, length = length(val))], as, 'character')
+              ans
+          })
 
 mapRType =
 function(val, map = RSEXPTypeMap)
@@ -153,3 +198,91 @@ RSEXPTypeMap =
     c(NILSXP = 0, SYMSPX = 1, LISTSXP =2, CLOSXP = 3, ENVSXP = 4, PROMSXP = 5, LANGSXP = 6,
       CHARSXP = 9, LGLSXP = 10, INTSXP = 13, REALSXP = 14, CPLXSXP = 15, STRSXP = 16,
       VECSXP = 19, RAWSXP = 24)
+
+
+
+getExtPtrObj =
+function(call)
+{
+    isAlloc = FALSE
+    if(is(call, "CallInst")) {
+        fun = getName(getCalledFunction(call))
+        isAlloc = fun %in% c("malloc", "calloc")
+    }
+    
+    # How do we find the type from the IR. We just have the size.
+    # and the code deals with offsets, not field names.
+
+    ans = list(allocated = isAlloc)
+        
+}
+
+
+
+
+compParamTypes =
+    #
+    # Want to get the types and lengths, etc. for each parameter
+    # Also want to get the relationships between them, e.g. same length.
+    # 
+function(fun, params = getParameters(fun), ...)
+{
+   lapply(params, compParamType, ...)
+}
+
+
+compParamType =
+function(p, users = getAllUsers(p), ...)
+{
+    ans = lapply(users, compInputType, ...)
+    names(ans) = sapply(users, as, 'character')
+    ans
+}
+
+setGeneric("compInputType", function(x, ...) standardGeneric("compInputType"))
+
+
+getRTypeFromFunName =
+function(fn)
+{
+   ans = switch(fn,
+                INTEGER = "INTSXP",
+                Rf_asInteger = c("INTSXP", "Scalar"),
+                REAL = "REALSXP",
+                Rf_asReal = c("REALSXP", "Scalar"),
+                LOGICAL = "LGLSXP",
+                STRING_ELT = "STRSXP",
+                CHAR = "CHARSXP",
+                VECTOR_ELT = "VECSXP",
+                LENGTH = c("SEXP", "Vector"),
+                character())
+   ans
+}
+
+setMethod("compInputType", "CallInst",
+          function(x, ...) {
+
+              fn = getName(getCalledFunction(x))
+              ans = getRTypeFromFunName(fn)
+
+              if(length(ans) > 0)
+                  return(list(type = ans))
+
+              if(fn == "Rf_coerceVector") {
+                 return(list(type = mapRType(x[[2]])))
+              }
+
+              browser()
+              "???"
+          })
+
+
+setMethod("compInputType", "FPMathOperator",
+          function(x, ...) {
+              compInputType(x[[1]])
+          })
+
+setMethod("compInputType", "Function",
+          function(x, ...) {
+              getRTypeFromFunName(getName(x))
+          })
