@@ -137,6 +137,19 @@ cond_type(SEXP i)
 }
 
 
+SEXP
+r_list(SEXP r_n)
+{
+    SEXP ans = NEW_LIST(3);
+    PROTECT(ans);
+    SET_VECTOR_ELT(ans, 0, Rf_allocMatrix(INTSXP, 3, 5));
+    SET_VECTOR_ELT(ans, 1, NEW_INTEGER(10));
+    SET_VECTOR_ELT(ans, 2, NEW_NUMERIC(asInteger(r_n)));        
+    UNPROTECT(1);
+    return(ans);
+}
+
+
 
 /*************************/
 
