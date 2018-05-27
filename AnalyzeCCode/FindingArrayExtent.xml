@@ -1,0 +1,248 @@
+<article
+	 xmlns:omg="http://www.omegahat.org"
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:c="http://www.C.org">
+
+<section>
+<title></title>
+
+<para>
+  Here we discuss/explore finding the length of an R vector as used in C code.
+  We are looking to see if it is a scalar or how many elements it may have.
+  We do this by looking for calls such as <c:func>asInteger</c:func>
+  or when it is used in code such as
+<c:code>
+  x = INTEGER(r_x);
+  for(i = 0 ; i < n ; i++)
+     x[i]
+</c:code>  
+</para>
+
+
+<para>
+  Consider the rpart routine from rpart.c in the rpart/src/ directory.
+  We have generated the IR for this C code in rpart.ir.
+  We read it with
+<r:code>
+m3 = parseIR("rpart.ir")
+</r:code>
+The <c:func>rpart</c:func> routine has numerous parameters:
+<r:code>
+names(m3$rpart)
+<r:output><![CDATA[
+[1] "ncat2"   "method2" "opt2"    "parms2"  "xvals2"  "xgrp2"  
+[7] "ymat2"   "xmat2"   "wt2"     "ny2"     "cost2"  
+]]></r:output>
+</r:code>
+</para>
+
+
+<para>
+Let's look at <c:param>wt2</c:param>.
+We access this as an <r:class>Argument</r:class> object via
+<r:code>
+p = m3$rpart$wt2
+</r:code>
+We can then ask what instructions in the IR make use of  this
+<r:code>
+  u = getAllUsers(p)
+<r:output><![CDATA[
+[[1]]
+[1] "  %call3 = tail call double* @REAL(%struct.SEXPREC.12* %wt2) #6"
+]]></r:output>  
+</r:code>rp
+So there is only one direct use of this parameter.
+We can see that it is expected to be a numeric vector (based on the use of REAL).
+We have to next find where the result of this call is being used,
+i.e. where wt2 is being used indirectly.
+</para>
+
+
+<para>
+We find these second-level/indirect uses  with
+<r:code>
+u2 = getAllUsers(u[[1]])
+</r:code>
+There are 8 of these and we can see the IR code by printing <r:var>u2</r:var>:
+<r:output><![CDATA[
+[[1]]
+[1] "  call void (i32, double**, double*, double*, double*, ...) %117(i32 %call35, double** %118, double* %arraydecay, double* %risk, double* %call3) #6"
+
+[[2]]
+[1] "  %call191 = call i32 (i32, double**, i32, i8**, double*, i32*, i32, double*, ...) %106(i32 %call35, double** %107, i32 %maxcat.0.lcssa, i8** nonnull %errmsg, double* %call4, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 23), i32 1, double* %call3) #6"
+
+[[3]]
+[1] "  %arrayidx186.epil = getelementptr inbounds double, double* %call3, i64 %indvars.iv753.epil"
+
+[[4]]
+[1] "  %arrayidx186.3 = getelementptr inbounds double, double* %call3, i64 %indvars.iv.next754.2"
+
+[[5]]
+[1] "  %arrayidx186.2 = getelementptr inbounds double, double* %call3, i64 %indvars.iv.next754.1"
+
+[[6]]
+[1] "  %arrayidx186.1 = getelementptr inbounds double, double* %call3, i64 %indvars.iv.next754"
+
+[[7]]
+[1] "  %arrayidx186 = getelementptr inbounds double, double* %call3, i64 %indvars.iv753"
+
+[[8]]
+[1] "  store double* %call3, double** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 6), align 8, !tbaa !27"
+]]></r:output>
+Note that we often want to look at these in the opposite order as they are often given in reverse order of actual use in
+the code (if there is such a linear progression).
+</para>
+<para>
+The first two correspond to calls in the C code  of the form
+<c:code>
+    i = (*rp_init) (n, rp.ydata, maxcat, &errmsg, parms, &rp.num_resp, 1, wt);  
+    (*rp_eval) (n, rp.ydata, tree->response_est, &(tree->risk), wt);
+</c:code>
+Here <c:param>wt</c:param> is the variable to which the result of <c:expr>REAL(xmat2)</c:expr> was assigned.
+Note that these are pointers to routines, so we need to resolve those to see which routines are actually being
+called.
+</para>
+<para>
+The next 5 users correspond to subsetting the vector and we will look at these next.
+The last assigns the value (<c:param>wt</c:param>) to another location. This
+gives rise to aliasing which we may need to follow.
+</para>
+
+
+<para>
+Let's look at the subsetting.
+We'll look at the last of these first.
+<r:code>
+u2[[7]]
+<r:output><![CDATA[
+[1] "  %arrayidx186 = getelementptr inbounds double, double* %call3, i64 %indvars.iv753"
+]]></r:output>
+</r:code>
+We look at what it is being indexed by
+<r:code>
+u2[[7]][[2]]
+<r:output><![CDATA[
+[1] "  %indvars.iv753 = phi i64 [ 0, %for.body182.lr.ph.new ], [ %indvars.iv.next754.3, %for.body182 ]"
+]]></r:output>
+</r:code>
+This is a <r:class>PHINode</r:class> object. It comes from a for-loop.
+The initial value is 0 (from the first predecessor/incoming block).
+The second incoming block is more interesting:
+<r:code>
+u2[[7]][[2]][[2]]
+<r:output><![CDATA[
+[1] "  %indvars.iv.next754.3 = add nsw i64 %indvars.iv753, 4"
+]]></r:output>
+</r:code>
+This increments the IR variable <c:var>%indvars.iv753</c:var> by 4.
+This value 4 may indicate that we are working directly with memory addresses rather than indices,
+(e.g., <c:expr>*(x + 4)</c:expr> versus <c:expr>x[1]</c:expr>).
+If we look at the two IR code segments just above, we see that
+we set indvars.iv.next754.3 by adding 4 to indvars.iv753
+and the former is used in the PHINode to set the value for the latter.
+So this is circular.
+</para>
+
+<para>
+With some pattern matching and common sense,
+we can see that this code corresponds to the <c/> loop
+<r:output><![CDATA[
+for (i = 0; i < n; i++) {
+     rp.which[i] = 1;
+     temp += wt[i];
+}
+]]></r:output>  
+Our focus here is to find the maximum value of the subsetting, which in this case is n.
+We need to reassemble the relevant elements of the loop from the raw IR code.
+</para>
+
+
+
+
+<para>
+  We know we are interested in for.body182 (how?).
+  We look at its terminator which is a branch
+<programlisting><![CDATA[
+  br i1 %niter811.ncmp.3, label %for.end190.loopexit.unr-lcssa, label %for.body182
+  ]]></programlisting>
+This either exists or repeats the body of the loop.
+What happens depends on niter811.ncmp.3 and this is computed in the 2 instructions above
+the branch:
+<programlisting><![CDATA[
+  %niter811.nsub.3 = add i64 %niter811, -4
+  %niter811.ncmp.3 = icmp eq i64 %niter811.nsub.3, 0
+  ]]></programlisting>
+So this subtracts 4 from niter811 and then compares the result to be equal to 0 (and exits)
+or not (and repeats the loop body).
+So we need to find where niter811 is initialized.
+<r:code>
+e = getTerminator(getBlocks(m3$rpart)[["for.body182"]])  
+e[[1]][[1]][[1]]
+</r:code>
+<r:expr>e[[1]]</r:expr> is the comparison in the branch;
+<r:expr>e[[1]][[1]]</r:expr> correpsonds to the subtraction of 4 from niter811
+and <r:expr>e[[1]][[1]]</r:expr> corresponds to where niter811 is set.
+This is
+<programlisting><![CDATA[
+[1] "  %niter811 = phi i64 [ %unroll_iter810, %for.body182.lr.ph.new ], [ %niter811.nsub.3, %for.body182 ]"
+]]></programlisting>
+This is again a PHINode. The first incoming branch is (presumably) where the initial value for niter811 is
+defined/set.  The second incoming branch is from the body of the loop itself (i.e. when it repeats the body).
+So we will look at the former.
+<r:code>
+niter811 = e[[1]][[1]][[1]][[1]]
+</r:code>
+Of course, this isn't a simple definition. This is an instruction
+<programlisting><![CDATA[
+[1] "  %unroll_iter810 = sub nsw i64 %wide.trip.count755, %xtraiter807"
+]]></programlisting>
+which subtracts one value from another.
+We can follow the first operand to get
+<r:code>
+niter811[[1]][[1]]
+<r:output><![CDATA[
+[1] "  %call35 = tail call i32 @Rf_nrows(%struct.SEXPREC.12* %xmat2) #6"
+]]></r:output>
+</r:code>
+So we are computing the number of rows of an object
+and that is the parameter xmat2.
+</para>
+<para>
+What are we subtracting from this value?
+Again we follow this to something concrete to get the same call (<r:expr>nrow(xmat2)</r:expr>):
+<r:code>
+  niter811[[2]][[1]][[1]]
+<r:output><![CDATA[
+"  %call35 = tail call i32 @Rf_nrows(%struct.SEXPREC.12* %xmat2) #6"
+]]></r:output>  
+</r:code>
+The steps in between mean that we are casting this to a 64 bit integer (from 32 bit)
+and then AND'ing it with 3.  We then take this result and subtract it from
+the regular call to <r:expr>nrow(xmat2)</r:expr> (cast to 64 bits).
+</para>
+
+
+<para>
+After all of this, we see that we are looping over nrow(xmat2) elements.
+We are in fact going in reverse order, but that is not important.
+Looking at the <c/> code, we can indeed verify this.
+<c:code>
+    rp.n = nrows(xmat2);
+    n = rp.n;                   /* I get tired of typing "rp.n" 100 times
+    ...
+    ...
+    for (i = 0; i < n; i++) {
+	rp.which[i] = 1;
+	temp += wt[i];
+    }
+</c:code>
+(The comment suggests curious software engineering!)
+</para>
+
+
+
+
+</section>
+
+  
+</article>
