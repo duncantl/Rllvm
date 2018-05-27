@@ -82,7 +82,7 @@ function(ins)
   type = getOpcode(ins)
   k = InstructionOpcodeClass[ names(type) ]
   if(is.na(k))
-    stop("cannot mape op code for instruction to R class")
+    stop("cannot map op code for instruction to R class")
   
   as(ins, k)
 }
