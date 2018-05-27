@@ -757,7 +757,13 @@ R_IRBuilder_CreateSelect(SEXP r_builder, SEXP r_cond, SEXP r_lhs, SEXP r_rhs, SE
 } 
 
 
-
+extern "C"
+SEXP
+R_Operator_getOpcode(SEXP r_op)
+{
+    llvm::Operator *op = GET_REF(r_op, Operator);
+    return(ScalarInteger(op->getOpcode()));
+}
 
 extern "C"
 SEXP
