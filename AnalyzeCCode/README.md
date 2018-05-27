@@ -133,6 +133,22 @@ random.ir:1860
 						[ %inc.i, %while.body.i ]
    But we know the type from coerceVector()
    
+   
+Note that this doesn't happen in a regular package
+but only inside of the stats package's src/ directory and other packages that use -DHAVE_CONFIG_H
+and inline the routines.
+Look at tmp.c which replicates some of the code from do_rmultinom(), i.e. coerceVector() and length().
+
+See tmp.c and coerceVector_have_config.ir 
+
+In library/stats/src/
+```
+make -f ~/GitWorkingArea/Rllvm/AnalyzeCCode/GNUmakefile foo.ir CFLAGS="-I../../../include -DHAVE_CONFIG_H"
+/Users/duncan/LLVM/LLVM5.0.1/llvm-5.0.1.src/build/bin/clang -I../../../include -DHAVE_CONFIG_H -O3 -S -emit-llvm  foo.c -o foo.ir
+cp foo.ir ~/GitWorkingArea/Rllvm/AnalyzeCCode/coerceVector_have_config.ir
+```
+
+###
 
 
 Consider do_rmultinom
