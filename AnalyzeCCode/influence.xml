@@ -4,6 +4,11 @@
 	 xmlns:r="http://www.r-project.org"
 	 xmlns:c="http://www.C.org"
 	 xmlns:omg="http://www.omegahat.org">
+
+<p>
+See the example in README.md, eg.R, eg2.R and eg3.R and the code in getType.R.
+</p>
+
 <section>
 <title>Getting <r/> Type Information from <c/> Code</title>
 
@@ -211,20 +216,35 @@ So this comes from the call <c:expr>nrows(qr)</c:expr> and <c:var>qr</c:var> com
 </para>
 
 
+
+
+<para>
+  The basics of the following are partially implemented in getType.R.
+  It needs more work, but gives the basics.
+</para>
+
+
 <para>
 The last instruction in our list of users of the return value
 sets the names attribute.
 We can see this with
 <r:code>
+  usrs[[6]]
+<r:output><![CDATA[
+[1] "  %call37 = call %struct.SEXPREC.8* @Rf_setAttrib(%struct.SEXPREC.8* %call32, %struct.SEXPREC.8* %11, %struct.SEXPREC.8* %call36) #3"
+]]></r:output>
+</r:code>
+And the second argument to this is the symbol naming the attribute, and 
+<r:code>
 getName(usrs[[6]][[2]][[1]])
 </r:code>  
-which gives <c:var>R_NamesSymbol</c:var> as the name of the global variable.
+gives <c:var>R_NamesSymbol</c:var> as the name of the global variable.
 </para>
+
 <para>
-The third argument to this is a call.
+In this routine, the third argument to the call to Rf_setAttrib() is a call.
 <r:code>
 nmsVec = usrs[[6]][[3]]  
-as(nmsVec, 'character')
 <r:output><![CDATA[
 [1] "  %call36 = call %struct.SEXPREC* @Rf_allocVector(i32 16, i64 %conv35) #3"
 ]]></r:output>
@@ -246,7 +266,6 @@ basic process as finding the elements of the list itself.
 
 <r:code>
 nu = getAllUsers(nmsVec)
-sapply(nu, as, 'character') 
 <r:output><![CDATA[
 [1] "  call void @SET_STRING_ELT(%struct.SEXPREC* %call36, i64 %18, %struct.SEXPREC* %call59) #3"
 [2] "  call void @SET_STRING_ELT(%struct.SEXPREC* %call36, i64 %17, %struct.SEXPREC* %call55) #3"
@@ -255,14 +274,15 @@ sapply(nu, as, 'character')
 [5] "  %call37 = call %struct.SEXPREC* @Rf_setAttrib(%struct.SEXPREC* %call32, %struct.SEXPREC* %11, %struct.SEXPREC* %call36) #3"
 ]]></r:output>
 </r:code>
-Let's get the name of our <r:var>nmsVec</r:var> IR variable:
+Let's get the IR name of our <r:var>nmsVec</r:var> variable:
 <r:code>
 getName(nmsVec)
 </r:code>
+This is call36.
 From the two outputs, we can see that 4 of the calls are to SET_STRING_ELT
 with call36 (our IR variable) as the  first argument.
 The final use is a call to Rf_setAttrib() and call36 is the final argument.
-This is setting the names on the list to be returned by the routine.
+This final use is setting the names on the list to be returned by the routine.
 We saw this earlier in the uses of the list itself (call32).
 </para>
 
@@ -278,6 +298,18 @@ getValue(nu[[4]][[2]])
 </r:code>
 This is the constant 0, i.e., the first element.
 </para>
+
+
+
+<para>
+<r:code>
+w = sapply(nu, function(x) is(x, "CallInst") && getName(getCalledFunction(x)) == "SET_STRING_ELT")
+</r:code>
+<r:code>
+sapply(nu[w], function(x) findValue(x[[3]]))
+</r:code>
+</para>
+
 
 
 <para>
@@ -298,7 +330,8 @@ Its only argument is the string.
 In this case, it is a literal value, a <r:class>ConstantExpr</r:class>.
 LLVM stores this in a GlobalVariable within the module.
 
-<fix>Implement getting this. Can use the name of the .str.3
+<fix>See findValue() in getType.R
+Implement getting this. Can use the name of the .str.3
 See code in class.R and getType.R and added to Rllvm.
 Works, but may not be best way to do this. So probably needs
 some robustifying.

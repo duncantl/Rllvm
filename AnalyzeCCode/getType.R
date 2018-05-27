@@ -27,7 +27,26 @@ function(x, ret)
   els = lapply(usrs[w], function(x) getCallType(x[[3]]))
 
   x$els = els
+  x$elNames = getListNames(usrs, ret)
   x
+}
+
+
+getListNames =
+function(usrs, ret)
+{
+    w = sapply(usrs, function(x) is(x, "CallInst") && getName(getCalledFunction(x)) == "Rf_setAttrib" &&
+                                       getName(x[[2]][[1]]) == "R_NamesSymbol")  # have to be more robust here.
+    if(!any(w))
+        return(character())
+    
+    tmp = sapply(usrs[w], function(x) x[[3]]) # get the 3rd arg for Rf_setAttrib()
+    nu = lapply(tmp, getAllUsers) # get the second arg of Rf_allocVector()
+
+    lapply(nu, function(nu) {
+                    w = sapply(nu, function(x) is(x, "CallInst") && getName(getCalledFunction(x)) == "SET_STRING_ELT")
+                    sapply(nu[w], function(x) findValue(x[[3]]))
+               })
 }
 
 
@@ -137,6 +156,8 @@ setMethod("findValue", "ANY",
 tmp = function(val, rtype = FALSE, ...)  findValue(val[[1]])
 setMethod("findValue", "BitCastInst", tmp)
 setMethod("findValue", "GetElementPtrInst", tmp)
+# Uncommenting this next method causes infinite recursion for some IR code
+# specifically due to PHI nodes that whose elements refer back to the same PHInode.
 #setMethod("findValue", "OverflowingBinaryOperator", tmp)
 
 
@@ -186,6 +207,9 @@ setMethod("findValue", "CallInst",
                       return(structure(ans, class = c(ans, "SymbolicNrows" )))
               }
 
+              if(fn == "Rf_mkChar")
+                  return(findValue(val[[1]]))
+
               if(fn != "getListElement")
                   browser()
               
@@ -216,6 +240,7 @@ setMethod("findValue", "Argument",
 
 setMethod("findValue", "PHINode",
           function(val, rtype = FALSE, ...) {
+cat("findValue phi", as(val, "character"), "\n")              
               ans = lapply(val[seq(1, length = length(val))], findValue, rtype, ...)
               names(ans) = sapply(val[seq(1, length = length(val))], as, 'character')
               ans
@@ -256,9 +281,18 @@ function(call)
 
 compParamTypes =
     #
-    # Want to get the types and lengths, etc. for each parameter
+    # Want to get the types and lengths, etc. for each parameter/input based on
+    # how it is used.
     # Also want to get the relationships between them, e.g. same length.
-    # 
+    # This works on all of the parameters for a routine
+    #
+    # Todo:
+    #  find out the length and if scalar for a vector. i.e. don't just stop at INTEGER() and say vector.
+    #     Determine which other vectors this is parallel to in length.
+    #     Get the users of a parameter, and their users, etc.
+    #  Map e.g. strings or integers to enumerated values.
+    #
+    #
 function(fun, params = getParameters(fun), ...)
 {
    lapply(params, compParamType, ...)
@@ -266,6 +300,19 @@ function(fun, params = getParameters(fun), ...)
 
 
 compParamType =
+    #
+    # This works on a single parameter to identify the specific R type
+    # based on how it is used.
+    #
+    # The idea is simple. We find all uses of the parameter within the routine
+    # and then look at those to identify if they indicate a specific R type.
+    #
+    # We get back information from all uses.  We want to combine these
+    # (like a constraint in Nick U's world) to a specific type.
+    # e.g. z3 = compParamTypes(m3$rpart)
+    #  z3$xmat2 returns REALSXP and two RMatrix values.
+    #  So this is a numeric matrix, i.e. a matrix with numeric cells/mode.
+    #
 function(p, users = getAllUsers(p), ...)
 {
     ans = lapply(users, compInputType, ...)
@@ -273,10 +320,54 @@ function(p, users = getAllUsers(p), ...)
     ans
 }
 
+# compInputType aims at determining the specific R type based of a parameter/input
+# (not the result) for a routine based on how it is used.
+# We can do this in cases such as INTEGER(p1), REAL(p2), asInteger(p3),
+# length(p4) (gives us some information), VECTOR_ELT(), STRING_ELT()
+# Rf_coerceVector().
+# This can be extended a great deal but is just here as proof of concept.
 setGeneric("compInputType", function(x, ...) standardGeneric("compInputType"))
+
+setMethod("compInputType", "CallInst",
+          function(x, ...) {
+
+              fn = getName(getCalledFunction(x))
+              ans = getRTypeFromFunName(fn)
+
+              if(length(ans) > 0)
+                  return(list(type = ans))
+
+              if(fn == "Rf_coerceVector") {
+                 return(list(type = mapRType(x[[2]])))
+              }
+
+              if(fn %in% c("Rf_nrows", "Rf_ncols"))
+                  return(list(type = "RMatrix"))
+              
+              browser()
+              "???"
+          })
+
+setMethod("compInputType", "FPMathOperator",
+          function(x, ...) {
+              compInputType(x[[1]])
+          })
+
+setMethod("compInputType", "Function",
+          function(x, ...) {
+              getRTypeFromFunName(getName(x))
+          })
+
 
 
 getRTypeFromFunName =
+    #
+    # Maps the name of C routine to an R type
+    # when we know the C routine is specific to that type.
+    # This only takes the function name. It doesn't handle cases
+    # such as Rf_allocMatrix() or Rf_coerceVector() which require
+    # additional information, i.e., the R type in the first and second arguments
+    # respectively.
 function(fn)
 {
    ans = switch(fn,
@@ -292,31 +383,3 @@ function(fn)
                 character())
    ans
 }
-
-setMethod("compInputType", "CallInst",
-          function(x, ...) {
-
-              fn = getName(getCalledFunction(x))
-              ans = getRTypeFromFunName(fn)
-
-              if(length(ans) > 0)
-                  return(list(type = ans))
-
-              if(fn == "Rf_coerceVector") {
-                 return(list(type = mapRType(x[[2]])))
-              }
-
-              browser()
-              "???"
-          })
-
-
-setMethod("compInputType", "FPMathOperator",
-          function(x, ...) {
-              compInputType(x[[1]])
-          })
-
-setMethod("compInputType", "Function",
-          function(x, ...) {
-              getRTypeFromFunName(getName(x))
-          })
