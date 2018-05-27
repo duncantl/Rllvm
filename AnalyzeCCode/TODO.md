@@ -24,15 +24,13 @@ findValue phi   %maxcat.0701 = phi i32 [ 0, %for.body76.lr.ph ], [ %maxcat.1, %f
 
 # Original Todo
 
++ .C - type of input, type of output.  Nice to have would be inputs (only) and output (only) and  both input-output.
++ .Call - type of input, type of output.
+   + Dimensions also
+      + literals
+	  + symbolic as function of other parameters/inputs.
+
 + .Internal, .Primitive    Base R API -   no protection barrier
-
-
-1. Sort out the row numbers on the table when we restore the results and then add new ones.
-   Need to make them unique. Otherwise can delete the wrong one.yes
-   s
-
-+ .C - type of input, type of output.  Nice to have would be inputs and output and input-output.
-+ .Call - type of input, type of output
 + .C/.Call - in R recommended packages, e.g., stat
 + .C/.Call in CRAN, Bioconductor packages
 + Rcpp
@@ -40,5 +38,15 @@ findValue phi   %maxcat.0701 = phi i32 [ 0, %for.body76.lr.ph ], [ %maxcat.1, %f
 
 + Registration information and mapping
 + .C's have type information
-+ NAMESPACE
-+ useDynLib(,  foo = bar, abc = xyz)
++ NAMESPACE 
+   + Identify the routines of interest (callable from R) from the NAMESPACE.
+   + Respect prefixes
+   + useDynLib(,  foo = bar, abc = xyz)
++ Merge the information from R code (coercions, etc.) before the call and analysis of the code
+  in the routine to restrict what the inputs are. 
+   + Identify scalars versus vectors, matrices rather than vectors, enums rather than unconstrained
+     integers or strings, ....
+
+
+
++ Memory ownership and management.
