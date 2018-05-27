@@ -4,11 +4,11 @@ SEXP
 ifoo()
 {
     return(ScalarInteger (10) );
- }
+}
 
 
 SEXP
-ifoo2Icons   ()
+ifoo2()
 {
     SEXP ans = ScalarInteger(10);
     return(ans);
@@ -50,7 +50,7 @@ extend_str(SEXP r_n)
 	if(i >= LENGTH(ans))
 	    SET_LENGTH(ans, i+1);
 	
-	SET_STRING_ELT(ans, 0, mkChar("bob"));
+	SET_STRING_ELT(ans, i, mkChar("bob"));
     }
     UNPROTECT(1);
     return(ans);
@@ -150,7 +150,18 @@ r_list(SEXP r_n)
 }
 
 
-
+SEXP
+r_subset(SEXP r_x)
+{
+    int n = Rf_length(r_x), i;
+    SEXP ans = NEW_INTEGER(n);
+    int *x = INTEGER(r_x), *a = INTEGER(ans);
+    
+    for(i = 0; i < n; i++)
+	a[i] = x[i] > 0 ? x[i] * 2 : x[i];
+    
+    return(r_x);
+}
 /*************************/
 
 int GlobalVals[] = {2, 100, 1092};
