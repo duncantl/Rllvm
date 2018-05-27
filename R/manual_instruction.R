@@ -15,7 +15,8 @@ setMethod("getParent", "Function",
 setMethod("getOperand", "Instruction",
           function(instruction, index, class = getClassName(ans)) {
             if(index < 1)
-               stop("don't be silly!")  
+               stop("operand indices have to be positive integer values")
+            
             ans = .Call("R_Instruction_getOperand", as(instruction, "Instruction"), as.integer(index))
             if(length(class) && !is.na(class) )
                as(ans, class)
