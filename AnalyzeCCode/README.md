@@ -43,7 +43,8 @@ With the IR approach:
 
 
 ### Using the AST
-We definitely need to have access to the AST for certain important aspects of the
+
++ We definitely need to have access to the AST for certain important aspects of the
 analysis.
 Specifically, we need the names and values of enumerated constants and `#define`
 so that we can work with values in the IR code and map them to their symbolic names 
@@ -51,6 +52,20 @@ to be able to map them correctly to R concepts.
 (For example, we need to know that the value 13 corresponds to INTSXP which corresponds to an
 integer vector in R.)
 
++ The IR version is often optimized and this means that struct definitions
+and high-level field accessors have typically been removed from the code
+and instead we deal with memory addresses and offsets rather than symbolic
+field names.
+
++ We have to reassemble for loops from blocks and branches.
+
++ Simple loops in C/C++ code can be converted in the IR to loops that count down,
+ do not use subsetting in the form `x[i]` but instead `*(x + 4)`, i.e. using
+ memory arithmetic.  These are not hard to deal with, but slightly less obvious
+ than the C/C++ code.
+
++ The IR code inlines some code (e.g. R's length() routine) and so makes the
+ code more complex.
 
 ### Influence.xml
 Exploration of how we deal with C code in a package
