@@ -1,0 +1,493 @@
+<article
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:c="http://www.C.org"
+	 xmlns:omg="http://www.omegahat.org">
+
+<section>
+<title></title>
+
+<para>
+<r:code>
+library(RCIndex)
+</r:code>
+
+<r:code>
+tu = createTU("foo.c", includes = "~/R-3.4.4/src/include")
+</r:code>
+
+<r:code>
+r = getRoutines(tu)
+</r:code>
+
+<r:code>
+r$ifoo
+</r:code>
+
+<r:code>
+k = getChildren(r$ifoo)
+</r:code>
+
+The return statement is accessed via the body and its first element:
+<r:code>
+ret = k[[2]][[1]]
+</r:code>
+
+We get the call to ScalarInteger via
+<r:code>
+ret[[1]][[1]]
+</r:code>
+The name of the routine being called is
+<r:code>
+getName(ret[[1]][[1]])
+</r:code>
+which yields Rf_ScalarInteger.
+So we know we are returning an integer vector.
+
+We get the literal value 10 with
+<r:code>
+ret[[1]][[1]][[2]]
+</r:code>
+This is a CXCursor with a kind corresponding to CXCursor_IntegerLiteral.
+
+
+</para>
+</section>
+
+<section>
+<title></title>
+
+<para>
+  The routine ifoo2 is very similar (by design) but
+  first assigns the result and then returns it.
+<r:code>
+k = getChildren(r$ifoo2)
+</r:code>
+In this case, we know the second element of the body is the return statement.
+(We'll come back to how we find that.)
+<r:code>
+ret = k[[2]][[2]]
+</r:code>
+The name of the variable being returned is nested within
+a FirstExpr and a ParenExpr cursor, so we get it with 
+<r:code>
+ret[[1]][[1]][[1]]
+</r:code>
+We can ask its name with <r:func>getName</r:func> and it returns
+<r:literal>ans</r:literal> as we expect.
+So now we can look at the other expressions in the body and find where
+ans is assigned.
+</para>
+<para>
+In this case, finding the assignment to ans is not difficult.
+In other cases, it may be much more complex.
+<r:code>
+k2 = getChildren(k[[2]])
+sapply(k2, function(x) x$kind)
+</r:code>
+This shows a DeclStmt and a ReturnStmt.
+We want the former.
+</para>
+
+<para>
+Within the DeclStmt, we have a VarDecl
+<r:code>
+varDec = k2[[1]][[1]]
+</r:code>
+We get the name of the variable with
+<r:code>
+getName(varDec)
+</r:code>
+This is ans and so we have what we are looking for.
+</para>
+<para>
+The VarDecl cursor  has two child cursor nodes.
+The first is the type and this corresponds to SEXP.
+The second is a CallExpr, corresponding to the call Rf_ScalarInteger().
+We saw this when processing the routine ifoo above.
+</para>
+<para>
+So we found the return statement, identified the variable it was returning,
+then found the DeclStmat for that variable and found its initializing value.
+</para>
+
+</section>
+
+<section>
+<title></title>
+
+<para>
+The str routine is slightly more challenging.
+There are more expressions in the body. More importantly, the
+declaration and assignment to ans are separate and the assignment is done within
+a call to PROTECT().
+</para>
+
+<para>
+We start by getting the children of the routine so that we can access the body:
+<r:code>
+k = getChildren(r$str)
+b = k[[2]]
+</r:code>
+We can get the cursor types for the elements of the body with
+<r:code>
+sapply(b, function(x) x$kind)
+<r:output><![CDATA[
+  CXCursor_DeclStmt   CXCursor_CallExpr   CXCursor_CallExpr 
+                231                 103                 103 
+  CXCursor_CallExpr CXCursor_ReturnStmt 
+                103                 214 
+]]></r:output>
+</r:code>
+Recall that these correspond to
+<c:code>
+ SEXP ans;
+ PROTECT(ans = NEW_CHARACTER(1));
+ SET_STRING_ELT(ans, 0, mkChar("bob"));
+ UNPROTECT(1);
+ return(ans);  
+</c:code>
+</para>
+
+
+<para>
+  The first element of the body is a DeclStmt and so we know there is a VarDecl statement
+  within it and we can get the name of the variable with
+<r:code>
+getName(b[[1]][[1]])
+</r:code>  
+giving ans, as we expect.
+</para>
+
+<para>
+The second expression is the call to PROTECT().
+We confirm this with
+<r:code>
+getName(b[[2]])
+</r:code>
+and it returns Rf_protect. This is because PROTECT
+is a macro that expands to Rf_protect for <c/>/<cpp/> code in packages.
+The first argument to this call is
+<r:code>
+b[[2]][[1]]
+</r:code>
+and is a FirstExpr cursor.
+</para>
+<para>
+  The second element (<r:expr>b[[2]][[2]]</r:expr>) is more interesting. It is a binary operator.
+  Its first element is the DeclRefExpr referencing the variable ans.
+  The second element is the call to Rf_allocVector.
+<r:code>
+kl = b[[2]][[2]][[2]]
+</r:code>  
+  This is a CallExpr.
+  <r:func>getName</r:func> gives Rf_allocVector.
+  The first element also identifies Rf_allocVector.
+  The second element of <r:var>kl</r:var> is the value 16.
+  This corresponds to STRSXP, the character vector type in R.
+  The string "STRSXP" is in the cursor tokens:
+<r:code>
+getCursorTokens(kl)
+<r:output><![CDATA[
+      Identifier      Punctuation       Identifier      Punctuation 
+"Rf_allocVector"              "("         "STRSXP"              "," 
+      Identifier      Punctuation 
+             "n"              ")" 
+]]></r:output>
+</r:code>
+So we could extract this rather than the value 16.
+The 16 comes from the macro being expanded for STRSXP.
+Unfortnately, the Identifier 'n' here is from the expansion of NEW_CHARACTER()
+and we see n rather than the literal value 1 in the  <c/> code.
+However, we get the literal value 1 from <r:expr>kl[[3]]</r:expr>.
+So we see that in one case we want to the symbolic string (STRSXP) and in
+another we want the literal expression (1).
+</para>
+
+
+<para>
+  Summarizing the second expression in the body, we found a
+  call to Rf_Protect() and nested within it the <c:expr>ans = Rf_allocVector</c:expr> call.
+</para>
+
+
+
+<para>
+  As with ifoo2, we have identified the return statement
+  and that it returns a variable named ans. We have found its declaration
+  and type (SEXP) and also its initialization.  So we are done at the high-level.
+  We can process the third expression to get more details.
+<r:code>
+b[[3]]
+  <r:output><![CDATA[
+SET_STRING_ELT ( ans , 0 , mkChar ( "bob" ) ) 
+]]></r:output>  
+</r:code>  
+</para>
+
+
+<para>
+We look at the elements of this third expression:
+<r:code>
+getChildren(b[[3]])
+<r:output><![CDATA[
+[[1]]
+CXCursor_FirstExpr SET_STRING_ELT 
+
+[[2]]
+CXCursor_FirstExpr ans 
+
+[[3]]
+CXCursor_FirstExpr 0 
+
+[[4]]
+CXCursor_CallExpr  
+]]></r:output>  
+</r:code>
+
+We get the name of the routine being called with either of 
+<r:code>
+getName(b[[3]])
+getName(b[[3]][[1]])
+</r:code>
+We get the first argument with
+<r:code>
+getName(b[[3]][[2]])
+</r:code>
+since this is not a call or a computation.
+This might be more appropriate as
+<r:code>
+b[[3]][[2]][[1]]
+</r:code>
+since this is the DeclRefExpr.
+</para>
+<para>
+  The second argument to SET_STRING_ELT is obtained with
+<r:code>
+b[[3]][[3]][[1]]
+</r:code>
+which is an IntegerLiteral cursor and we get this value 
+via
+<r:code>
+getCursorTokens(b[[3]][[3]][[1]])
+</r:code>
+</para>
+<para>
+  The final argument   is different; it is a CallExpr.
+  So
+<r:code>
+a4 = b[[3]][[4]] # the 4th element, 3rd argument
+a4[[1]][[1]] # the DeclRefExpr referencing Rf_mkChar
+getName(a4[[1]][[1]])
+</r:code>
+Again, this is a call similar to SET_STRING_ELT, so the
+argument(s) are next.
+We follow this with
+<r:code>
+a4[[2]]
+</r:code>
+and then successively work through the FirstExpr to get
+<r:code>
+a4[[2]][[1]][[1]]
+</r:code>
+which is a StringLiteral cursor node with the value "bob".
+</para>
+
+
+<para>
+  The 4th element of the body is UNPROTECT(1).
+  We get at its parts with
+<r:code>
+getName(b[[4]][[1]])         # Rf_unprotect
+getCursorTokens(b[[4]][[2]]) # 1
+</r:code>  
+</para>
+
+</section>
+
+
+<section>
+<title></title>
+
+<para>
+  Consider the if_return routine
+<r:code>
+k = getChildren(r$if_return)
+</r:code>
+There are three elements: the return type (SEXP, the parameter declaration (r_n) and the body, as before.
+</para>
+
+<para>
+<r:code>
+sapply(k[[3]], function(x) x$kind)
+<r:output><![CDATA[
+  CXCursor_DeclStmt     CXCursor_IfStmt CXCursor_ReturnStmt 
+                231                 205                 214 
+]]></r:output>
+</r:code>
+We see the return statement last.
+So we can find whether it is a call or a variable being returns.
+The name of the variable (after chaining through First and Paren expressions) is
+<r:code>
+getName(k[[3]][[3]][[1]][[1]][[1]])
+</r:code>
+Like ifoo2, there is no top-level expression in this routine
+that simply assigns a value to ans. Instead, these are sub-expressions within
+an if and an else clause. So we have to find these.
+</para>
+
+<para>
+  We start by assigning the body expression to b
+<r:code>
+b = k[[3]]
+</r:code>
+The first element of this is a DeclStmt for ans.
+The second is the IfStmt.
+<r:code>
+i = b[[2]]
+</r:code>
+This has three elements.
+The condition for the if statement is the first element of this,
+the body of the if statement is the second, and the body of the else statement is third.
+We are interested  in these latter two. These are both binary operators:
+<r:code>
+sapply(i[2:3], function(x) x$kind)
+</r:code>
+The first consists of a DeclRefExpr to the variable ans
+and a second element which is  FirstExpr containing
+a DeclRefExpr. This latter DeclRefExpr identifies R_NilValue, the <c/>
+variable for <r/>'s <r:null/>.
+</para>
+
+
+<para>
+  The second clause (for the else) is similar but the second element
+  is a call.
+<r:code>
+sapply(i[[3]], function(x) x$kind)
+<r:output><![CDATA[
+CXCursor_DeclRefExpr    CXCursor_CallExpr 
+                 101                  103 
+]]></r:output>
+</r:code>
+The call is to Rf_allocVector, as seen from
+<r:code>
+getName(i[[3]][[2]][[1]])
+</r:code>
+As we discussed in our initial example, we can find the type of the R object
+and the length in the first and second arguments respectively.
+</para>
+
+
+
+</section>
+
+<section>
+<title>Subsetting</title>
+
+<para>
+  Consider r_subset in foo.c
+<r:code>
+k = getChildren(r$r_subset)
+</r:code>  
+The body is
+<r:code>
+b = k[[3]]
+</r:code>
+</para>
+
+
+<para>
+  The updating the element in the answer array (a) and subsetting the input array (x)
+  is done in
+<r:code>
+cmd = b[[4]][[4]]
+</r:code>
+This is a BinaryOperator.
+The first element is an ArraySubscriptExpr (a[i]).
+We get the name of the array with
+<r:code>
+getName(cmd[[1]][[1]])
+</r:code>
+The index is obtained via
+<r:code>
+getName(cmd[[1]][[2]][[1]])
+</r:code>
+</para>
+<para>
+The right-hand side of the assignment is
+<r:expr>cmd[[2]]</r:expr>   and this is a ConditionalOperator.
+This is because it is ternary  select operation.
+The first element is the condition (x[i] > 0).
+The second and third elements are the two branches.
+
+</para>
+<para>
+The binary operators are a little awkward in libclang and hence RCIndex.
+We use <r:func>getBinOpOperator</r:func> to get the name of the operator.
+Calling this on the entire expression 
+<r:code>
+op = getBinOpOperator(cmd)
+</r:code>
+gives  '=', the assignment operator.
+For the condition on the RHS,
+we have
+<r:code>
+getBinOpOperator(cmd[[2]][[1]])
+</r:code>
+giving ">".
+Similarly, the binary operator in the first branch of the ternary operator
+<r:code>
+getBinOpOperator(cmd[[2]][[2]])
+</r:code>
+gives "*".
+</para>
+
+
+
+<para>
+  So we see that x is indexed by i.
+  We know that i is the loop variable from <r:expr>k[[4]][1:3]</r:expr>.
+  From <r:expr>k[[4]][[2]]</r:expr> (<c:expr>i &lt; n</c:expr>), we
+  get the comparison between i and n:
+<r:code>
+sapply(k[[4]][[2]], getName)
+<r:output><![CDATA[
+[1] "i" "n"
+]]></r:output>
+</r:code>
+So we know the limit is n.  And from earlier in the body of the routine, we have
+<c:code>
+int n = INTEGER ( r_n ) [ 0 ] ;   
+</c:code>
+And from this we have
+<r:code>
+rhs = k[[2]][[1]][[1]][[1]]
+</r:code>
+corresponding to <c:expr>INTEGER ( r_n ) [ 0 ]</c:expr>.
+So we can find that this is the first element of r_n.
+This is the same as the clearer <c:expr>Rf_asInteger(r_n)</c:expr>.
+</para>
+<para>
+The index for the subset is in the second position  
+<r:code>
+rhs[[2]]
+</r:code>
+and gives us 0.
+The object being subsetted is <r:expr>rhs[[1]]</r:expr>
+and is a CallExpr.  We have seen this before and we can
+extract that it is a call to INTEGER with
+<r:code>
+getName(rhs[[1]])
+</r:code>
+and the argument name with
+<r:code>
+getName(rhs[[1]][[2]][[1]])
+</r:code>
+giving "r_x".
+</para>
+
+
+
+</section>
+
+</article>
