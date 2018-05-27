@@ -540,3 +540,5 @@ export(getUser, getAllUsers)
 export(getInitializer, getAsCString)
 
 export(isEHPad)
+
+export(getOpcode)
