@@ -69,7 +69,8 @@ setClass("BinaryOperator", contains = "Instruction")
 
 # LLVM 5.0.1 at least.
 setClass("Operator", contains = "User")
-setClass("OverflowingBinaryOperator", contains = "User")
+setClass("OverflowingBinaryOperator", contains = "Operator")
+setClass("FPMathOperator", contains = "Operator")
 
 setClass("BranchInst", contains = "TerminatorInst")
 
@@ -330,3 +331,7 @@ setMethod("onlyReadsMemory", "Argument",
 setGeneric("getMetadata",
            function(obj, id, ...)
               standardGeneric("getMetadata"))
+
+
+
+setMethod("show", "Value", function(x) print(as(x,'character')))
