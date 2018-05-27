@@ -64,6 +64,8 @@ of the top-level llvm source tree:
 |compiler-rt|projects|
 |libcxx|projects|
 
+The extract top-level directories such as libcxx-4.0.1-src should be renamed to, e.g., libcxx.
+
 # Alternative Instructions
 
 An alternative description of how to build LLVM is available at
