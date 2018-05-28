@@ -490,4 +490,68 @@ giving "r_x".
 
 </section>
 
+
+<section>
+<title></title>
+
+<para>
+Here are some examples of the AST code to get the information we get in getType.R  
+
+<r:code>
+source("ast.R")
+</r:code>  
+
+<r:code>
+tu = createTU("foo.c", includes = "~/R-3.4.4/src/include")  
+r = getRoutines(tu, "foo")
+names(r)
+</r:code>
+
+<r:code>
+acompReturnType(r$ifoo)
+acompReturnType(r$ifoo2)  
+acompReturnType(r$R_globalExtptr)
+acompReturnType(r$R_globalSymExtptrTag)  
+acompReturnType(r$R_allocExtptr)
+
+acompReturnType(r$r_inputs4)
+acompReturnType(r$r_inputs3)
+acompReturnType(r$r_inputs)
+acompReturnType(r$r_inputs2)
+</r:code>
+</para>
+
+
+<para>
+  Problems with
+<r:code>
+acompReturnType(r$matrix) # can't find INTSXP in the expression Rf_allocMatrix().
+
+</r:code>
+<r:code>
+r$str   # list(NULL)
+r$klass # list()
+</r:code>
+ [3,] "str"                 
+ [4,] "len_character"       
+ [5,] "extend_str"          
+ [6,] "if_return"           
+ [7,] "two_returns"         
+ [8,] "three_returns"       
+ [9,] "rklass"              
+[10,] "matrix"              
+[11,] "cond_type"           
+[12,] "r_list"              
+[13,] "r_subset"            
+</para>
+
+
+<para>
+"init"  is not relevant.
+</para>
+
+
+</section>
+
 </article>
+
