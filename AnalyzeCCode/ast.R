@@ -2,8 +2,16 @@ acompReturnType =
 function(f)
 {
     ret = afindReturn(f)
-    val = chase(ret[[1]][[1]])
+    if(!is.list(ret))
+        ret = list(ret)
+    lapply(ret, procReturnType, f)
+}
 
+procReturnType =
+function(ret, f)
+{
+    val = chase(ret[[1]][[1]])
+    
     if(val$kind == CXCursor_CallExpr) 
        return(agetCallType(val, fun = f))
 
@@ -31,6 +39,9 @@ function(f)
             ans = findAssignment(var, f)
             ans = lapply(ans, function(x) agetCallType(x[[2]], fun = f))
         }
+
+
+        ans = ans[!sapply(ans, is.null)]
         
         return(ans)
     }
@@ -64,6 +75,12 @@ function(fn, x, ...)
     stop("no method for ", fn)
 }
 
+agetCallType.default =
+function(x, fun = NULL, ...)
+{
+    NULL
+}
+
 agetCallType.CallExpr =
 function(x, fun = NULL, ...)
 {
@@ -79,16 +96,24 @@ function(x, fun = NULL, ...)
         return(ans)
 
     if(fn == "Rf_allocVector") {
-        ty = mapRType(afindValue(x[[2]]))
+        tmp = chase(x[[2]])
+        if(tmp$kind == CXCursor_DeclRefExpr) {
+            tmp = findAssignment(getName(tmp), fun)
+            ty = sapply(tmp, getValue2) # function(x) afindValue(x[[2]]))            
+        } else
+           ty = mapRType(afindValue(tmp))
         len = afindValue(x[[3]])
+
         return(structure(list(type = ty, length = len), class = "RVector"))
     }
 
     if(fn == "Rf_allocMatrix") {
-        browser()
         # In acompReturnType(r$matrix)
         # the second element of x is empty. This is the INTSXP.
-        # Bug in RCIndex or what?
+        #XXX Bug in RCIndex or what?
+        ty = afindValue(x[[2]])
+#    browser()        
+        ty = getValue2(x)
         dims = list(nrow = afindValue(x[[3]]), ncol = afindValue(x[[4]]))
         return(structure(list(type = ty, dims = dims), class = "RMatrix"))
     }    
@@ -128,18 +153,38 @@ function(x, fun = NULL, ...)
 }
 
 afindReturn =
-function(f)
+function(f, all = TRUE)
 {
+    if(all)
+       return(visitReturns(f))
+    
     k = getChildren(f)
     b = k[[length(k)]]
     kinds = sapply(b, function(x) x$kind)
     w = (kinds == CXCursor_ReturnStmt)
-    if(!any(w)) {
-
-    }
-
-    b[w]
+    if(!any(w) && !all) {
+       return(visitReturns(f))        
+    } else
+       b[w]
 }
+
+visitReturns =
+function(f, fun = returnVisitor())
+{
+    visitCursor(f, fun)
+    environment(fun)$ans
+}
+
+returnVisitor =
+function()
+{
+    ans = list()
+    function(cur, parent, ...) {
+        if(cur$kind == CXCursor_ReturnStmt)
+            ans <<- c(ans, cur)
+    }
+}
+
 
 chase =
 function(x)
@@ -208,4 +253,19 @@ function(to)
 
       TRUE
   }
+}
+
+
+
+getValue2 =
+    #
+function(x)
+{
+    ans = afindValue(x[[2]])
+    if(length(ans))
+        return(ans)
+
+    tok = getCursorTokens(x)
+    i = which(tok == "=")
+    unname(tok[i+1])
 }

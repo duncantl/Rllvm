@@ -523,6 +523,9 @@ r$str
 
 r$rklass
 
+r$cond_type
+
+r$two_returns  # INTSXP missing, but get both returns
 </r:code>
 </para>
 
@@ -534,19 +537,25 @@ acompReturnType(r$matrix) # can't find INTSXP in the expression Rf_allocMatrix()
 
 </r:code>
 <r:code>
-
 </r:code>
- [3,] "str"                 
- [4,] "len_character"       
- [5,] "extend_str"          
- [6,] "if_return"           
- [7,] "two_returns"         
+
+For r$matrix, we don't get the type of the vector/elements.
+This is a problem with RCIndex/libclang.
+Same with r$r_list.
+          r$len_character
+
+Basics work but needs to be extended
+"extend_str"   - get the initial length.
+
+len_character - doesn't follow the variable n to r_n.
+
+
+Todo
+<programlisting><![CDATA[
+ [6,] "if_return"    - only returns one value. Loses the INTSXP type (as above). Misses NULL.
  [8,] "three_returns"       
- [9,] "rklass"              
-[10,] "matrix"              
-[11,] "cond_type"           
-[12,] "r_list"              
 [13,] "r_subset"            
+]]></programlisting>
 </para>
 
 
