@@ -67,6 +67,7 @@ if_return(SEXP r_n)
 	ans = R_NilValue;
     else
 	ans = NEW_INTEGER(20);
+    
     return(ans);
 }
 
@@ -140,7 +141,7 @@ cond_type(SEXP i)
 SEXP
 r_list(SEXP r_n)
 {
-    SEXP ans = NEW_LIST(3);
+    SEXP ans = Rf_allocVector(VECSXP, 3); // NEW_LIST(3);
     PROTECT(ans);
     SET_VECTOR_ELT(ans, 0, Rf_allocMatrix(INTSXP, 3, 5));
     SET_VECTOR_ELT(ans, 1, NEW_INTEGER(10));
@@ -160,7 +161,15 @@ r_subset(SEXP r_x)
     for(i = 0; i < n; i++)
 	a[i] = x[i] > 0 ? x[i] * 2 : x[i];
     
-    return(r_x);
+    return(ans);
+}
+
+
+
+SEXP
+r_param(SEXP x)
+{
+    return(x);
 }
 /*************************/
 
