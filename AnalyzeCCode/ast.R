@@ -5,12 +5,12 @@ function(f)
     val = chase(ret[[1]][[1]])
 
     if(val$kind == CXCursor_CallExpr) 
-       return(agetCallType(val))
+       return(agetCallType(val, fun = f))
 
     if(val$kind %in% c(CXCursor_IntegerLiteral, CXCursor_StringLiteral, CXCursor_FloatingLiteral, CXCursor_CharacterLiteral)) {
         stop("return type shouldn't be a primitive literal for a .Call() routine")
     }
-browser()
+#browser()
     if(val$kind == CXCursor_DeclRefExpr) {
         var = getName(val)
         if(var == "R_NilValue")
@@ -22,12 +22,20 @@ browser()
         b = b[w]
         w = sapply(b, function(x) { if(x$kind %in% c(CXCursor_DeclStmt, CXCursor_BinaryOperator)) x = x[[1]]; getName(x)}) == var
 
-        ans = lapply(b[w], function(x) { if(x$kind == CXCursor_DeclStmt) x = x[[1]]; if(length(x) > 1) agetCallType(x[[2]])})
+        ans = lapply(b[w], function(x) { if(x$kind == CXCursor_DeclStmt) x = x[[1]]; if(length(x) > 1) agetCallType(x[[2]], fun = f)})
+        ans = ans[!sapply(ans, is.null)]
+        
+        if(length(ans) == 0) {
+            # search within expressions.
+            b = getBody(f)
+            ans = findAssignment(var, f)
+            ans = lapply(ans, function(x) agetCallType(x[[2]], fun = f))
+        }
+        
         return(ans)
     }
 
     NULL
-    browser()
 }
 
 getBody =
@@ -39,9 +47,9 @@ function(f)
 }
     
 agetCallType =
-function(x, ...)
+function(x, fun = NULL, ...)
 {
-  CXCursorDispatch("agetCallType", x, ...)
+  CXCursorDispatch("agetCallType", x, fun = fun, ...)
 }
 
 CXCursorDispatch =    
@@ -57,7 +65,7 @@ function(fn, x, ...)
 }
 
 agetCallType.CallExpr =
-function(x, ...)
+function(x, fun = NULL, ...)
 {
     fn = getName(x)
     ans = switch(fn,
@@ -66,12 +74,14 @@ function(x, ...)
                  "Rf_ScalarLogical" = structure(list(type = "LGLSXP"), class = "Scalar"),
                  "Rf_ScalarString" = structure(list(type = "STRSXP"), class = "Scalar"),
                  NULL)
+
     if(length(ans))
         return(ans)
 
     if(fn == "Rf_allocVector") {
-browser()
-        return(structure(list(type = ty), class = "RVector"))
+        ty = mapRType(afindValue(x[[2]]))
+        len = afindValue(x[[3]])
+        return(structure(list(type = ty, length = len), class = "RVector"))
     }
 
     if(fn == "Rf_allocMatrix") {
@@ -90,18 +100,29 @@ browser()
         tag = afindValue(tmp)
         return(structure(list(allocated = NA, tag = tag), class = "RExternalPtr"))
     }
-    
+
+
+    if(fn == "R_do_new_object") {
+        #XXX If x[[2]] is a a call to MAKE_CLASS(), process this directly.
+        var = getName(x[[2]])
+        a = findAssignment(var, fun)
+
+        val = "??"
+        if(length(a))
+           val = unname(afindValue( a[[1]][[2]][[2]] ))
+        return(structure(list(className = val), class = "S4Instance"))
+    }
   browser()
 }
 
 agetCallType.DeclStmt =
-function(x, ...)
+function(x, fun = NULL, ...)
 {
-   agetCallType( x[[1]], ...)
+   agetCallType( x[[1]], fun = fun, ...)
 }
 
 agetCallType.VarDecl =
-function(x, ...)
+function(x, fun = NULL, ...)
 {
    browser()
 }
@@ -155,7 +176,6 @@ afindValue.default =
     # Make generic using the code above for agetCallType.
 function(x, ...)
 {
-browser()    
     x = chase(x)
 
     val = getCursorTokens(x)
@@ -167,4 +187,25 @@ browser()
         val = as.numeric(val)    
 
     val
+}
+
+
+findAssignment =
+function(to, fun, cursors = getBody(fun), visitor = assignVisitor(to))
+{
+    lapply(cursors, visitTU, visitor)
+    environment(visitor)$ans
+}
+
+assignVisitor =
+function(to)    
+{
+  ans = list()
+  function(cur, parent, ...) {
+      if(cur$kind == CXCursor_BinaryOperator && cur[[1]]$kind == CXCursor_DeclRefExpr && getName(cur[[1]]) == to) {
+          ans <<- c(ans, cur)
+      }
+
+      TRUE
+  }
 }

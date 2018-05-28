@@ -518,6 +518,11 @@ acompReturnType(r$r_inputs4)
 acompReturnType(r$r_inputs3)
 acompReturnType(r$r_inputs)
 acompReturnType(r$r_inputs2)
+
+r$str
+
+r$rklass
+
 </r:code>
 </para>
 
@@ -529,8 +534,7 @@ acompReturnType(r$matrix) # can't find INTSXP in the expression Rf_allocMatrix()
 
 </r:code>
 <r:code>
-r$str   # list(NULL)
-r$klass # list()
+
 </r:code>
  [3,] "str"                 
  [4,] "len_character"       
