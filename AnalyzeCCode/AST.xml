@@ -526,6 +526,8 @@ r$rklass
 r$cond_type
 
 r$two_returns  # INTSXP missing, but get both returns
+three_returns       
+r_subset
 </r:code>
 </para>
 
@@ -553,8 +555,6 @@ len_character - doesn't follow the variable n to r_n.
 Todo
 <programlisting><![CDATA[
  [6,] "if_return"    - only returns one value. Loses the INTSXP type (as above). Misses NULL.
- [8,] "three_returns"       
-[13,] "r_subset"            
 ]]></programlisting>
 </para>
 
