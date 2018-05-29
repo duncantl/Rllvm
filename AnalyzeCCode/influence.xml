@@ -302,9 +302,9 @@ This is the constant 0, i.e., the first element.
 
 
 <para>
-<r:code>
+<r:code><![CDATA[
 w = sapply(nu, function(x) is(x, "CallInst") && getName(getCalledFunction(x)) == "SET_STRING_ELT")
-</r:code>
+]]></r:code>
 <r:code>
 sapply(nu[w], function(x) findValue(x[[3]]))
 </r:code>
@@ -342,8 +342,6 @@ ii[[1]]  # GlobalVariable
 getName(ii[[1]])
 
 v = .Call("R_GlobalVariable_getInitializer", ii[[1]])
-</r:code>
-
 
 v is a Constant.
 
