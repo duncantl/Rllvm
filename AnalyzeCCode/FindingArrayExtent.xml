@@ -11,11 +11,11 @@
   We are looking to see if it is a scalar or how many elements it may have.
   We do this by looking for calls such as <c:func>asInteger</c:func>
   or when it is used in code such as
-<c:code>
+<c:code><![CDATA[
   x = INTEGER(r_x);
   for(i = 0 ; i < n ; i++)
      x[i]
-</c:code>  
+]]></c:code>  
 </para>
 
 
@@ -94,10 +94,10 @@ the code (if there is such a linear progression).
 </para>
 <para>
 The first two correspond to calls in the C code  of the form
-<c:code>
+<c:code><![CDATA[
     i = (*rp_init) (n, rp.ydata, maxcat, &errmsg, parms, &rp.num_resp, 1, wt);  
     (*rp_eval) (n, rp.ydata, tree->response_est, &(tree->risk), wt);
-</c:code>
+]]></c:code>
 Here <c:param>wt</c:param> is the variable to which the result of <c:expr>REAL(xmat2)</c:expr> was assigned.
 Note that these are pointers to routines, so we need to resolve those to see which routines are actually being
 called.
@@ -226,7 +226,7 @@ the regular call to <r:expr>nrow(xmat2)</r:expr> (cast to 64 bits).
 After all of this, we see that we are looping over nrow(xmat2) elements.
 We are in fact going in reverse order, but that is not important.
 Looking at the <c/> code, we can indeed verify this.
-<c:code>
+<c:code><![CDATA[
     rp.n = nrows(xmat2);
     n = rp.n;                   /* I get tired of typing "rp.n" 100 times
     ...
@@ -235,7 +235,7 @@ Looking at the <c/> code, we can indeed verify this.
 	rp.which[i] = 1;
 	temp += wt[i];
     }
-</c:code>
+]]></c:code>
 (The comment suggests curious software engineering!)
 </para>
 

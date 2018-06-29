@@ -3,22 +3,61 @@
 	 xmlns:c="http://www.C.org"
 	 xmlns:omg="http://www.omegahat.org">
 
-<section>
-<title></title>
+<info>
+    <author>
+     <personname>
+       <firstname>Duncan</firstname>
+          <surname>Temple Lang</surname>
+        </personname>
+        <affiliation>
+          <orgname>UC Davis</orgname>
+         <orgdiv>Data Science Initiative</orgdiv>
+        </affiliation>
+   </author>
+</info>
+
+<title>Type Information Using the AST</title>  
 
 <para>
+We explore using the AST (Abstract Syntax Tree) for <c/>/<cpp/>
+  code to determine the type information of R objects being returned
+  by routines. This mirrors the explorations using the IR (Intermediate Representation)
+  code from clang/llvm and using <omg:pkg>Rllvm</omg:pkg>. (See <ulink url="influence.html"/>
+  and the eg*.R files.)
+  Here we use the <omg:pkg>RCIndex</omg:pkg> package to do the explorations in <r/>.
+</para>
+
+<para>
+See the <ulink url="README.md"/> file for some discussions about the pros and cons of the different approaches
+(AST versus IR).
+</para>
+
+
+<para>
+  The following is low-level exploration of the AST.
+  There are now functions in <file>ast.R</file> that implement some of the
+  functionality illustrated here as high-level functions. These mirror
+  some of the functionality in <file>getType.R</file>.
+</para>
+
+
+<section>
+<title>Working with the AST</title>
+
+
+<para>
+We start by reading the <c/> code in foo.c in <r/>:
 <r:code>
 library(RCIndex)
-</r:code>
-
-<r:code>
 tu = createTU("foo.c", includes = "~/R-3.4.4/src/include")
 </r:code>
 
+Next we get the routines in foo (ignoring those from header files)
 <r:code>
-r = getRoutines(tu)
+r = getRoutines(tu, "foo")
 </r:code>
 
+We'll look first at the simple routine named ifoo:
 <r:code>
 r$ifoo
 </r:code>
@@ -48,13 +87,11 @@ We get the literal value 10 with
 ret[[1]][[1]][[2]]
 </r:code>
 This is a CXCursor with a kind corresponding to CXCursor_IntegerLiteral.
-
-
 </para>
 </section>
 
 <section>
-<title></title>
+  <title>ifoo2</title>
 
 <para>
   The routine ifoo2 is very similar (by design) but

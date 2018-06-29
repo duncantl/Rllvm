@@ -40,7 +40,12 @@ With the IR approach:
   and preprocessor. (So too has the AST, but we have a little more control.)
 + The control flow has been removed in terms of if/while/for constructs. We have to reconstruct
   these from the blocks, their networks and terminators (branch, return and PHINode instructions)
-
++ The definition of, and access to fields in, structures (struct) has been removed at this stage and 
+  memory offsets are used.
++ The code has been rewritten (for efficiency) and is not as recognizable or  similar to the 
+  original C/C++ code. For example, x[0] is written as *x, x[i] can be rewritten as *(x + 4 *i),
+  and loops can change the address of the pointer, e.g. x + 4 and *x rather than i++ and x[i].
+  These are all simple enough to deal with, just different from the original C/C++ code.
 
 ### Using the AST
 
@@ -57,7 +62,7 @@ and high-level field accessors have typically been removed from the code
 and instead we deal with memory addresses and offsets rather than symbolic
 field names.
 
-+ We have to reassemble for loops from blocks and branches.
++ We have to reassemble for loops from blocks and branches from IR.
 
 + Simple loops in C/C++ code can be converted in the IR to loops that count down,
  do not use subsetting in the form `x[i]` but instead `*(x + 4)`, i.e. using
