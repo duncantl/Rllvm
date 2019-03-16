@@ -14,6 +14,8 @@
 
 #include <llvm/Passes/PassBuilder.h>
 
-#include <llvm/Support/Dwarf.h>
+// for LLVM5.0
+#include <llvm/BinaryFormat/Dwarf.h>
+//#include <llvm/Support/Dwarf.h>
 
 

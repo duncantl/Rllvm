@@ -14,7 +14,7 @@ args = c("-I/usr/local/include", "-D_DEBUG", "-D_GNU_SOURCE", "-D__STDC_CONSTANT
         "-Wc++11-extensions")
 
 f = "~/llvm-devel/include/llvm/IR/Attributes.h"
-f = "llvm.c"
+f = "llvm.cpp"
 
 inc = c("~/llvm-devel/include",
         "~/llvm-devel/build/include/",
@@ -26,11 +26,25 @@ inc = c("~/LLVM3.6/clang+llvm-3.6.0-x86_64-apple-darwin/include",
         "~/LLVM3.6/clang+llvm-3.6.0-x86_64-apple-darwin/include/clang")
 
 inc = c("/usr/local/include", "/usr/local/include/llvm")
- args = c("-DNDEBUG", "-D_GNU_SOURCE", "-D__STDC_CONSTANT_MACROS", "-D__STDC_FORMAT_MACROS", "-D__STDC_LIMIT_MACROS", "-std=c++11", "-fvisibility-inlines-hidden", "-fno-exceptions", "-fno-rtti", "-fno-common", "-Woverloaded-virtual", "-Wcast-qual")
+
+llvmDir = "/Users/duncan/LLVM3.9/clang+llvm-3.9.0-x86_64-apple-darwin/include"
+inc = llvmDir
+
+# "-DLLVM_3_2"
+#"-std=c++11",
+# "-D_GNU_SOURCE"
+ args = c("-DNDEBUG", "-D__STDC_CONSTANT_MACROS", "-D__STDC_FORMAT_MACROS", "-D__STDC_LIMIT_MACROS", "-fvisibility-inlines-hidden", "-fno-exceptions", "-fno-rtti", "-fno-common", "-Woverloaded-virtual", "-Wcast-qual","-Wc++11-extensions", "-ferror-limit=10000", "-xc++")
+
+# switch to another file
+f = "../../TU/llvm.cpp"
+
 
 tu = createTU(f, args = args, includes = inc, verbose = TRUE)
 
-llvm = getCppClasses(tu, numClasses = 800, fileFilter = "llvm", nodesOnly = TRUE)
+# fileFilter used to be "llvm" but that picks up LLVM3.8/clang+llvm...
+# And these files are included because RCIndex is installed using that version
+# Use LLVM3.9 or more generically "/llvm/"
+llvm = getCppClasses(tu, numClasses = 800, fileFilter = "/llvm/", nodesOnly = TRUE)
 
 if(FALSE) {
 o = .Call("R_getCppClasses", as(tu, "CXCursor"), vector("list", 770), character(770))
@@ -47,8 +61,9 @@ irbuilder.class = readCppClass(llvm$IRBuilder)
 
 
 
-enums = getEnums(tu)
-
+enums = getEnums(tu, "/llvm/")
+i = grep("\\(anonymous", names(enums), invert = TRUE)
+enums = enums[i]
 
 # Could do this directly with
 #cc = getEnums("~/llvm-devel/include/llvm/IR/CallingConv.h", args = "-xc++")

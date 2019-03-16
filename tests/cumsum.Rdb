@@ -2,7 +2,8 @@
 <article xmlns:r="http://www.r-project.org"
          xmlns:c="http://www.C.org"
          xmlns:xi="http://www.w3.org/2003/XInclude"
-	 xmlns:sh="http://www.shell.org">
+	 xmlns:sh="http://www.shell.org"
+	 xmlns:omg="http://www.omegahat.org">
 
 <articleinfo>
 
@@ -385,7 +386,7 @@ all.equal(val, cumsum(x))
 </para>
 
 <r:code>
-N = 1e4
+N = 1e7
 x = as.numeric(1:N)
 ans = numeric(length(x))
 

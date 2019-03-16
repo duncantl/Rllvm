@@ -23,7 +23,7 @@
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 
-#else
+#else // LLVM_3_2
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/DerivedTypes.h>
@@ -39,6 +39,7 @@
 #include <llvm/Pass.h>
 #include <llvm/PassManager.h>
 #include <llvm/ADT/SmallVector.h>
+
 #if 0
 #include <llvm/Analysis/Verifier.h>
 #else
@@ -62,7 +63,7 @@
 
 #include <llvm/IR/CallingConv.h>
 
-#endif
+#endif // LLVM_3_2
 
 
 llvm::Module *m;

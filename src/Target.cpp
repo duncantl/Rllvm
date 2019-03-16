@@ -188,11 +188,13 @@ R_TargetMachine_addAnalysisPasses(SEXP r_targetMachine, SEXP r_passManager)
 }
 
 
+#if 1
+
 extern "C"
 SEXP
 R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SEXP r_out, SEXP r_fileType)
 {
-#if  LLVM_VERSION==3 && LLVM_MINOR_VERSION < 7
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 7
     llvm::TargetMachine *targetMachine = GET_REF(r_targetMachine, TargetMachine);
     llvm::legacy::PassManager *passManager = GET_REF(r_passManager, legacy::PassManager);
     llvm::formatted_raw_ostream *out;
@@ -213,11 +215,17 @@ R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SE
 
     // passManager is now a legacy::PassManager not a PassManagerBase
     bool ans = false;
-    ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
+#pragma message  "Fix this"
+#if 1 //XXXX
+    ans = targetMachine->addPassesToEmitFile(*passManager, *out, NULL, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
+#endif    
     /* ans is true if addPasses... failed */
     return(ScalarLogical(ans == true));
 #endif
 }
+
+#endif // #if 0
+
 
 extern "C"
 SEXP
@@ -250,9 +258,15 @@ extern "C"
 SEXP
 R_printRegisteredTargetsForVersion()
 {
+#if LLVM_VERSION >= 7
+    std::string str;
+    llvm::raw_string_ostream out(str);
+    llvm::TargetRegistry::printRegisteredTargetsForVersion(out);
+    return(ScalarString(mkChar(out.str().c_str())));
+#else    
     llvm::TargetRegistry::printRegisteredTargetsForVersion();
-    
     return(R_NilValue);
+#endif
 }
 
 
@@ -320,6 +334,7 @@ R_getHostCPUFeatures()
     } else
        return(R_NilValue);
 }
+
 
 
 
