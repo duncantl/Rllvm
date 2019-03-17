@@ -126,38 +126,3 @@ R_CREATE_PASS(createLoopIdiomPass)
 
 
 
-#if 0
-extern "C"
-SEXP 
-R_createAggressiveDCEPass()
-{
-    llvm::FunctionPass *pass = llvm::createAggressiveDCEPass();
-    return(R_createRef(pass, "FunctionPass"));
-}
-
-
-extern "C"
-SEXP 
-R_createDeadCodeEliminationPass()
-{
-    llvm::FunctionPass *pass = llvm::createDeadCodeEliminationPass();
-    return(R_createRef(pass, "FunctionPass"));
-}
-
-extern "C"
-SEXP 
-R_createDeadStoreEliminationPass()
-{
-    llvm::FunctionPass *pass = llvm::createDeadStoreEliminationPass();
-    return(R_createRef(pass, "FunctionPass"));
-}
-
-
-extern "C"
-SEXP 
-R_createLICMPass()
-{
-    llvm::FunctionPass *pass = llvm::createLICMPass();
-    return(R_createRef(pass, "FunctionPass"));
-}
-#endif
