@@ -23,7 +23,7 @@ R_BasicBlock_getTerminator(SEXP r_block, SEXP r_genericClass)
 {
 
     llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
-    llvm::TerminatorInst *ans = block->getTerminator();
+    llvm::Instruction /*TerminatorInst  - llvm8.0*/ *ans = block->getTerminator();
     if(!ans)
        return(R_NilValue);
     

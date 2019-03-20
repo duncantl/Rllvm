@@ -80,7 +80,7 @@ R_optimizeFunction(SEXP r_func, SEXP r_passMgr)
 
   llvm::Function *func = GET_REF(r_func, Function);
 
-#if 1 //LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 10
+#if 1 // LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 10
   mgr->run(*func);
 #else
   llvm::AnalysisManager<llvm::Function> AM;

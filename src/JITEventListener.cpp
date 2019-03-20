@@ -33,6 +33,8 @@ RFunctionJITEventListener::NotifyObjectEmitted(const llvm::object::ObjectFile &O
     R_tryEval(expr, R_GlobalEnv, &error);
 }
 #else
+
+#if LLVM_VERSION < 8
 void 
     RFunctionJITEventListener::NotifyFunctionEmitted(const llvm::Function &fun,
                                                      void *data, size_t len,
@@ -54,4 +56,6 @@ void
     int error = 0;
     R_tryEval(expr, R_GlobalEnv, &error);
 }
+#endif
+
 #endif

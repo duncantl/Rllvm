@@ -99,15 +99,18 @@ R_new_DIBuilder_Function(SEXP r_dibuilder, SEXP r_cu, SEXP r_func, SEXP r_type, 
     type = GET_REF(r_type, DISubroutineType); 
 
     int lineNo = asInteger(r_lineno);
-	
-    llvm::DISubprogram* SP = builder->createFunction(
+
+    llvm::DISubprogram* SP = NULL;
+#if LLVM_VERSION < 8    
+    SP = builder->createFunction(
                                        Unit, func->getName(), llvm::StringRef(), Unit, lineNo,
                                        type, false /* internal linkage */,
                                        true /* definition */, lineNo, llvm::DINode::FlagPrototyped, false
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
                                    , func
 #endif
-                               );
+        );
+#endif    
 
     return(R_createRef(SP, "DISubprogram"));
 }
