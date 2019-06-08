@@ -115,3 +115,12 @@ R_Value_print(SEXP r_value)
     val->print(OS);
     return(ScalarString(mkChar( OS.str().c_str())));
 }
+
+
+extern "C"
+SEXP
+R_Use_getValue(SEXP r_use)
+{
+    llvm::Use *use = GET_REF(r_use, Use);
+    return(R_createRef(use->get(), "Value"));
+}
