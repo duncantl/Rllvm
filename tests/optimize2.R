@@ -19,6 +19,7 @@ addPass(mgr, .Call("R_createDeadCodeEliminationPass"))
   addPass(mgr, .Call("R_createDeadStoreEliminationPass"))
 #createAggressiveDCEPass
 
+Optimize(m$foo, ee)
 Optimize(m$foo, passManager = mgr)
 
 showModule(m)
