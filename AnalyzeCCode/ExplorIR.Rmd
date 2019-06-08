@@ -52,7 +52,7 @@ r[[1]][[1]]
 
 # Optimized IR Code
 
-We can optimize the IR that is generated when we create it:
+We can optimize the IR that is generated when we create the .ll file:
 ```
 ~/LLVM5.0/llvm-5.0.0.src/build/bin/clang -O3 -S -emit-llvm -I$R_HOME/include -o simple_optimized.ll  simple.c
 ```
@@ -137,6 +137,9 @@ From this PHI node, we get the incoming blocks and values
 pblocks = blocks(p)
 pvals = incoming_values(p)
 ```
+Each of the elements in pvals is a call to Rf_allocVector.
+Again, we can get the type of R object  from the first argument
+and the length of the R object from the second argument.
 
 # The foo() routine
 

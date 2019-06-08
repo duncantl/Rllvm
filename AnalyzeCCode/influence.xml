@@ -27,7 +27,7 @@ This is controlled by the second argument <c:var>do_coef</c:var>, a scalar logic
 <li>hat is a numeric vector of length n, the number of rows in the QR matrix passed in the first argument to the routine.
 </li>
 <li>coefficients is a matrix with numeric elements and dimension n and k.
-  k is the integer value in the mqr list in the element named rank.</li>
+  k is the integer value in the mqr list (first argument) in the element named rank.</li>
 <li>sigma is a numeric vector of length n</li>
 <li>wt.res is the value passed in the third argument to the routine.
  It is also passed to the <fortran/> routine lminfl. (Are the values modified in the routine?)</li>
@@ -91,6 +91,8 @@ llvmDump(ret[[1]][[1]])
 This is a call to Rf_allocVector.
 We are now back in familiar territory (as in <ulink url="eg.R"/>)
 
+We look at the first argument in the call to Rf_allocVector to find the type of the
+R object:
 <r:code>
 ans = ret[[1]][[1]]
 getValue(ans[[1]])

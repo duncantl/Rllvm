@@ -1,4 +1,4 @@
-CLANG=$(HOME)/LLVM/LLVM5.0.1/llvm-5.0.1.src/build/bin/clang
+#CLANG=$(HOME)/LLVM/LLVM5.0.1/llvm-5.0.1.src/build/bin/clang
 
 ifndef CLANG
 CLANG=clang
@@ -10,7 +10,7 @@ OPT_LEVEL=-O3
 XDYNDOCS=$(HOME)/GitWorkingArea/XDynDocs/inst
 
 %.ll: %.c GNUmakefile
-	$(CLANG) $(CFLAGS) -S -emit-llvm -o $@ $<
+	$(CLANG) $(CFLAGS) $(OPT_LEVEL) -S -emit-llvm -o $@ $<
 
 %_optimized.ll: %.c GNUmakefile
 	$(CLANG) $(OPT_LEVEL) $(CFLAGS) -S -emit-llvm -o $@ $<

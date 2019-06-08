@@ -31,7 +31,7 @@ However, when we optimize the code (with -O2 or -O3), we get
   %call1 = tail call %struct.SEXPREC.2* @Rf_allocVector(i32 13, i64 %conv) #2
 ]]></programlisting>
 
-Note the call to INTEGER() which returns the address of the collection of int *.
+Note the call to INTEGER() which returns the address of the collection of int elements (i.e. int *).
 This is also the location of the first element. Since that is what we want (the <c:expr>[0]</c:expr> element),
 the load call gets the value.  This is  the same as the more verbose getelemenptr in the unoptimized version
 above.
