@@ -334,4 +334,4 @@ setGeneric("getMetadata",
 
 
 
-setMethod("show", "Value", function(x) print(as(x,'character')))
+setMethod("show", "Value", function(object) print(as(object,'character')))
