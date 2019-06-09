@@ -164,6 +164,14 @@ R_BasicBlock_getSuccessor(SEXP r_block, SEXP r_single)
 
 
 
+extern "C"
+SEXP
+R_BasicBlock_isEHPad(SEXP r_block)
+{
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    return(ScalarLogical(block->isEHPad()));
+}
+
 #if 1
 
 extern "C"

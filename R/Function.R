@@ -184,7 +184,7 @@ setMethod("getReturnType",
 
 setGeneric("getCalledFunction",
            function(obj, ...)
-             standarGeneric("getCalledFunction"))
+             standardGeneric("getCalledFunction"))
 
 setMethod("getCalledFunction", "CallInst",
            function(obj, ...)

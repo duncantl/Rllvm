@@ -74,10 +74,15 @@ R_CREATE_PASS(createGlobalMergePass)
 R_CREATE_FUNPASS(createAggressiveDCEPass)
 R_CREATE_FUNPASS(createDeadCodeEliminationPass)
 R_CREATE_FUNPASS(createDeadStoreEliminationPass)
-#if LLVM_VERSION < 7
+
+#ifdef HAVE_INSTRUCTION_COMBINING_PASS
 R_CREATE_FUNPASS(createInstructionCombiningPass)
+#endif
+
+#ifdef HAVE_PROMOTE_MEMORY_TO_REGISTER_PASS
 R_CREATE_FUNPASS(createPromoteMemoryToRegisterPass)
 #endif
+
 R_CREATE_FUNPASS(createDemoteRegisterToMemoryPass)
 
 R_CREATE_PASS(createLICMPass)
@@ -94,7 +99,7 @@ R_CREATE_FUNPASS(createTailCallEliminationPass)
 R_CREATE_FUNPASS(createFlattenCFGPass)
 
 R_CREATE_PASS(createStructurizeCFGPass)
-#if LLVM_VERSION < 7
+#ifdef HAVE_LOOP_SIMPLIFY_PASS
 R_CREATE_PASS(createLoopSimplifyPass)
 #endif
 
@@ -103,7 +108,7 @@ R_CREATE_FUNPASS(createMemCpyOptPass)
 R_CREATE_FUNPASS(createCodeGenPreparePass)
 #endif
 
-#if LLVM_VERSION < 7
+#ifdef HAVE_INSTRUCTION_SIMPLIFIER_PASS
 R_CREATE_FUNPASS(createInstructionSimplifierPass)
 #endif
 

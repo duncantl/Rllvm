@@ -1,0 +1,70 @@
+<article
+	 xmlns:omg="http://www.omegahat.org"
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:c="http://www.C.org">
+
+<section>
+<title></title>
+
+
+<para>
+The idea here is to find calls to PROBLEM-ERROR or Rf_error in C code. 
+</para>
+
+
+<para>
+  We start with error.c, a very simple routine that checks the lengths of its two inputs
+  and raises an error if the lengths are not the same.
+  We generate the ir from this C code.
+<sh:code>
+make error.ir    
+</sh:code>
+</para>
+
+
+<para>
+<r:code>
+library(Rllvm)
+m = parseIR("error.ir")
+f = m$r_routine
+</r:code>
+
+Now let's find any calls to Rf_error.
+<r:code>
+b = getBlocks(f)
+</r:code>
+For each block, we iterate over the instructions, looking for calls to Rf_error.
+For a single block, we do this with
+<r:code>
+nm = sapply(b[[2]], function(x) {
+                 if(!is(x, "CallInst"))
+                    return("")
+
+		 getName(getCalledFunction(x))
+		 })
+w = nm %in% c("Rf_error", "Rf_warning")		 
+</r:code>
+
+</para>
+<para>
+  See findErrorWarningCalls in findCErrorCall.R.
+<r:code>
+v = findErrorWarningCalls(m$r_routine)
+</r:code>
+This returns a list for each Block in the routine.
+Two of these are empty.
+We can recover the enclosing Block from any call returned using
+<r:func>getParent</r:func>.
+</para>
+
+<para>
+  Now that we have a call to Rf_error, we have achieved our initial goal.
+  If we wanted to determine the nature of the error condition, we could attempt
+  to reconstruct the high-level C code. For this, we might be better working from the AST
+  rather than the IR.
+  From the IR, we can find the incoming block for this block.
+</para>
+
+
+</section>
+</article>

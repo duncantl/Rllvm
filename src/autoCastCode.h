@@ -1,7 +1,9 @@
 if(strcmp(targetClass, "Instruction") == 0)
 	ans = static_cast<llvm::Instruction*>(ptr);
+#if LLVM_VERSION < 8	
 if(strcmp(targetClass, "TerminatorInst") == 0)
 	ans = static_cast<llvm::TerminatorInst*>(ptr);
+#endif	
 if(strcmp(targetClass, "UnaryInstruction") == 0)
 	ans = static_cast<llvm::UnaryInstruction*>(ptr);
 if(strcmp(targetClass, "BinaryOperator") == 0)

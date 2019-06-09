@@ -1,0 +1,13 @@
+<article>
+
+<section>
+<title></title>
+
+<para>
+  <r:code>
+m = parseIR("recursive.ir")    
+b = getBlocks(m$r_start)
+</r:code>
+</para>
+</section>
+</article>

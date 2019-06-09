@@ -774,7 +774,13 @@ R_IRBuilder_CreateSelect(SEXP r_builder, SEXP r_cond, SEXP r_lhs, SEXP r_rhs, SE
 } 
 
 
-
+extern "C"
+SEXP
+R_Operator_getOpcode(SEXP r_op)
+{
+    llvm::Operator *op = GET_REF(r_op, Operator);
+    return(ScalarInteger(op->getOpcode()));
+}
 
 extern "C"
 SEXP
@@ -1190,3 +1196,70 @@ R_createFwdRef_for_phi(SEXP r_type)
     llvm::Argument *arg = new llvm::Argument(type);
     return(R_createRef(arg, "Argument"));
 }
+
+
+extern "C"
+SEXP
+R_PHINode_getIncomingBlock(SEXP r_phi, SEXP r_num)
+{
+    llvm::PHINode *phi = GET_REF(r_phi, PHINode);
+    
+    llvm::BasicBlock *val;
+    int num = INTEGER(r_num)[0];
+    val = phi->getIncomingBlock(num);
+    return(val ? R_createRef(val, "BasicBlock") : R_NilValue);
+}
+
+
+extern "C"
+SEXP
+R_PHINode_getNumIncomingValues(SEXP r_phi)
+{
+    llvm::PHINode *phi = GET_REF(r_phi, PHINode);
+    
+    return(ScalarInteger( phi->getNumIncomingValues()));
+}
+
+
+
+extern "C"
+SEXP
+R_PHINode_blocks(SEXP r_phi)
+{
+    llvm::PHINode *phi = GET_REF(r_phi, PHINode);
+    llvm::iterator_range<llvm::PHINode::block_iterator> r = phi->blocks();
+    llvm::BasicBlock ** i;
+    SEXP ans = R_NilValue;
+    int n = 0, ctr;
+    for(i = r.begin(); i != r.end(); i++)
+        n++;
+
+    PROTECT(ans = allocVector(VECSXP, n));
+    for(ctr = 0, i = r.begin(); i != r.end(); i++, ctr++) {
+        SET_VECTOR_ELT(ans, ctr, R_createRef(*i, "BasicBlock"));
+    }
+
+    UNPROTECT(1);
+    return(ans);
+}
+
+extern "C"
+SEXP
+R_PHINode_incoming_values(SEXP r_phi)
+{
+    llvm::PHINode *phi = GET_REF(r_phi, PHINode);
+    
+    SEXP ans = R_NilValue;
+    int n = 0, ctr;
+    n = phi->getNumIncomingValues();
+
+    PROTECT(ans = allocVector(VECSXP, n));
+    for(ctr = 0; ctr < n; ctr++) {
+        llvm::Value *val = phi->getIncomingValue(ctr);
+        SET_VECTOR_ELT(ans, ctr, R_createRef(val, getLLVMClassName(val)));
+    }
+
+    UNPROTECT(1);
+    return(ans);
+}
+

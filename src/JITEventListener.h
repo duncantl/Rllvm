@@ -20,9 +20,11 @@ public:
 //  virtual void NotifyFreeingObject(const llvm::object::ObjectFile &Obj);
 #else
 
+#if LLVM_VERSION < 8
   virtual void NotifyFunctionEmitted(const llvm::Function &,
                                      void *, size_t,
                                      const EmittedFunctionDetails &);
+#endif
 
 #endif
 };

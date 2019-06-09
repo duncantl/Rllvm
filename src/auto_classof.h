@@ -1,7 +1,9 @@
  if(strcmp(targetClass, "Instruction") == 0)
 	ans = llvm::Instruction::classof(val);
+#if LLVM_VERSION < 8	
 else if(strcmp(targetClass, "TerminatorInst") == 0)
 	ans = llvm::TerminatorInst::classof(val);
+#endif	
 else if(strcmp(targetClass, "UnaryInstruction") == 0)
 	ans = llvm::UnaryInstruction::classof(val);
 else if(strcmp(targetClass, "BinaryOperator") == 0)
