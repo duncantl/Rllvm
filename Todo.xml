@@ -13,9 +13,13 @@
 <title>General</title>
 <items>
 
-  <item>
-    Add the configure.in checks for the Pass.cpp and the HAVE_.....
-  </item>
+<item status="done">
+ Add the configure.in checks for the Pass.cpp and the HAVE_.....
+</item>
+<item status="done">
+ Add the configure.in checks for the Mem*Inst classes.
+</item>
+
 
 <item>
 Version 7.0.1  - Value::dump() and Type::dump() symbols missing from the LLVM libraries when Rllvm.so is loaded.
