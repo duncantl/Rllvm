@@ -34,6 +34,7 @@ names(m3$rpart)
 [7] "ymat2"   "xmat2"   "wt2"     "ny2"     "cost2"  
 ]]></r:output>
 </r:code>
+In versions 7 and 8 of LLVM, the names are not included in the resulting IR.
 </para>
 
 
@@ -42,6 +43,7 @@ Let's look at <c:param>wt2</c:param>.
 We access this as an <r:class>Argument</r:class> object via
 <r:code>
 p = m3$rpart$wt2
+p = m3$rpart[[9]]
 </r:code>
 We can then ask what instructions in the IR make use of  this
 <r:code>
@@ -50,7 +52,7 @@ We can then ask what instructions in the IR make use of  this
 [[1]]
 [1] "  %call3 = tail call double* @REAL(%struct.SEXPREC.12* %wt2) #6"
 ]]></r:output>  
-</r:code>rp
+</r:code>
 So there is only one direct use of this parameter.
 We can see that it is expected to be a numeric vector (based on the use of REAL).
 We have to next find where the result of this call is being used,
@@ -93,7 +95,7 @@ Note that we often want to look at these in the opposite order as they are often
 the code (if there is such a linear progression).
 </para>
 <para>
-The first two correspond to calls in the C code  of the form
+The first two uses in our output above correspond to calls in the C code  of the form
 <c:code><![CDATA[
     i = (*rp_init) (n, rp.ydata, maxcat, &errmsg, parms, &rp.num_resp, 1, wt);  
     (*rp_eval) (n, rp.ydata, tree->response_est, &(tree->risk), wt);
@@ -103,7 +105,7 @@ Note that these are pointers to routines, so we need to resolve those to see whi
 called.
 </para>
 <para>
-The next 5 users correspond to subsetting the vector and we will look at these next.
+The next 5 uses of <c:param>wt</c:param> correspond to subsetting the vector and we will look at these next.
 The last assigns the value (<c:param>wt</c:param>) to another location. This
 gives rise to aliasing which we may need to follow.
 </para>
@@ -111,7 +113,7 @@ gives rise to aliasing which we may need to follow.
 
 <para>
 Let's look at the subsetting.
-We'll look at the last of these first.
+We'll start by looking at the last of these.
 <r:code>
 u2[[7]]
 <r:output><![CDATA[
@@ -165,7 +167,7 @@ We need to reassemble the relevant elements of the loop from the raw IR code.
 <programlisting><![CDATA[
   br i1 %niter811.ncmp.3, label %for.end190.loopexit.unr-lcssa, label %for.body182
   ]]></programlisting>
-This either exists or repeats the body of the loop.
+This either exits the loop or repeats the body of the loop.
 What happens depends on niter811.ncmp.3 and this is computed in the 2 instructions above
 the branch:
 <programlisting><![CDATA[
@@ -228,7 +230,7 @@ We are in fact going in reverse order, but that is not important.
 Looking at the <c/> code, we can indeed verify this.
 <c:code><![CDATA[
     rp.n = nrows(xmat2);
-    n = rp.n;                   /* I get tired of typing "rp.n" 100 times
+    n = rp.n;                   /* I get tired of typing "rp.n" 100 times */
     ...
     ...
     for (i = 0; i < n; i++) {
