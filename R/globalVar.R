@@ -106,3 +106,11 @@ setMethod("setAlignment", "AllocaInst",
            function(var, align, ...)          
               .Call("R_AllocaInst_setAlignment", var, as.integer(align)))
 
+
+setGeneric("getInitializer", function(x, ...) standardGeneric("getInitializer"))
+
+setMethod("getInitializer", "GlobalVariable",
+          function(x, ...) {
+              ans = .Call("R_GlobalVariable_getInitializer", x)
+              as(ans, getClassName(ans))
+          })

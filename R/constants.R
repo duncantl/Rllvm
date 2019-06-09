@@ -105,9 +105,19 @@ setMethod("getValue", "ConstantFP",
            function(x, ...)
               .Call("R_ConstantFP_getValue", x))
 
+setAs("ConstantInt", "integer", function(from) getValue(from))
 
 getNULLPointer = # getNULLPointerType =
 function(type)
 {
   .Call("R_ConstantPointerNull_get", type)
 }
+
+
+
+setGeneric("getAsCString", function(x, ...) standardGeneric("getAsCString"))
+
+setMethod("getAsCString", "ConstantDataSequential",
+          function(x, ...)
+              .Call("R_ConstantDataSequential_getAsCString", x))
+

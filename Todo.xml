@@ -25,7 +25,19 @@
   It is #if 0'ed out in src/Target.cpp. Now reenabled and add a NULL value for the
   third argument to addPassesToEmitFile() which is the raw_pwrite_stream *DwoOut parameter.
 </item>
-  
+ 
+
+<item>
+Is the subsetting for a BranchInst getting the target blocks in the wrong order?
+<r:code>    
+parseIR("AnalyzeCCode/rpart.ir")
+e = getTerminator(getBlocks(m3$rpart)[["for.body182"]], FALSE)   
+e[[2]]
+e[[3]]
+</r:code>
+</item>
+
+
 <item status="done">
 See in Rllvm if we can run optimizer passes and then look at the resulting IR?
 Does this even make sense? Specifically thinking of mem2reg and seeing the alloca disappear

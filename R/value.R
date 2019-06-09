@@ -34,3 +34,14 @@ function(obj)
     .Call("R_Value_getAllUses", as(obj, "Value"))
 
 
+getAllUsers = 
+function(obj, uses = getAllUses(obj))
+{
+   lapply(uses, getUser)
+}
+
+
+
+setMethod("getValue", "Use", function(x, ...) .Call("R_Use_get", x))
+
+

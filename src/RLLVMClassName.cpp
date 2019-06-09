@@ -1,5 +1,8 @@
 #include "Rllvm.h"
 
+#include <llvm/IR/Operator.h>
+#include <llvm/IR/IntrinsicInst.h>
+
 #include "llvm_classof_name.h"
 extern "C"
 SEXP

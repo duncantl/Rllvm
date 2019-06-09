@@ -1,4 +1,4 @@
-const char const * getLLVMClassName(llvm::Value *obj)
+const char  * getLLVMClassName(llvm::Value *obj)
 {
 	const char *ans = "Value";
 	if(llvm::Constant::classof(obj))
@@ -199,5 +199,50 @@ const char const * getLLVMClassName(llvm::Value *obj)
 	   ans = "BitCastInst";
 	if(llvm::AddrSpaceCastInst::classof(obj))
 	   ans = "AddrSpaceCastInst";
+
+// 
+
+	if(llvm::DbgInfoIntrinsic::classof(obj))
+	   ans = "DbgInfoIntrinsic";
+	if(llvm::ConstrainedFPIntrinsic::classof(obj))
+	    ans = "ConstrainedFPIntrinsic";
+#ifdef HAS_ELEMENTUNORDEREDATOMMEMCPYINST	
+	if(llvm::ElementUnorderedAtomicMemCpyInst::classof(obj))
+	   ans = "ElementUnorderedAtomicMemCpyInst";
+	if(llvm::ElementUnorderedAtomicMemMoveInst::classof(obj))
+	   ans = "ElementUnorderedAtomicMemMoveInst";
+	if(llvm::ElementUnorderedAtomicMemSetInst::classof(obj))
+	   ans = "ElementUnorderedAtomicMemSetInst";
+#endif	
+	if(llvm::MemIntrinsic::classof(obj))
+	   ans = "MemIntrinsic";
+	if(llvm::VAStartInst::classof(obj))
+	   ans = "VAStartInst";
+	if(llvm::VAEndInst::classof(obj))
+	   ans = "VAEndInst";
+	if(llvm::VACopyInst::classof(obj))
+	   ans = "VACopyInst";
+	if(llvm::InstrProfIncrementInst::classof(obj))
+	   ans = "InstrProfIncrementInst";
+	if(llvm::InstrProfValueProfileInst::classof(obj))
+	   ans = "InstrProfValueProfileInst";
+	if(llvm::DbgDeclareInst::classof(obj))
+	   ans = "DbgDeclareInst";
+	if(llvm::DbgValueInst::classof(obj))
+	   ans = "DbgValueInst";
+	if(llvm::MemSetInst::classof(obj))
+	   ans = "MemSetInst";
+	if(llvm::MemTransferInst::classof(obj))
+	   ans = "MemTransferInst";
+	if(llvm::InstrProfIncrementInstStep::classof(obj))
+	   ans = "InstrProfIncrementInstStep";
+	if(llvm::MemCpyInst::classof(obj))
+	   ans = "MemCpyInst";
+	if(llvm::MemMoveInst::classof(obj))
+	    ans = "MemMoveInst";
+	if(llvm::Argument::classof(obj))
+	   ans = "Argument";	
+
+
 	return(ans);
 }

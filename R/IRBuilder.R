@@ -416,7 +416,12 @@ setMethod("createNeg", c("Value", block = "BasicBlock"),
             })
 
 
+setGeneric("getOpcode", function(op, ...) standardGeneric("getOpcode"))
 
+setMethod("getOpcode", "Operator",
+  function(op, ...)    
+     .Call("R_Operator_getOpcode", op)
+  )
 
 getFalse =
 function(ir)
