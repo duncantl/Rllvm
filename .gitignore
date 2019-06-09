@@ -9,3 +9,5 @@ R/targets.R
 TAGS
 ToFix
 XSL
+*.s
+*.tu

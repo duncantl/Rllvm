@@ -28,3 +28,13 @@ Related packages are [Rffi](https://github.com/omegahat/Rffi), Rllvm (this one),
 [RLLVMCompile](https://github.com/duncantl/RLLVMCompile),
 [RCUDA](https://github.com/duncantl/RCUDA),
 [RCIndex](https://github.com/omegahat/RClangSimple).
+
+
+
+
+## URLs
+
++ [LLVM Web site](https://llvm.org)
++ [LLVM Documentation](http://llvm.org/docs/)
++ [Book on LLVM](http://www.aosabook.org/en/llvm.html)
+
