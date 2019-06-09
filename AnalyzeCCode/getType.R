@@ -193,7 +193,8 @@ setMethod("findValue", "CallInst",
 
               if(grepl("^Rf_.*length$", fn)) {
                   ans = findValue(val[[1]])
-                  return(structure(ans, class = c(ans, "SymbolicLength" )))                  
+browser()                  
+                  return(structure(ans, class = c(class(ans), "SymbolicLength" )))                  
               }
 
              if(fn == "Rf_coerceVector") {
@@ -235,7 +236,10 @@ setMethod("findValue", "ConstantDataSequential",
 
 setMethod("findValue", "Argument",
           function(val, rtype = FALSE, ...) {
-              structure(getName(val), class = "Parameter")
+              name = getName(val)
+              if(is.na(name))
+                  name = gsub(".*%", "%", as(val, "character"))
+              structure(name, class = "Parameter")
           })
 
 setMethod("findValue", "PHINode",
