@@ -149,8 +149,51 @@ echo "FFI_LIB set $FFI_LIB"
   fi
 fi
 
-
 AC_SUBST(FFI_LIB)
+
+AC_DEFUN(CHECK_PASS, [
+ AC_TRY_COMPILE([#include <llvm/Pass.h>
+                 #include <llvm/Transforms/Scalar.h>],
+               [llvm::$1()],
+	       [LLVM_CFLAGS="$LLVM_CFLAGS -D$2=1"; echo "Have $1"],
+	       [echo "No $1"])
+])
+
+
+#AC_TRY_COMPILE([#include <llvm/Pass.h>],
+#               [llvm::createInstructionCombiningPass();],
+#	       [LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_INSTRUCTION_COMBINING_PASS=1"; echo "Have createInstructionCombiningPass"])
+
+#AC_TRY_COMPILE([#include <llvm/Pass.h>
+#                #include <llvm/Transforms/Scalar.h>],
+#               [llvm::createAggressiveDCEPass()],
+#	       [LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_AGGRESSIVE_DCE_PASS=1"; echo "Have AggressiveDCEPass"],
+#	       [echo "No AggressiveDECPass"])
+
+CHECK_PASS(createInstructionCombiningPass, HAVE_INSTRUCTION_COMBINING_PASS)
+CHECK_PASS(createAggressiveDCEPass, HAVE_AGGRESSIVE_DCE_PASS)
+
+CHECK_PASS(createPromoteMemoryToRegisterPass, HAVE_PROMOTE_MEMORY_TO_REGISTER_PASS)
+CHECK_PASS(createLoopSimplifyPass, HAVE_LOOP_SIMPLIFY_PASS)
+CHECK_PASS(createInstructionSimplifierPass, HAVE_INSTRUCTION_SIMPLIFIER_PASS)
+
+
+TMP_CXXFLAGS=$CXXFLAGS
+CXXFLAGS="$CXXFLAGS $LLVM_CFLAGS -DLLVM_VERSION=$LLVM_VERSION -DLLVM_MINOR_VERSION=$LLVM_MINOR_VERSION"
+
+ dnl [#include "src/Rllvm.h"],
+AC_DEFUN(CHECK_INST, [
+ AC_TRY_COMPILE([#include <llvm/IR/IntrinsicInst.h>],
+               [llvm::$1::classof((llvm::Value*)NULL)],
+	       [LLVM_CFLAGS="$LLVM_CFLAGS -D$2=1"; echo "Have class $1"],
+	       [echo "No class $1"])
+])
+
+CHECK_INST(Constant, HAVE_Constant)
+CHECK_INST(ElementUnorderedAtomicMemCpyInst, HAVE_ElementUnorderedAtomicMemCpyInst)
+CHECK_INST(SelectInst, HAVE_SelectInst)
+
+CXXFLAGS=$TMP_CXXFLAGS
 
 AC_OUTPUT(src/Makevars)
 AC_OUTPUT(R/targets.R)
