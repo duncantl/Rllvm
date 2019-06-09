@@ -71,7 +71,10 @@ R_CREATE_PASS(createGlobalMergePass)
 #pragma message "Note for Rllvm: enable GlobalMergePass for 3.7 and higher"
 #endif
 
+#ifdef HAVE_AGGRESSIVE_DCE_PASS
 R_CREATE_FUNPASS(createAggressiveDCEPass)
+#endif
+
 R_CREATE_FUNPASS(createDeadCodeEliminationPass)
 R_CREATE_FUNPASS(createDeadStoreEliminationPass)
 
