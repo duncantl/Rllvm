@@ -4,6 +4,11 @@
 <title></title>
 
 <para>
+This is not about recursive functions but chained calls.
+</para>
+
+
+<para>
   <r:code>
 m = parseIR("recursive.ir")    
 b = getBlocks(m$r_start)
