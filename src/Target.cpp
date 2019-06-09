@@ -213,7 +213,7 @@ R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SE
 
     // passManager is now a legacy::PassManager not a PassManagerBase
     bool ans = false;
-    ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
+    ans = targetMachine->addPassesToEmitFile(*passManager, *out, NULL, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
     /* ans is true if addPasses... failed */
     return(ScalarLogical(ans == true));
 #endif
@@ -248,11 +248,25 @@ R_Target_getName(SEXP r_target)
  */
 extern "C"
 SEXP
-R_printRegisteredTargetsForVersion()
+R_printRegisteredTargetsForVersion(SEXP r_out)
 {
-    llvm::TargetRegistry::printRegisteredTargetsForVersion();
-    
-    return(R_NilValue);
+    llvm::raw_ostream *out;
+    bool local = false;
+    std::string str;
+    if(Rf_length(r_out))
+        out = GET_REF(r_out, raw_ostream);
+    else {
+        local = true;
+        out = new llvm::raw_string_ostream(str);
+    }
+    llvm::TargetRegistry::printRegisteredTargetsForVersion(*out);
+
+    if(local) {
+        ((llvm::raw_string_ostream *)out)->str();
+        delete out;
+        return(ScalarString(mkChar(str.c_str())));
+    } else
+        return(R_NilValue);
 }
 
 
