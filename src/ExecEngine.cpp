@@ -195,7 +195,7 @@ SEXP
 R_ExecutionEngine_getFunctionAddress(SEXP r_execEngine, SEXP r_func)
 {
     llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
-    uint64_t  ans = ee->getFunctionAddress(std::string(CHAR(STRING_ELT(r_func, 0))));
+    uint64_t ans = ee->getFunctionAddress(std::string(CHAR(STRING_ELT(r_func, 0))));
 //XXXX
  PROBLEM "not implemented yet.  uint64_t as pointer"
   ERROR;
