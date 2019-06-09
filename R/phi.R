@@ -27,3 +27,15 @@ function(phi)
 {
   .Call("R_PHINode_hasConstantValue", as(phi, "PHINode"))
 }
+
+incoming_values =
+function(phi)
+{
+  .Call("R_PHINode_incoming_values", as(phi, "PHINode"))
+}
+
+blocks =
+function(phi)
+{
+  .Call("R_PHINode_blocks", as(phi, "PHINode"))
+}

@@ -1,4 +1,4 @@
-const char const * getLLVMClassName(llvm::Value *obj)
+const char  * getLLVMClassName(llvm::Value *obj)
 {
 	const char *ans = "Value";
 	if(llvm::Constant::classof(obj))
@@ -164,13 +164,15 @@ const char const * getLLVMClassName(llvm::Value *obj)
 	if(llvm::DbgInfoIntrinsic::classof(obj))
 	   ans = "DbgInfoIntrinsic";
 	if(llvm::ConstrainedFPIntrinsic::classof(obj))
-	   ans = "ConstrainedFPIntrinsic";
+	    ans = "ConstrainedFPIntrinsic";
+#ifdef HAS_ELEMENTUNORDEREDATOMMEMCPYINST	
 	if(llvm::ElementUnorderedAtomicMemCpyInst::classof(obj))
 	   ans = "ElementUnorderedAtomicMemCpyInst";
 	if(llvm::ElementUnorderedAtomicMemMoveInst::classof(obj))
 	   ans = "ElementUnorderedAtomicMemMoveInst";
 	if(llvm::ElementUnorderedAtomicMemSetInst::classof(obj))
 	   ans = "ElementUnorderedAtomicMemSetInst";
+#endif	
 	if(llvm::MemIntrinsic::classof(obj))
 	   ans = "MemIntrinsic";
 	if(llvm::VAStartInst::classof(obj))
@@ -196,7 +198,9 @@ const char const * getLLVMClassName(llvm::Value *obj)
 	if(llvm::MemCpyInst::classof(obj))
 	   ans = "MemCpyInst";
 	if(llvm::MemMoveInst::classof(obj))
-	   ans = "MemMoveInst";
+	    ans = "MemMoveInst";
+	if(llvm::Argument::classof(obj))
+	   ans = "Argument";	
 
 	return(ans);
 }

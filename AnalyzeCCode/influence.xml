@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="utf-8"?>
+<article
+	 xmlns:sh="http://www.shell.org"
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:c="http://www.C.org"
+	 xmlns:omg="http://www.omegahat.org">
+
+<p>
+See the example in README.md, eg.R, eg2.R and eg3.R and the code in getType.R.
+</p>
+
+<section>
+<title>Getting <r/> Type Information from <c/> Code</title>
+
+
+<para>
+We look at the influence.c file in the stats package in the base R code.
+This has one routine named <c:func>influence</c:func>
+which is invoked from R code via the <r:func>.Call</r:func> mechanism.
+We are interested in programmatically determining what it returns.
+In fact, it returns a list with either 3 or 4 elements.
+In the case of 4 elements, these are named
+hat, coefficients, sigma, wt.res.
+If only 3 elements are returned, the coefficients is not included.
+This is controlled by the second argument <c:var>do_coef</c:var>, a scalar logical.
+<ul>
+<li>hat is a numeric vector of length n, the number of rows in the QR matrix passed in the first argument to the routine.
+</li>
+<li>coefficients is a matrix with numeric elements and dimension n and k.
+  k is the integer value in the mqr list (first argument) in the element named rank.</li>
+<li>sigma is a numeric vector of length n</li>
+<li>wt.res is the value passed in the third argument to the routine.
+ It is also passed to the <fortran/> routine lminfl. (Are the values modified in the routine?)</li>
+</ul>
+</para>
+
+
+<para>
+  We start by generating the IR from the C code.
+  We do this via a make file. However, here is the command
+<sh:code>
+/Users/duncan/LLVM/LLVM5.0.1/llvm-5.0.1.src/build/bin/clang -I/Users/duncan/R-3.4.4/include -DNDEBUG   -I/usr/local/include -fPIC -O2 -S -emit-llvm influence.c -o influence.ir
+</sh:code>
+Note that we need to use the same version of clang as the LLVM libraries we use in <omg:pkg>Rllvm</omg:pkg>.
+</para>
+
+
+<para>
+<r:code>
+library(Rllvm)
+m = parseIR("influence.ir")   
+</r:code>
+
+<r:code>
+names(m)
+</r:code>
+
+<r:code>
+f = m$influence
+b = getBlocks(f)  
+</r:code>
+There are 17 blocks
+</para>
+
+<para>
+
+We find the return instruction(s):
+<r:code>
+w = sapply(b, function(x) any(sapply(x[], is, "ReturnInst")))
+which(w)
+</r:code>
+
+<r:code>
+ret = getTerminator(b[[which(w)]])
+</r:code>
+
+<r:code>
+ret[[1]]
+llvmDump(ret[[1]])
+</r:code>
+So this is a call to Rf_protect().
+Of course, there is a corresponding call to Rf_unprotect() that takes place
+later. We are not returning the call to Rf_protect().
+LLVM/clang is merely pointing us to the place where the return value was initially created.
+It is populated in code that is run before the return.
+
+So we get the "code" for the object being protected
+<r:code>
+llvmDump(ret[[1]][[1]])
+</r:code>
+This is a call to Rf_allocVector.
+We are now back in familiar territory (as in <ulink url="eg.R"/>)
+
+We look at the first argument in the call to Rf_allocVector to find the type of the
+R object:
+<r:code>
+ans = ret[[1]][[1]]
+getValue(ans[[1]])
+</r:code>
+This returns 19 corresponding to VECSXP in Rinternals.h. (This is a regular/generic list.)
+
+
+The number of elements is in the second element of <r:var>ans</r:var>
+<r:code>
+ans[[2]]
+</r:code>
+This is a SelectInst
+<r:code>
+llvmDump(ans[[2]])
+<r:output><![CDATA[
+%conv30 = select i1 %tobool29, i64 3, i64 4
+]]></r:output>
+</r:code>
+Depending on the condition, the number of elements is either 3 or 4.
+We can get these values with
+<r:code>
+sapply(ans[[2]][2:3], getValue)
+</r:code>
+
+
+The condition in the SelectInst is docoef which comes from
+the value in the logical scalar passed to the routine as an argument <c:param>do_coef</c:param>.
+
+
+
+What is interesting about the <c:func>influence</c:func> routine is that
+it inserts named elements into the list it returns and we want to know their types.
+</para>
+
+<para>
+Rather than looking at how the value of ans was created, let's look at the variable ans itself.
+This was ans[[1]].
+We can find where it is used directly and from this we get the users.
+<r:code>
+usrs = getAllUsers(ret[[1]])
+</r:code>
+
+<!--
+<r:code>
+#vals = lapply(u, getValue)
+</r:code>
+-->
+
+We can look at the instructions that use this return value:
+<r:code>
+  sapply(usrs, as, 'character')
+<r:output><![CDATA[
+  ret %struct.SEXPREC* %call32
+  %call57 = call %struct.SEXPREC* @SET_VECTOR_ELT(%struct.SEXPREC* %call32, i64 %18, %struct.SEXPREC* %e) #3
+  %call52 = call %struct.SEXPREC* @SET_VECTOR_ELT(%struct.SEXPREC* %call32, i64 %17, %struct.SEXPREC* %call16) #3
+  %call46 = call %struct.SEXPREC* @SET_VECTOR_ELT(%struct.SEXPREC* %call32, i64 1, %struct.SEXPREC* %call13) #3
+  %call39 = call %struct.SEXPREC* @SET_VECTOR_ELT(%struct.SEXPREC* %call32, i64 0, %struct.SEXPREC* %call8) #3
+  %call37 = call %struct.SEXPREC* @Rf_setAttrib(%struct.SEXPREC* %call32, %struct.SEXPREC* %11, %struct.SEXPREC* %call36) #3
+]]></r:output>  
+</r:code>
+Note that these appear in reverse order.
+</para>
+
+<para>
+There are 4 calls to SET_VECTOR_ELT, as we expect.
+One of these is within an if() statement.
+This is the second call.
+So the elements of the list will be in a different order/positions
+if this docoef condition is true or false.
+</para>
+
+
+<para>
+Let's take a look at the 5th user in our list <r:var>usrs</r:var>.
+This corresponds to the first element to be added to the list.
+We "know" that this is a call to SET_VECTOR_ELT (but we could check)
+and that the first argument is the list we are returning.
+We can query what value is being inserted
+<r:code>
+v = usrs[[5]]
+v[[3]]
+</r:code>
+This is a call to Rf_protect.
+It corresponds to the value of the local variable <c:var>hat</c:var>.
+We can follow this object
+<r:code>
+getName(getCalledFunction(v[[3]][[1]]))  
+</r:code>
+to see <c:func>Rf_allocVector</c:func>.
+And then we are back to the familiar and can find the type of R vector/object
+and the length.
+The type is 14
+<r:code>
+getValue(v[[3]][[1]][[1]])
+</r:code>
+corresponding to a REALSXP.
+</para>
+<para>
+Here the length is not a constant, but computed:
+<r:code>
+v[[3]][[1]][[2]]
+</r:code>
+This is an instruction of class SExtInst.
+This casts a value to an 64-bit integer.
+What is the number:
+<r:code>
+as(v[[3]][[1]][[2]][[1]], 'character')
+<r:output><![CDATA[
+"  %call2 = tail call i32 @Rf_nrows(%struct.SEXPREC* %call) #3"
+]]></r:output>
+</r:code>
+This is a call to Rf_nrows()
+What is this being called with, or more importantly, which
+R object are we getting the number of rows for?
+<r:code>
+as(v[[3]][[1]][[2]][[1]][[1]], 'character')
+<r:output><![CDATA[
+[1] "  %call = tail call %struct.SEXPREC* @getListElement(%struct.SEXPREC* %mqr, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i64 0, i64 0)) #3"
+]]></r:output>
+</r:code>
+So this comes from the call <c:expr>nrows(qr)</c:expr> and <c:var>qr</c:var> comes from
+<c:expr>qr = getListElement(mqr, "qr")</c:expr>.
+</para>
+
+
+
+
+<para>
+  The basics of the following are partially implemented in getType.R.
+  It needs more work, but gives the basics.
+</para>
+
+
+<para>
+The last instruction in our list of users of the return value
+sets the names attribute.
+We can see this with
+<r:code>
+  usrs[[6]]
+<r:output><![CDATA[
+[1] "  %call37 = call %struct.SEXPREC.8* @Rf_setAttrib(%struct.SEXPREC.8* %call32, %struct.SEXPREC.8* %11, %struct.SEXPREC.8* %call36) #3"
+]]></r:output>
+</r:code>
+And the second argument to this is the symbol naming the attribute, and 
+<r:code>
+getName(usrs[[6]][[2]][[1]])
+</r:code>  
+gives <c:var>R_NamesSymbol</c:var> as the name of the global variable.
+</para>
+
+<para>
+In this routine, the third argument to the call to Rf_setAttrib() is a call.
+<r:code>
+nmsVec = usrs[[6]][[3]]  
+<r:output><![CDATA[
+[1] "  %call36 = call %struct.SEXPREC* @Rf_allocVector(i32 16, i64 %conv35) #3"
+]]></r:output>
+</r:code>
+This allocates the character vector, but doesn't fill it in of course.
+This comes in other code.
+So, like the list we are returning, we have to find this call
+and then which instructions use it to find the names of the elements.
+</para>
+
+
+
+<section>
+<title>Finding the Names</title>
+
+<para>
+Let's pursue the names of the returned list to illustrate that it is the same
+basic process as finding the elements of the list itself.
+
+<r:code>
+nu = getAllUsers(nmsVec)
+<r:output><![CDATA[
+[1] "  call void @SET_STRING_ELT(%struct.SEXPREC* %call36, i64 %18, %struct.SEXPREC* %call59) #3"
+[2] "  call void @SET_STRING_ELT(%struct.SEXPREC* %call36, i64 %17, %struct.SEXPREC* %call55) #3"
+[3] "  call void @SET_STRING_ELT(%struct.SEXPREC* %call36, i64 1, %struct.SEXPREC* %call49) #3"
+[4] "  call void @SET_STRING_ELT(%struct.SEXPREC* %call36, i64 0, %struct.SEXPREC* %call42) #3"
+[5] "  %call37 = call %struct.SEXPREC* @Rf_setAttrib(%struct.SEXPREC* %call32, %struct.SEXPREC* %11, %struct.SEXPREC* %call36) #3"
+]]></r:output>
+</r:code>
+Let's get the IR name of our <r:var>nmsVec</r:var> variable:
+<r:code>
+getName(nmsVec)
+</r:code>
+This is call36.
+From the two outputs, we can see that 4 of the calls are to SET_STRING_ELT
+with call36 (our IR variable) as the  first argument.
+The final use is a call to Rf_setAttrib() and call36 is the final argument.
+This final use is setting the names on the list to be returned by the routine.
+We saw this earlier in the uses of the list itself (call32).
+</para>
+
+
+
+<para>
+As with SET_VECTOR_ELT, the three arguments to SET_STRING_ELT are the vector, the position and the name element.
+Let's look at the 4th of these calls to SET_STRING_ELT. This  corresponds to the first SET_STRING_ELT
+call for this vector in the C code.
+We get the position with
+<r:code>
+getValue(nu[[4]][[2]])  
+</r:code>
+This is the constant 0, i.e., the first element.
+</para>
+
+
+
+<para>
+<r:code><![CDATA[
+w = sapply(nu, function(x) is(x, "CallInst") && getName(getCalledFunction(x)) == "SET_STRING_ELT")
+]]></r:code>
+<r:code>
+sapply(nu[w], function(x) findValue(x[[3]]))
+</r:code>
+</para>
+
+
+
+<para>
+Note that two of the calls to SET_STRING_ELT have literal values for the positions - 0 and 1.
+These are not in the C code. Instead, that uses <c:var>nm</c:var> and increments that variable.
+The second instance of this is within an if() statement.
+However, the compiler has determined that these are the literal values and inserted
+them as an optimization step.
+</para>
+
+<para>
+What is the value that is being inserted, i.e., the name?
+This is the third argument.  
+In <r/>, we don't just insert the string. We need to create
+a CHARSXP.
+So this is a call to Rf_mkChar.
+Its only argument is the string.
+In this case, it is a literal value, a <r:class>ConstantExpr</r:class>.
+LLVM stores this in a GlobalVariable within the module.
+
+<fix>See findValue() in getType.R
+Implement getting this. Can use the name of the .str.3
+See code in class.R and getType.R and added to Rllvm.
+Works, but may not be best way to do this. So probably needs
+some robustifying.
+<r:code>
+ii = as(cexpr, "Instruction")
+ii[[1]]  # GlobalVariable
+
+getName(ii[[1]])
+
+v = .Call("R_GlobalVariable_getInitializer", ii[[1]])
+
+v is a Constant.
+
+getValue(v)
+fails 'don't know the class is of the Value"
+It is "ConstantDataArray"
+
+
+A different approach gives 4 values, but incorrect values.
+m[[".str.1", value = TRUE]]
+
+
+setMethod("show", "Value", function(x) print(as(x,'character')))
+
+#getValue(ii[[1]])
+
+# Operands
+ii[[2]]
+ii[[3]]
+</r:code>
+</fix>
+
+</para>
+
+
+<para>
+Let's look at one of the 2 cases for which we don't have a literal value for position.
+These are the first and second elements in our list of uses.
+We look at the first and specifically its second argument
+<r:code>
+nu[[1]][[2]]
+</r:code>
+This is of class ZExtInst, a cast to an 64-bit integer from a regular 32 bit integer.
+<r:output><![CDATA[
+"  %18 = zext i32 %inc53 to i64"
+]]></r:output>
+The value being cast is in the first argument
+<r:code>
+as(nu[[1]][[2]][[1]], 'character')
+</r:code>
+<fix>We need to get the variable.  OverflowingBinaryOperator is just added, but its first element from R is the 1.
+<r:code>
+bof = nu[[1]][[2]][[1]]
+getOpcode(bof) # add
+</r:code>
+</fix>
+</para>
+
+</section>
+
+
+<para>
+Let's look at SET_VECTOR_ELT inside the if() body.
+This is
+<r:code>
+i = usrs[[4]]
+</r:code>
+We can get the block/parent of this with
+<r:code>
+getParent(i)
+</r:code>
+We have lost the "if" aspect in the IR
+that we had in the AST.
+The "if" is in the name of the block and other labels.
+</para>
+
+<para>
+We can find which blocks lead to this block.
+<r:code>
+a = getPredecessor(getParent(i))
+</r:code>
+
+We look at the terminator to see what condition brings us to
+the body of the if statement in which the SET_VECTOR_ELT occurs.
+<r:code>
+br = getTerminator(a)
+</r:code>
+This is a simple branch.
+We branch to the SET_VECTOR_ELT part if this false.
+We know this because 
+<r:code>
+identical(getSuccessor(br, 2), getParent(i))
+</r:code>
+is <r:true/>.
+
+</para>
+<para>
+The condition for the branch is
+<r:code>
+cond = br[[1]]
+</r:code>
+and looks like
+<r:output><![CDATA[
+[1] "  %tobool43 = icmp eq i32 %12, 0"
+]]></r:output>
+This involves the variable named %12 in the IR.
+We can get this variable by accessing the first element
+of the condition.
+This is a LoadInst, so we follow that to get
+<r:code>
+getName(cond[[1]][[1]])
+</r:code>
+Here we asked for the name.
+<r:code>
+getType(cond[[1]][[1]])
+</r:code>
+</para>
+
+
+<section>
+<title>Types of the Elements</title>
+
+<para>
+For the returned list, we find the code that inserts the elements into the list:
+<r:code><![CDATA[
+w = sapply(usrs, function(x) is(x, "CallInst") && getName(getCalledFunction(x)) == "SET_VECTOR_ELT")
+]]></r:code>
+Now we can get the values  of the objects being inserted
+<r:code>
+  vals = lapply(usrs[w], `[[`, 3)
+<r:output><![CDATA[
+[[1]]
+[1] "%struct.SEXPREC.8* %e"
+
+[[2]]
+[1] "  %call16 = tail call %struct.SEXPREC.8* @Rf_protect(%struct.SEXPREC.8* %call15) #3"
+
+[[3]]
+[1] "  %call13 = tail call %struct.SEXPREC.8* @Rf_protect(%struct.SEXPREC.8* %call12.sink) #3"
+
+[[4]]
+[1] "  %call8 = tail call %struct.SEXPREC.8* @Rf_protect(%struct.SEXPREC.8* %call7) #3"
+]]></r:output>
+</r:code>
+We can follow these and get their type.
+</para>
+
+<para>
+  The first of these is just an Argument/parameter, specifically the one named 'e'.
+  We know it is a generic <r/> object.
+  We can examine the code to see if we can deduce more specific information, or we
+  can check the <r/> code that calls the <c:func>influence</c:func> routine.
+  There is a call <c:expr>REAL(e)</c:expr> which indicates it is a numeric vector or matrix.
+  We find all the users of this with
+<r:code>
+getAllUsers(vals[[1]]) # or m$influence$e
+</r:code>
+We see only 2 - the insertion into the result and the call to <c:func>REAL</c:func>.
+</para>
+
+<para>
+  The second element of <r:var>vals</r:var> is
+<r:output><![CDATA[
+[1] "  %call16 = tail call %struct.SEXPREC.8* @Rf_protect(%struct.SEXPREC.8* %call15) #3"
+]]></r:output>
+We get the argument to <c:func>Rf_protect</c:func> and see
+<r:output><![CDATA[
+"  %call15 = tail call %struct.SEXPREC.8* @Rf_allocVector(i32 14, i64 %conv) #3"
+]]></r:output>
+We pass this to <r:func>getCallType</r:func> in <file>getType.R</file>
+and get back
+<r:output><![CDATA[
+$type
+[1] "REALSXP"
+
+$length
+NULL
+
+attr(,"class")
+[1] "RVector"
+]]></r:output>
+indicating a numeric vector. We don't currently implement the mechanism
+to get the length for this vector, but we can extend this.
+It is somewhat involved here. This leads to a call to
+<c:expr>Rf_nrows(obj)</c:expr> and the <c:var>obj</c:var> is
+the call <c:expr>getListElement(mqr, "qr")</c:expr>.
+This involves chasing down the "qr" constant (easy enough). But we don't know at compile
+time to which element of mqr that corresponds. So we can resolve this statically.
+</para>
+
+
+<para>
+  The third element potentially inserted into the result is
+<r:output><![CDATA[
+"  %call13 = tail call %struct.SEXPREC.8* @Rf_protect(%struct.SEXPREC.8* %call12.sink) #3"
+]]></r:output>  
+Again, we pass this to <r:func>getCallType</r:func>.
+<r:output><![CDATA[
+[[1]]
+$type
+[1] "REALSXP"
+
+$length
+[1] 0
+
+attr(,"class")
+[1] "RVector"
+
+[[2]]
+$type
+[1] "REALSXP"
+
+$dims
+$dims$nrow
+NULL
+
+$dims$ncol
+NULL
+
+
+attr(,"class")
+[1] "RMatrix"
+
+]]></r:output>
+We get a list with 2 elements as the result.
+This is because there are two possible values.
+One is a numeric vector and the other is a numeric matrix.
+These two cases come from the fact that <c:var>coefficients</c:var>
+is initialized conditionally.
+In the first case, we create a vector of length 0 and we captured that.
+We did not currently get the dimensions for the matrix case.
+</para>
+<para>
+  We can follow the matrix dimensions.
+  <r:code>
+vals[[3]][[1]][[2]][[2]]    
+<r:output><![CDATA[
+ "  %call2 = tail call i32 @Rf_nrows(%struct.SEXPREC.8* %call) #3"
+ ]]></r:output>
+  </r:code>
+So we are computing the number of rows.
+When we look at the object, we see
+<r:code>
+vals[[3]][[1]][[2]][[2]][[1]]  
+<r:output><![CDATA[
+"  %call = tail call %struct.SEXPREC.8* @getListElement(%struct.SEXPREC.8* %mqr, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i64 0, i64 0)) #3"
+]]></r:output>
+</r:code>
+We are back to the situation we had above with getListElement() with a named element.
+</para>
+
+
+<para>
+Finally, we look at the last of the <r:var>vals</r:var> elements
+<r:output><![CDATA[
+[1] "  %call8 = tail call %struct.SEXPREC.8* @Rf_protect(%struct.SEXPREC.8* %call7) #3"
+]]></r:output>
+Again, <r:func>getCallType</r:func> returns 
+<r:output><![CDATA[
+$type
+[1] "REALSXP"
+
+$length
+NULL
+
+attr(,"class")
+[1] "RVector"
+]]></r:output>
+i.e., a numeric vector.
+Again, the length is related to the getListElement() call.
+</para>
+
+
+
+</section>
+
+
+</section>
+</article>

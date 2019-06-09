@@ -1,6 +1,9 @@
 #include "Rllvm.h"
+#include "R_ext/Print.h"
 
 #include <llvm/ADT/APInt.h>
+
+//#define R_DEBUG 1
 
 typedef struct {
   int sexpType;
@@ -345,14 +348,9 @@ R_convertNativeValuePtrToR(SEXP r_ptr, SEXP r_type)
     return(convertNativeValuePtrToR(ptr, ty));
 }
 
-
-
-
-extern "C"
 SEXP
-R_convertValueToR(SEXP r_val)
-{
-    llvm::Value *val = GET_REF(r_val, Value);
+R_internal_convertValueToR(llvm::Value *val)
+{    
     if(llvm::dyn_cast<llvm::Constant>(val)) {
         if(llvm::dyn_cast<llvm::ConstantInt>(val)) {
             llvm::ConstantInt *tmp = llvm::dyn_cast<llvm::ConstantInt>(val);
@@ -367,16 +365,34 @@ R_convertValueToR(SEXP r_val)
             return(R_NilValue);
         } else if(llvm::dyn_cast<llvm::ConstantArray>(val)) {
 #if R_DEBUG
-            fprintf(stderr, "ConstantArray\n");
+            Rprintf("ConstantArray\n");
 #endif
         } else if(llvm::dyn_cast<llvm::ConstantDataSequential>(val)) {
 #if R_DEBUG
-            fprintf(stderr, "ConstantDataSequential\n");
+            Rprintf("ConstantDataSequential\n");
 #endif
+            llvm::ConstantDataSequential *tmp = llvm::dyn_cast<llvm::ConstantDataSequential>(val);                      if(tmp->isCString()) {
+                llvm::StringRef str = tmp->getAsCString();
+//                return(ScalarString(mkChar("got it")));
+                return(ScalarString( str.data() ? mkCharLen(str.data(), str.size()) : R_NaString));
+            } else {
+                Rprintf("Fix ConstantDataSequential\n");
+            }
         } else if(llvm::dyn_cast<llvm::ConstantDataArray>(val)) {
 #if R_DEBUG
-            fprintf(stderr, "ConstantDataArray\n");
+            Rprintf("ConstantDataArray\n");
 #endif
+        } else if(llvm::dyn_cast<llvm::GlobalVariable>(val)) {
+#if R_DEBUG
+            Rprintf("GlobalVariable\n");
+#endif
+            llvm::GlobalVariable *tmp = llvm::dyn_cast<llvm::GlobalVariable>(val);
+            return(R_internal_convertValueToR(tmp->getInitializer()));
+        } else if(llvm::dyn_cast<llvm::GlobalValue>(val)) {
+#if R_DEBUG
+            Rprintf("GlobalValue\n");
+#endif
+            llvm::GlobalValue *tmp = llvm::dyn_cast<llvm::GlobalValue>(val);
         }
     }
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 6
@@ -398,3 +414,10 @@ R_convertValueToR(SEXP r_val)
     return(R_NilValue);
 }
 
+extern "C"
+SEXP
+R_convertValueToR(SEXP r_val)
+{
+    llvm::Value *val = GET_REF(r_val, Value);
+    return(R_internal_convertValueToR(val));
+}

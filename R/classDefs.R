@@ -64,7 +64,13 @@ setClass("InvokeInst", contains = "Instruction")
 setClass("CastInst", contains = "UnaryInstruction")
 setClass("SExtInst", contains = "CastInst")
 
+
 setClass("BinaryOperator", contains = "Instruction")
+
+# LLVM 5.0.1 at least.
+setClass("Operator", contains = "User")
+setClass("OverflowingBinaryOperator", contains = "Operator")
+setClass("FPMathOperator", contains = "Operator")
 
 setClass("BranchInst", contains = "TerminatorInst")
 
@@ -168,6 +174,30 @@ setClass("GlobalValue", contains = "Constant")
 setClass("GlobalVariable", contains = "GlobalValue")
 
 setClass("ConstantPointerNull", contains = "Constant")
+
+setClass("ConstantExpr", contains = "User")
+setClass("BinaryConstantExpr", contains = "ConstantExpr")
+setClass("CompareConstantExpr", contains = "ConstantExpr")
+setClass("ExtractElementConstantExpr", contains = "ConstantExpr")
+setClass("ExtractValueConstantExpr", contains = "ConstantExpr")
+setClass("GetElementPtrConstantExpr", contains = "ConstantExpr")
+setClass("InsertElementConstantExpr", contains = "ConstantExpr")
+setClass("InsertValueConstantExpr", contains = "ConstantExpr")
+setClass("SelectConstantExpr", contains = "ConstantExpr")
+setClass("ShuffleVectorConstantExpr", contains = "ConstantExpr")
+setClass("UnaryConstantExpr", contains = "ConstantExpr")
+
+setAs("ConstantExpr", "Instruction",
+      function(from) {
+          ans = .Call("R_ConstantExpr_getAsInstruction", from)
+          as(ans, getClassName(ans))
+      })
+
+
+setClass("ConstantData", contains = "Constant")
+setClass("ConstantDataSequential", contains = "ConstantData")
+setClass("ConstantDataArray", contains = "ConstantDataSequential")
+setClass("ConstantDataVector", contains = "ConstantDataSequential")
 
 setClass("Function", contains = "GlobalValue")
 
@@ -301,3 +331,7 @@ setMethod("onlyReadsMemory", "Argument",
 setGeneric("getMetadata",
            function(obj, id, ...)
               standardGeneric("getMetadata"))
+
+
+
+setMethod("show", "Value", function(object) print(as(object,'character')))

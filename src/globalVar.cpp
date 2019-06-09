@@ -43,3 +43,13 @@ R_GlobalVariable_setInitializer(SEXP r_var, SEXP r_val)
     return(ScalarLogical(TRUE));
 }
 
+
+extern "C"
+SEXP
+R_GlobalVariable_getInitializer(SEXP r_var, SEXP r_val)
+{
+    llvm::GlobalVariable *ans = GET_REF(r_var, GlobalVariable);
+    return(R_createRef(ans->getInitializer(), "Constant"));
+}
+
+

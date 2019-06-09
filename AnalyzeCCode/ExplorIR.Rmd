@@ -1,0 +1,156 @@
+We generate the IR code from our simple.c file:
+```
+~/LLVM5.0/llvm-5.0.0.src/build/bin/clang -S -emit-llvm -I$R_HOME/include -o simple.ll  simple.c
+```
+Note that it is important that we use the same clang and LLVM library as we use in Rllvm.
+Otherwise, the IR we generate may not be readable by Rllvm.
+
+
+We then read the IR into R as a module:
+```
+library(Rllvm)
+m = parseIR("simple.ll")
+```
+
+Let's look at the simpleCall routine as it is very simple and contains just one basic block.
+```
+b = getBlocks(m$simpleCall)[[1]]
+```
+
+We can get the instructions by just treating the block as a list:
+```
+ins = b[]
+```
+
+The class of each instruction indicates its purpose and LLVM type.
+```
+sapply(ins, class)
+ [1] "AllocaInst" "AllocaInst" "AllocaInst" "StoreInst"  "StoreInst" 
+ [6] "LoadInst"   "SExtInst"   "CallInst"   "StoreInst"  "LoadInst"  
+[11] "ReturnInst"
+```
+
+Let's examine the return instruction as that is what we care about when
+trying to determine the R type that the routine produces.
+```
+r = ins[[11]]
+```
+We can get the LLVM Value object being returned again by treating the object, this time the return instruction, as a list
+and accessing its first element.
+```
+r[[1]]
+```
+(We can use getNumOperands() and getOperand() also.)
+
+This is a load instruction (LoadInst)
+What it loads is available as the first element,
+```
+r[[1]][[1]]
+```
+
+
+
+# Optimized IR Code
+
+We can optimize the IR that is generated when we create the .ll file:
+```
+~/LLVM5.0/llvm-5.0.0.src/build/bin/clang -O3 -S -emit-llvm -I$R_HOME/include -o simple_optimized.ll  simple.c
+```
+(Note the -O3)
+
+
+We then read this into R with
+```
+o = parseIR("simple_optimized.ll")
+```
+
+The definition of the simpleCall routine is then
+```
+define %struct.SEXPREC* @simpleCall(%struct.SEXPREC* nocapture readnone %x) local_unnamed_addr #1 {
+entry:
+  %call = tail call %struct.SEXPREC* @Rf_allocVector(i32 14, i64 10) #3
+  ret %struct.SEXPREC* %call
+}
+```
+
+```
+ins = getBlocks(o$simpleCall)[[1]][]
+```
+
+There are two instructions - a call and a return.
+The return instruction returns the call instruction.
+The call instruction has 3 elements (`length(ins[[1]])`).
+
+The first two elements are the arguments, and the third is the Function object.
+```
+call = ins[[1]]
+```
+We know the arguments are the R SEXP type and the number of elements.
+These are constants in this case.
+We can get the values of the constants using getValue().
+```
+lapply(call[1:2], getValue)
+```
+This gives 14 and 10. The 14 corresponds to the REALSXP type
+and the 10 is the length of the vector.
+
+We can find which function is being called with
+```
+getName(call[[3]])
+```
+
+Note that the NEW_NUMERIC() call in the C code was converted to Rf_allocVector() by
+the preprocessor.
+
+So at this point we know that we are returning a numeric vector of length 10.
+
+
+
+# The bar() routine.
+
+This routine returns either an integer() or a numeric() vector.
+
+We get all the blocks and then find the one with the return instruction. 
+```
+b = getBlocks(o$bar)
+```
+
+```
+w = sapply(b, function(x) any(sapply(x[], is, "ReturnInst")))
+b[[ which(w) ]]
+```
+
+This block returns the variable ans.  This is created within this block
+via a phi instruction. 
+We need to get the both the values and the corresponding blocks in this PHI node.
+Then we follow each value-block pair and find the more specific R type for those values.
+We use the same approach as we did for the routine foo, i.e., find the call that creates the object.
+
+
+We get the PHI node from the return block
+```
+p = b[[ which(w) ]][[1]]
+```
+
+From this PHI node, we get the incoming blocks and values
+```
+pblocks = blocks(p)
+pvals = incoming_values(p)
+```
+Each of the elements in pvals is a call to Rf_allocVector.
+Again, we can get the type of R object  from the first argument
+and the length of the R object from the second argument.
+
+# The foo() routine
+
+The routine foo() is invoked via the .C() mechanism.
+We want to find which parameters are modified.
+Note from the IR code in the .ll file, the first two parameters
+are identifed as readonly, while the third is not.
+So we can answer the question by accessing the attributes on these parameters.
+And we can use the onlyReadsMemory() function to query this:
+```
+p = getParameters(o$foo)
+sapply(p, onlyReadsMemory)
+```
+

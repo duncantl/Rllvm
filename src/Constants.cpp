@@ -138,3 +138,30 @@ R_ConstantPointerNull_get(SEXP r_pointerType)
     ans = llvm::ConstantPointerNull::get(type);
     return(R_createRef(ans, "ConstantPointerNull"));
 }
+
+
+extern "C"
+SEXP
+R_ConstantExpr_isGEPWithNoNotionalOverIndexing(SEXP r_this)
+{
+    llvm::ConstantExpr *val = GET_REF(r_this, ConstantExpr);
+    return(ScalarLogical(val->isGEPWithNoNotionalOverIndexing()));
+}
+
+extern "C"
+SEXP
+R_ConstantExpr_getAsInstruction(SEXP r_this)
+{
+    llvm::ConstantExpr *val = GET_REF(r_this, ConstantExpr);
+    return(R_createRef(val->getAsInstruction(), "Instruction"));
+}
+
+
+
+extern "C"
+SEXP
+R_ConstantDataSequential_getAsCString(SEXP r_val)
+{
+    llvm::ConstantDataSequential *val = GET_REF(r_val, ConstantDataSequential);
+    return(ScalarString(mkChar(val->getAsCString().data())));
+}

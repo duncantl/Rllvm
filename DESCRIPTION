@@ -52,6 +52,7 @@ Collate: llvmVersion.R classDefs.R manual_generics.R
          z_enumDefs_3.9.R
          z_enumDefs_4.0.R
          z_enumDefs_5.0.R	 
+         z_enumDefs_6.0.R	 
 	 types.R
 	 Function.R
          ascii.R

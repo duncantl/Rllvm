@@ -154,8 +154,8 @@ R_Instruction_getOperand(SEXP r_inst, SEXP r_i)
         llvm::Value *el;
         unsigned i = INTEGER(r_i)[0] - 1;
         if(i >= inst->getNumOperands()) {
-            PROBLEM "index of operand is incorrect"
-                ERROR;
+            PROBLEM "index of operand is incorrect - too large. In R should be between 1 and %d", inst->getNumOperands()
+            ERROR;
         }
 
         el = inst->getOperand(i);
