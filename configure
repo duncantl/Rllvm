@@ -2694,6 +2694,33 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 #CXXFLAGS=$TMP_CXXFLAGS
 
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <llvm/Target/TargetMachine.h>
+	        #include <llvm/IR/LegacyPassManager.h>
+		#include <llvm/Support/raw_ostream.h>
+
+int
+main ()
+{
+llvm::TargetMachine *m;
+ 	        llvm::legacy::PassManager mgr;
+		llvm::raw_pwrite_stream *out;
+	        m->addPassesToEmitFile(mgr, *out, NULL, llvm::TargetMachine::CGFT_ObjectFile)
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG=1"; echo "addPassesToEmitFIle takes an extra stream argument"
+else
+  echo "No extra stream argument for addPassesToEmitFile"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+
 ac_config_files="$ac_config_files src/Makevars"
 
 cat >confcache <<\_ACEOF

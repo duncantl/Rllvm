@@ -185,6 +185,21 @@ CHECK_INST(ElementUnorderedAtomicMemSetInst, HAVE_ElementUnorderedAtomicMemSetIn
 
 #CXXFLAGS=$TMP_CXXFLAGS
 
+
+AC_TRY_COMPILE([#include <llvm/Target/TargetMachine.h>
+	        #include <llvm/IR/LegacyPassManager.h>
+		#include <llvm/Support/raw_ostream.h>
+               ],
+               [llvm::TargetMachine *m;
+ 	        llvm::legacy::PassManager mgr;
+		llvm::raw_pwrite_stream *out;
+	        m->addPassesToEmitFile(mgr, *out, NULL, llvm::TargetMachine::CGFT_ObjectFile)
+	       ],
+	       [LLVM_CFLAGS="$LLVM_CFLAGS -DADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG=1";
+	        echo "addPassesToEmitFile takes an extra stream argument"],
+	       [echo "No extra stream argument for addPassesToEmitFile"])
+
+
 AC_OUTPUT(src/Makevars)
 AC_OUTPUT(R/targets.R)
 AC_OUTPUT(R/llvmVersion.R)
