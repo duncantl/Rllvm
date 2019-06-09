@@ -34,8 +34,8 @@ mkNamedList(SEXP x)
     SET_VECTOR_ELT(ans, 2, NEW_CHARACTER(2));
     PROTECT(names = NEW_CHARACTER(3));
     SET_STRING_ELT(names, 0, mkChar("a"));
-    SET_STRING_ELT(names, 1, mkChar("b"));
-    SET_STRING_ELT(names, 20, mkChar("c"));
+    SET_STRING_ELT(names, 1, mkChar("bcde and fgh"));
+    SET_STRING_ELT(names, 20, mkChar("xyz"));
     SET_NAMES(ans, names);
     UNPROTECT(2);
 
