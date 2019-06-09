@@ -49,7 +49,7 @@ See the <ulink url="README.md"/> file for some discussions about the pros and co
 We start by reading the <c/> code in foo.c in <r/>:
 <r:code>
 library(RCIndex)
-tu = createTU("foo.c", includes = "~/R-3.4.4/src/include")
+tu = createTU("foo.c", includes = "~/R-devel/build/include")
 </r:code>
 
 Next we get the routines in foo (ignoring those from header files)
@@ -80,7 +80,7 @@ The name of the routine being called is
 getName(ret[[1]][[1]])
 </r:code>
 which yields Rf_ScalarInteger.
-So we know we are returning an integer vector.
+So we know we are returning an integer vector of length 1.
 
 We get the literal value 10 with
 <r:code>
