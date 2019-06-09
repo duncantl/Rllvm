@@ -66,12 +66,18 @@ const char  * getLLVMClassName(llvm::Value *obj)
 	   ans = "DbgInfoIntrinsic";
 	if(llvm::ConstrainedFPIntrinsic::classof(obj))
 	   ans = "ConstrainedFPIntrinsic";
+#ifdef HAVE_ElementUnorderedAtomicMemCpyInst	   
 	if(llvm::ElementUnorderedAtomicMemCpyInst::classof(obj))
 	   ans = "ElementUnorderedAtomicMemCpyInst";
+#endif
+#ifdef HAVE_ElementUnorderedAtomicMemMoveInst	   
 	if(llvm::ElementUnorderedAtomicMemMoveInst::classof(obj))
 	   ans = "ElementUnorderedAtomicMemMoveInst";
+#endif
+#ifdef HAVE_ElementUnorderedAtomicMemSetInst	   
 	if(llvm::ElementUnorderedAtomicMemSetInst::classof(obj))
 	   ans = "ElementUnorderedAtomicMemSetInst";
+#endif	   
 	if(llvm::MemIntrinsic::classof(obj))
 	   ans = "MemIntrinsic";
 	if(llvm::IntrinsicInst::classof(obj))
