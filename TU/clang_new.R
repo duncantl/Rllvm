@@ -5,6 +5,10 @@ library(RCIndex)
 version = c(3, 8)
 inc = c("/usr/local/include", "/usr/local/include/llvm", "/Users/duncan/R-3.3-devel/src/include")
 
+#version = c(8, 0)
+#inc = path.expand(c("~/LLVM/clang+llvm-8.0.0-x86_64-apple-darwin/include", "/Users/duncan/R-devel/src/include"))
+
+
 #inc= "/Users/duncan/LLVM3.7/clang+llvm-3.7.0-x86_64-apple-darwin/include"
 
 # The name of the file C++ to read.
@@ -13,7 +17,9 @@ f = "llvm.cpp"
 args = c("-xc++", "-DNDEBUG", "-D_GNU_SOURCE", "-D__STDC_CONSTANT_MACROS", "-D__STDC_FORMAT_MACROS", "-D__STDC_LIMIT_MACROS",
     "-std=c++11", "-fvisibility-inlines-hidden", "-fno-exceptions", "-fno-rtti", "-fno-common", "-Woverloaded-virtual",
          "-Wcast-qual",
-        "-DLLVM_VERSION=3", "-DLLVM_MINOR_VERSION=8", "-DNEW_LLVM_ATTRIBUTES_SETUP")
+    paste0("-DLLVM_VERSION=", version[1]),
+    paste0("-DLLVM_MINOR_VERSION=", version[2]),
+    "-DNEW_LLVM_ATTRIBUTES_SETUP")
 
 
 # Parse the C++ code
@@ -21,7 +27,7 @@ tu = createTU(f, args = args, includes = inc, verbose = TRUE)
 
 options(nwarnings = 10000)
 
-# Get the enumerated constants but just from the directorues with /llvm and /llvm-c
+# Get the enumerated constants but just from the directories with /llvm and /llvm-c
 enums = getEnums(tu, fileFilter = "/llvm") 
 
 
@@ -29,6 +35,7 @@ ids = lapply(enums, function(x) names(x@values))
 tt = table(unlist(ids))
 sum(tt > 1)
 # Only 17 from the 279 different enum sets containing 9894 individual elements.
+# 24 of 211 for LLVM 8.0
 
 dups = names(tt)[tt > 1]
 
