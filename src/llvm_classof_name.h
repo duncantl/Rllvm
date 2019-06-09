@@ -15,8 +15,10 @@ const char const * getLLVMClassName(llvm::Value *obj)
 	   ans = "BlockAddress";
 	if(llvm::ConstantExpr::classof(obj))
 	   ans = "ConstantExpr";
+#if LLVM_VERSION < 8	   
 	if(llvm::TerminatorInst::classof(obj))
 	   ans = "TerminatorInst";
+#endif	   
 	if(llvm::UnaryInstruction::classof(obj))
 	   ans = "UnaryInstruction";
 	if(llvm::BinaryOperator::classof(obj))
