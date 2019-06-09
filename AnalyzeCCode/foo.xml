@@ -1,0 +1,70 @@
+<article
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:c="http://www.C.org"
+	 xmlns:omg="http://www.omegahat.org">
+
+<info>
+    <author>
+     <personname>
+       <firstname>Duncan</firstname>
+          <surname>Temple Lang</surname>
+        </personname>
+        <affiliation>
+          <orgname>UC Davis</orgname>
+         <orgdiv>Data Science Initiative</orgdiv>
+        </affiliation>
+   </author>
+</info>
+
+<title>Type Information for foo.c</title>  
+
+<para>
+  This mirrors the computations in <ulink url="AST.xml"/> but done via the
+  Intermediate Representation (IR) from compiling the C code,
+  rather than Abstract Syntax Tree of the C code.
+</para>
+
+<section>
+<title>foo</title>
+
+<para>
+<r:code>
+library(Rllvm)
+m = parseIR("foo.ir")  
+m$ifoo
+</r:code>
+
+<r:code>
+source("getType.R")
+compReturnType(m$ifoo)
+</r:code>
+This is a scalar integer.
+</para>
+
+
+
+<para>
+The same works for m$ifoo2 and gives the same result:
+<r:code>
+compReturnType(m$ifoo2)
+</r:code>  
+</para>
+
+
+<para>
+The str routine yields a STRSXP with length 1:  
+<r:code>
+compReturnType(m$str)
+</r:code>
+</para>
+
+
+<para>
+compReturnType(m$len_character)
+</para>
+
+
+
+</section>
+
+</article>
