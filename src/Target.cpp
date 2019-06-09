@@ -262,11 +262,9 @@ R_printRegisteredTargetsForVersion(SEXP r_out)
 {
 
 #if LLVM_VERSION < 7
-#else    
     llvm::TargetRegistry::printRegisteredTargetsForVersion();
     return(R_NilValue);
-#endif
-
+#else        
     llvm::raw_ostream *out;
     bool local = false;
     std::string str;
@@ -284,7 +282,7 @@ R_printRegisteredTargetsForVersion(SEXP r_out)
         return(ScalarString(mkChar(str.c_str())));
     } else
         return(R_NilValue);
->>>>>>> origin/llvm7.0
+#endif
 }
 
 
