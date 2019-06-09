@@ -356,6 +356,8 @@ A different approach gives 4 values, but incorrect values.
 m[[".str.1", value = TRUE]]
 
 
+getValue(m[[".str.1"]]) # Now works - June 9
+
 setMethod("show", "Value", function(x) print(as(x,'character')))
 
 #getValue(ii[[1]])
