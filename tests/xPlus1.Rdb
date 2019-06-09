@@ -187,7 +187,8 @@ n = 1e7
 </r:code>
 
 <r:code>
-ll = system.time({x = rep(1, n); .llvm(fun, x = x, n = length(x), .all = TRUE, .ee = ee)$x})
+x = rep(1, n)  
+ll = system.time({.llvm(fun, x = x, n = length(x), .all = TRUE, .ee = ee)$x})
 </r:code>
 
 <r:code>
@@ -201,15 +202,23 @@ interp = apply(interp, 1, median)
 library(compiler)
 g = cmpfun(p1)
 x = rep(1, n)
-cmp = replicate(5, system.time({g(x)}))
+cmp = replicate(5, system.time(g(x)))
 cmp = apply(cmp, 1, median)
 </r:code>
 
 
 
 <r:code>
-ll = replicate(10, system.time({x = rep(1, n); run(fun, x = x, n = length(x), .all = TRUE, .ee = ee)$x}))
+x = rep(1, n)
+ll = replicate(10, system.time({run(fun, x = x, n = length(x), .all = TRUE, .ee = ee)$x}))
 ll = apply(ll, 1, median)
+</r:code>
+
+
+Using .llvm rather than the run() function:
+<r:code>
+ll2 = replicate(10, system.time({.llvm(fun, x = x, n = length(x), .all = TRUE, .ee = ee)$x}))
+ll2 = apply(ll2, 1, median)
 </r:code>
 
 

@@ -428,7 +428,13 @@ R_ParseAssemblyString(SEXP r_str, SEXP r_module, SEXP r_context)
     if(module) {
 //        std::unique_ptr<llvm::MemoryBuffer> buf = llvm::MemoryBuffer::getMemBuffer(std::string(text));
 //        ok = llvm::parseAssemblyInto(buf->getMemBufferRef(), *module, err);
+
+#if LLVM_VERSION >= 7
+        ok = ! llvm::parseAssemblyInto(llvm::MemoryBufferRef(std::string(text), std::string("dummy")), module, NULL, err);        
+#else        
         ok = ! llvm::parseAssemblyInto(llvm::MemoryBufferRef(std::string(text), std::string("dummy")), *module, err);
+#endif        
+
     } else {
         module = llvm::parseAssemblyString(text, /* module, */ err, *context).release();
         ok = (module != NULL);
@@ -467,7 +473,9 @@ R_Module_CloneModule(SEXP r_module)
     llvm::Module *ans ;
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
     ans = llvm::CloneModule(module);
-#else
+#elif LLVM_VERSION >= 7
+    ans = llvm::CloneModule(*module).release();
+#else    
     ans = llvm::CloneModule(module).release();
 #endif
 
@@ -497,8 +505,13 @@ R_WriteBitcodeToFile(SEXP r_module, SEXP r_to)
     module = GET_REF(r_module, Module); 
 
     std::string str;
-    llvm::raw_string_ostream out(str); 
-    llvm::WriteBitcodeToFile(module, out);
+    llvm::raw_string_ostream out(str);
+    
+#if LLVM_VERSION >= 7    
+    llvm::WriteBitcodeToFile(*module, out);
+#else
+    llvm::WriteBitcodeToFile(module, out);    
+#endif
 
     std::string tmp = out.str();
     size_t len = tmp.size();

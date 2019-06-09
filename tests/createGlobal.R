@@ -42,6 +42,7 @@ ir$createRet(v)
 
 .llvm(fun, .ee = ee)
 replicate(10, .llvm(fun, .ee = ee))
+#??? Gives -101
 getGlobalValue(getGlobalVariable(mod, "gv"), ee)
 
 .llvm(fun) # no ee

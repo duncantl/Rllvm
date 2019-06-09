@@ -74,8 +74,15 @@ R_CREATE_PASS(createGlobalMergePass)
 R_CREATE_FUNPASS(createAggressiveDCEPass)
 R_CREATE_FUNPASS(createDeadCodeEliminationPass)
 R_CREATE_FUNPASS(createDeadStoreEliminationPass)
+
+#ifdef HAVE_INSTRUCTION_COMBINING_PASS
 R_CREATE_FUNPASS(createInstructionCombiningPass)
+#endif
+
+#ifdef HAVE_PROMOTE_MEMORY_TO_REGISTER_PASS
 R_CREATE_FUNPASS(createPromoteMemoryToRegisterPass)
+#endif
+
 R_CREATE_FUNPASS(createDemoteRegisterToMemoryPass)
 
 R_CREATE_PASS(createLICMPass)
@@ -92,12 +99,19 @@ R_CREATE_FUNPASS(createTailCallEliminationPass)
 R_CREATE_FUNPASS(createFlattenCFGPass)
 
 R_CREATE_PASS(createStructurizeCFGPass)
+#ifdef HAVE_LOOP_SIMPLIFY_PASS
 R_CREATE_PASS(createLoopSimplifyPass)
+#endif
+
 R_CREATE_FUNPASS(createMemCpyOptPass)
 #if LLVM_VERSION < 4
 R_CREATE_FUNPASS(createCodeGenPreparePass)
 #endif
+
+#ifdef HAVE_INSTRUCTION_SIMPLIFIER_PASS
 R_CREATE_FUNPASS(createInstructionSimplifierPass)
+#endif
+
 R_CREATE_FUNPASS(createSinkingPass)
 
 R_CREATE_PASS(createLoopDeletionPass)
@@ -117,38 +131,3 @@ R_CREATE_PASS(createLoopIdiomPass)
 
 
 
-#if 0
-extern "C"
-SEXP 
-R_createAggressiveDCEPass()
-{
-    llvm::FunctionPass *pass = llvm::createAggressiveDCEPass();
-    return(R_createRef(pass, "FunctionPass"));
-}
-
-
-extern "C"
-SEXP 
-R_createDeadCodeEliminationPass()
-{
-    llvm::FunctionPass *pass = llvm::createDeadCodeEliminationPass();
-    return(R_createRef(pass, "FunctionPass"));
-}
-
-extern "C"
-SEXP 
-R_createDeadStoreEliminationPass()
-{
-    llvm::FunctionPass *pass = llvm::createDeadStoreEliminationPass();
-    return(R_createRef(pass, "FunctionPass"));
-}
-
-
-extern "C"
-SEXP 
-R_createLICMPass()
-{
-    llvm::FunctionPass *pass = llvm::createLICMPass();
-    return(R_createRef(pass, "FunctionPass"));
-}
-#endif

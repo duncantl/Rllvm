@@ -1,15 +1,22 @@
 #include "Rllvm.h"
+
 #if LLVM_VERSION <= 3 && LLVM_MINOR_VERSION < 2
+
 #include <llvm/Support/IRBuilder.h>
+
 #else
 #if (LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 3) || LLVM_VERSION >= 4
+
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/MemoryBuffer.h>
+
 #else
+
 #include <llvm/IRBuilder.h>
 #include <llvm/Support/IRReader.h>
+
 #endif
 #endif
 
@@ -537,9 +544,17 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
     if(Rf_length(r_size)) {
         llvm::Value *size = GET_REF(r_size, Value);
         //XXX add 0 here for LLVM 5.0 and 2 lines below.  Autoconf.
-        ans = new llvm::AllocaInst(type, 0, size, makeTwine(r_id));
+        ans = new llvm::AllocaInst(type,
+#if LLVM_VERSION >= 5                                           
+                                   0,
+#endif                                   
+                                   size, makeTwine(r_id));
     } else
-        ans = new llvm::AllocaInst(type, 0, makeTwine(r_id));            
+        ans = new llvm::AllocaInst(type,
+#if LLVM_VERSION >= 5                                           
+                                   0,
+#endif                                   
+                                   makeTwine(r_id));            
     
     if(LOGICAL(r_beforeTerminator)[0]) {
         llvm::BasicBlock *block;

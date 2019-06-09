@@ -5,8 +5,8 @@
 genClassofClassName = 
 function(classes, varName = "obj")
 {
-  c("const char const * getLLVMClassName(llvm::Value *obj)", "{",
-    '\tconst char *ans = "User";',
+  c("const char * getLLVMClassName(llvm::Value *obj)", "{",
+    '\tconst char *ans = "Value";',
     sprintf('\tif(llvm::%s::classof(obj))\n\t   ans = "%s";', classes, classes),
     "\n\treturn(ans);",
     "}")

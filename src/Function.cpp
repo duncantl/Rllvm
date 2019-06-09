@@ -248,8 +248,8 @@ R_Argument_setAttrs(llvm::Argument *arg, SEXP r_vals, llvm::LLVMContext *ctxt)
      We need to know which one it is. Same for getting the string below for the return.
      Shall we determine the index in this routine or require the caller to specify it.
   */
-#if 0  
-  llvm::AttributeSet attrs = llvm::AttributeSet::get(*ctxt, 1/*!!!!*/, builder);
+#if LLVM_VERSION >= 3 || (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 9)
+  llvm::AttributeSet attrs = llvm::AttributeSet::get(*ctxt, /*1,  !!!!*/ builder);
 #else
   llvm::AttributeSet attrs = llvm::AttributeSet::get(*ctxt, builder);  
 #endif  

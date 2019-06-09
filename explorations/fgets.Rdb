@@ -10,7 +10,7 @@
 To run this code directly from this document, evaluate the code below
 <r:code>
 library(XML)
-#xmlSource("fgets.Rdb", verbose = TRUE)
+xmlSource("fgets.Rdb", verbose = TRUE)
 doc = xmlParse("fgets.Rdb")
 tt = getNodeSet(doc, "//section[@id = 'timings']//r:test | //r:function[@id = 'rfuns'] | //r:test[@id='makeInputs']")
 xmlSource(tt, verbose = TRUE, force = TRUE)

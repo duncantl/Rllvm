@@ -2,12 +2,15 @@
 	 xmlns:r="http://www.r-project.org">
 
 <r:code>
+library(Rllvm)
 mod = Module("sampleCSV")
 val = createStringConstant("this is a string", getGlobalContext(), NULL)
-var = createGlobalVariable("line", mod, val = val)
+var = createGlobalVariable("line1", mod, val = val)
 
 lineType = arrayType(Int8Type, 1000)
-var = createGlobalVariable("line", mod, val = val, type = lineType)
+arr = createGlobalVariable("arrLine", mod, type = lineType, val = string(1000))
+#!!!! XXX This aborts
+var = createGlobalVariable("line", mod, val = var, type = pointerType(StringType)) # lineType)
 
 
 getElementType(getType(var))

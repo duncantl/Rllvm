@@ -188,11 +188,13 @@ R_TargetMachine_addAnalysisPasses(SEXP r_targetMachine, SEXP r_passManager)
 }
 
 
+#if 1
+
 extern "C"
 SEXP
 R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SEXP r_out, SEXP r_fileType)
 {
-#if  LLVM_VERSION==3 && LLVM_MINOR_VERSION < 7
+#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 7
     llvm::TargetMachine *targetMachine = GET_REF(r_targetMachine, TargetMachine);
     llvm::legacy::PassManager *passManager = GET_REF(r_passManager, legacy::PassManager);
     llvm::formatted_raw_ostream *out;
@@ -213,11 +215,19 @@ R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SE
 
     // passManager is now a legacy::PassManager not a PassManagerBase
     bool ans = false;
-    ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
+
+//#pragma message  "Fix this"
+#if 1 //XXXX
+    ans = targetMachine->addPassesToEmitFile(*passManager, *out, NULL, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
+#endif    
+
     /* ans is true if addPasses... failed */
     return(ScalarLogical(ans == true));
 #endif
 }
+
+#endif // #if 0
+
 
 extern "C"
 SEXP
@@ -248,11 +258,31 @@ R_Target_getName(SEXP r_target)
  */
 extern "C"
 SEXP
-R_printRegisteredTargetsForVersion()
+R_printRegisteredTargetsForVersion(SEXP r_out)
 {
+
+#if LLVM_VERSION < 7
     llvm::TargetRegistry::printRegisteredTargetsForVersion();
-    
     return(R_NilValue);
+#else        
+    llvm::raw_ostream *out;
+    bool local = false;
+    std::string str;
+    if(Rf_length(r_out))
+        out = GET_REF(r_out, raw_ostream);
+    else {
+        local = true;
+        out = new llvm::raw_string_ostream(str);
+    }
+    llvm::TargetRegistry::printRegisteredTargetsForVersion(*out);
+
+    if(local) {
+        ((llvm::raw_string_ostream *)out)->str();
+        delete out;
+        return(ScalarString(mkChar(str.c_str())));
+    } else
+        return(R_NilValue);
+#endif
 }
 
 
@@ -320,6 +350,7 @@ R_getHostCPUFeatures()
     } else
        return(R_NilValue);
 }
+
 
 
 

@@ -31,7 +31,7 @@ setMethod("Optimize",   "Module",
           {
                # should we run optimize on the module. Could it do better in the larger context.
             fun = getModuleFunctions(obj)
-            lapply(fun, Optimize, mgr, level = level, ...)
+            lapply(fun, Optimize, execEngine, passManager = mgr, level = level, ...)
             
             TRUE
           })
@@ -40,7 +40,7 @@ setMethod("Optimize",
             c("Function"), # "FunctionPassManager"),  # the llvm Function object
             function(obj, execEngine = ExecutionEngine(as(obj, "Module")),
                       passManager = getPassManager(getModule(obj), execEngine, level = level), level = 3L, ...) {
-              .Call("R_optimizeFunction", obj, passManager)
+                .Call("R_optimizeFunction", obj, passManager)
             })
 
 

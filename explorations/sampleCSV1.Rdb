@@ -59,12 +59,16 @@ lineType = arrayType(Int8Type, 1000)
 var = createGlobalVariable("line", mod, val = string(1000))
 </r:code>
 <r:code>
+ptr = createGlobalVariable("ptr", mod, type = pointerType(pointerType(StringType))) # , val = var)
+</r:code>
 
-Fgets.c = compileFunction(Fgets, StringType, FILEType, mod)
+<r:code>
+#Fgets.c = compileFunction(Fgets, StringType, FILEType, mod)
+</r:code>
 </para>
 
 
-<r:code id="source">
+<r:code id="source" eval="false">
 xmlSourceFunctions("sampleCSV1.Rdb")
 </r:code>
 </section>

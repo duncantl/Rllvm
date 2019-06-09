@@ -17,7 +17,7 @@
 #endif
 
 #include <llvm/IR/DIBuilder.h>
-#if 0 // for < 5, use this. Put in configure.ac
+#if (LLVM_VERSION < 5) // for < 5, use this. Put in configure.ac
 #include <llvm/Support/Dwarf.h>
 #else
 #include <llvm/BinaryFormat/Dwarf.h>

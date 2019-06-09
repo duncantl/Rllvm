@@ -1,7 +1,7 @@
 library(RCIndex)
 #tu = createTU("llvm.cpp", includes = c("/Users/duncan/local/include", "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/usr/include/c++/4.2.1/tr1"))
 
-version = c(5, 0)
+version = c(7, 0)
 llvmDir = sprintf("/Users/duncan/LLVM%d.%d/clang+llvm-%d.%d.0-macosx-apple-darwin/include", version[1], version[2], version[1], version[2])
 
 llvmDir = "/Users/duncan/LLVM3.6/clang+llvm-3.6.0-x86_64-apple-darwin/include"
@@ -11,9 +11,9 @@ llvmDir = "/Users/duncan/LLVM3.9/clang+llvm-3.9.0-x86_64-apple-darwin/include"
 llvmDir = "/Users/duncan/LLVM4.0/clang+llvm-4.0.0-rc2-x86_64-apple-darwin/include"
 
 llvmDir = "/Users/duncan/LLVM/clang+llvm-5.0.0-x86_64-apple-darwin/include"
+llvmDir = "/Users/duncan/LLVM/clang+llvm-7.0.0-x86_64-apple-darwin/include"
 
 stopifnot(file.exists(llvmDir))
-
 
 tu = createTU("../TU/llvm.cpp", includes = c(llvmDir, "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/usr/include/c++/4.2.1/tr1"), args = c("-std=c++11", "-Wc++11-extensions"))
 
