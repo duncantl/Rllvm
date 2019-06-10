@@ -1,3 +1,8 @@
+# This needs some cleaning up but is a reasonable start.
+# The classes are up for tweaking to make more useful in how we use
+# them.
+# This is a proof-of-concept and has come a reasonable way to be useful.
+
 compReturnType = 
 function(fun, blocks = getBlocks(fun))
 {
