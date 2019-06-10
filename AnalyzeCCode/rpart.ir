@@ -1,0 +1,1269 @@
+; ModuleID = 'rpart.c'
+source_filename = "rpart.c"
+target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-apple-macosx10.13.0"
+
+%struct.SEXPREC = type opaque
+%struct.anon = type { i32 (...)*, void (...)*, void (...)*, double (...)* }
+%struct.anon.0 = type { double, double, double, double**, double**, double*, double*, double**, double*, double*, double*, double*, i32*, i32**, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32*, i32*, i32*, i32*, i32* }
+%struct.cptable = type { double, double, double, double, i32, %struct.cptable*, %struct.cptable* }
+%struct.node = type { double, double, double, %struct.split*, %struct.split*, %struct.node*, %struct.node*, i32, i32, [20 x double] }
+%struct.split = type { double, double, double, %struct.split*, i32, i32, [20 x i32] }
+
+@R_NilValue = external local_unnamed_addr global %struct.SEXPREC*, align 8
+@func_table = internal unnamed_addr constant [4 x %struct.anon] [%struct.anon { i32 (...)* bitcast (i32 (i32, double**, i32, i8**, double*, i32*, i32, double*)* @anovainit to i32 (...)*), void (...)* bitcast (void (i32, double**, double*, i32, i32, double*, double*, i32*, double, double*)* @anova to void (...)*), void (...)* bitcast (void (i32, double**, double*, double*, double*)* @anovass to void (...)*), double (...)* bitcast (double (double*, double*)* @anovapred to double (...)*) }, %struct.anon { i32 (...)* bitcast (i32 (i32, double**, i32, i8**, double*, i32*, i32, double*)* @poissoninit to i32 (...)*), void (...)* bitcast (void (i32, double**, double*, i32, i32, double*, double*, i32*, double, double*)* @poisson to void (...)*), void (...)* bitcast (void (i32, double**, double*, double*, double*)* @poissondev to void (...)*), double (...)* bitcast (double (double*, double*)* @poissonpred to double (...)*) }, %struct.anon { i32 (...)* bitcast (i32 (i32, double**, i32, i8**, double*, i32*, i32, double*)* @giniinit to i32 (...)*), void (...)* bitcast (void (i32, double**, double*, i32, i32, double*, double*, i32*, double, double*)* @gini to void (...)*), void (...)* bitcast (void (i32, double**, double*, double*, double*)* @ginidev to void (...)*), double (...)* bitcast (double (double*, double*)* @ginipred to double (...)*) }, %struct.anon { i32 (...)* bitcast (i32 (i32, double**, i32, i8**, double*, i32*, i32, double*)* @usersplit_init to i32 (...)*), void (...)* bitcast (void (i32, double**, double*, i32, i32, double*, double*, i32*, double, double*)* @usersplit to void (...)*), void (...)* bitcast (void (i32, double**, double*, double*, double*)* @usersplit_eval to void (...)*), double (...)* bitcast (double (double*, double*)* @usersplit_pred to double (...)*) }], align 16
+@rp_init = common local_unnamed_addr global i32 (...)* null, align 8
+@rp_choose = common local_unnamed_addr global void (...)* null, align 8
+@rp_eval = common local_unnamed_addr global void (...)* null, align 8
+@rp_error = common local_unnamed_addr global double (...)* null, align 8
+@rp = common global %struct.anon.0 zeroinitializer, align 8
+@.str = private unnamed_addr constant [6 x i8] c"rpart\00", align 1
+@.str.1 = private unnamed_addr constant [27 x i8] c"Invalid value for 'method'\00", align 1
+@.str.2 = private unnamed_addr constant [14 x i8] c"unknown error\00", align 1
+@nodesize = common local_unnamed_addr global i32 0, align 4
+@R_NamesSymbol = external local_unnamed_addr global %struct.SEXPREC*, align 8
+@.str.3 = private unnamed_addr constant [6 x i8] c"which\00", align 1
+@.str.4 = private unnamed_addr constant [8 x i8] c"cptable\00", align 1
+@.str.5 = private unnamed_addr constant [7 x i8] c"dsplit\00", align 1
+@.str.6 = private unnamed_addr constant [7 x i8] c"isplit\00", align 1
+@.str.7 = private unnamed_addr constant [6 x i8] c"dnode\00", align 1
+@.str.8 = private unnamed_addr constant [6 x i8] c"inode\00", align 1
+@.str.9 = private unnamed_addr constant [7 x i8] c"csplit\00", align 1
+@cptable_tail = common local_unnamed_addr global %struct.cptable* null, align 8
+
+; Function Attrs: nounwind ssp uwtable
+define %struct.SEXPREC* @rpart(%struct.SEXPREC*, %struct.SEXPREC*, %struct.SEXPREC*, %struct.SEXPREC*, %struct.SEXPREC*, %struct.SEXPREC*, %struct.SEXPREC*, %struct.SEXPREC*, %struct.SEXPREC*, %struct.SEXPREC*, %struct.SEXPREC*) local_unnamed_addr #0 {
+  %12 = alloca i8*, align 8
+  %13 = alloca double, align 8
+  %14 = alloca i32, align 4
+  %15 = alloca i32, align 4
+  %16 = alloca i32, align 4
+  %17 = alloca [3 x double*], align 16
+  %18 = alloca [6 x i32*], align 16
+  %19 = alloca [3 x i32*], align 16
+  %20 = bitcast i8** %12 to i8*
+  call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %20) #6
+  %21 = bitcast double* %13 to i8*
+  call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %21) #6
+  %22 = load %struct.SEXPREC*, %struct.SEXPREC** @R_NilValue, align 8, !tbaa !3
+  %23 = bitcast i32* %14 to i8*
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* nonnull %23) #6
+  %24 = bitcast i32* %15 to i8*
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* nonnull %24) #6
+  %25 = bitcast i32* %16 to i8*
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* nonnull %25) #6
+  %26 = bitcast [3 x double*]* %17 to i8*
+  call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %26) #6
+  %27 = bitcast [6 x i32*]* %18 to i8*
+  call void @llvm.lifetime.start.p0i8(i64 48, i8* nonnull %27) #6
+  %28 = bitcast [3 x i32*]* %19 to i8*
+  call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %28) #6
+  %29 = tail call i32* @INTEGER(%struct.SEXPREC* %0) #6
+  %30 = tail call i32* @INTEGER(%struct.SEXPREC* %5) #6
+  %31 = tail call i32 @Rf_asInteger(%struct.SEXPREC* %4) #6
+  %32 = tail call double* @REAL(%struct.SEXPREC* %8) #6
+  %33 = tail call double* @REAL(%struct.SEXPREC* %3) #6
+  %34 = tail call i32 @Rf_asInteger(%struct.SEXPREC* %1) #6
+  %35 = icmp slt i32 %34, 5
+  br i1 %35, label %36, label %99
+
+; <label>:36:                                     ; preds = %11
+  %37 = tail call i32 @Rf_asInteger(%struct.SEXPREC* %1) #6
+  %38 = add nsw i32 %37, -1
+  %39 = sext i32 %38 to i64
+  %40 = getelementptr inbounds [4 x %struct.anon], [4 x %struct.anon]* @func_table, i64 0, i64 %39
+  %41 = bitcast %struct.anon* %40 to i64*
+  %42 = load i64, i64* %41, align 16, !tbaa !7
+  store i64 %42, i64* bitcast (i32 (...)** @rp_init to i64*), align 8, !tbaa !3
+  %43 = getelementptr inbounds [4 x %struct.anon], [4 x %struct.anon]* @func_table, i64 0, i64 %39, i32 1
+  %44 = bitcast void (...)** %43 to i64*
+  %45 = load i64, i64* %44, align 8, !tbaa !9
+  store i64 %45, i64* bitcast (void (...)** @rp_choose to i64*), align 8, !tbaa !3
+  %46 = getelementptr inbounds [4 x %struct.anon], [4 x %struct.anon]* @func_table, i64 0, i64 %39, i32 2
+  %47 = bitcast void (...)** %46 to i64*
+  %48 = load i64, i64* %47, align 16, !tbaa !10
+  store i64 %48, i64* bitcast (void (...)** @rp_eval to i64*), align 8, !tbaa !3
+  %49 = getelementptr inbounds [4 x %struct.anon], [4 x %struct.anon]* @func_table, i64 0, i64 %39, i32 3
+  %50 = bitcast double (...)** %49 to i64*
+  %51 = load i64, i64* %50, align 8, !tbaa !11
+  store i64 %51, i64* bitcast (double (...)** @rp_error to i64*), align 8, !tbaa !3
+  %52 = tail call i32 @Rf_asInteger(%struct.SEXPREC* %9) #6
+  store i32 %52, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 15), align 4, !tbaa !12
+  %53 = tail call double* @REAL(%struct.SEXPREC* %2) #6
+  %54 = getelementptr inbounds double, double* %53, i64 1
+  %55 = load double, double* %54, align 8, !tbaa !16
+  %56 = fptosi double %55 to i32
+  store i32 %56, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 21), align 4, !tbaa !17
+  %57 = load double, double* %53, align 8, !tbaa !16
+  %58 = fptosi double %57 to i32
+  store i32 %58, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 22), align 8, !tbaa !18
+  %59 = getelementptr inbounds double, double* %53, i64 2
+  %60 = bitcast double* %59 to i64*
+  %61 = load i64, i64* %60, align 8, !tbaa !16
+  store i64 %61, i64* bitcast (%struct.anon.0* @rp to i64*), align 8, !tbaa !19
+  %62 = getelementptr inbounds double, double* %53, i64 3
+  %63 = load double, double* %62, align 8, !tbaa !16
+  %64 = fptosi double %63 to i32
+  %65 = add nsw i32 %64, 1
+  %66 = icmp sgt i32 %65, 1
+  %67 = select i1 %66, i32 %65, i32 1
+  store i32 %67, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 17), align 4
+  %68 = getelementptr inbounds double, double* %53, i64 4
+  %69 = load double, double* %68, align 8, !tbaa !16
+  %70 = fptosi double %69 to i32
+  store i32 %70, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 18), align 8, !tbaa !20
+  %71 = getelementptr inbounds double, double* %53, i64 5
+  %72 = load double, double* %71, align 8, !tbaa !16
+  %73 = fptosi double %72 to i32
+  store i32 %73, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 19), align 4, !tbaa !21
+  %74 = getelementptr inbounds double, double* %53, i64 6
+  %75 = load double, double* %74, align 8, !tbaa !16
+  %76 = fptosi double %75 to i32
+  store i32 %76, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 24), align 8, !tbaa !22
+  %77 = getelementptr inbounds double, double* %53, i64 7
+  %78 = load double, double* %77, align 8, !tbaa !16
+  %79 = tail call double @llvm.exp2.f64(double %78)
+  %80 = fptosi double %79 to i32
+  %81 = add nsw i32 %80, -1
+  store i32 %81, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 25), align 4, !tbaa !23
+  %82 = tail call i32 @Rf_nrows(%struct.SEXPREC* %7) #6
+  store i32 %82, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 14), align 8, !tbaa !24
+  %83 = tail call i32 @Rf_ncols(%struct.SEXPREC* %7) #6
+  store i32 %83, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 16), align 8, !tbaa !25
+  %84 = tail call i32* @INTEGER(%struct.SEXPREC* %0) #6
+  store i32* %84, i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 12), align 8, !tbaa !26
+  store double* %32, double** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 6), align 8, !tbaa !27
+  store double 0.000000e+00, double* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 2), align 8, !tbaa !28
+  %85 = tail call double* @REAL(%struct.SEXPREC* %10) #6
+  store double* %85, double** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 11), align 8, !tbaa !29
+  %86 = tail call double* @REAL(%struct.SEXPREC* %7) #6
+  %87 = load i32, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 16), align 8, !tbaa !25
+  %88 = sext i32 %87 to i64
+  %89 = tail call i8* @R_alloc(i64 %88, i32 8) #6
+  store i8* %89, i8** bitcast (double*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 4) to i8**), align 8, !tbaa !30
+  %90 = load i32, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 16), align 8, !tbaa !25
+  %91 = icmp sgt i32 %90, 0
+  br i1 %91, label %94, label %92
+
+; <label>:92:                                     ; preds = %36
+  %93 = sext i32 %82 to i64
+  br label %109
+
+; <label>:94:                                     ; preds = %36
+  %95 = bitcast i8* %89 to double**
+  %96 = sext i32 %82 to i64
+  %97 = sext i32 %90 to i64
+  store double* %86, double** %95, align 8, !tbaa !3
+  %98 = icmp eq i32 %90, 1
+  br i1 %98, label %109, label %101
+
+; <label>:99:                                     ; preds = %11
+  %100 = tail call i8* @libintl_dgettext(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str, i64 0, i64 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str.1, i64 0, i64 0)) #6
+  tail call void (i8*, ...) @Rf_error(i8* %100) #7
+  unreachable
+
+; <label>:101:                                    ; preds = %94, %101
+  %102 = phi i64 [ %107, %101 ], [ 1, %94 ]
+  %103 = phi double* [ %104, %101 ], [ %86, %94 ]
+  %104 = getelementptr inbounds double, double* %103, i64 %96
+  %105 = load double**, double*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 4), align 8, !tbaa !30
+  %106 = getelementptr inbounds double*, double** %105, i64 %102
+  store double* %104, double** %106, align 8, !tbaa !3
+  %107 = add nuw nsw i64 %102, 1
+  %108 = icmp slt i64 %107, %97
+  br i1 %108, label %101, label %109
+
+; <label>:109:                                    ; preds = %101, %94, %92
+  %110 = phi i64 [ %93, %92 ], [ %96, %94 ], [ %96, %101 ]
+  %111 = tail call i8* @R_alloc(i64 %110, i32 8) #6
+  store i8* %111, i8** bitcast (double*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 3) to i8**), align 8, !tbaa !31
+  %112 = tail call double* @REAL(%struct.SEXPREC* %6) #6
+  %113 = icmp sgt i32 %82, 0
+  br i1 %113, label %114, label %159
+
+; <label>:114:                                    ; preds = %109
+  %115 = load i32, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 15), align 4, !tbaa !12
+  %116 = sext i32 %115 to i64
+  %117 = zext i32 %82 to i64
+  %118 = add nsw i64 %117, -1
+  %119 = and i64 %117, 3
+  %120 = icmp ult i64 %118, 3
+  br i1 %120, label %145, label %121
+
+; <label>:121:                                    ; preds = %114
+  %122 = sub nsw i64 %117, %119
+  br label %123
+
+; <label>:123:                                    ; preds = %123, %121
+  %124 = phi i64 [ 0, %121 ], [ %142, %123 ]
+  %125 = phi double* [ %112, %121 ], [ %141, %123 ]
+  %126 = phi i64 [ %122, %121 ], [ %143, %123 ]
+  %127 = load double**, double*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 3), align 8, !tbaa !31
+  %128 = getelementptr inbounds double*, double** %127, i64 %124
+  store double* %125, double** %128, align 8, !tbaa !3
+  %129 = getelementptr inbounds double, double* %125, i64 %116
+  %130 = or i64 %124, 1
+  %131 = load double**, double*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 3), align 8, !tbaa !31
+  %132 = getelementptr inbounds double*, double** %131, i64 %130
+  store double* %129, double** %132, align 8, !tbaa !3
+  %133 = getelementptr inbounds double, double* %129, i64 %116
+  %134 = or i64 %124, 2
+  %135 = load double**, double*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 3), align 8, !tbaa !31
+  %136 = getelementptr inbounds double*, double** %135, i64 %134
+  store double* %133, double** %136, align 8, !tbaa !3
+  %137 = getelementptr inbounds double, double* %133, i64 %116
+  %138 = or i64 %124, 3
+  %139 = load double**, double*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 3), align 8, !tbaa !31
+  %140 = getelementptr inbounds double*, double** %139, i64 %138
+  store double* %137, double** %140, align 8, !tbaa !3
+  %141 = getelementptr inbounds double, double* %137, i64 %116
+  %142 = add nuw nsw i64 %124, 4
+  %143 = add i64 %126, -4
+  %144 = icmp eq i64 %143, 0
+  br i1 %144, label %145, label %123
+
+; <label>:145:                                    ; preds = %123, %114
+  %146 = phi i64 [ 0, %114 ], [ %142, %123 ]
+  %147 = phi double* [ %112, %114 ], [ %141, %123 ]
+  %148 = icmp eq i64 %119, 0
+  br i1 %148, label %159, label %149
+
+; <label>:149:                                    ; preds = %145, %149
+  %150 = phi i64 [ %156, %149 ], [ %146, %145 ]
+  %151 = phi double* [ %155, %149 ], [ %147, %145 ]
+  %152 = phi i64 [ %157, %149 ], [ %119, %145 ]
+  %153 = load double**, double*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 3), align 8, !tbaa !31
+  %154 = getelementptr inbounds double*, double** %153, i64 %150
+  store double* %151, double** %154, align 8, !tbaa !3
+  %155 = getelementptr inbounds double, double* %151, i64 %116
+  %156 = add nuw nsw i64 %150, 1
+  %157 = add i64 %152, -1
+  %158 = icmp eq i64 %157, 0
+  br i1 %158, label %159, label %149, !llvm.loop !32
+
+; <label>:159:                                    ; preds = %145, %149, %109
+  %160 = tail call i8* @R_alloc(i64 %110, i32 4) #6
+  store i8* %160, i8** bitcast (i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 26) to i8**), align 8, !tbaa !34
+  %161 = tail call i8* @R_alloc(i64 %110, i32 8) #6
+  store i8* %161, i8** bitcast (double** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 5) to i8**), align 8, !tbaa !35
+  %162 = tail call i8* @R_alloc(i64 %110, i32 8) #6
+  store i8* %162, i8** bitcast (double*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 7) to i8**), align 8, !tbaa !36
+  %163 = tail call i8* @R_alloc(i64 %110, i32 8) #6
+  store i8* %163, i8** bitcast (double** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 8) to i8**), align 8, !tbaa !37
+  %164 = load i32, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 16), align 8, !tbaa !25
+  %165 = sext i32 %164 to i64
+  %166 = tail call i8* @R_alloc(i64 %165, i32 8) #6
+  store i8* %166, i8** bitcast (i32*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 13) to i8**), align 8, !tbaa !38
+  %167 = load i32, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 16), align 8, !tbaa !25
+  %168 = mul nsw i32 %167, %82
+  %169 = sext i32 %168 to i64
+  %170 = tail call i8* @R_alloc(i64 %169, i32 4) #6
+  %171 = load i8**, i8*** bitcast (i32*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 13) to i8***), align 8, !tbaa !38
+  store i8* %170, i8** %171, align 8, !tbaa !3
+  %172 = load i32, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 16), align 8, !tbaa !25
+  %173 = icmp sgt i32 %172, 0
+  br i1 %173, label %174, label %364
+
+; <label>:174:                                    ; preds = %159
+  %175 = add nsw i32 %82, -1
+  %176 = zext i32 %82 to i64
+  %177 = zext i32 %82 to i64
+  %178 = and i64 %176, 4294967288
+  %179 = add nsw i64 %178, -8
+  %180 = lshr exact i64 %179, 3
+  %181 = add nuw nsw i64 %180, 1
+  %182 = icmp ult i32 %82, 8
+  %183 = and i64 %177, 4294967288
+  %184 = and i64 %181, 3
+  %185 = icmp ult i64 %179, 24
+  %186 = sub nsw i64 %181, %184
+  %187 = icmp eq i64 %184, 0
+  %188 = icmp eq i64 %183, %177
+  %189 = and i64 %176, 3
+  %190 = icmp eq i64 %189, 0
+  br label %191
+
+; <label>:191:                                    ; preds = %174, %359
+  %192 = phi i64 [ 0, %174 ], [ %360, %359 ]
+  %193 = phi i32 [ 0, %174 ], [ %243, %359 ]
+  %194 = load i32**, i32*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 13), align 8, !tbaa !38
+  %195 = load i32*, i32** %194, align 8, !tbaa !3
+  %196 = mul nsw i64 %192, %110
+  %197 = getelementptr inbounds i32, i32* %195, i64 %196
+  %198 = getelementptr inbounds i32*, i32** %194, i64 %192
+  store i32* %197, i32** %198, align 8, !tbaa !3
+  br i1 %113, label %199, label %232
+
+; <label>:199:                                    ; preds = %191, %228
+  %200 = phi i64 [ %229, %228 ], [ 0, %191 ]
+  %201 = phi i32 [ %230, %228 ], [ 0, %191 ]
+  %202 = load double**, double*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 4), align 8, !tbaa !30
+  %203 = getelementptr inbounds double*, double** %202, i64 %192
+  %204 = load double*, double** %203, align 8, !tbaa !3
+  %205 = getelementptr inbounds double, double* %204, i64 %200
+  %206 = load double, double* %205, align 8, !tbaa !16
+  %207 = tail call i32 @R_finite(double %206) #6
+  %208 = icmp eq i32 %207, 0
+  br i1 %208, label %209, label %215
+
+; <label>:209:                                    ; preds = %199
+  %210 = xor i32 %201, -1
+  %211 = load i32*, i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 26), align 8, !tbaa !34
+  %212 = getelementptr inbounds i32, i32* %211, i64 %200
+  store i32 %210, i32* %212, align 4, !tbaa !39
+  %213 = load double*, double** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 5), align 8, !tbaa !35
+  %214 = getelementptr inbounds double, double* %213, i64 %200
+  store double 0.000000e+00, double* %214, align 8, !tbaa !16
+  br label %228
+
+; <label>:215:                                    ; preds = %199
+  %216 = load i32*, i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 26), align 8, !tbaa !34
+  %217 = getelementptr inbounds i32, i32* %216, i64 %200
+  %218 = trunc i64 %200 to i32
+  store i32 %218, i32* %217, align 4, !tbaa !39
+  %219 = load double**, double*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 4), align 8, !tbaa !30
+  %220 = getelementptr inbounds double*, double** %219, i64 %192
+  %221 = load double*, double** %220, align 8, !tbaa !3
+  %222 = getelementptr inbounds double, double* %221, i64 %200
+  %223 = bitcast double* %222 to i64*
+  %224 = load i64, i64* %223, align 8, !tbaa !16
+  %225 = load double*, double** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 5), align 8, !tbaa !35
+  %226 = getelementptr inbounds double, double* %225, i64 %200
+  %227 = bitcast double* %226 to i64*
+  store i64 %224, i64* %227, align 8, !tbaa !16
+  br label %228
+
+; <label>:228:                                    ; preds = %209, %215
+  %229 = add nuw nsw i64 %200, 1
+  %230 = add nuw nsw i32 %201, 1
+  %231 = icmp eq i64 %229, %176
+  br i1 %231, label %232, label %199
+
+; <label>:232:                                    ; preds = %228, %191
+  %233 = getelementptr inbounds i32, i32* %29, i64 %192
+  %234 = load i32, i32* %233, align 4, !tbaa !39
+  %235 = icmp eq i32 %234, 0
+  br i1 %235, label %236, label %239
+
+; <label>:236:                                    ; preds = %232
+  %237 = load double*, double** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 5), align 8, !tbaa !35
+  %238 = load i32*, i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 26), align 8, !tbaa !34
+  tail call void @mysort(i32 0, i32 %175, double* %237, i32* %238) #6
+  br label %242
+
+; <label>:239:                                    ; preds = %232
+  %240 = icmp sgt i32 %234, %193
+  %241 = select i1 %240, i32 %234, i32 %193
+  br label %242
+
+; <label>:242:                                    ; preds = %239, %236
+  %243 = phi i32 [ %193, %236 ], [ %241, %239 ]
+  br i1 %113, label %244, label %359
+
+; <label>:244:                                    ; preds = %242
+  %245 = load i32*, i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 26), align 8, !tbaa !34
+  %246 = load i32**, i32*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 13), align 8, !tbaa !38
+  %247 = getelementptr inbounds i32*, i32** %246, i64 %192
+  %248 = load i32*, i32** %247, align 8, !tbaa !3
+  br i1 %182, label %324, label %249
+
+; <label>:249:                                    ; preds = %244
+  %250 = getelementptr i32, i32* %248, i64 %177
+  %251 = getelementptr i32, i32* %245, i64 %177
+  %252 = icmp ult i32* %248, %251
+  %253 = icmp ult i32* %245, %250
+  %254 = and i1 %252, %253
+  br i1 %254, label %324, label %255
+
+; <label>:255:                                    ; preds = %249
+  br i1 %185, label %305, label %256
+
+; <label>:256:                                    ; preds = %255, %256
+  %257 = phi i64 [ %302, %256 ], [ 0, %255 ]
+  %258 = phi i64 [ %303, %256 ], [ %186, %255 ]
+  %259 = getelementptr inbounds i32, i32* %245, i64 %257
+  %260 = bitcast i32* %259 to <4 x i32>*
+  %261 = load <4 x i32>, <4 x i32>* %260, align 4, !tbaa !39, !alias.scope !40
+  %262 = getelementptr inbounds i32, i32* %259, i64 4
+  %263 = bitcast i32* %262 to <4 x i32>*
+  %264 = load <4 x i32>, <4 x i32>* %263, align 4, !tbaa !39, !alias.scope !40
+  %265 = getelementptr inbounds i32, i32* %248, i64 %257
+  %266 = bitcast i32* %265 to <4 x i32>*
+  store <4 x i32> %261, <4 x i32>* %266, align 4, !tbaa !39, !alias.scope !43, !noalias !40
+  %267 = getelementptr inbounds i32, i32* %265, i64 4
+  %268 = bitcast i32* %267 to <4 x i32>*
+  store <4 x i32> %264, <4 x i32>* %268, align 4, !tbaa !39, !alias.scope !43, !noalias !40
+  %269 = or i64 %257, 8
+  %270 = getelementptr inbounds i32, i32* %245, i64 %269
+  %271 = bitcast i32* %270 to <4 x i32>*
+  %272 = load <4 x i32>, <4 x i32>* %271, align 4, !tbaa !39, !alias.scope !40
+  %273 = getelementptr inbounds i32, i32* %270, i64 4
+  %274 = bitcast i32* %273 to <4 x i32>*
+  %275 = load <4 x i32>, <4 x i32>* %274, align 4, !tbaa !39, !alias.scope !40
+  %276 = getelementptr inbounds i32, i32* %248, i64 %269
+  %277 = bitcast i32* %276 to <4 x i32>*
+  store <4 x i32> %272, <4 x i32>* %277, align 4, !tbaa !39, !alias.scope !43, !noalias !40
+  %278 = getelementptr inbounds i32, i32* %276, i64 4
+  %279 = bitcast i32* %278 to <4 x i32>*
+  store <4 x i32> %275, <4 x i32>* %279, align 4, !tbaa !39, !alias.scope !43, !noalias !40
+  %280 = or i64 %257, 16
+  %281 = getelementptr inbounds i32, i32* %245, i64 %280
+  %282 = bitcast i32* %281 to <4 x i32>*
+  %283 = load <4 x i32>, <4 x i32>* %282, align 4, !tbaa !39, !alias.scope !40
+  %284 = getelementptr inbounds i32, i32* %281, i64 4
+  %285 = bitcast i32* %284 to <4 x i32>*
+  %286 = load <4 x i32>, <4 x i32>* %285, align 4, !tbaa !39, !alias.scope !40
+  %287 = getelementptr inbounds i32, i32* %248, i64 %280
+  %288 = bitcast i32* %287 to <4 x i32>*
+  store <4 x i32> %283, <4 x i32>* %288, align 4, !tbaa !39, !alias.scope !43, !noalias !40
+  %289 = getelementptr inbounds i32, i32* %287, i64 4
+  %290 = bitcast i32* %289 to <4 x i32>*
+  store <4 x i32> %286, <4 x i32>* %290, align 4, !tbaa !39, !alias.scope !43, !noalias !40
+  %291 = or i64 %257, 24
+  %292 = getelementptr inbounds i32, i32* %245, i64 %291
+  %293 = bitcast i32* %292 to <4 x i32>*
+  %294 = load <4 x i32>, <4 x i32>* %293, align 4, !tbaa !39, !alias.scope !40
+  %295 = getelementptr inbounds i32, i32* %292, i64 4
+  %296 = bitcast i32* %295 to <4 x i32>*
+  %297 = load <4 x i32>, <4 x i32>* %296, align 4, !tbaa !39, !alias.scope !40
+  %298 = getelementptr inbounds i32, i32* %248, i64 %291
+  %299 = bitcast i32* %298 to <4 x i32>*
+  store <4 x i32> %294, <4 x i32>* %299, align 4, !tbaa !39, !alias.scope !43, !noalias !40
+  %300 = getelementptr inbounds i32, i32* %298, i64 4
+  %301 = bitcast i32* %300 to <4 x i32>*
+  store <4 x i32> %297, <4 x i32>* %301, align 4, !tbaa !39, !alias.scope !43, !noalias !40
+  %302 = add i64 %257, 32
+  %303 = add i64 %258, -4
+  %304 = icmp eq i64 %303, 0
+  br i1 %304, label %305, label %256, !llvm.loop !45
+
+; <label>:305:                                    ; preds = %256, %255
+  %306 = phi i64 [ 0, %255 ], [ %302, %256 ]
+  br i1 %187, label %323, label %307
+
+; <label>:307:                                    ; preds = %305, %307
+  %308 = phi i64 [ %320, %307 ], [ %306, %305 ]
+  %309 = phi i64 [ %321, %307 ], [ %184, %305 ]
+  %310 = getelementptr inbounds i32, i32* %245, i64 %308
+  %311 = bitcast i32* %310 to <4 x i32>*
+  %312 = load <4 x i32>, <4 x i32>* %311, align 4, !tbaa !39, !alias.scope !40
+  %313 = getelementptr inbounds i32, i32* %310, i64 4
+  %314 = bitcast i32* %313 to <4 x i32>*
+  %315 = load <4 x i32>, <4 x i32>* %314, align 4, !tbaa !39, !alias.scope !40
+  %316 = getelementptr inbounds i32, i32* %248, i64 %308
+  %317 = bitcast i32* %316 to <4 x i32>*
+  store <4 x i32> %312, <4 x i32>* %317, align 4, !tbaa !39, !alias.scope !43, !noalias !40
+  %318 = getelementptr inbounds i32, i32* %316, i64 4
+  %319 = bitcast i32* %318 to <4 x i32>*
+  store <4 x i32> %315, <4 x i32>* %319, align 4, !tbaa !39, !alias.scope !43, !noalias !40
+  %320 = add i64 %308, 8
+  %321 = add i64 %309, -1
+  %322 = icmp eq i64 %321, 0
+  br i1 %322, label %323, label %307, !llvm.loop !47
+
+; <label>:323:                                    ; preds = %307, %305
+  br i1 %188, label %359, label %324
+
+; <label>:324:                                    ; preds = %323, %249, %244
+  %325 = phi i64 [ 0, %249 ], [ 0, %244 ], [ %183, %323 ]
+  %326 = xor i64 %325, -1
+  %327 = add nsw i64 %326, %176
+  br i1 %190, label %337, label %328
+
+; <label>:328:                                    ; preds = %324, %328
+  %329 = phi i64 [ %334, %328 ], [ %325, %324 ]
+  %330 = phi i64 [ %335, %328 ], [ %189, %324 ]
+  %331 = getelementptr inbounds i32, i32* %245, i64 %329
+  %332 = load i32, i32* %331, align 4, !tbaa !39
+  %333 = getelementptr inbounds i32, i32* %248, i64 %329
+  store i32 %332, i32* %333, align 4, !tbaa !39
+  %334 = add nuw nsw i64 %329, 1
+  %335 = add i64 %330, -1
+  %336 = icmp eq i64 %335, 0
+  br i1 %336, label %337, label %328, !llvm.loop !48
+
+; <label>:337:                                    ; preds = %328, %324
+  %338 = phi i64 [ %325, %324 ], [ %334, %328 ]
+  %339 = icmp ult i64 %327, 3
+  br i1 %339, label %359, label %340
+
+; <label>:340:                                    ; preds = %337, %340
+  %341 = phi i64 [ %357, %340 ], [ %338, %337 ]
+  %342 = getelementptr inbounds i32, i32* %245, i64 %341
+  %343 = load i32, i32* %342, align 4, !tbaa !39
+  %344 = getelementptr inbounds i32, i32* %248, i64 %341
+  store i32 %343, i32* %344, align 4, !tbaa !39
+  %345 = add nuw nsw i64 %341, 1
+  %346 = getelementptr inbounds i32, i32* %245, i64 %345
+  %347 = load i32, i32* %346, align 4, !tbaa !39
+  %348 = getelementptr inbounds i32, i32* %248, i64 %345
+  store i32 %347, i32* %348, align 4, !tbaa !39
+  %349 = add nsw i64 %341, 2
+  %350 = getelementptr inbounds i32, i32* %245, i64 %349
+  %351 = load i32, i32* %350, align 4, !tbaa !39
+  %352 = getelementptr inbounds i32, i32* %248, i64 %349
+  store i32 %351, i32* %352, align 4, !tbaa !39
+  %353 = add nsw i64 %341, 3
+  %354 = getelementptr inbounds i32, i32* %245, i64 %353
+  %355 = load i32, i32* %354, align 4, !tbaa !39
+  %356 = getelementptr inbounds i32, i32* %248, i64 %353
+  store i32 %355, i32* %356, align 4, !tbaa !39
+  %357 = add nsw i64 %341, 4
+  %358 = icmp eq i64 %357, %177
+  br i1 %358, label %359, label %340, !llvm.loop !49
+
+; <label>:359:                                    ; preds = %337, %340, %323, %242
+  %360 = add nuw nsw i64 %192, 1
+  %361 = load i32, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 16), align 8, !tbaa !25
+  %362 = sext i32 %361 to i64
+  %363 = icmp slt i64 %360, %362
+  br i1 %363, label %191, label %364
+
+; <label>:364:                                    ; preds = %359, %159
+  %365 = phi i32 [ 0, %159 ], [ %243, %359 ]
+  %366 = phi i32 [ %172, %159 ], [ %361, %359 ]
+  %367 = icmp sgt i32 %31, 1
+  br i1 %367, label %368, label %381
+
+; <label>:368:                                    ; preds = %364
+  %369 = mul nsw i32 %366, %82
+  %370 = sext i32 %369 to i64
+  %371 = tail call i8* @R_alloc(i64 %370, i32 4) #6
+  %372 = bitcast i8* %371 to i32*
+  %373 = load i8**, i8*** bitcast (i32*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 13) to i8***), align 8, !tbaa !38
+  %374 = load i8*, i8** %373, align 8, !tbaa !3
+  %375 = load i32, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 16), align 8, !tbaa !25
+  %376 = mul nsw i32 %375, %82
+  %377 = sext i32 %376 to i64
+  %378 = shl nsw i64 %377, 2
+  %379 = tail call i64 @llvm.objectsize.i64.p0i8(i8* %371, i1 false, i1 true)
+  %380 = tail call i8* @__memcpy_chk(i8* %371, i8* %374, i64 %378, i64 %379) #6
+  br label %381
+
+; <label>:381:                                    ; preds = %368, %364
+  %382 = phi i32* [ %372, %368 ], [ null, %364 ]
+  %383 = icmp sgt i32 %365, 0
+  br i1 %383, label %384, label %397
+
+; <label>:384:                                    ; preds = %381
+  %385 = mul nsw i32 %365, 3
+  %386 = sext i32 %385 to i64
+  %387 = tail call i8* @R_alloc(i64 %386, i32 4) #6
+  store i8* %387, i8** bitcast (i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 28) to i8**), align 8, !tbaa !50
+  %388 = shl nsw i32 %365, 1
+  %389 = sext i32 %388 to i64
+  %390 = tail call i8* @R_alloc(i64 %389, i32 8) #6
+  store i8* %390, i8** bitcast (double** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 9) to i8**), align 8, !tbaa !51
+  %391 = load i32*, i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 28), align 8, !tbaa !50
+  %392 = sext i32 %365 to i64
+  %393 = getelementptr inbounds i32, i32* %391, i64 %392
+  store i32* %393, i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 29), align 8, !tbaa !52
+  %394 = getelementptr inbounds i32, i32* %393, i64 %392
+  store i32* %394, i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 30), align 8, !tbaa !53
+  %395 = bitcast i8* %390 to double*
+  %396 = getelementptr inbounds double, double* %395, i64 %392
+  store double* %396, double** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 10), align 8, !tbaa !54
+  br label %399
+
+; <label>:397:                                    ; preds = %381
+  %398 = tail call i8* @R_alloc(i64 1, i32 4) #6
+  store i8* %398, i8** bitcast (i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 28) to i8**), align 8, !tbaa !50
+  br label %399
+
+; <label>:399:                                    ; preds = %397, %384
+  %400 = tail call i8* @libintl_dgettext(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str, i64 0, i64 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.2, i64 0, i64 0)) #6
+  store i8* %400, i8** %12, align 8, !tbaa !3
+  %401 = tail call %struct.SEXPREC* @Rf_allocVector(i32 13, i64 %110) #6
+  %402 = tail call %struct.SEXPREC* @Rf_protect(%struct.SEXPREC* %401) #6
+  %403 = tail call i32* @INTEGER(%struct.SEXPREC* %402) #6
+  store i32* %403, i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 27), align 8, !tbaa !55
+  store double 0.000000e+00, double* %13, align 8, !tbaa !16
+  br i1 %113, label %404, label %452
+
+; <label>:404:                                    ; preds = %399
+  %405 = zext i32 %82 to i64
+  %406 = add nsw i64 %405, -1
+  %407 = and i64 %405, 3
+  %408 = icmp ult i64 %406, 3
+  br i1 %408, label %437, label %409
+
+; <label>:409:                                    ; preds = %404
+  %410 = sub nsw i64 %405, %407
+  br label %411
+
+; <label>:411:                                    ; preds = %411, %409
+  %412 = phi double [ 0.000000e+00, %409 ], [ %433, %411 ]
+  %413 = phi i64 [ 0, %409 ], [ %434, %411 ]
+  %414 = phi i64 [ %410, %409 ], [ %435, %411 ]
+  %415 = getelementptr inbounds i32, i32* %403, i64 %413
+  store i32 1, i32* %415, align 4, !tbaa !39
+  %416 = getelementptr inbounds double, double* %32, i64 %413
+  %417 = load double, double* %416, align 8, !tbaa !16
+  %418 = fadd double %417, %412
+  store double %418, double* %13, align 8, !tbaa !16
+  %419 = or i64 %413, 1
+  %420 = getelementptr inbounds i32, i32* %403, i64 %419
+  store i32 1, i32* %420, align 4, !tbaa !39
+  %421 = getelementptr inbounds double, double* %32, i64 %419
+  %422 = load double, double* %421, align 8, !tbaa !16
+  %423 = fadd double %422, %418
+  store double %423, double* %13, align 8, !tbaa !16
+  %424 = or i64 %413, 2
+  %425 = getelementptr inbounds i32, i32* %403, i64 %424
+  store i32 1, i32* %425, align 4, !tbaa !39
+  %426 = getelementptr inbounds double, double* %32, i64 %424
+  %427 = load double, double* %426, align 8, !tbaa !16
+  %428 = fadd double %427, %423
+  store double %428, double* %13, align 8, !tbaa !16
+  %429 = or i64 %413, 3
+  %430 = getelementptr inbounds i32, i32* %403, i64 %429
+  store i32 1, i32* %430, align 4, !tbaa !39
+  %431 = getelementptr inbounds double, double* %32, i64 %429
+  %432 = load double, double* %431, align 8, !tbaa !16
+  %433 = fadd double %432, %428
+  store double %433, double* %13, align 8, !tbaa !16
+  %434 = add nuw nsw i64 %413, 4
+  %435 = add i64 %414, -4
+  %436 = icmp eq i64 %435, 0
+  br i1 %436, label %437, label %411
+
+; <label>:437:                                    ; preds = %411, %404
+  %438 = phi double [ 0.000000e+00, %404 ], [ %433, %411 ]
+  %439 = phi i64 [ 0, %404 ], [ %434, %411 ]
+  %440 = icmp eq i64 %407, 0
+  br i1 %440, label %452, label %441
+
+; <label>:441:                                    ; preds = %437, %441
+  %442 = phi double [ %448, %441 ], [ %438, %437 ]
+  %443 = phi i64 [ %449, %441 ], [ %439, %437 ]
+  %444 = phi i64 [ %450, %441 ], [ %407, %437 ]
+  %445 = getelementptr inbounds i32, i32* %403, i64 %443
+  store i32 1, i32* %445, align 4, !tbaa !39
+  %446 = getelementptr inbounds double, double* %32, i64 %443
+  %447 = load double, double* %446, align 8, !tbaa !16
+  %448 = fadd double %447, %442
+  store double %448, double* %13, align 8, !tbaa !16
+  %449 = add nuw nsw i64 %443, 1
+  %450 = add i64 %444, -1
+  %451 = icmp eq i64 %450, 0
+  br i1 %451, label %452, label %441, !llvm.loop !56
+
+; <label>:452:                                    ; preds = %437, %441, %399
+  %453 = load i32 (i32, double**, i32, i8**, double*, i32*, i32, double*, ...)*, i32 (i32, double**, i32, i8**, double*, i32*, i32, double*, ...)** bitcast (i32 (...)** @rp_init to i32 (i32, double**, i32, i8**, double*, i32*, i32, double*, ...)**), align 8, !tbaa !3
+  %454 = load double**, double*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 3), align 8, !tbaa !31
+  %455 = call i32 (i32, double**, i32, i8**, double*, i32*, i32, double*, ...) %453(i32 %82, double** %454, i32 %365, i8** nonnull %12, double* %33, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 23), i32 1, double* %32) #6
+  %456 = icmp sgt i32 %455, 0
+  br i1 %456, label %457, label %459
+
+; <label>:457:                                    ; preds = %452
+  %458 = load i8*, i8** %12, align 8, !tbaa !3
+  call void (i8*, ...) @Rf_error(i8* %458) #7
+  unreachable
+
+; <label>:459:                                    ; preds = %452
+  %460 = load i32, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 23), align 4, !tbaa !57
+  %461 = shl i32 %460, 3
+  %462 = add i32 %461, 64
+  store i32 %462, i32* @nodesize, align 4, !tbaa !39
+  %463 = call i8* @R_alloc(i64 1, i32 %462) #6
+  %464 = bitcast i8* %463 to %struct.node*
+  %465 = load i32, i32* @nodesize, align 4, !tbaa !39
+  %466 = sext i32 %465 to i64
+  %467 = call i64 @llvm.objectsize.i64.p0i8(i8* %463, i1 false, i1 true)
+  %468 = call i8* @__memset_chk(i8* %463, i32 0, i64 %466, i64 %467) #6
+  %469 = getelementptr inbounds i8, i8* %463, i64 56
+  %470 = bitcast i8* %469 to i32*
+  store i32 %82, i32* %470, align 8, !tbaa !58
+  %471 = bitcast double* %13 to i64*
+  %472 = load i64, i64* %471, align 8, !tbaa !16
+  %473 = getelementptr inbounds i8, i8* %463, i64 16
+  %474 = bitcast i8* %473 to i64*
+  store i64 %472, i64* %474, align 8, !tbaa !60
+  %475 = load void (i32, double**, double*, double*, double*, ...)*, void (i32, double**, double*, double*, double*, ...)** bitcast (void (...)** @rp_eval to void (i32, double**, double*, double*, double*, ...)**), align 8, !tbaa !3
+  %476 = load double**, double*** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 3), align 8, !tbaa !31
+  %477 = getelementptr inbounds i8, i8* %463, i64 64
+  %478 = bitcast i8* %477 to double*
+  %479 = bitcast i8* %463 to double*
+  call void (i32, double**, double*, double*, double*, ...) %475(i32 %82, double** %476, double* nonnull %478, double* %479, double* %32) #6
+  %480 = bitcast i8* %463 to i64*
+  %481 = load i64, i64* %480, align 8, !tbaa !61
+  %482 = getelementptr inbounds i8, i8* %463, i64 8
+  %483 = bitcast i8* %482 to i64*
+  store i64 %481, i64* %483, align 8, !tbaa !62
+  %484 = load double, double* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 0), align 8, !tbaa !19
+  %485 = bitcast i64 %481 to double
+  %486 = fmul double %484, %485
+  store double %486, double* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 1), align 8, !tbaa !63
+  %487 = call i32 @partition(i32 1, %struct.node* %464, double* nonnull %13, i32 0, i32 %82) #6
+  %488 = call i8* @R_alloc(i64 1, i32 56) #6
+  %489 = bitcast i8* %488 to %struct.cptable*
+  %490 = load i64, i64* %483, align 8, !tbaa !62
+  %491 = bitcast i8* %488 to i64*
+  store i64 %490, i64* %491, align 8, !tbaa !64
+  %492 = load i64, i64* %480, align 8, !tbaa !61
+  %493 = getelementptr inbounds i8, i8* %488, i64 8
+  %494 = bitcast i8* %493 to i64*
+  store i64 %492, i64* %494, align 8, !tbaa !66
+  %495 = getelementptr inbounds i8, i8* %488, i64 40
+  %496 = bitcast i8* %495 to %struct.cptable**
+  store %struct.cptable* null, %struct.cptable** %496, align 8, !tbaa !67
+  %497 = getelementptr inbounds i8, i8* %488, i64 16
+  call void @llvm.memset.p0i8.i64(i8* nonnull align 8 %497, i8 0, i64 20, i1 false)
+  store i32 1, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 20), align 8, !tbaa !68
+  %498 = getelementptr inbounds i8, i8* %463, i64 40
+  %499 = bitcast i8* %498 to %struct.node**
+  %500 = load %struct.node*, %struct.node** %499, align 8, !tbaa !69
+  %501 = icmp eq %struct.node* %500, null
+  br i1 %501, label %508, label %502
+
+; <label>:502:                                    ; preds = %459
+  %503 = bitcast i64 %490 to double
+  %504 = bitcast i8* %482 to double*
+  call void @make_cp_list(%struct.node* %464, double %503, %struct.cptable* %489) #6
+  %505 = load double, double* %504, align 8, !tbaa !62
+  %506 = call %struct.cptable* @make_cp_table(%struct.node* %464, double %505, i32 0) #6
+  br i1 %367, label %507, label %508
+
+; <label>:507:                                    ; preds = %502
+  call void @xval(i32 %31, %struct.cptable* %489, i32* %30, i32 %365, i8** nonnull %12, double* %33, i32* %382) #6
+  br label %508
+
+; <label>:508:                                    ; preds = %459, %502, %507
+  %509 = load double, double* %479, align 8, !tbaa !61
+  %510 = fdiv double 1.000000e+00, %509
+  %511 = select i1 %367, i32 5, i32 3
+  %512 = load i32, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 20), align 8, !tbaa !68
+  %513 = call %struct.SEXPREC* @Rf_allocMatrix(i32 14, i32 %511, i32 %512) #6
+  %514 = call %struct.SEXPREC* @Rf_protect(%struct.SEXPREC* %513) #6
+  %515 = call double* @REAL(%struct.SEXPREC* %514) #6
+  %516 = icmp eq i8* %488, null
+  br i1 %516, label %570, label %517
+
+; <label>:517:                                    ; preds = %508
+  br i1 %367, label %518, label %549
+
+; <label>:518:                                    ; preds = %517, %518
+  %519 = phi i64 [ %544, %518 ], [ 0, %517 ]
+  %520 = phi %struct.cptable* [ %547, %518 ], [ %489, %517 ]
+  %521 = getelementptr inbounds %struct.cptable, %struct.cptable* %520, i64 0, i32 0
+  %522 = load double, double* %521, align 8, !tbaa !64
+  %523 = fmul double %510, %522
+  %524 = add nuw nsw i64 %519, 1
+  %525 = getelementptr inbounds double, double* %515, i64 %519
+  store double %523, double* %525, align 8, !tbaa !16
+  %526 = getelementptr inbounds %struct.cptable, %struct.cptable* %520, i64 0, i32 4
+  %527 = load i32, i32* %526, align 8, !tbaa !70
+  %528 = sitofp i32 %527 to double
+  %529 = add nuw nsw i64 %519, 2
+  %530 = getelementptr inbounds double, double* %515, i64 %524
+  store double %528, double* %530, align 8, !tbaa !16
+  %531 = getelementptr inbounds %struct.cptable, %struct.cptable* %520, i64 0, i32 1
+  %532 = load double, double* %531, align 8, !tbaa !66
+  %533 = fmul double %510, %532
+  %534 = add nuw nsw i64 %519, 3
+  %535 = getelementptr inbounds double, double* %515, i64 %529
+  store double %533, double* %535, align 8, !tbaa !16
+  %536 = getelementptr inbounds %struct.cptable, %struct.cptable* %520, i64 0, i32 2
+  %537 = load double, double* %536, align 8, !tbaa !71
+  %538 = fmul double %510, %537
+  %539 = add nuw nsw i64 %519, 4
+  %540 = getelementptr inbounds double, double* %515, i64 %534
+  store double %538, double* %540, align 8, !tbaa !16
+  %541 = getelementptr inbounds %struct.cptable, %struct.cptable* %520, i64 0, i32 3
+  %542 = load double, double* %541, align 8, !tbaa !72
+  %543 = fmul double %510, %542
+  %544 = add nuw i64 %519, 5
+  %545 = getelementptr inbounds double, double* %515, i64 %539
+  store double %543, double* %545, align 8, !tbaa !16
+  %546 = getelementptr inbounds %struct.cptable, %struct.cptable* %520, i64 0, i32 5
+  %547 = load %struct.cptable*, %struct.cptable** %546, align 8, !tbaa !67
+  %548 = icmp eq %struct.cptable* %547, null
+  br i1 %548, label %570, label %518
+
+; <label>:549:                                    ; preds = %517, %549
+  %550 = phi i64 [ %565, %549 ], [ 0, %517 ]
+  %551 = phi %struct.cptable* [ %568, %549 ], [ %489, %517 ]
+  %552 = getelementptr inbounds %struct.cptable, %struct.cptable* %551, i64 0, i32 0
+  %553 = load double, double* %552, align 8, !tbaa !64
+  %554 = fmul double %510, %553
+  %555 = add nuw nsw i64 %550, 1
+  %556 = getelementptr inbounds double, double* %515, i64 %550
+  store double %554, double* %556, align 8, !tbaa !16
+  %557 = getelementptr inbounds %struct.cptable, %struct.cptable* %551, i64 0, i32 4
+  %558 = load i32, i32* %557, align 8, !tbaa !70
+  %559 = sitofp i32 %558 to double
+  %560 = add nuw nsw i64 %550, 2
+  %561 = getelementptr inbounds double, double* %515, i64 %555
+  store double %559, double* %561, align 8, !tbaa !16
+  %562 = getelementptr inbounds %struct.cptable, %struct.cptable* %551, i64 0, i32 1
+  %563 = load double, double* %562, align 8, !tbaa !66
+  %564 = fmul double %510, %563
+  %565 = add nuw i64 %550, 3
+  %566 = getelementptr inbounds double, double* %515, i64 %560
+  store double %564, double* %566, align 8, !tbaa !16
+  %567 = getelementptr inbounds %struct.cptable, %struct.cptable* %551, i64 0, i32 5
+  %568 = load %struct.cptable*, %struct.cptable** %567, align 8, !tbaa !67
+  %569 = icmp eq %struct.cptable* %568, null
+  br i1 %569, label %570, label %549
+
+; <label>:570:                                    ; preds = %549, %518, %508
+  call void @rpcountup(%struct.node* %464, i32* nonnull %14, i32* nonnull %16, i32* nonnull %15) #6
+  %571 = load i32, i32* %14, align 4, !tbaa !39
+  %572 = load i32, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 23), align 4, !tbaa !57
+  %573 = add nsw i32 %572, 3
+  %574 = call %struct.SEXPREC* @Rf_allocMatrix(i32 14, i32 %571, i32 %573) #6
+  %575 = call %struct.SEXPREC* @Rf_protect(%struct.SEXPREC* %574) #6
+  %576 = load i32, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 23), align 4, !tbaa !57
+  %577 = add nsw i32 %576, 3
+  %578 = sext i32 %577 to i64
+  %579 = call i8* @R_alloc(i64 %578, i32 8) #6
+  %580 = bitcast i8* %579 to double**
+  %581 = call double* @REAL(%struct.SEXPREC* %575) #6
+  %582 = load i32, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 23), align 4, !tbaa !57
+  %583 = icmp sgt i32 %582, -3
+  br i1 %583, label %584, label %596
+
+; <label>:584:                                    ; preds = %570
+  %585 = load i32, i32* %14, align 4, !tbaa !39
+  %586 = sext i32 %585 to i64
+  %587 = add nsw i32 %582, 2
+  %588 = sext i32 %587 to i64
+  br label %589
+
+; <label>:589:                                    ; preds = %584, %589
+  %590 = phi i64 [ 0, %584 ], [ %594, %589 ]
+  %591 = phi double* [ %581, %584 ], [ %593, %589 ]
+  %592 = getelementptr inbounds double*, double** %580, i64 %590
+  store double* %591, double** %592, align 8, !tbaa !3
+  %593 = getelementptr inbounds double, double* %591, i64 %586
+  %594 = add nuw nsw i64 %590, 1
+  %595 = icmp slt i64 %590, %588
+  br i1 %595, label %589, label %596
+
+; <label>:596:                                    ; preds = %589, %570
+  %597 = load i32, i32* %16, align 4, !tbaa !39
+  %598 = call %struct.SEXPREC* @Rf_allocMatrix(i32 14, i32 %597, i32 3) #6
+  %599 = call %struct.SEXPREC* @Rf_protect(%struct.SEXPREC* %598) #6
+  %600 = call double* @REAL(%struct.SEXPREC* %599) #6
+  %601 = load i32, i32* %16, align 4, !tbaa !39
+  %602 = sext i32 %601 to i64
+  %603 = icmp sgt i32 %601, 0
+  br i1 %603, label %610, label %604
+
+; <label>:604:                                    ; preds = %596
+  %605 = getelementptr inbounds [3 x double*], [3 x double*]* %17, i64 0, i64 0
+  store double* %600, double** %605, align 16, !tbaa !3
+  %606 = getelementptr inbounds double, double* %600, i64 %602
+  %607 = getelementptr inbounds [3 x double*], [3 x double*]* %17, i64 0, i64 1
+  store double* %606, double** %607, align 8, !tbaa !3
+  %608 = getelementptr inbounds double, double* %606, i64 %602
+  %609 = getelementptr inbounds [3 x double*], [3 x double*]* %17, i64 0, i64 2
+  store double* %608, double** %609, align 16, !tbaa !3
+  br label %623
+
+; <label>:610:                                    ; preds = %596
+  %611 = zext i32 %601 to i64
+  %612 = shl nuw nsw i64 %611, 3
+  %613 = bitcast double* %600 to i8*
+  %614 = getelementptr inbounds [3 x double*], [3 x double*]* %17, i64 0, i64 0
+  store double* %600, double** %614, align 16, !tbaa !3
+  call void @llvm.memset.p0i8.i64(i8* align 8 %613, i8 0, i64 %612, i1 false)
+  %615 = getelementptr double, double* %600, i64 %602
+  %616 = bitcast double* %615 to i8*
+  %617 = getelementptr inbounds [3 x double*], [3 x double*]* %17, i64 0, i64 1
+  store double* %615, double** %617, align 8, !tbaa !3
+  call void @llvm.memset.p0i8.i64(i8* align 8 %616, i8 0, i64 %612, i1 false)
+  %618 = getelementptr inbounds double, double* %615, i64 %602
+  %619 = shl nsw i64 %602, 1
+  %620 = getelementptr double, double* %600, i64 %619
+  %621 = bitcast double* %620 to i8*
+  %622 = getelementptr inbounds [3 x double*], [3 x double*]* %17, i64 0, i64 2
+  store double* %618, double** %622, align 16, !tbaa !3
+  call void @llvm.memset.p0i8.i64(i8* align 8 %621, i8 0, i64 %612, i1 false)
+  br label %623
+
+; <label>:623:                                    ; preds = %604, %610
+  %624 = load i32, i32* %14, align 4, !tbaa !39
+  %625 = call %struct.SEXPREC* @Rf_allocMatrix(i32 13, i32 %624, i32 6) #6
+  %626 = call %struct.SEXPREC* @Rf_protect(%struct.SEXPREC* %625) #6
+  %627 = call i32* @INTEGER(%struct.SEXPREC* %626) #6
+  %628 = load i32, i32* %14, align 4, !tbaa !39
+  %629 = sext i32 %628 to i64
+  %630 = getelementptr inbounds [6 x i32*], [6 x i32*]* %18, i64 0, i64 0
+  store i32* %627, i32** %630, align 16, !tbaa !3
+  %631 = getelementptr inbounds i32, i32* %627, i64 %629
+  %632 = getelementptr inbounds [6 x i32*], [6 x i32*]* %18, i64 0, i64 1
+  store i32* %631, i32** %632, align 8, !tbaa !3
+  %633 = getelementptr inbounds i32, i32* %631, i64 %629
+  %634 = getelementptr inbounds [6 x i32*], [6 x i32*]* %18, i64 0, i64 2
+  store i32* %633, i32** %634, align 16, !tbaa !3
+  %635 = getelementptr inbounds i32, i32* %633, i64 %629
+  %636 = getelementptr inbounds [6 x i32*], [6 x i32*]* %18, i64 0, i64 3
+  store i32* %635, i32** %636, align 8, !tbaa !3
+  %637 = getelementptr inbounds i32, i32* %635, i64 %629
+  %638 = getelementptr inbounds [6 x i32*], [6 x i32*]* %18, i64 0, i64 4
+  store i32* %637, i32** %638, align 16, !tbaa !3
+  %639 = getelementptr inbounds i32, i32* %637, i64 %629
+  %640 = getelementptr inbounds [6 x i32*], [6 x i32*]* %18, i64 0, i64 5
+  store i32* %639, i32** %640, align 8, !tbaa !3
+  %641 = load i32, i32* %16, align 4, !tbaa !39
+  %642 = call %struct.SEXPREC* @Rf_allocMatrix(i32 13, i32 %641, i32 3) #6
+  %643 = call %struct.SEXPREC* @Rf_protect(%struct.SEXPREC* %642) #6
+  %644 = call i32* @INTEGER(%struct.SEXPREC* %643) #6
+  %645 = load i32, i32* %16, align 4, !tbaa !39
+  %646 = sext i32 %645 to i64
+  %647 = getelementptr inbounds [3 x i32*], [3 x i32*]* %19, i64 0, i64 0
+  store i32* %644, i32** %647, align 16, !tbaa !3
+  %648 = getelementptr inbounds i32, i32* %644, i64 %646
+  %649 = getelementptr inbounds [3 x i32*], [3 x i32*]* %19, i64 0, i64 1
+  store i32* %648, i32** %649, align 8, !tbaa !3
+  %650 = getelementptr inbounds i32, i32* %648, i64 %646
+  %651 = getelementptr inbounds [3 x i32*], [3 x i32*]* %19, i64 0, i64 2
+  store i32* %650, i32** %651, align 16, !tbaa !3
+  %652 = load i32, i32* %15, align 4, !tbaa !39
+  %653 = icmp sgt i32 %652, 0
+  br i1 %653, label %654, label %683
+
+; <label>:654:                                    ; preds = %623
+  %655 = call %struct.SEXPREC* @Rf_allocMatrix(i32 13, i32 %652, i32 %365) #6
+  %656 = call %struct.SEXPREC* @Rf_protect(%struct.SEXPREC* %655) #6
+  %657 = sext i32 %365 to i64
+  %658 = call i8* @R_alloc(i64 %657, i32 8) #6
+  %659 = bitcast i8* %658 to i32**
+  %660 = call i32* @INTEGER(%struct.SEXPREC* %656) #6
+  br i1 %383, label %661, label %683
+
+; <label>:661:                                    ; preds = %654
+  %662 = load i32, i32* %15, align 4, !tbaa !39
+  %663 = zext i32 %365 to i64
+  br label %664
+
+; <label>:664:                                    ; preds = %679, %661
+  %665 = phi i32 [ %662, %661 ], [ %680, %679 ]
+  %666 = phi i64 [ 0, %661 ], [ %681, %679 ]
+  %667 = phi i32* [ %660, %661 ], [ %670, %679 ]
+  %668 = getelementptr inbounds i32*, i32** %659, i64 %666
+  store i32* %667, i32** %668, align 8, !tbaa !3
+  %669 = sext i32 %665 to i64
+  %670 = getelementptr inbounds i32, i32* %667, i64 %669
+  %671 = icmp sgt i32 %665, 0
+  br i1 %671, label %672, label %679
+
+; <label>:672:                                    ; preds = %664, %672
+  %673 = phi i64 [ %675, %672 ], [ 0, %664 ]
+  %674 = getelementptr inbounds i32, i32* %667, i64 %673
+  store i32 0, i32* %674, align 4, !tbaa !39
+  %675 = add nuw nsw i64 %673, 1
+  %676 = load i32, i32* %15, align 4, !tbaa !39
+  %677 = sext i32 %676 to i64
+  %678 = icmp slt i64 %675, %677
+  br i1 %678, label %672, label %679
+
+; <label>:679:                                    ; preds = %672, %664
+  %680 = phi i32 [ %665, %664 ], [ %676, %672 ]
+  %681 = add nuw nsw i64 %666, 1
+  %682 = icmp eq i64 %681, %663
+  br i1 %682, label %683, label %664
+
+; <label>:683:                                    ; preds = %679, %654, %623
+  %684 = phi %struct.SEXPREC* [ %22, %623 ], [ %656, %654 ], [ %656, %679 ]
+  %685 = phi i32** [ null, %623 ], [ %659, %654 ], [ %659, %679 ]
+  %686 = load i32*, i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 12), align 8, !tbaa !26
+  %687 = getelementptr inbounds [3 x double*], [3 x double*]* %17, i64 0, i64 0
+  call void @rpmatrix(%struct.node* %464, i32* %686, double** nonnull %687, i32** nonnull %647, i32** %685, double** %580, i32** nonnull %630, i32 1) #6
+  call void @free_tree(%struct.node* %464, i32 0) #6
+  br i1 %113, label %688, label %723
+
+; <label>:688:                                    ; preds = %683
+  %689 = load i32*, i32** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 27), align 8, !tbaa !55
+  %690 = load i32, i32* %14, align 4, !tbaa !39
+  %691 = zext i32 %82 to i64
+  br label %692
+
+; <label>:692:                                    ; preds = %720, %688
+  %693 = phi i32 [ %690, %688 ], [ %715, %720 ]
+  %694 = phi i64 [ 0, %688 ], [ %721, %720 ]
+  %695 = getelementptr inbounds i32, i32* %689, i64 %694
+  %696 = load i32, i32* %695, align 4, !tbaa !39
+  br label %697
+
+; <label>:697:                                    ; preds = %714, %692
+  %698 = phi i32 [ %693, %692 ], [ %715, %714 ]
+  %699 = phi i32 [ %693, %692 ], [ %716, %714 ]
+  %700 = phi i32 [ %696, %692 ], [ %718, %714 ]
+  %701 = load i32*, i32** %630, align 16
+  %702 = sext i32 %699 to i64
+  br label %703
+
+; <label>:703:                                    ; preds = %706, %697
+  %704 = phi i64 [ %710, %706 ], [ 0, %697 ]
+  %705 = icmp slt i64 %704, %702
+  br i1 %705, label %706, label %714
+
+; <label>:706:                                    ; preds = %703
+  %707 = getelementptr inbounds i32, i32* %701, i64 %704
+  %708 = load i32, i32* %707, align 4, !tbaa !39
+  %709 = icmp eq i32 %708, %700
+  %710 = add nuw nsw i64 %704, 1
+  br i1 %709, label %711, label %703
+
+; <label>:711:                                    ; preds = %706
+  %712 = trunc i64 %710 to i32
+  store i32 %712, i32* %695, align 4, !tbaa !39
+  %713 = load i32, i32* %14, align 4, !tbaa !39
+  br label %714
+
+; <label>:714:                                    ; preds = %703, %711
+  %715 = phi i32 [ %713, %711 ], [ %698, %703 ]
+  %716 = phi i32 [ %713, %711 ], [ %699, %703 ]
+  %717 = trunc i64 %704 to i32
+  %718 = sdiv i32 %700, 2
+  %719 = icmp sgt i32 %716, %717
+  br i1 %719, label %720, label %697
+
+; <label>:720:                                    ; preds = %714
+  %721 = add nuw nsw i64 %694, 1
+  %722 = icmp eq i64 %721, %691
+  br i1 %722, label %723, label %692
+
+; <label>:723:                                    ; preds = %720, %683
+  %724 = load i32, i32* %15, align 4, !tbaa !39
+  %725 = icmp sgt i32 %724, 0
+  %726 = select i1 %725, i32 7, i32 6
+  %727 = zext i32 %726 to i64
+  %728 = call %struct.SEXPREC* @Rf_allocVector(i32 19, i64 %727) #6
+  %729 = call %struct.SEXPREC* @Rf_protect(%struct.SEXPREC* %728) #6
+  %730 = call %struct.SEXPREC* @Rf_allocVector(i32 16, i64 %727) #6
+  %731 = load %struct.SEXPREC*, %struct.SEXPREC** @R_NamesSymbol, align 8, !tbaa !3
+  %732 = call %struct.SEXPREC* @Rf_setAttrib(%struct.SEXPREC* %729, %struct.SEXPREC* %731, %struct.SEXPREC* %730) #6
+  %733 = call %struct.SEXPREC* @SET_VECTOR_ELT(%struct.SEXPREC* %729, i64 0, %struct.SEXPREC* %402) #6
+  %734 = call %struct.SEXPREC* @Rf_mkChar(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str.3, i64 0, i64 0)) #6
+  call void @SET_STRING_ELT(%struct.SEXPREC* %730, i64 0, %struct.SEXPREC* %734) #6
+  %735 = call %struct.SEXPREC* @SET_VECTOR_ELT(%struct.SEXPREC* %729, i64 1, %struct.SEXPREC* %514) #6
+  %736 = call %struct.SEXPREC* @Rf_mkChar(i8* getelementptr inbounds ([8 x i8], [8 x i8]* @.str.4, i64 0, i64 0)) #6
+  call void @SET_STRING_ELT(%struct.SEXPREC* %730, i64 1, %struct.SEXPREC* %736) #6
+  %737 = call %struct.SEXPREC* @SET_VECTOR_ELT(%struct.SEXPREC* %729, i64 2, %struct.SEXPREC* %599) #6
+  %738 = call %struct.SEXPREC* @Rf_mkChar(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str.5, i64 0, i64 0)) #6
+  call void @SET_STRING_ELT(%struct.SEXPREC* %730, i64 2, %struct.SEXPREC* %738) #6
+  %739 = call %struct.SEXPREC* @SET_VECTOR_ELT(%struct.SEXPREC* %729, i64 3, %struct.SEXPREC* %643) #6
+  %740 = call %struct.SEXPREC* @Rf_mkChar(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str.6, i64 0, i64 0)) #6
+  call void @SET_STRING_ELT(%struct.SEXPREC* %730, i64 3, %struct.SEXPREC* %740) #6
+  %741 = call %struct.SEXPREC* @SET_VECTOR_ELT(%struct.SEXPREC* %729, i64 4, %struct.SEXPREC* %575) #6
+  %742 = call %struct.SEXPREC* @Rf_mkChar(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str.7, i64 0, i64 0)) #6
+  call void @SET_STRING_ELT(%struct.SEXPREC* %730, i64 4, %struct.SEXPREC* %742) #6
+  %743 = call %struct.SEXPREC* @SET_VECTOR_ELT(%struct.SEXPREC* %729, i64 5, %struct.SEXPREC* %626) #6
+  %744 = call %struct.SEXPREC* @Rf_mkChar(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str.8, i64 0, i64 0)) #6
+  call void @SET_STRING_ELT(%struct.SEXPREC* %730, i64 5, %struct.SEXPREC* %744) #6
+  %745 = load i32, i32* %15, align 4, !tbaa !39
+  %746 = icmp sgt i32 %745, 0
+  br i1 %746, label %747, label %750
+
+; <label>:747:                                    ; preds = %723
+  %748 = call %struct.SEXPREC* @SET_VECTOR_ELT(%struct.SEXPREC* %729, i64 6, %struct.SEXPREC* %684) #6
+  %749 = call %struct.SEXPREC* @Rf_mkChar(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str.9, i64 0, i64 0)) #6
+  call void @SET_STRING_ELT(%struct.SEXPREC* %730, i64 6, %struct.SEXPREC* %749) #6
+  br label %750
+
+; <label>:750:                                    ; preds = %747, %723
+  %751 = add nuw nsw i32 %726, 1
+  call void @Rf_unprotect(i32 %751) #6
+  call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %28) #6
+  call void @llvm.lifetime.end.p0i8(i64 48, i8* nonnull %27) #6
+  call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %26) #6
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %25) #6
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %24) #6
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %23) #6
+  call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %21) #6
+  call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %20) #6
+  ret %struct.SEXPREC* %729
+}
+
+; Function Attrs: argmemonly nounwind
+declare void @llvm.lifetime.start.p0i8(i64, i8* nocapture) #1
+
+declare i32* @INTEGER(%struct.SEXPREC*) local_unnamed_addr #2
+
+declare i32 @Rf_asInteger(%struct.SEXPREC*) local_unnamed_addr #2
+
+declare double* @REAL(%struct.SEXPREC*) local_unnamed_addr #2
+
+; Function Attrs: noreturn
+declare void @Rf_error(i8*, ...) local_unnamed_addr #3
+
+declare i8* @libintl_dgettext(i8*, i8*) local_unnamed_addr #2
+
+declare i32 @Rf_nrows(%struct.SEXPREC*) local_unnamed_addr #2
+
+declare i32 @Rf_ncols(%struct.SEXPREC*) local_unnamed_addr #2
+
+declare i8* @R_alloc(i64, i32) local_unnamed_addr #2
+
+declare i32 @R_finite(double) local_unnamed_addr #2
+
+declare void @mysort(i32, i32, double*, i32*) local_unnamed_addr #2
+
+; Function Attrs: nounwind
+declare i8* @__memcpy_chk(i8*, i8*, i64, i64) local_unnamed_addr #4
+
+; Function Attrs: nounwind readnone speculatable
+declare i64 @llvm.objectsize.i64.p0i8(i8*, i1, i1) #5
+
+declare %struct.SEXPREC* @Rf_protect(%struct.SEXPREC*) local_unnamed_addr #2
+
+declare %struct.SEXPREC* @Rf_allocVector(i32, i64) local_unnamed_addr #2
+
+; Function Attrs: nounwind
+declare i8* @__memset_chk(i8*, i32, i64, i64) local_unnamed_addr #4
+
+declare i32 @partition(i32, %struct.node*, double*, i32, i32) local_unnamed_addr #2
+
+declare void @make_cp_list(%struct.node*, double, %struct.cptable*) local_unnamed_addr #2
+
+declare %struct.cptable* @make_cp_table(%struct.node*, double, i32) local_unnamed_addr #2
+
+declare void @xval(i32, %struct.cptable*, i32*, i32, i8**, double*, i32*) local_unnamed_addr #2
+
+declare %struct.SEXPREC* @Rf_allocMatrix(i32, i32, i32) local_unnamed_addr #2
+
+declare void @rpcountup(%struct.node*, i32*, i32*, i32*) local_unnamed_addr #2
+
+declare void @rpmatrix(%struct.node*, i32*, double**, i32**, i32**, double**, i32**, i32) local_unnamed_addr #2
+
+declare void @free_tree(%struct.node*, i32) local_unnamed_addr #2
+
+declare %struct.SEXPREC* @Rf_setAttrib(%struct.SEXPREC*, %struct.SEXPREC*, %struct.SEXPREC*) local_unnamed_addr #2
+
+declare %struct.SEXPREC* @SET_VECTOR_ELT(%struct.SEXPREC*, i64, %struct.SEXPREC*) local_unnamed_addr #2
+
+declare void @SET_STRING_ELT(%struct.SEXPREC*, i64, %struct.SEXPREC*) local_unnamed_addr #2
+
+declare %struct.SEXPREC* @Rf_mkChar(i8*) local_unnamed_addr #2
+
+declare void @Rf_unprotect(i32) local_unnamed_addr #2
+
+; Function Attrs: argmemonly nounwind
+declare void @llvm.lifetime.end.p0i8(i64, i8* nocapture) #1
+
+declare i32 @anovainit(i32, double**, i32, i8**, double*, i32*, i32, double*) #2
+
+declare void @anova(i32, double**, double*, i32, i32, double*, double*, i32*, double, double*) #2
+
+declare void @anovass(i32, double**, double*, double*, double*) #2
+
+declare double @anovapred(double*, double*) #2
+
+declare i32 @poissoninit(i32, double**, i32, i8**, double*, i32*, i32, double*) #2
+
+declare void @poisson(i32, double**, double*, i32, i32, double*, double*, i32*, double, double*) #2
+
+declare void @poissondev(i32, double**, double*, double*, double*) #2
+
+declare double @poissonpred(double*, double*) #2
+
+declare i32 @giniinit(i32, double**, i32, i8**, double*, i32*, i32, double*) #2
+
+declare void @gini(i32, double**, double*, i32, i32, double*, double*, i32*, double, double*) #2
+
+declare void @ginidev(i32, double**, double*, double*, double*) #2
+
+declare double @ginipred(double*, double*) #2
+
+declare i32 @usersplit_init(i32, double**, i32, i8**, double*, i32*, i32, double*) #2
+
+declare void @usersplit(i32, double**, double*, i32, i32, double*, double*, i32*, double, double*) #2
+
+declare void @usersplit_eval(i32, double**, double*, double*, double*) #2
+
+declare double @usersplit_pred(double*, double*) #2
+
+; Function Attrs: nounwind readnone speculatable
+declare double @llvm.exp2.f64(double) #5
+
+; Function Attrs: argmemonly nounwind
+declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i1) #1
+
+attributes #0 = { nounwind ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { argmemonly nounwind }
+attributes #2 = { "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #3 = { noreturn "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #4 = { nounwind "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #5 = { nounwind readnone speculatable }
+attributes #6 = { nounwind }
+attributes #7 = { noreturn nounwind }
+
+!llvm.module.flags = !{!0, !1}
+!llvm.ident = !{!2}
+
+!0 = !{i32 1, !"wchar_size", i32 4}
+!1 = !{i32 7, !"PIC Level", i32 2}
+!2 = !{!"clang version 8.0.0 (tags/RELEASE_800/final)"}
+!3 = !{!4, !4, i64 0}
+!4 = !{!"any pointer", !5, i64 0}
+!5 = !{!"omnipotent char", !6, i64 0}
+!6 = !{!"Simple C/C++ TBAA"}
+!7 = !{!8, !4, i64 0}
+!8 = !{!"", !4, i64 0, !4, i64 8, !4, i64 16, !4, i64 24}
+!9 = !{!8, !4, i64 8}
+!10 = !{!8, !4, i64 16}
+!11 = !{!8, !4, i64 24}
+!12 = !{!13, !15, i64 116}
+!13 = !{!"", !14, i64 0, !14, i64 8, !14, i64 16, !4, i64 24, !4, i64 32, !4, i64 40, !4, i64 48, !4, i64 56, !4, i64 64, !4, i64 72, !4, i64 80, !4, i64 88, !4, i64 96, !4, i64 104, !15, i64 112, !15, i64 116, !15, i64 120, !15, i64 124, !15, i64 128, !15, i64 132, !15, i64 136, !15, i64 140, !15, i64 144, !15, i64 148, !15, i64 152, !15, i64 156, !4, i64 160, !4, i64 168, !4, i64 176, !4, i64 184, !4, i64 192}
+!14 = !{!"double", !5, i64 0}
+!15 = !{!"int", !5, i64 0}
+!16 = !{!14, !14, i64 0}
+!17 = !{!13, !15, i64 140}
+!18 = !{!13, !15, i64 144}
+!19 = !{!13, !14, i64 0}
+!20 = !{!13, !15, i64 128}
+!21 = !{!13, !15, i64 132}
+!22 = !{!13, !15, i64 152}
+!23 = !{!13, !15, i64 156}
+!24 = !{!13, !15, i64 112}
+!25 = !{!13, !15, i64 120}
+!26 = !{!13, !4, i64 96}
+!27 = !{!13, !4, i64 48}
+!28 = !{!13, !14, i64 16}
+!29 = !{!13, !4, i64 88}
+!30 = !{!13, !4, i64 32}
+!31 = !{!13, !4, i64 24}
+!32 = distinct !{!32, !33}
+!33 = !{!"llvm.loop.unroll.disable"}
+!34 = !{!13, !4, i64 160}
+!35 = !{!13, !4, i64 40}
+!36 = !{!13, !4, i64 56}
+!37 = !{!13, !4, i64 64}
+!38 = !{!13, !4, i64 104}
+!39 = !{!15, !15, i64 0}
+!40 = !{!41}
+!41 = distinct !{!41, !42}
+!42 = distinct !{!42, !"LVerDomain"}
+!43 = !{!44}
+!44 = distinct !{!44, !42}
+!45 = distinct !{!45, !46}
+!46 = !{!"llvm.loop.isvectorized", i32 1}
+!47 = distinct !{!47, !33}
+!48 = distinct !{!48, !33}
+!49 = distinct !{!49, !46}
+!50 = !{!13, !4, i64 176}
+!51 = !{!13, !4, i64 72}
+!52 = !{!13, !4, i64 184}
+!53 = !{!13, !4, i64 192}
+!54 = !{!13, !4, i64 80}
+!55 = !{!13, !4, i64 168}
+!56 = distinct !{!56, !33}
+!57 = !{!13, !15, i64 148}
+!58 = !{!59, !15, i64 56}
+!59 = !{!"node", !14, i64 0, !14, i64 8, !14, i64 16, !4, i64 24, !4, i64 32, !4, i64 40, !4, i64 48, !15, i64 56, !15, i64 60, !5, i64 64}
+!60 = !{!59, !14, i64 16}
+!61 = !{!59, !14, i64 0}
+!62 = !{!59, !14, i64 8}
+!63 = !{!13, !14, i64 8}
+!64 = !{!65, !14, i64 0}
+!65 = !{!"cptable", !14, i64 0, !14, i64 8, !14, i64 16, !14, i64 24, !15, i64 32, !4, i64 40, !4, i64 48}
+!66 = !{!65, !14, i64 8}
+!67 = !{!65, !4, i64 40}
+!68 = !{!13, !15, i64 136}
+!69 = !{!59, !4, i64 40}
+!70 = !{!65, !15, i64 32}
+!71 = !{!65, !14, i64 16}
+!72 = !{!65, !14, i64 24}
