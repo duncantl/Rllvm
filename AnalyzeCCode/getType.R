@@ -97,6 +97,7 @@ function(x, ...)
         len = kall[[2]]
         ans = structure(list(type = mapRType(findValue(ty)), length = findValue(len)), class = "RVector")
     } else if(id == "Rf_allocMatrix") {
+        browser()
         ans = structure(list(type = mapRType(findValue(kall[[1]])),
                              dims = list(nrow = findValue(kall[[2]]),
                                          ncol = findValue(kall[[3]]))),
@@ -193,7 +194,6 @@ setMethod("findValue", "CallInst",
 
               if(grepl("^Rf_.*length$", fn)) {
                   ans = findValue(val[[1]])
-browser()                  
                   return(structure(ans, class = c(class(ans), "SymbolicLength" )))                  
               }
 
@@ -202,17 +202,26 @@ browser()
                  return(structure(ans, class = c(ans, "Coerce" )))
              }
 
-              if(fn == "Rf_nrows") {
+             if(fn == "getListElement") {
+                 tmp = findValue(val[[1]])
+                 return(structure(list(obj = tmp, elName = findValue(val[[2]])), class = "ListElement"))
+             }
+
+              if(fn %in% c("Rf_nrows", "Rf_ncols")) {
                   ans = findValue(val[[1]])
-                  if(!is.null(ans))
-                      return(structure(ans, class = c(ans, "SymbolicNrows" )))
+                  #XXX Probably want ans to be a list(ans) rather than merging/concatenating classes here.
+                  return(structure(ans, class = c(class(ans), if(fn == "Rf_nrows") "SymbolicNrows" else "SymbolicNcols", "SymbolicDim")))
               }
 
               if(fn == "Rf_mkChar")
                   return(findValue(val[[1]]))
 
-              if(fn != "getListElement")
+              if(fn != "getListElement") {
+                  if(is(val, "CallInst") && getName(val[[length(val)]]) == "INTEGER")
+                      return(findValue(val[[1]]))
+
                   browser()
+              }
               
               NULL
           })
