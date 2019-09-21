@@ -3,6 +3,11 @@
 # them.
 # This is a proof-of-concept and has come a reasonable way to be useful.
 
+
+#XXX When  return is a VECSXP, we may be listing the elements in reverse order.
+#   "getOptimumForBBOBFunctionCPP" in bbob_r_to_c_interface.c in smoof package.
+# Now reversed the order.  getAllUses() returns in reverse order, so we reverse that.
+
 compReturnType = 
 function(fun, blocks = getBlocks(fun))
 {
@@ -26,7 +31,7 @@ function(x, ret)
   if(!(inherits(x, "RVector") && x$type == "VECSXP"))
       return(x)
 
-  usrs = getAllUsers(ret[[1]])
+  usrs = rev(getAllUsers(ret[[1]]))
   w = sapply(usrs, function(x) is(x, "CallInst") && getName(getCalledFunction(x)) == "SET_VECTOR_ELT")
 
   els = lapply(usrs[w], function(x) getCallType(x[[3]]))
@@ -181,7 +186,7 @@ setMethod("findValue", "LoadInst",
            function(val, rtype = FALSE, ...) 
                findValue(val[[1]]))
 
-setMethod("findValue", "SExtInst",
+setMethod("findValue", "CastInst", #  SExtInst",
            function(val, rtype = FALSE, ...) 
                findValue(val[[1]]))
 
