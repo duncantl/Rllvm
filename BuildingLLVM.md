@@ -59,7 +59,7 @@ of the top-level llvm source tree:
 
 |code|directory|Notes|
 |------|------|-----|
-|cfe|tools/clang|rename the cfe directory to clang|
+|cfe|tools/clang|rename the cfe-<version.numbers> directory to clang|
 |clang-tools-extra|tools/clang/tools/||
 |compiler-rt|projects|
 |libcxx|projects|
