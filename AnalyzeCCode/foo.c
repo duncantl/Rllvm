@@ -127,7 +127,7 @@ SEXP
 cond_type(SEXP i)
 {
     int ty;
-    if(LOGICAL(i))
+    if(LOGICAL(i)[0])
 	ty = INTSXP;
     else
 	ty = REALSXP;
@@ -136,6 +136,22 @@ cond_type(SEXP i)
     ans = Rf_allocVector(ty, 10);
     return(ans);
 }
+
+
+
+// return a different type of vector with a different length.
+SEXP
+cond_type2(SEXP i)
+{
+    SEXP ans;
+    if(LOGICAL(i)[0])
+	ans = Rf_allocVector(INTSXP, 10);
+    else
+	ans = Rf_allocVector(REALSXP, 21);
+
+    return(ans);
+}
+
 
 
 SEXP
