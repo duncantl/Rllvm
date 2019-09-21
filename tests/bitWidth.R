@@ -9,4 +9,5 @@ mod[["i"]] = 101L
 getIntegerBitWidth(getElementType(getType(mod[["l"]])))
 getIntegerBitWidth(getElementType(getType(mod[["i"]])))
 
+# 1 and 32
 
