@@ -6,7 +6,7 @@ cat(as(mod, "character"), file = "bob.ll")
 system("make bob.bc")
 m = readBitcode("bob.bc")
 print(names(m))
-run(m$foo, 2, 10, 3)
+run(m$foo, 2, 10, 3)  # 2*10 + 3 = 23
 unlink(c("bob.ll", "bob.bc"))
 
 
