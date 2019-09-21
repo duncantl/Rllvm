@@ -6,7 +6,12 @@ makeRFunction =
   # Already done by run/.llvm function (?)
   #
   # See if we can deal with default values.
-  #
+    #
+    #  This adds a .checkModule() function which will regenerate the 
+    #  LLVM module from the IR code if the module is a NULL pointer.
+    #  This allows the resulting R function to be serialized and deserialized
+    #  and to regenerate the LLVM module and execution engine.
+    #
 function(func, .ee = ExecutionEngine(as(func, "Module")))
 {
   params = getParameters(func)
@@ -32,7 +37,6 @@ function(func, .ee = ExecutionEngine(as(func, "Module")))
 
   
   body(f)[[3]] = e 
-browser()  
   body(f)[[4]] = quote(run(func, .args = .args, .ee = .ee, ...)) # substitute(run(func, .args = .args, .ee = .ee, ...)) # , list(func = func, .ee = .ee))
 
 
@@ -49,7 +53,7 @@ browser()
           }
       }
   
-  rm(e, al, i, parms, params)
+  rm(e, al, i, parms, params, f)
   
   f
 }
