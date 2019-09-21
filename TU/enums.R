@@ -13,11 +13,15 @@ llvmDir = "/Users/duncan/LLVM4.0/clang+llvm-4.0.0-rc2-x86_64-apple-darwin/includ
 llvmDir = "/Users/duncan/LLVM/clang+llvm-5.0.0-x86_64-apple-darwin/include"
 llvmDir = "/Users/duncan/LLVM/clang+llvm-7.0.0-x86_64-apple-darwin/include"
 
-stopifnot(file.exists(llvmDir))
+version = c(9, 0)
+llvmDir = path.expand("~/LLVM/9.0.0/llvm-9.0.0.src/include")
+llvmDir = c(llvmDir, path.expand(sprintf("%s/../build/include", llvmDir)))
+
+stopifnot(all(file.exists(llvmDir)))
 
 tu = createTU("../TU/llvm.cpp", includes = c(llvmDir, "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/usr/include/c++/4.2.1/tr1"), args = c("-std=c++11", "-Wc++11-extensions"))
 
-tu = createTU("../TU/llvm.cpp", includes = c(llvmDir), args = c("-Wc++11-extensions", "-ferror-limit=10000"))
+tu = createTU("../TU/llvm.cpp", includes = llvmDir, args = c("-Wc++11-extensions", "-ferror-limit=10000"))
 
 enums = getEnums(tu)
 
