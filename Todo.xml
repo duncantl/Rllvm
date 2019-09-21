@@ -13,6 +13,22 @@
 <title>General</title>
 <items>
 
+  <item>
+    Doubles as globals are printing as hexadecimal
+  </item>
+  <item>
+    Implement a getParamAttr() function.
+  </item>
+  <item>
+    Some of the scripts in tests/ are yielding
+<r:output>    
+    "This does not compile as-is for LLVM4.0 or higher"
+</r:output>
+  </item>
+  <item>
+    tests/setGlobal.R  When setting status to FALSE after setting to TRUE, not recovering the FALSE, but getting TRUE.
+  </item>
+  
 <item status="done">
  Add the configure.in checks for the Pass.cpp and the HAVE_.....
 </item>
