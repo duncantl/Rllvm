@@ -9,3 +9,13 @@ NumericVector timesTwo(NumericVector x)
     return(x * 2);
 }
 
+
+NumericVector init(int n)
+{
+    NumericVector ans(n);
+    for(int i = 0; i < n; i++)
+        ans[i] = i*2*sin(i);
+    
+    return(ans);
+}
+
