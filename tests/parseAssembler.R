@@ -31,5 +31,5 @@ names(m)
 mod = Module("bob")
 mod = parseAssembly(tt, mod, asText = TRUE)
 showModule(mod)
-stopifnot(length(names(mod)) >  0)  # XXX Currently failing
+stopifnot(length(names(mod)) >  0)  
 
