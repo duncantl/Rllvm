@@ -54,7 +54,11 @@ R_createFunction(SEXP r_module, SEXP r_name, SEXP r_retType, SEXP r_types, SEXP 
 #if 1
     llvm::FunctionType * fsig;	
     fsig = llvm::FunctionType::get(rtype, params, INTEGER(r_varArgs)[0]);
-    ans = llvm::cast<llvm::Function>( module->getOrInsertFunction(CHAR(STRING_ELT(r_name, 0)), fsig) );
+    // in llvm 8.0 and lower getOrInsertFunction() returns Function.  LLVM9.0 it returns a FunctionCallee
+    // which as a Value * and a Type.  So we call module->getFunction() to get the Function object.
+    // but used to be able to do it in one call for < LLVM9.0 
+    module->getOrInsertFunction(CHAR(STRING_ELT(r_name, 0)), fsig);
+    ans = llvm::cast<llvm::Function>( module->getFunction(CHAR(STRING_ELT(r_name, 0))) );
 #else
     llvm::FunctionType * fty;
 //    fty = llvm::FunctionType::get(rtype, params, false);                  //xxx
