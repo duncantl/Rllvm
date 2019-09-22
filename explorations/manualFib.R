@@ -1,7 +1,8 @@
 # This will segfault as it will recurse infinitely.
 # There is no if statement to return when we get to n = 1 or 2.
 
-library(RLLVMCompile)
+library(Rllvm)
+#library(RLLVMCompile)
 
 mod = Module()
 f = Function("fib", Int32Type, list(n = Int32Type), mod)
