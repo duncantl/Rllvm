@@ -340,6 +340,33 @@ R_FunctionType_get(SEXP r_returnType, SEXP r_argTypes, SEXP r_varArgs)
     return(R_createRef(ans, "FunctionType"));
 }
 
+extern "C"
+SEXP
+R_FunctionType_getReturnType(SEXP r_funType)
+{
+    llvm::FunctionType *funType = GET_REF(r_funType, FunctionType);
+    return(R_createRef(funType->getReturnType(), "Type"));
+}
+
+extern "C"
+SEXP
+R_FunctionType_params(SEXP r_funType)
+{
+    llvm::FunctionType *funType = GET_REF(r_funType, FunctionType);
+    llvm::ArrayRef<llvm::Type *> arr = funType->params();
+    int n = funType->getNumParams();
+    SEXP ans;
+    PROTECT(ans = NEW_LIST(n));
+    for(int i = 0; i < n; i++) {
+        // What about element names?
+        llvm::Type *el = arr[i];
+        SET_VECTOR_ELT(ans, i, R_createRef(el, "Type")); //XX make these types more specific, rather than generic Type. 
+    }
+    UNPROTECT(1);
+    return(ans);
+}
+
+
 
 extern "C"
 SEXP
@@ -397,4 +424,50 @@ R_get_sizeof()
    SET_NAMES(r_ans, names);
    UNPROTECT(2);
    return(r_ans);
+}
+
+
+
+extern "C"
+SEXP
+R_Type_isLoadableOrStorableType(SEXP r_type)
+{
+    llvm::Type *type = GET_REF(r_type, Type);
+    bool ans = llvm::PointerType::isLoadableOrStorableType(type);
+    return(ScalarLogical(ans));
+}
+
+
+extern "C"
+SEXP
+R_StructType_getNumElements(SEXP r_type)
+{
+    llvm::StructType *type = GET_REF(r_type, StructType);
+    return(ScalarInteger(type->getNumElements()));
+}
+
+extern "C"
+SEXP
+R_StructType_isPacked(SEXP r_type)
+{
+    llvm::StructType *type = GET_REF(r_type, StructType);
+    return(ScalarInteger(type->isPacked()));
+}
+
+extern "C"
+SEXP
+R_StructType_elements(SEXP r_type)
+{
+    llvm::StructType *type = GET_REF(r_type, StructType);
+    llvm::ArrayRef<llvm::Type *> arr = type->elements();
+    int n = type->getNumElements();
+    SEXP ans;
+    PROTECT(ans = NEW_LIST(n));
+    for(int i = 0; i < n; i++) {
+        // What about element names?
+        llvm::Type *el = arr[i];
+        SET_VECTOR_ELT(ans, i, R_createRef(el, "Type")); //XX make these types more specific, rather than generic Type. 
+    }
+    UNPROTECT(1);
+    return(ans);
 }
