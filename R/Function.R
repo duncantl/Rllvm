@@ -93,8 +93,8 @@ setMethod("getName", "Value",
               .Call("R_Value_getName", obj))
 
 
-getFunctionArgs = getParameters =
-function(fun, addNames = TRUE)
+getFunctionArgs =
+function(fun, addNames = TRUE, ...)
 {
    els = .Call("R_getFunctionArgs", fun)
    ans = new("ParameterList", els)
@@ -102,6 +102,11 @@ function(fun, addNames = TRUE)
      names(ans) = lapply(ans, getName) 
    ans
 }
+
+
+setMethod("getParameters", "Function",
+          function(fun, addNames = TRUE, ...)
+           getFunctionArgs(fun, addNames, ...))
 
 
 setMethod("[", c("Function", "numeric", "missing"),
@@ -166,9 +171,6 @@ function(fun)
 }
 
 
-setGeneric("getReturnType",
-            function(obj, ...)
-               standardGeneric("getReturnType"))
 
 setMethod("getReturnType",
            "Function",
