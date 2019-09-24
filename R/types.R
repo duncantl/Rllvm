@@ -191,3 +191,19 @@ function(ty, asIs = FALSE)
 functionType <-
 function(returnType, argTypes, varArgs = FALSE)
   .Call("R_FunctionType_get", returnType, argTypes, as.integer(varArgs))
+
+
+setMethod("getFields", "StructType",
+           function(obj, ...)
+              .Call("R_StructType_elements", obj))
+
+
+setMethod("getParameters", "FunctionType",
+          function(fun, addNames = TRUE, ...) {
+              .Call("R_FunctionType_params", fun)
+          })
+
+
+setMethod("getReturnType", "FunctionType",
+            function(obj, ...)
+              .Call("R_FunctionType_getReturnType", obj))

@@ -20,3 +20,15 @@ setGeneric("moveAfter",
             function(src, dest, ...)
               standardGeneric("moveAfter"))
 
+setGeneric("getParameters",
+           function(fun, addNames = TRUE, ...)
+           standardGeneric("getParameters"))
+
+setGeneric("getFields",
+           function(obj, ...)
+           standardGeneric("getFields"))
+
+setGeneric("getReturnType",
+            function(obj, ...)
+              standardGeneric("getReturnType"))
+
