@@ -542,3 +542,8 @@ export(getInitializer, getAsCString)
 export(isEHPad)
 
 export(getOpcode)
+
+export(getFields)
+exportMethods(getFields)
+
+export(provideUndefFunctions, getUndefModuleFunctions)
