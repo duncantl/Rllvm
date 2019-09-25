@@ -175,13 +175,13 @@ function(fun)
 setMethod("getReturnType",
            "Function",
           function(obj, ...)
-             .Call("R_Function_getReturnType", obj))
+             upgradeTypeClass(.Call("R_Function_getReturnType", obj)))
 
 
 setMethod("getReturnType",
            "CallInst",
           function(obj, ...)
-             .Call("R_Function_getReturnType", getCalledFunction(obj)))
+             upgradeTypeClass(.Call("R_Function_getReturnType", getCalledFunction(obj))))
 
 
 setGeneric("getCalledFunction",

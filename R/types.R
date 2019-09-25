@@ -101,27 +101,45 @@ function(elTypes, name = NA, context = NULL, isPacked = NA, rawPointer = FALSE, 
 
 
 getStructTypeName =
-  function(obj)
-    .Call("R_StructType_getName", obj)
+  function(obj) 
+      .Call("R_StructType_getName", obj)
+
 
 setMethod("getName", "StructType",
-          function(obj, name)
-             .Call("R_StructType_getName", obj))
+          function(obj, name) {
+              ans = .Call("R_StructType_getName", obj)
+         })
 
 setMethod("getElementTypes", "StructType",
           function(x, ...)
-             .Call("R_StructType_getElementTypes", x, PACKAGE = "Rllvm"))
+             lapply(.Call("R_StructType_getElementTypes", x, PACKAGE = "Rllvm"), upgradeTypeClass))
 
 setGeneric("getElementType",
             function(type, direct = TRUE) {
               if(direct)
-                .Call("R_Type_getPointerElementType", type)                   
+                upgradeTypeClass(.Call("R_Type_getPointerElementType", type))
               standardGeneric("getElementType")
             })
 
+
+upgradeTypeClass =
+    # convert a generic Type to its more specific class based on the llvm class it actually is.
+    #
+function(obj)    
+{
+    k = .Call("R_getLLVMTypeClassName", obj)
+    if(k == "Type") {
+         # didn't get a more specific type
+        if(getTypeID(obj) == DoubleTyID)
+            k = "DoubleType"
+    }
+    # as(k, obj)  # doesn't work as
+    new(k, ref = obj@ref)
+}
+
 setMethod("getElementType", "ANY",
            function(type, direct = TRUE) 
-              .Call("R_Type_getPointerElementType", type) )
+              upgradeTypeClass( .Call("R_Type_getPointerElementType", type) ))
 
 setMethod("getElementType", "REALSXPType",
            function(type, direct = TRUE) {
@@ -195,15 +213,15 @@ function(returnType, argTypes, varArgs = FALSE)
 
 setMethod("getFields", "StructType",
            function(obj, ...)
-              .Call("R_StructType_elements", obj))
+              lapply(.Call("R_StructType_elements", obj), upgradeTypeClass))
 
 
 setMethod("getParameters", "FunctionType",
           function(fun, addNames = TRUE, ...) {
-              .Call("R_FunctionType_params", fun)
+              lapply(.Call("R_FunctionType_params", fun), upgradeTypeClass)
           })
 
 
 setMethod("getReturnType", "FunctionType",
             function(obj, ...)
-              .Call("R_FunctionType_getReturnType", obj))
+              upgradeTypeClass(.Call("R_FunctionType_getReturnType", obj)))

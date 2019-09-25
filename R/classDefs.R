@@ -139,6 +139,8 @@ setClass("ArrayType", contains = "SequentialType")
 setClass("VectorType", contains = "SequentialType")
 
 setClass("FunctionType", contains = "Type")
+setClass("IntegerType", contains = "Type")
+setClass("DoubleType", contains = "Type") #XXX Not in LLVM
 
  # A separate class so we can identify a StringType from a generic pointer since now they both use i8*
 setClass("StringType", contains = "Type") 
