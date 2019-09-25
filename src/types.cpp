@@ -90,7 +90,7 @@ SEXP
 R_Type_getID(SEXP r_type)
 {
     llvm::Type *ty = GET_TYPE(r_type);
-    return(ScalarInteger(ty->getTypeID()));
+    return(ScalarInteger(ty ? ty->getTypeID()  :  -1));
 }
 
 extern "C"
@@ -98,8 +98,7 @@ SEXP
 R_Type_getTypeID(SEXP r_type)
 {
     llvm::Type *ty = GET_TYPE(r_type);
-    llvm::Type::TypeID id = ty->getTypeID();
-    return( ScalarInteger(id) );
+    return( ScalarInteger(ty ? ty->getTypeID() : -1) );
 }
 
 
@@ -470,4 +469,15 @@ R_StructType_elements(SEXP r_type)
     }
     UNPROTECT(1);
     return(ans);
+}
+
+
+#include "llvm_type_classof_name.h"
+
+extern "C"
+SEXP
+R_getLLVMTypeClassName(SEXP r_type)
+{
+  llvm::Type *ty = GET_REF(r_type, Type);
+  return(ScalarString(mkChar(getLLVMTypeClassName(ty) )));
 }
