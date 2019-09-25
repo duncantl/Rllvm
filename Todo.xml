@@ -13,7 +13,7 @@
 <title>General</title>
 <items>
 
-  <item>
+  <item status="check">
     More specific classes for Type objects being returned. Same as Instruction class names.
   </item>
 
@@ -57,7 +57,7 @@ Version 7.0.1  - Value::dump() and Type::dump() symbols missing from the LLVM li
 <item>
 Is the subsetting for a BranchInst getting the target blocks in the wrong order?
 <r:code>    
-parseIR("AnalyzeCCode/rpart.ir")
+m3 =parseIR("AnalyzeCCode/rpart.ir")
 e = getTerminator(getBlocks(m3$rpart)[["for.body182"]], FALSE)   
 e[[2]]
 e[[3]]
