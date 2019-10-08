@@ -68,9 +68,10 @@ R_BasicBlock_getBlockInstructions(SEXP r_block)
     int ctr = 0;
     llvm::BasicBlock::iterator ib, ie;
     SEXP ans;
-    for(ib = block->begin(), ie = block->end(); ib != ie; ib++, ctr++) {}
+    for(ib = block->begin(), ie = block->end(); ib != ie; ++ib, ++ctr) {}
+    //??  ctr = block->size();
     PROTECT(ans = NEW_LIST(ctr));
-    for(ctr = 0, ib = block->begin(), ie = block->end(); ib != ie; ib++, ctr++) {
+    for(ctr = 0, ib = block->begin(), ie = block->end(); ib != ie; ++ib, ctr++) {
         SET_VECTOR_ELT(ans, ctr, R_createRef(&(*ib), "Instruction")); //XXX LLVM 3.8
     }    
     UNPROTECT(1);
@@ -195,3 +196,37 @@ R_BasicBlock_getModule(SEXP r_block)
 }
 
 #endif
+
+
+
+
+extern "C"
+SEXP
+R_BasicBlock_getValueSymbolTable(SEXP r_block)
+{
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    llvm::ValueSymbolTable *sym = block->getValueSymbolTable();
+    return(R_createRef(sym, "ValueSymbolTable"));
+}
+
+#include <llvm/IR/ValueSymbolTable.h>
+extern "C"
+SEXP
+R_ValueSymbolTable_lookup(SEXP r_sym, SEXP r_name)
+{
+    llvm::ValueSymbolTable *sym = GET_REF(r_sym, ValueSymbolTable);
+    if(!sym) {
+        PROBLEM "ValueSymbolTable pointer is NULL"
+            ERROR;
+    }
+    int n = Rf_length(r_name);
+    SEXP ans;
+    PROTECT(ans = NEW_LIST(n));
+    for(int i = 0; i < n; i++) {
+        llvm::Value *val = sym->lookup(llvm::StringRef(CHAR(STRING_ELT(r_name, i))));
+        SET_VECTOR_ELT(ans, i, R_createRef(val, "Value"));
+    }
+    SET_NAMES(ans, r_name);
+    UNPROTECT(1);
+    return(ans);
+}
