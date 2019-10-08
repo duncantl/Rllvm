@@ -250,6 +250,8 @@ const char  * getLLVMClassName(llvm::Value *obj)
 	    ans = "MemMoveInst";
 	if(llvm::Argument::classof(obj))
 	   ans = "Argument";	
+	if(llvm::BasicBlock::classof(obj)) 
+	   ans = "BasicBlock";
 
 
 	return(ans);
