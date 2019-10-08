@@ -11,10 +11,10 @@ function(mod, filter = "^llvm", ids = names(mod), llvmAdd = TRUE)
 {
      # By default, we get everything - global variables and functions - based on ids = names(mod)
 
-    vars = structure(lapply(ids, function(x) mod[[ x ]] ), names = ids)
+    vars = mod[] # structure(lapply(ids, function(x) mod[[ x ]] ), names = ids)
     
     w = sapply(vars, function(x){ v = getType(x); isPointerType(v) && isFunctionType(getElementType(v))})
-    ans = names(vars)[ sapply(vars[w], function(x) length(getBlocks(x))) == 0 ]
+    ans = names(vars)[w][ sapply(vars[w], function(x) length(getBlocks(x))) == 0 ]
 
     if(length(filter))
        ans = grep(filter, ans, invert = TRUE, value = TRUE)
@@ -23,4 +23,14 @@ function(mod, filter = "^llvm", ids = names(mod), llvmAdd = TRUE)
        llvmAddSymbol(ans)
     else
        ans
+}
+
+getImplementedFunctions =
+function(mod, ids = names(mod))
+{
+    vars = mod[ids]
+    w = sapply(vars, is, "Function")
+    vars = vars[w]
+    w2 = sapply(vars, function(x) length(getBlocks(x))) > 0 
+    vars[ w2 ]
 }
