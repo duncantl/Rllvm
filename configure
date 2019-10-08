@@ -2714,7 +2714,8 @@ llvm::TargetMachine *m;
 }
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"; then :
-  LLVM_CFLAGS="$LLVM_CFLAGS -DADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG=1"; echo "addPassesToEmitFIle takes an extra stream argument"
+  LLVM_CFLAGS="$LLVM_CFLAGS -DADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG=1";
+	        echo "addPassesToEmitFile takes an extra stream argument"
 else
   echo "No extra stream argument for addPassesToEmitFile"
 fi
