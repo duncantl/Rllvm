@@ -167,7 +167,7 @@ setAs("Function", "Module",
 getBlocks =
 function(fun)
 {  
- .Call("R_Function_getBasicBlockList", fun)
+ .Call("R_Function_getBasicBlockList", as(fun, "Function"))
 }
 
 
