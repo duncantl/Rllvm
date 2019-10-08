@@ -41,8 +41,17 @@ setMethod("[[", c("Instruction", "numeric"),
            })
 
 setMethod("[", c("Instruction", "numeric"),
-           function(x, i, j, ...) {
-              lapply(i, function(i) getOperand(x, i))
+              function(x, i, j, ...) {
+                  if(i < 0)
+                      (x[])[i]
+                  else
+                     lapply(i, function(i) getOperand(x, i))
+           })
+
+setMethod("[", c("Instruction", "missing"),
+                function(x, i, j, ...) {
+                   getOperands(x)
+              # lapply(seq_len(getNumOperands(x)), function(i) getOperand(x, i))
            })
 
 
