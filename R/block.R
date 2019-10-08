@@ -16,7 +16,7 @@ function(fun, id = character(), context = getGlobalContext(), n = 1)
 
 
 getTerminator =
-function(block, genericClass = TRUE)
+function(block, genericClass = FALSE)
 {
    block = as(block, "BasicBlock")
    .Call("R_BasicBlock_getTerminator", block, as.logical(genericClass))
