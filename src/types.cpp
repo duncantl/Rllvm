@@ -180,6 +180,7 @@ SEXP
 R_StructType_getName(SEXP r_type)
 {
     llvm::StructType *type = GET_REF(r_type, StructType);
+
     llvm::StringRef str = type->getName();
     return(ScalarString(str.data() ? mkChar(str.data()) : R_NaString));
 }
