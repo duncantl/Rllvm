@@ -230,3 +230,62 @@ R_ValueSymbolTable_lookup(SEXP r_sym, SEXP r_name)
     UNPROTECT(1);
     return(ans);
 }
+
+
+
+#include <llvm/IR/CFG.h>
+extern "C"
+SEXP
+R_BasicBlock_getPredecessors(SEXP r_block)
+{
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    llvm::BasicBlock *pre;
+    int n = 0, i;
+#if 0    
+    llvm::BasicBlock::iterator ib, ie;    
+    for(ib = pred_begin(block), ie = pred_end(block); ib != ie; ) {
+        n ++;
+    }
+#else
+    for(llvm::BasicBlock *pre : predecessors(block) ) {
+        n ++;
+    }    
+#endif    
+    SEXP ans;
+    PROTECT(ans = NEW_LIST(n));
+    i = 0;
+    for(llvm::BasicBlock *pre : predecessors(block) ) {
+         SET_VECTOR_ELT(ans, i, pre ? R_createRef(pre, "BasicBlock") : R_NilValue);        
+        i ++;
+    }    
+//    for(i = 0, ib = pred_begin(block), ie = pred_end(block); ib != ie; i++) {    
+
+
+    UNPROTECT(1);
+    return(ans);
+}
+
+
+
+extern "C"
+SEXP
+R_BasicBlock_getSuccessors(SEXP r_block)
+{
+    llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
+    llvm::BasicBlock *pre;
+    int n = 0, i;
+    for(llvm::BasicBlock *pre : successors(block) ) {
+        n ++;
+    }    
+    SEXP ans;
+    PROTECT(ans = NEW_LIST(n));
+    i = 0;
+    for(llvm::BasicBlock *pre : successors(block) ) {
+         SET_VECTOR_ELT(ans, i, pre ? R_createRef(pre, "BasicBlock") : R_NilValue);        
+        i ++;
+    }    
+
+    UNPROTECT(1);
+    return(ans);
+}
+
