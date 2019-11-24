@@ -153,21 +153,66 @@ function(block)
   .Call("R_BasicBlock_isLandingPad", as(block, "BasicBlock"))
 
 
-getPredecessor =
-function(x, single = TRUE)
+setMethod("getPredecessor", "BasicBlock",
+function(x, single = TRUE, ...)
 {
   .Call("R_BasicBlock_getPredecessor", as(x, "BasicBlock"), as.logical(single)) 
-}
+})
 
-getSuccessor =
-function(x, single = TRUE)
+
+setMethod("getPredecessors", "BasicBlock",
+    # All predecessor blocks.
+function(x, ...)
+{
+  .Call("R_BasicBlock_getPredecessors", as(x, "BasicBlock"))
+})
+
+setMethod("getSuccessors", "BasicBlock",
+function(x, ...)
+{
+  .Call("R_BasicBlock_getSuccessors", as(x, "BasicBlock"))
+})
+
+
+setMethod("getSuccessor", "BasicBlock", 
+function(x, single = TRUE, ...)
 {
   .Call("R_BasicBlock_getSuccessor", as(x, "BasicBlock"), as.logical(single)) 
-}
+})
+
 
 
 isEHPad =
 function(block)
 {
    .Call("R_Block_isEHPad", block)
+}
+
+
+getAncestors =
+    # Given a BasicBlock, recursively find the names of all the
+    # predecessor blocks, i.e. finding the predecessor blocks of b
+    # then the predecessors of those blocks, etc.
+    #
+    # Assumes the blocks have names.  We can adjust this to return BasicBlock
+    # objects.
+    # Use -fno-discard-value-names when creating the IR from the C/C++ code to keep all the 
+    # variable and block names.   Much easier to navigate with these.
+    #
+    # not test very much at all.
+function(b) # , blocks = getBlocks(getParent(b)))
+{
+    ans = character()
+    pen = list(b)
+    while(length(pen)) {
+        for(b in pen) {
+            nx = getPredecessors(b)
+            ids = sapply(nx, getName)
+            w = ids %in% ans
+            ans = union(ans, ids)
+            pen = nx[!w]
+        }
+    }
+
+    ans
 }

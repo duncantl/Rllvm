@@ -431,6 +431,13 @@ export(getCondition, getSuccessor, getNumSuccessors, isConditional, getSuccessor
 export(getValue)
 export(getNULLPointer)
 
+export(getPredecessor)
+export(getPredecessors)
+
+exportMethods("getSuccessor")
+exportMethods("getSuccessors")
+exportMethods("getPredecessor")
+exportMethods("getPredecessors")
 
 export(isVarArg)
 
@@ -528,7 +535,7 @@ export(getFunctionReturnType)
 export(getDataLayoutString)
 exportMethods(getDataLayoutString)
 
-export(getPredecessor, getSuccessor)
+
 
 export(getClassName)
 

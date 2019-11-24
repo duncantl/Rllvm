@@ -13,21 +13,22 @@ function(x)
   .Call("R_BranchInst_getNumSuccessors", as(x, "BranchInst"))
 }
 
-getSuccessor =
+setMethod("getSuccessor", "ReturnInst",
 function(x, i = 1L)
 {
   if(isa(x, "ReturnInst"))
     return(NULL)
      
   .Call("R_BranchInst_getSuccessor", as(x, "BranchInst"), as.integer(i - 1L))
-}
+})
 
-getSuccessors =
-function(x)
+
+setMethod("getSuccessors", "BranchInst",
+function(x, ...)
 {
   x = as(x, "BranchInst")
   sapply(seq_len(getNumSuccessors(x)), function(i) getSuccessor(x, i))
-}
+})
 
 
 isConditional =
