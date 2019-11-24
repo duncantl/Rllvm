@@ -337,3 +337,10 @@ setGeneric("getMetadata",
 
 
 setMethod("show", "Value", function(object) print(as(object,'character')))
+
+
+
+setGeneric("getPredecessors", function(x, ...) standardGeneric("getPredecessors"))
+setGeneric("getSuccessors", function(x, ...) standardGeneric("getSuccessors"))
+setGeneric("getSuccessor", function(x, ...) standardGeneric("getSuccessor"))
+setGeneric("getPredecessor", function(x, ...) standardGeneric("getPredecessor"))
