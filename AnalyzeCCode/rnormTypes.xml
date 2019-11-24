@@ -1,0 +1,228 @@
+<section
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:c="http://www.C.org"
+	 xmlns:sh="http://www.shell.org">
+<title>Exploring the Signature for <r:func>rnorm</r:func></title>
+
+<para>
+rnorm is in the stats package:
+<r:code>
+find("rnorm")
+</r:code>
+The definition is 
+<r:code>
+rnorm
+function (n, mean = 0, sd = 1) 
+.Call(C_rnorm, n, mean, sd)
+</r:code>
+</para>
+
+<para>
+So let's resolve C_rnorm.
+The C_ is a prefix added via the useDynLib() mechanism in NAMESPACE.
+There is no routine named C_rnorm or rnorm.
+In <file>stats/src/random.c</file>, there is a routine named do_rnorm. This is created via a macro
+<c:code>
+DEFRAND2_REAL(rnorm)
+</c:code>
+in that file. The macro DEFRAND2_REAL is used to create numerous similar routines for different
+distributions, e.g. rgamma, rlnirm, rnbinom, rcauchy.
+</para>
+<para>
+We look in the <file>stats/src/init.c</file> file to verify the mapping of the C_rnorm
+to do_rnorm.
+As part of the Call routine registration, we see
+<c:code>
+  CALLDEF_RAND2(rnorm),
+</c:code>
+
+The CALLDEF_RAND2 macro is defined as
+<c:code>
+#define CALLDEF_RAND2(name) CALLDEF_DO(name, 3)
+</c:code>
+and CALLDEF_DO is
+<c:code><![CDATA[
+#define CALLDEF_DO(name, n) {#name, (DL_FUNC) &do_##name, n}
+]]></c:code>
+So this <c:expr>  CALLDEF_RAND2(rnorm)</c:expr> term
+expands to 
+<c:code><![CDATA[
+ {"rnorm", &do_rnorm, 3}
+]]></c:code>
+in the initialization of the native routines that can be invoked via <r:func>.Call</r:func>
+With the packege prefix,
+<r:code>
+useDynLib(stats, .registration = TRUE, .fixes = "C_")
+</r:code>
+in the <file>NAMESPACE</file> file in the <r:pkg>stats</r:pkg> package,
+C_rnorm maps to do_norm, as we anticipated.
+</para>
+
+<section>
+<title>Getting the Return Type</title>
+<para>
+So now  do_dnorm takes its three parameters and passes them to 
+random2()  along with rnorm and REALSXP.
+The name rnorm here identifies a routine, so it is a pointer to the routine named rnorm.
+However, due to remapping from Rinternals.h/Rdefines.h, this is Rf_rnorm.
+</para>
+<para>
+random2() falls into the regular allocVector(), fill in, return vector.
+The type of vector comes from the 5th parameter which is REALSXP from do_dnorm.
+So the return type, as the macro name suggests, returns a REAL vector.
+The length of the vector comes from calling resultLength() on the first parameter.
+</para>
+<para>
+The 2nd and 3rd parameters (sa and sb for the mean and sd) are coerced to  REALSXP via coerceVector.
+So we know we are expecting something compatible with 
+(Does coerceVector() call as()/coerce() in S4 methods-world, or is it C-level.)
+</para>
+<para>
+Note that sa and sb can be vectors and the i-th elements are used for the i-th result.
+
+<sh:code>
+clang -I"../../../../include" -DNDEBUG -I../../../include -I../../../../../src/include
+-DHAVE_CONFIG_H  -I/usr/local/include   -emit-llvm -S -O2 ../../../../../src/library/stats/src/random.c -o random.ll
+</sh:code>
+
+<r:code>
+m = parseIR("random.ll")
+names(m)
+m$do_rnorm
+</r:code>
+
+<r:code>
+p = getParameters(m$do_rnorm)
+</r:code>
+
+<r:code>
+bb = getBlocks(m$do_rnorm)
+length(bb) # only 1
+a = getTerminator(bb[[1]])
+</r:code>
+
+<r:code>
+class(a[[1]]) # CallInst
+fun2 = getCalledFunction(a[[1]])
+</r:code>
+
+<r:code>
+bb2 = getBlocks(fun2)
+tt2 = sapply(bb2, getTerminator)
+w = sapply(tt2, is, "ReturnInst")
+</r:code>
+
+<r:code>
+ret2 = tt2[w][[1]]
+ret2[[1]]
+</r:code>
+
+
+<r:code>
+class(ret2[[1]]) # CallInst
+rk2 = ret2[[1]]
+getName(getCalledFunction(rk2))  # "Rf_allocVector3". We know about this.
+# So we want the type and the length.
+</r:code>
+
+<r:code>
+rtype = rk2[[1]]
+if(is(rtype, "Argument")) {
+   # need to match it to our call to random2 from do_rnorm
+   # Which argument/parameter number is it. We can see from the "i32 %4" representation.
+   # But how can we do this more robustly.
+   p2 = getParameters(fun2)
+   argNum = which(sapply(p2, identical, rtype))
+   
+   ty = a[[1]][[argNum]]
+   class(ty) # ConstantInt
+   sxpType = getValue( a[[1]][[argNum]] )
+   
+   # Match the sxpType to 
+   # So match INTSXP to integer, REALSXP to numeric, ....
+    
+   #  length
+}
+</r:code>
+Otherwise if not an argument, it is computed somewhere in the body of the routine.
+</para>
+
+</section>
+
+<section>
+<title>The Length/Dimension of the Result</title>
+<para>
+To get the length of the vector, we look at the second argument to Rf_allocVector.
+<r:code>
+rk2[[2]]
+<r:output><![CDATA[
+[1] "  %118 = phi i64 [ %106, %105 ], [ %112, %111 ], [ %116, %113 ]"
+]]></r:output>
+</r:code>```
+Where did this PHI node come from.
+The C code is 
+<c:code>
+    n = resultLength(sn);
+    PROTECT(x = allocVector(type, n));
+</c:code>
+So the length (second argument to allocVector()) comes from the call to resultLength().
+However, wherever this is defined, LLVM has broken this into 3 blocks that lead to this value.
+</para>
+
+<para>
+This is where the AST may be easier to deal with, at least for the stats package
+and other built-in R packages that may be compiled with greater access to the
+internals or just doing things in a different way than other packages.
+</para>
+
+<para>
+I checked for resultLength in R's header files but there is nothing there with this name.
+So it must be in the stats' package C code.
+It is defined in random.c as
+<c:code>
+static R_INLINE R_xlen_t resultLength(SEXP lengthArgument) {
+...
+}
+</c:code>
+</para>
+
+<para>
+So the code is inlined into our routine.
+Our job processing the LLVM bit code would be easier if the inlining didn't take place.
+So let's turn off the R_INLINE pre-processor definition.
+</para>
+
+<para>
+For now, we'll force the non-inling via the llvm options
+<sh:code>
+-inline-threshold=0 -inlinehint-threshold=10
+</sh:code>
+(See <ulink url="https://groups.google.com/forum/#!topic/llvm-dev/GpU79q9JzJI"/>)
+See opt <sh:flag>-help-hidden</sh:flag>
+
+We pass this via clang using the -mllvm argument to indicate the next argument is for llvm:
+<sh:code>
+clang -I"../../../../include" -DNDEBUG -I../../../include -I../../../../../src/include -DHAVE_CONFIG_H -UR_INLINE -I/usr/local/include   -emit-llvm -S -O2  ../../../../../src/library/stats/src/random.c -o random.ll -mllvm -inline-threshold=0 -mllvm -inlinehint-threshold=10
+</sh:code>
+</para>
+
+<para>
+So now we repeated the R computations  on the new .ll file.
+Now
+<r:code>
+rk2[[2]]
+<r:output><![CDATA[
+[1] "  %14 = tail call fastcc i64 @resultLength(%struct.SEXPREC.5* %0)"
+]]></r:output>
+</r:code>
+</para>
+<para>
+So if we assume we know that resultLength() either returns the 
+value of the scalar first argument as a real value, or 
+the length of the non-scalar vector, then we know the length.
+Of course, this is a problem for dimension inference generally
+as this scalar versus vector argument for `n` makes dimension inference complex.
+</para>
+</section>
+
+</section>
