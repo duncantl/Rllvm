@@ -1,7 +1,8 @@
 <section
-	 xmlns:c="http://www.C.org"
-	 xmlns:r="http://www.r-project.org"
-	 xmlns:sh="http://www.shell.org">
+    xmlns:c="http://www.C.org"
+    xmlns:ir="http://llvm.org/ir"
+    xmlns:r="http://www.r-project.org"
+    xmlns:sh="http://www.shell.org">
 <title>Determining the Types of the <r:func>grepl</r:func> Function</title>
 <para>
 Consider the grepl() function. How do
@@ -272,7 +273,7 @@ b2[[3]]
 <para>
 This compares %.pre and %call92.
 %call92 is call to XLENGTH_EX( %18), and %18 is (probably) the character vector x in the grep/grepl()
-call which is mapped to the variable text via the CAR(args) sequence. So this is R's length(x).
+call which is mapped to the variable text via the CAR(args) sequence (See <xref linkend="sec:CAR"/>. So this is R's length(x).
 And %523 seems to be i the number of iterations. So this <c:expr><![CDATA[i < n]]></c:expr>.
 So this is iterator (?) the for loop with the body 
 <c:code>
@@ -551,5 +552,35 @@ We have lost the ability to easily detect if() statements and their branches as 
 
 
 </ignore>
+
+
+<section>
+<title>Barrier Functions, e.g., CAR</title>
+<para>
+In the <ir/> code, we see
+<ir:code>
+%carval = getelementptr inbounds %struct.SEXPREC, %struct.SEXPREC* %args, i64 0, i32 4, i32 0, i32 0
+</ir:code>
+that corresponds to <c:expr>CAR(args)</c:expr>.
+However, if we were to do this in an <r/> package such as in
+<ulink url="car.c"/>,
+the <ir/> code is
+<ir:code>
+%2 = tail call %struct.SEXPREC* @CAR(%struct.SEXPREC* %0) #2
+%3 = tail call %struct.SEXPREC* @CDR(%struct.SEXPREC* %0) #2  
+</ir:code>
+These are calls to <c:func>CAR</c:func> and <c:func>CDR</c:func> routines
+rather than direct access via elements of the structure.
+It is more convenient to work with these higher-level calls to routines.
+So when working with the <r/> source code, we want to enable the barrier that
+avoids direct access and uses the routines.
+So we want to disable/undefine the pre-processor symbol USE_RINTERNALS.
+Instead of  editing $R_HOME/src/include/Defn.h to remove the conditional definition of USE_RINTERNALS,
+we can define the pre-processor macro TEST_WRITING_BARRIER  on the command line when generating the IR code:
+<sh:code>
+clang -emit-llvm -S -I../../../src/extra  -I. -I../../src/include -I../../../src/include  -I/usr/local/include -I../../../src/nmath -DHAVE_CONFIG_H   -DTESTING_WRITE_BARRIER -O2  -c ../../../src/main/array.c -o array.ll -mllvm -inline-threshold=0 -mllvm -inlinehint-threshold=10 -fno-discard-value-names 
+</sh:code>
+</para>
+</section>
 
 </section>
