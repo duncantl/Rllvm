@@ -21,7 +21,7 @@ function(fun, blocks = getBlocks(fun), ids = names(blocks),
    xs = ys = structure(rep(as.numeric(NA), length(ids)), names = ids)
    xs[1] = x
    ys[1] = 0
-browser()   
+#browser()   
    for( i in seq(along = xs)[-1] ) { # 2, 3, ...
        # Skip the first/entry block.
        # Branch, Return, Switch, TerminatorInst, cleanupret, callbrinvoke indirectbr catchswitch resume
@@ -33,11 +33,12 @@ browser()
            els = b[seq(2, length(b), by = 2)]
        } else if(isConditional(b)) {
            els = b[-1]
-       }
+       } else
+           els = b[]
        
        nx = fixId(sapply(els, getName))
        parent = fixId(getName(getParent(b)))
-
+#browser()
 #       if(parent == "if_end" ||  "if_end4" %in% nx) browser()
        w2 = is.na(xs[nx]) #  == 0
        if(length(nx) == 1) {
@@ -50,25 +51,29 @@ browser()
 
        ys[nx][is.na(ys[nx])] = ys[parent] - 1
    }
-browser()       
+#browser()       
     # determine the paths
    to = lapply(tr, function(x) {
                           els = x[]
-                          if(length(x) && !is(x, "ReturnInst")) {
+                          if(is(x, "SwitchInst")) {
+                              els = els[seq(2, length(x), by = 2)]
+                              fixId(sapply(els, getName))
+                          } else if(length(x) && !is(x, "ReturnInst")) {
                              if(isConditional(x))
                                 els = els[-1]
                              fixId(sapply(els, getName))
                           } else
                             character()
                       })
-   xs["return"] = x
-   ys["return"] = min(ys) - 1
+   w = sapply(tr, is, "ReturnInst")
+   xs[w] = x
+   ys[w] = min(ys) - 1
    nodes = sprintf("\\node[box, sharp corners] (%s) at (%.2f, %.2f) { %s };", ids, xs, ys, text)
 
    to2 = data.frame(from = rep(fixId(names(to)), sapply(to, length)), to = fixId(unlist(to)), stringsAsFactors = FALSE)
    bend = numeric(nrow(to2))
-#   browser()
-   w =  ys[to2$from] - ys[to2$to] > 2 # 1
+
+   w =  abs(ys[to2$from] - ys[to2$to]) > 2 # 1
    bend[w] = 90
    to2$to[w] = sprintf("%s.east", to2$to[w])
    to2$from[w] = sprintf("%s.east", to2$from[w])   
