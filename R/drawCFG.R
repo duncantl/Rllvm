@@ -5,19 +5,23 @@
 
 
 drawCFG =
-function(fun, blocks = getBlocks(fun),
+    #
+    #  Assumes the BasicBlocks have names, i.e., -fno-discard-value-names
+    #
+    #
+function(fun, blocks = getBlocks(fun), ids = names(blocks),
           x = 2, y = - seq(along = ids), text = ids)
 {
 
    tr = lapply(blocks, getTerminator)
-   ids = names(blocks)
    force(text)
    ids = fixId(ids)
 
      # Determine the locations.  We put branches on either side of the parent one line below.
-   xs = ys = structure(numeric(length(ids)), names = ids)
+   xs = ys = structure(rep(as.numeric(NA), length(ids)), names = ids)
    xs[1] = x
-
+   ys[1] = 0
+browser()   
    for( i in seq(along = xs)[-1] ) { # 2, 3, ...
        # Skip the first/entry block.
        # Branch, Return, Switch, TerminatorInst, cleanupret, callbrinvoke indirectbr catchswitch resume
@@ -25,22 +29,28 @@ function(fun, blocks = getBlocks(fun),
 
        if(is(b, "ReturnInst"))
            next
-       else if(is(x, "SwitchInst")) {
-           els = x[seq(2, length(b), by = 2)]
+       else if(is(b, "SwitchInst")) {
+           els = b[seq(2, length(b), by = 2)]
        } else if(isConditional(b)) {
            els = b[-1]
        }
+       
        nx = fixId(sapply(els, getName))
-       if(length(nx) == 1) {
-           xs[nx] = xs[i-1]
-       } else {
-           xs[nx] = seq(-1, 1, length = length(nx)) + xs[i-1]
-       }
-parent = fixId(getName(getParent(b)))       
+       parent = fixId(getName(getParent(b)))
 
-       ys[nx][ys[nx] == 0] = ys[parent] - 1
+#       if(parent == "if_end" ||  "if_end4" %in% nx) browser()
+       w2 = is.na(xs[nx]) #  == 0
+       if(length(nx) == 1) {
+           xs[nx][w2] = xs[parent]
+       } else {
+           xs[nx][w2] = (seq(-1, 1, length = length(nx)) + xs[parent])[w2]
+       }
+       cat("Setting ", paste(nx[w2], collapse = ", "), "\n")
+
+
+       ys[nx][is.na(ys[nx])] = ys[parent] - 1
    }
-#browser()       
+browser()       
     # determine the paths
    to = lapply(tr, function(x) {
                           els = x[]
@@ -57,13 +67,13 @@ parent = fixId(getName(getParent(b)))
 
    to2 = data.frame(from = rep(fixId(names(to)), sapply(to, length)), to = fixId(unlist(to)), stringsAsFactors = FALSE)
    bend = numeric(nrow(to2))
-   browser()
-   w =  ys[to2$from] - ys[to2$to] > 1
+#   browser()
+   w =  ys[to2$from] - ys[to2$to] > 2 # 1
    bend[w] = 90
+   to2$to[w] = sprintf("%s.east", to2$to[w])
+   to2$from[w] = sprintf("%s.east", to2$from[w])   
    paths = sprintf("\\path [color=black] (%s) edge[ bend left=%.2f ] (%s);", to2$from, bend, to2$to)   
-#   paths = mapply(function(from, to) 
-#                  sprintf("\\path [color=black] (%s) edge[ bend left=%.2f ] (%s);", from, bend, to)
-#                  , ids, to)
+
 
    c("\\begin{tikzpicture}[node distance = 8mm, start chain = going below, box/.style = {draw,rounded corners, on chain, align=center}]",
      nodes,
