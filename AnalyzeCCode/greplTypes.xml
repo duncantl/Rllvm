@@ -263,19 +263,21 @@ as we saw above with <r:expr>ret[[1]][[2]][[3]]</r:expr>:
 <r:code>
 b2[[3]]
 <r:output><![CDATA[
-[BasicBlock] %for.inc548
-  %j.5 = phi i64 [ %inc545, %if.then541 ], [ %j.4874, %for.body536 ]
-  %exitcond909 = icmp eq i64 %.pre, %call92
-  br i1 %exitcond909, label %if.end573, label %for.body536
+[BasicBlock] %for.inc485
+  %j.5 = phi i64 [ %inc482, %if.then478 ], [ %j.4799, %for.body473 ]
+  %exitcond834 = icmp eq i64 %.pre, %call64
+  br i1 %exitcond834, label %if.end510, label %for.body473
 ]]></r:output>
 </r:code>
 </para>
 <para>
-This compares %.pre and %call92.
-%call92 is call to XLENGTH_EX( %18), and %18 is (probably) the character vector x in the grep/grepl()
-call which is mapped to the variable text via the CAR(args) sequence (See <xref linkend="sec:CAR"/>. So this is R's length(x).
-And %523 seems to be i the number of iterations. So this <c:expr><![CDATA[i < n]]></c:expr>.
-So this is iterator (?) the for loop with the body 
+This compares %.pre and %call64.
+%call64 is call to XLENGTH_EX( %call3), and %call3 is the character vector x in the grep/grepl()
+call which is mapped to the variable text via the CAR(args) sequence (See <xref linkend="sec:CAR"/>.
+%call3 is the second call to CAR and corresponds to the second element of the %args parameter.
+So %call3 is R's length(x).
+And %.pre is the variable i, the number of iterations. So this <c:expr><![CDATA[i < n]]></c:expr>.
+So this is the increment of the for loop with the body 
 <c:code>
 if (invert ^ LOGICAL(ind)[i]) REAL(ans)[j++] = (double)(i + 1);
 </c:code>
@@ -578,7 +580,12 @@ So we want to disable/undefine the pre-processor symbol USE_RINTERNALS.
 Instead of  editing $R_HOME/src/include/Defn.h to remove the conditional definition of USE_RINTERNALS,
 we can define the pre-processor macro TEST_WRITING_BARRIER  on the command line when generating the IR code:
 <sh:code>
-clang -emit-llvm -S -I../../../src/extra  -I. -I../../src/include -I../../../src/include  -I/usr/local/include -I../../../src/nmath -DHAVE_CONFIG_H   -DTESTING_WRITE_BARRIER -O2  -c ../../../src/main/array.c -o array.ll -mllvm -inline-threshold=0 -mllvm -inlinehint-threshold=10 -fno-discard-value-names 
+  clang -emit-llvm -S -I../../../src/extra  -I. -I../../src/include
+  -I../../../src/include -I/usr/local/include -I../../../src/nmath
+  -DHAVE_CONFIG_H -DTESTING_WRITE_BARRIER -O2
+  -c ../../../src/main/array.c -o array.ll
+  -mllvm -inline-threshold=0 -mllvm -inlinehint-threshold=10
+  -fno-discard-value-names 
 </sh:code>
 </para>
 </section>

@@ -1,0 +1,25 @@
+<section>
+<title></title>
+
+<para>
+<r:func>sort</r:func> calls <c:func>do_sort</c:func>.
+</para>
+
+
+<para>
+<r:code>
+mm = parseIR("~/R-devel/build/src/main/sort.ll")
+ret = getReturnValues(mm$do_sort)[[1]]
+ret[]
+<r:output><![CDATA[
+[[1]]
+[1] "  %call20 = tail call %struct.SEXPREC.0* @Rf_duplicate(%struct.SEXPREC.0* %call19) #10"
+
+[[2]]
+[1] "  %call4 = tail call %struct.SEXPREC.0* @CAR(%struct.SEXPREC.0* %args) #10"
+]]></r:output>
+</r:code>
+</para>
+
+
+</section>
