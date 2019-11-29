@@ -31,6 +31,17 @@ Related packages are [Rffi](https://github.com/omegahat/Rffi), Rllvm (this one),
 
 
 
+## Installation
+
+On OSX, when working with binary versions of LLVM or versions built from source, 
+some of the dynamic libraries (dylib) may not correctly point to the libc++.1.dylib
+leading to a failure to load the Rllvm.so library.
+To fix this, we use the command
+```
+install_name_tool -change @rpath/libc++.1.dylib /usr/lib/libc++.1.dylib src/Rllvm.so
+```
+to fix the `src/Rllvm.so`.
+
 
 ## URLs
 
