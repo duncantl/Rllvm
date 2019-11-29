@@ -107,7 +107,7 @@ getStructTypeName =
 
 setMethod("getName", "StructType",
           function(obj, name) {
-              ans = .Call("R_StructType_getName", obj)
+              .Call("R_StructType_getName", obj)
          })
 
 setMethod("getElementTypes", "StructType",
