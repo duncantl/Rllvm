@@ -15,7 +15,7 @@ SEXP
 R_Value_getName(SEXP r_val)
 {
     llvm::Value * val = GET_REF(r_val, Value);
-    if(!val->hasName()) 
+    if(!val || !val->hasName()) 
         return(ScalarString(R_NaString));
     llvm::StringRef str = val->getName(); // may need to use getNameStr()
     return(ScalarString(mkChar(str.data())));
