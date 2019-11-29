@@ -110,6 +110,16 @@ R_ConstantAggregateZero_get(SEXP r_type)
 
 extern "C"
 SEXP
+R_Constant_isZeroValue(SEXP r_cons)
+{
+    llvm::Constant *cons = GET_REF(r_cons, Constant);
+    return(ScalarLogical(cons->isZeroValue()));
+}
+
+
+
+extern "C"
+SEXP
 R_ConstantInt_getValue(SEXP r_ref)
 {
     llvm::ConstantInt *cons = GET_REF(r_ref, ConstantInt);
