@@ -121,3 +121,10 @@ setMethod("getAsCString", "ConstantDataSequential",
           function(x, ...)
               .Call("R_ConstantDataSequential_getAsCString", x))
 
+
+
+
+
+setMethod("isZeroValue", "Constant",
+          isZeroValue.Constant <- function(x, ...)
+              .Call("R_Constant_isZeroValue", x))

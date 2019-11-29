@@ -32,3 +32,5 @@ setGeneric("getReturnType",
             function(obj, ...)
               standardGeneric("getReturnType"))
 
+
+setGeneric("isZeroValue", function(x, ...) standardGeneric("isZeroValue"))
