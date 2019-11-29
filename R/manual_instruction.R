@@ -42,7 +42,7 @@ setMethod("[[", c("Instruction", "numeric"),
 
 setMethod("[", c("Instruction", "numeric"),
               function(x, i, j, ...) {
-                  if(i < 0)
+                  if(any(i < 0))
                       (x[])[i]
                   else
                      lapply(i, function(i) getOperand(x, i))
