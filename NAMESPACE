@@ -557,3 +557,10 @@ export(provideUndefFunctions, getUndefModuleFunctions)
 
 
 export(demangle)
+
+export(isZeroValue)
+exportMethods(isZeroValue)
+
+export(isZeroValue.Constant)
+
+export(drawCFG)
