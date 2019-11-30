@@ -47,6 +47,19 @@ function(block, cast = TRUE)
      ans
 }
 
+setMethod("getInstructions", "BasicBlock",
+          function(x, ...)
+             getBlockInstructions(x, ...))
+
+setMethod("getInstructions", "Function",
+          function(x, collapse = TRUE, ...) {
+              ans = lapply(getBlocks(x), getBlockInstructions)
+              if(collapse)
+                  unlist(ans, recursive = FALSE)
+              else
+                  ans
+          })
+
 
 
 setMethod("moveAfter", c("BasicBlock", "BasicBlock"),
