@@ -2,6 +2,10 @@
 \alias{createGlobalVariable}
 \alias{createGlobalVar}
 \alias{GlobalVariable-class}
+
+\alias{getInitializer}
+\alias{getInitializer,GlobalVariable-method}
+
 \title{Define a native global variable}
 \description{
   This function is used to create and initialize a global variable

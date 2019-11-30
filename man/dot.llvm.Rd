@@ -1,6 +1,7 @@
 \name{.llvm}
 \alias{.llvm}
 \alias{run,Function-method}
+\alias{run,LegacyPassManager-method}
 \alias{run}
 
 \title{Invoke an LLVM Function from R}

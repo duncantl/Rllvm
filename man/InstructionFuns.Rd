@@ -1,6 +1,7 @@
 \name{isCast}
 \alias{isCast}
 \alias{getParent,Instruction-method}
+\alias{getParent,NamedMDNode-method}
 \alias{getReturnType,CallInst-method}
 \alias{getReturnType,Function-method}
 \alias{getType,Value-method}
@@ -48,6 +49,16 @@
 \alias{insertAfter}
 \alias{insertAtEnd}
 \alias{moveBefore}
+
+\alias{[,Instruction,missing,ANY-method}
+\alias{[,Instruction,numeric,ANY-method}
+
+\alias{coerce,ConstantExpr,Instruction-method}
+
+\alias{setFastISel}
+
+\alias{getOpcode,Operator-method}
+
 
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Miscellaneous functions operating on LLVM Instruction objects}

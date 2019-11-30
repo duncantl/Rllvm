@@ -30,7 +30,21 @@
 \alias{UnaryInstruction-class}
 \alias{UnionType-class}
 \alias{User-class}
+\alias{Use-class}
+\alias{length,User-method}
+
+\alias{ObjectFile-class}
+\alias{LoadObjectInfo-class}
+
+\alias{[[,User,ANY,ANY-method}
+
 \alias{Value-class}
+\alias{[[,Value,ANY,ANY-method}
+\alias{coerce,Value,character-method}
+
+
+\alias{RFunctionJITEventListener-class} %XXX
+
 \alias{Argument-class}
 \alias{FunctionType-class}
 \alias{BinaryOperator-class}

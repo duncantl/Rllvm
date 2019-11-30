@@ -28,6 +28,9 @@
 \alias{setDataLayout}
 \alias{setDataLayout,Module-method}
 
+
+\alias{getStackAlignment}
+
 \title{Collection of generic functions for LLVM objects}
 \description{These are some of the generic functions for LLVM}
 \usage{

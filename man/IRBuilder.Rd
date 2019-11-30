@@ -57,6 +57,8 @@
 \alias{createPHI}
 \alias{createPhi}
 
+\alias{debugSetLocation}
+
 \title{Create an IR builder object for LLVM construction}
 \description{
   This function and class allow us to create and use
@@ -109,6 +111,7 @@ setInsertBlock(builder, block)
 setInsertPoint(builder, instruction)
 createTrunc(builder, value, type, id = "")
 createFPTrunc(builder, value, type, id = "")
+debugSetLocation(builder, func, lineNo, colNo) 
 }
 \arguments{
   \item{block}{either a \code{Block} object to which instructions will be inserted/added

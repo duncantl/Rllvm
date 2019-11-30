@@ -1,6 +1,7 @@
 \name{getPassManager}
 \alias{getPassManager}
 \alias{passManager}
+\alias{functionPassManager}
 \alias{addPass}
 \alias{FunctionPassManager-class}
 \alias{run,PassManager-method}

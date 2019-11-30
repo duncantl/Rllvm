@@ -3,6 +3,10 @@
 \alias{Block-class}
 
 \alias{getBlockInstructions}
+\alias{getInstructions}
+\alias{getInstructions,GlobalVariable-method}
+\alias{getInstructions,BasicBlock-method}
+
 \alias{getFirstNonPHI}
 \alias{getTerminator}
 \alias{getParent,BasicBlock-method}
@@ -21,8 +25,18 @@
 \alias{getPredecessor}
 \alias{getSuccessor}
 
+\alias{lapply}
+\alias{lapply,BasicBlock-method}
 
-\title{Create an LLVM block}
+\alias{coerce,BasicBlock,Function-method}
+\alias{coerce,BasicBlock,Module-method}
+
+\alias{getLandingPadInst}
+
+\alias{isEHPad}
+\alias{isLandingPad}
+
+\title{Functions to create and manipulate an LLVM BasicBlock}
 \description{
   Blocks are labelled collections of statements/commands
   in LLVM. When creating an LLVM routine
@@ -38,6 +52,7 @@
 Block(fun, id = character(), context = getGlobalContext(), n = 1)
 getPredecessor(x, single = TRUE)
 getSuccessor(x, single = TRUE)
+getLandingPadInst(block)
 }
 \arguments{
   \item{fun}{the function for which this block is to be created}
@@ -51,7 +66,7 @@ getSuccessor(x, single = TRUE)
   \item{n}{the number of blocks to create. This is currently ignored.
    The idea is that we can create multiple blocks in a single call for convenience.}
 
- \item{x}{a \code{BasicBlock} object}
+ \item{x,block}{a \code{BasicBlock} object}
  \item{single}{a logical value, indicating whether to use the
  getSinglePredecessor method or getUniquePredecessor method, or
  the same distinction for a successor.}

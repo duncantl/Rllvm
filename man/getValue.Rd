@@ -6,6 +6,10 @@
 \alias{getValue,MDNode-method}
 \alias{getValue,NamedMDNode-method}
 \alias{getValue,Value-method}
+\alias{getValue,Metadata-method}
+\alias{getValue,Use-method}
+
+\alias{coerce,ConstantInt,integer-method}
 
 \title{Get the value from an LLVM entity}
 

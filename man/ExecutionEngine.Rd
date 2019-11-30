@@ -7,6 +7,8 @@
 \alias{getGlobalValue}
 \alias{addModule}
 
+\alias{finalizeEngine}
+
 \alias{CodeGenOpt_None}
 \alias{CodeGenOpt_Default}
 \alias{CodeGenOpt_Less}

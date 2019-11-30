@@ -26,6 +26,9 @@
 \alias{getName,Module-method}
 \alias{getContext,Module-method}
 
+\alias{getAssemblyCode}
+\alias{getUndefModuleFunctions}
+\alias{provideUndefFunctions}
 
 \title{Create an LLVM module for one or more functions and variables}
 \description{

@@ -17,6 +17,8 @@
 \alias{isX86_FP80Type}
 \alias{sameType}
 
+\alias{getFields,StructType-method}
+
 \title{Predicate functions for testing a type}
 \description{
   These functions allow us to determine if an object

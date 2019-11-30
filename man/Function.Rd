@@ -29,9 +29,12 @@
 
 \alias{getFunctionArgs}
 \alias{setFuncAttributes}
-\alias{getFuncAttributes}
+\alias{getFunctionReturnType}
 \alias{setParamAttributes}
 \alias{makeRFunction}
+\alias{getFunctionAddress}
+
+\alias{getFuncAttributes}
 
 \alias{getBlocks}
 \alias{getModule,Function-method}
@@ -40,10 +43,24 @@
 \alias{[[,Function,numeric,ANY-method}
 
 \alias{getParent,Function-method}
+\alias{getParent,Argument-method}
+
+\alias{getParameters,Function-method}
+\alias{getParameters,FunctionType-method}
 
 \alias{LLVMAttributes}
 
 \alias{isVarArg}
+
+\alias{getContext,Function-method}
+
+\alias{coerce,Function,character-method}
+
+\alias{coerce,Function,character-method}
+
+\alias{getReturnType,FunctionType-method}
+
+\alias{getInstructions,Function-method}
 
 \title{Create an LLVM function/routine}
 \description{
@@ -77,7 +94,7 @@ Function(name, retType, paramTypes = list(), module = Module(), varArgs = FALSE,
 An object of class \code{Function}
 }
 \references{
-    LLVM Documentation \url{http://llvm.org/docs/}
+  LLVM Documentation \url{http://llvm.org/docs/}
 }
 \author{
 Duncan Temple Lang
@@ -87,8 +104,6 @@ Duncan Temple Lang
 \code{\link{Block}}, \code{\link{IRBuilder}}
 }
 \examples{
-
-
 # This shows how we can use LLVM to call an existing routine.
 m = Module()
 ee = ExecutionEngine(m)

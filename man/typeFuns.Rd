@@ -12,6 +12,13 @@
 \alias{getNumElements,VectorType-method}
 \alias{getDescription,Type-method}
 \alias{getElementTypes,StructType-method}
+\alias{getFields}
+
+\alias{getElementType,ANY-method}
+\alias{getElementType,INTSXPType-method}
+\alias{getElementType,LGLSXPType-method}
+\alias{getElementType,REALSXPType-method}
+\alias{getElementType,VECSXPType-method}
 
 \alias{getName,StructType-method}
 
@@ -21,8 +28,10 @@
 
 \alias{pointerType}
 \alias{isBasicType}
-\alias{getNULLPointerType}
+\alias{getNULLPointer}
 \alias{functionType}
+
+\alias{coerce,Type,character-method}
 
 
 \title{Miscellaneous functions for LLVM Types}

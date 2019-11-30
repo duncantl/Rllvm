@@ -7,6 +7,9 @@
 \alias{getDataLayout,Module-method}
 \alias{getDataLayout,TargetMachine-method}
 
+\alias{coerce,Argument,LLVMContext-method} %XXX here?
+
+
 \title{Retrieve the default LLVM context}
 \description{
   An LLVM context is used to manage data within the
@@ -19,7 +22,7 @@ getGlobalContext()
 }
 
 \value{
-An object of class \code{Context-class}.
+An object of class \code{\link{Context-class}}.
 }
 \references{
   \url{http://llvm.org/docs/doxygen/html/classllvm_1_1LLVMContext.html}

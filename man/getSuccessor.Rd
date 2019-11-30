@@ -2,6 +2,15 @@
 \alias{getSuccessor}
 \alias{getCondition}
 \alias{getNumSuccessors}
+\alias{getSuccessors}
+\alias{getPredecessors}
+\alias{getSuccessor,BasicBlock-method}
+\alias{getSuccessor,ReturnInst-method}
+\alias{getSuccessors,BasicBlock-method}
+\alias{getSuccessors,ReturnInst-method}
+\alias{getPredecessor,BasicBlock-method}
+\alias{getPredecessors,BasicBlock-method}
+\alias{getSuccessors,BranchInst-method}
 \alias{isConditional}
 \title{Get different aspects of a Branch Instruction}
 \description{
