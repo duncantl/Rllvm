@@ -42,7 +42,6 @@
 \alias{[[,Value,ANY,ANY-method}
 \alias{coerce,Value,character-method}
 
-
 \alias{RFunctionJITEventListener-class} %XXX
 
 \alias{Argument-class}

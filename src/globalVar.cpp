@@ -46,10 +46,29 @@ R_GlobalVariable_setInitializer(SEXP r_var, SEXP r_val)
 
 extern "C"
 SEXP
-R_GlobalVariable_getInitializer(SEXP r_var, SEXP r_val)
+R_GlobalVariable_getInitializer(SEXP r_var)
 {
     llvm::GlobalVariable *ans = GET_REF(r_var, GlobalVariable);
     return(R_createRef(ans->getInitializer(), "Constant"));
+}
+
+
+extern "C"
+SEXP
+R_GlobalVariable_getAttributes(SEXP r_var)
+{
+    llvm::GlobalVariable *var = GET_REF(r_var, GlobalVariable);
+    llvm::AttributeSet ats = var->getAttributes();
+    int n = ats.getNumAttributes(), i;
+    SEXP ans;
+    PROTECT(ans = NEW_LIST(n));
+    const llvm::Attribute *p;
+    for(i = 0, p = ats.begin(); p != ats.end(); p++, i++) {
+        llvm::StringRef ref = p->getValueAsString();
+        SET_VECTOR_ELT(ans, i, ScalarString(mkChar(ref.data() ? ref.data() : "")));
+    }
+    UNPROTECT(1);
+    return(ans);
 }
 
 
