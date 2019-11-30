@@ -544,7 +544,8 @@ export(blocks, incoming_values)
 export(getUser, getAllUsers)
 
 
-export(getInitializer, getAsCString)
+export(getInitializer)
+export(getAsCString) # getAsCString - now as(x, "character")
 
 export(isEHPad)
 
@@ -564,3 +565,10 @@ exportMethods(isZeroValue)
 export(isZeroValue.Constant)
 
 export(drawCFG)
+
+export(getInstructions)
+exportMethods(getInstructions)
+
+
+export(getLinkage)
+
