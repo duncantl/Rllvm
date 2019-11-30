@@ -34,3 +34,7 @@ setGeneric("getReturnType",
 
 
 setGeneric("isZeroValue", function(x, ...) standardGeneric("isZeroValue"))
+
+
+setGeneric("getInstructions", function(x, ...) standardGeneric("getInstructions"))
+
