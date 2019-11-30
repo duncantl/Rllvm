@@ -121,7 +121,9 @@ setMethod("getAsCString", "ConstantDataSequential",
           function(x, ...)
               .Call("R_ConstantDataSequential_getAsCString", x))
 
-
+setAs("ConstantDataSequential", "character",
+      function(from)
+        getAsCString(from))
 
 
 
