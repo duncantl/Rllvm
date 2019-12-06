@@ -10,21 +10,7 @@
 \alias{coerce,Function,Module-method}
 \alias{getParameters}
 \alias{$,Function-method}
-\alias{setLinkage}
-\alias{ExternalLinkage}
-\alias{AvailableExternallyLinkage}
-\alias{LinkOnceAnyLinkage}
-\alias{LinkOnceODRLinkage}
-\alias{WeakAnyLinkage}
-\alias{WeakODRLinkage}
-\alias{AppendingLinkage}
-\alias{InternalLinkage}
-\alias{PrivateLinkage}
-\alias{LinkerPrivateLinkage}
-\alias{DLLImportLinkage}
-\alias{DLLExportLinkage}
-\alias{ExternalWeakLinkage}
-\alias{CommonLinkage}
+
 \alias{coerce,Function,function-method}
 
 \alias{getFunctionArgs}
