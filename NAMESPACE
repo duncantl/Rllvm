@@ -481,7 +481,7 @@ export(insertAtEnd)
 
 export(isLandingPad, getLandingPadInst)
 
-export(createPHI,createPhi)
+export(createPHI, createPhi)
 
 
 export(getBlockGraph)
@@ -571,4 +571,148 @@ exportMethods(getInstructions)
 
 
 export(getLinkage)
+
+
+export(getSDKVersion, getInstructionCount)
+
+
+
+export(isTerminator,
+isUnaryOp,
+isBinaryOp,
+isIntDivRem,
+isShift,
+isCast,
+isFuncletPad,
+isExceptionalTerminator,
+isLogicalShift,
+isArithmeticShift,
+isBitwiseLogicOp,
+hasMetadata,
+hasMetadataOtherThanDebugLoc,
+hasNoUnsignedWrap,
+hasNoSignedWrap,
+isExact,
+isFast,
+hasAllowReassoc,
+hasNoNaNs,
+hasNoInfs,
+hasNoSignedZeros,
+hasAllowReciprocal,
+hasAllowContract,
+hasApproxFunc,
+isAssociative,
+isCommutative,
+isIdempotent,
+isNilpotent,
+mayWriteToMemory,
+mayReadFromMemory,
+mayReadOrWriteMemory,
+isAtomic,
+hasAtomicLoad,
+hasAtomicStore,
+mayThrow,
+isFenceLike,
+mayHaveSideEffects,
+isSafeToRemove,
+       isEHPad,
+       isVolatile,
+       isSimple,
+       isLifetimeStartOrEnd,
+       isUnordered)
+
+
+exportMethods(isTerminator,
+isUnaryOp,
+isBinaryOp,
+isIntDivRem,
+isShift,
+isCast,
+isFuncletPad,
+isExceptionalTerminator,
+isLogicalShift,
+isArithmeticShift,
+isBitwiseLogicOp,
+hasMetadata,
+hasMetadataOtherThanDebugLoc,
+hasNoUnsignedWrap,
+hasNoSignedWrap,
+isExact,
+isFast,
+hasAllowReassoc,
+hasNoNaNs,
+hasNoInfs,
+hasNoSignedZeros,
+hasAllowReciprocal,
+hasAllowContract,
+hasApproxFunc,
+isAssociative,
+isCommutative,
+isIdempotent,
+isNilpotent,
+mayWriteToMemory,
+mayReadFromMemory,
+mayReadOrWriteMemory,
+isAtomic,
+hasAtomicLoad,
+hasAtomicStore,
+mayThrow,
+isFenceLike,
+mayHaveSideEffects,
+isSafeToRemove,
+isEHPad, isSimple,
+              isLifetimeStartOrEnd, isVolatile,
+              isUnordered)
+
+
+export(isVolatile,
+isSimple,
+isUnordered,
+getAlignment,
+getOrdering,
+getSyncScopeID,
+setAlignment,
+setOrdering,
+setSyncScopeID,
+       setVolatile)
+
+exportMethods(
+    isVolatile,
+isSimple,
+isUnordered,
+getAlignment,
+getOrdering,
+getSyncScopeID,
+setAlignment,
+setOrdering,
+setSyncScopeID,
+setVolatile)
+
+
+# CallInst
+export(addAttribute,
+canReturnTwice,
+getParamAlignment,
+getTailCallKind,
+isInlineAsm,
+isMustTailCall,
+isNoTailCall,
+isTailCall,
+setCanReturnTwice)    
+
+
+# InvokeInst
+export(
+getNormalDest,
+getUnwindDest,
+doesNotThrow,
+doesNoCfCheck,
+setNormalDest,
+setNormalDest,
+setUnwindDest)
+
+
+
+export(isUsedInBasicBlock, isUsedByMetadata, hasValueHandle, isSwiftError, getNumUses, getValueName)
+
 
