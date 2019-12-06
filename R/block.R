@@ -47,6 +47,15 @@ function(block, cast = TRUE)
      ans
 }
 
+setMethod("getInstructions", "Module",
+          function(x, dropEmpty = TRUE, ...) {
+              funs = getModuleFunctions(x)
+              ans = lapply(funs, getInstructions)
+              if(dropEmpty)
+                  ans = ans[sapply(ans, length) > 0]
+              ans
+          })
+
 setMethod("getInstructions", "BasicBlock",
           function(x, ...)
              getBlockInstructions(x, ...))
@@ -156,10 +165,18 @@ setMethod("lapply", "BasicBlock",
              sapply(getBlockInstructions(X, cast = cast), FUN, ...))
 
 
+setGeneric("getLandingPadInst",
+           function(block, ...)
+           standardGeneric("getLandingPadInst"))
 
-getLandingPadInst =
-function(block)
-  .Call("R_BasicBlock_getLandingPadInst", as(block, "BasicBlock"))
+setMethod("getLandingPadInst", "BasicBlock",
+          function(block, ...)
+            .Call("R_BasicBlock_getLandingPadInst", block))
+
+setMethod("getLandingPadInst", "InvokeInst",
+          function(block, ...)
+            .Call("R_InvokeInst_getLandingPadInst", block))
+          
 
 isLandingPad =
 function(block)
@@ -195,11 +212,9 @@ function(x, single = TRUE, ...)
 
 
 
-isEHPad =
-function(block)
-{
-   .Call("R_Block_isEHPad", block)
-}
+setMethod("isEHPad", "BasicBlock",
+           function(x, ...)
+             .Call("R_Block_isEHPad", x))
 
 
 getAncestors =

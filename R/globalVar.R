@@ -87,7 +87,6 @@ function(var, value)
   value
 }
 
-
 setGeneric("setAlignment",
            function(var, align, ...)
               standardGeneric("setAlignment"))
@@ -95,6 +94,7 @@ setGeneric("setAlignment",
 setMethod("setAlignment", "GlobalVariable",
            function(var, align, ...)          
               .Call("R_GlobalVariable_setAlignment", var, as.integer(align)))
+
 
 setMethod("setAlignment", "StoreInst",
            function(var, align, ...)          

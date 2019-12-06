@@ -463,17 +463,6 @@ function(line, col, msg)
 }
 
 
-createExtractElement =
-function(builder, vec, idx)
-{
-   .Call("R_IRBuilder_CreateExtractElement", builder, vec, idx)
-}
-
-createInsertElement =
-function(builder, vec, elt, idx)
-{
-   .Call("R_IRBuilder_CreateInsertElement", builder, vec, elt, idx)
-}
 
 
 
@@ -543,4 +532,63 @@ createPhi = createPHI =
 function(builder, type, numReservedValues, id = character())
 {
   .Call("R_IRBuilder_CreatePHI", as(builder, "IRBuilder"), as(type, "Type"), as.integer(numReservedValues), as.character(id))
+}
+
+
+
+
+createInsertElement =
+function(builder, vec, value, idx, id = character())
+{
+    vec = as(vec, "Value")
+    value = as(value, "Value")
+    if(is(idx, "numeric"))
+        idx = makeConstant(ir, idx)
+    else
+        idx = as(idx, "Value")
+    
+    .Call("R_IRBuilder_CreateInsertElement", builder, vec, value, idx, as.character(id))
+}
+
+
+createExtractElement =
+function(builder, vec, idx, id = character())
+{
+    vec = as(vec, "Value")
+    if(is(idx, "numeric"))
+        idx = makeConstant(ir, idx)
+    else
+        idx = as(idx, "Value")
+    
+    .Call("R_IRBuilder_CreateExtractElement", builder, vec, idx, as.character(id))
+}
+
+
+createInsertValue =
+function(builder, vec, value, indices, id = character())
+{
+    vec = as(vec, "Value")
+    value = as(value, "Value")
+    indices = as.numeric(indices)
+    
+    .Call("R_IRBuilder_CreateInsertValue", builder, vec, value, indices, as.character(id))
+}
+
+
+createExtractValue =
+function(builder, vec, value, indices, id = character())
+{
+    vec = as(vec, "Value")
+    indices = as.numeric(indices)
+    
+    .Call("R_IRBuilder_CreateExtractValue", builder, vec, indices, as.character(id))
+}
+
+
+createIndirectBr =
+function(builder, value, id = character())
+{
+    value = as(value, "Value")
+    
+    .Call("R_IRBuilder_CreateIndirectBr", builder, value, as.character(id))
 }

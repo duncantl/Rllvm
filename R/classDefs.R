@@ -57,6 +57,8 @@ setClass("Instruction", contains = "User")
 setClass("Use", contains = "RC++Reference")
 
 setClass("UnaryInstruction", contains = "Instruction")
+setClass("UnaryOperator", contains = "UnaryInstruction")
+
 setClass("TerminatorInst", contains = "Instruction")
 setClass("ReturnInst", contains = "TerminatorInst")
 setClass("CallInst", contains = "Instruction")
@@ -64,6 +66,8 @@ setClass("InvokeInst", contains = "Instruction")
 setClass("CastInst", contains = "UnaryInstruction")
 setClass("SExtInst", contains = "CastInst")
 
+
+setClass("IndirectBrInst", contains = "Instruction")
 
 setClass("BinaryOperator", contains = "Instruction")
 
@@ -117,14 +121,16 @@ setClass('ExtractValueInst', contains = 'UnaryInstruction')
 setClass('InsertValueInst', contains = 'Instruction')
 setClass('LandingPadInst', contains = 'Instruction')
 
-
-
-
+setClass("CatchSwitchInst", contains = "Instruction")
+setClass("FuncletPadInst", contains = "Instruction")
+setClass("CleanupPadInst", contains = "FuncletPadInst")
+setClass("CatchPadInst", contains = "FuncletPadInst")
+setClass("CatchReturnInst", contains = "Instruction")
+setClass("CleanupReturnInst", contains = "Instruction")
 
 setClass("NamedMDNode", contains = "RC++Reference")
 setClass("MDNode", contains = "Value")
 setClass("MDString", contains = "Value")
-
 
 
 setClass("Type", contains = "RC++Reference")
@@ -233,14 +239,6 @@ setMethod("show", "Module",
             cat("Module:", getName(object), "\n",
                  "  contents: ", paste(names(object), sep = ", "), "\n")
           })
-
-
-setTailCall =
-function(call, val = TRUE)
-{  
-   .Call("R_CallInst_setTailCall", call, as.logical(val))
-}
-
 
 
 setGeneric("setName",

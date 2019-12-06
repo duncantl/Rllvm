@@ -135,8 +135,6 @@ setMethod("[[", c("Function", "character"),
           function(x, i, j, ...) {
             .xtmp(x, i)
           })
-.xtmp
-
 
 
 setLinkage =

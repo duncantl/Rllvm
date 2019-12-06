@@ -65,3 +65,49 @@ function(obj, uses = getAllUses(obj))
 setMethod("getValue", "Use", function(x, ...) .Call("R_Use_get", x))
 
 
+
+
+getValueName =
+function(val)
+{
+  .Call("R_Value_getValueName", val)
+}
+
+isUsedInBasicBlock =
+function(val)    
+{
+  .Call("R_Value_isUsedInBasicBlock", as(val, "Value"))
+}
+
+isUsedByMetadata =
+function(val)    
+{
+  .Call("R_Value_isUsedByMetadata", as(val, "Value"))
+}
+
+hasValueHandle =
+function(val)    
+{
+  .Call("R_Value_hasValueHandle", as(val, "Value"))
+}
+
+isSwiftError =
+function(val)    
+{
+  .Call("R_Value_isSwiftError", as(val, "Value"))
+}
+
+getNumUses =
+function(val)    
+{
+  .Call("R_Value_getNumUsesr", as(val, "Value"))
+}
+
+
+getValueName =
+function(val)    
+{
+  .Call("R_Value_getValueName", as(val, "Value"))
+}
+
+
