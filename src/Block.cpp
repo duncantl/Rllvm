@@ -128,7 +128,16 @@ R_BasicBlock_getLandingPadInst(SEXP r_block)
     llvm::LandingPadInst *ans;
     ans = block->getLandingPadInst();
     return(ans ? R_createRef(ans, "LandingPadInst") : R_NilValue);    
+}
 
+extern "C"
+SEXP
+R_InvokeInst_getLandingPadInst(SEXP r_block)
+{
+    llvm::InvokeInst *block = GET_REF(r_block, InvokeInst);
+    llvm::LandingPadInst *ans;
+    ans = block->getLandingPadInst();
+    return(ans ? R_createRef(ans, "LandingPadInst") : R_NilValue);    
 }
 
 
@@ -172,6 +181,8 @@ R_BasicBlock_isEHPad(SEXP r_block)
     llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
     return(ScalarLogical(block->isEHPad()));
 }
+
+
 
 #if 1
 

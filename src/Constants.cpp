@@ -96,6 +96,43 @@ R_GetElementPtrInst_setIsInBounds(SEXP r_gep, SEXP r_val)
     return(ScalarLogical(old));
 }
 
+extern "C"
+SEXP
+R_GetElementPtrInst_getResultElementType(SEXP r_gep)
+{
+    llvm::GetElementPtrInst *gep = GET_REF(r_gep, GetElementPtrInst);
+    return(R_createRef(gep->getResultElementType(), "Type"));
+}
+
+extern "C"
+SEXP
+R_GetElementPtrInst_getSourceElementType(SEXP r_gep)
+{
+    llvm::GetElementPtrInst *gep = GET_REF(r_gep, GetElementPtrInst);
+    return(R_createRef(gep->getSourceElementType(), "Type"));
+}
+
+extern "C"
+SEXP
+R_GetElementPtrInst_setSourceElementType(SEXP r_gep, SEXP r_type)
+{
+    llvm::GetElementPtrInst *gep = GET_REF(r_gep, GetElementPtrInst);
+    llvm::Type *ty = GET_REF(r_type, Type);
+    gep->setSourceElementType(ty);
+    return(R_NilValue);
+}
+
+extern "C"
+SEXP
+R_GetElementPtrInst_setResultElementType(SEXP r_gep, SEXP r_type)
+{
+    llvm::GetElementPtrInst *gep = GET_REF(r_gep, GetElementPtrInst);
+    llvm::Type *ty = GET_REF(r_type, Type);
+    gep->setResultElementType(ty);
+    return(R_NilValue);
+}
+
+
 
 extern "C"
 SEXP

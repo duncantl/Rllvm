@@ -449,8 +449,6 @@ R_IRBuilder_CreateLoad(SEXP r_builder, SEXP r_val, SEXP r_isVolatile, SEXP r_id)
 
 }
 
-
-
 extern "C"
 SEXP
 R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id)
@@ -943,19 +941,33 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
 
 extern "C"
 SEXP
-R_IRBuilder_CreateExtractElement(SEXP r_builder, SEXP r_vec, SEXP r_idx)
+R_IRBuilder_CreateExtractElement(SEXP r_builder, SEXP r_vec, SEXP r_idx, SEXP r_id)
 {
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
     llvm::Value *val = GET_REF(r_vec, Value);
-    llvm::Value *idx = GET_REF(r_idx, Value);
-    llvm::Value *ret = builder->CreateExtractElement(val, idx);
-    return(R_createRef(ret, "Value"));
+    llvm::Value *ret = NULL;
+    
+    if(TYPEOF(r_idx) == REALSXP) {
+        ret = builder->CreateExtractElement(val, (uint64_t) REAL(r_idx)[0]);
+    } else {
+        llvm::Value *idx = GET_REF(r_idx, Value);
+        ret = builder->CreateExtractElement(val, idx);
+    }
+
+    if(!ret) {
+        PROBLEM "Couldn't create an ExtractElement"
+            ERROR;
+    }
+    if(Rf_length(r_id)) 
+        ret->setName(makeTwine(r_id));
+    
+    return(R_createRef(ret, "ExtractElementInst"));
 } 
 
 extern "C"
 SEXP
-R_IRBuilder_CreateInsertElement(SEXP r_builder, SEXP r_vec, SEXP r_elt, SEXP r_idx)
+R_IRBuilder_CreateInsertElement(SEXP r_builder, SEXP r_vec, SEXP r_elt, SEXP r_idx, SEXP r_id)
 {
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
@@ -963,7 +975,56 @@ R_IRBuilder_CreateInsertElement(SEXP r_builder, SEXP r_vec, SEXP r_elt, SEXP r_i
     llvm::Value *elt = GET_REF(r_elt, Value);
     llvm::Value *idx = GET_REF(r_idx, Value);
     llvm::Value *ret = builder->CreateInsertElement(val, elt, idx);
-    return(R_createRef(ret, "Value"));
+
+    if(Rf_length(r_id)) 
+        ret->setName(makeTwine(r_id));
+    
+    return(R_createRef(ret, "InsertElementInst"));
+}
+
+
+extern "C"
+SEXP
+R_IRBuilder_CreateInsertValue(SEXP r_builder, SEXP r_vec, SEXP r_elt, SEXP r_idx, SEXP r_id)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *val = GET_REF(r_vec, Value);
+    llvm::Value *elt = GET_REF(r_elt, Value);
+    
+    std::vector<unsigned> vidx;
+    for(int i = 0; i < Rf_length(r_idx); i++)
+        vidx.push_back((unsigned) REAL(r_idx)[i]);
+    llvm::ArrayRef<unsigned> idx = llvm::makeArrayRef(vidx);        
+
+    
+    llvm::Value *ret = builder->CreateInsertValue(val, elt, idx);
+
+    if(Rf_length(r_id)) 
+        ret->setName(makeTwine(r_id));
+    
+    return(R_createRef(ret, "InsertValueInst"));
+}
+
+
+extern "C"
+SEXP
+R_IRBuilder_CreateExtractValue(SEXP r_builder, SEXP r_vec, SEXP r_idx, SEXP r_id)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *val = GET_REF(r_vec, Value);
+    
+    std::vector<unsigned> vidx;
+    for(int i = 0; i < Rf_length(r_idx); i++)
+        vidx.push_back((unsigned) REAL(r_idx)[i]);
+    llvm::ArrayRef<unsigned> idx = llvm::makeArrayRef(vidx);    
+    
+    llvm::Value *ret = builder->CreateExtractValue(val, idx);
+    
+    if(Rf_length(r_id)) 
+        ret->setName(makeTwine(r_id));    
+    return(R_createRef(ret, "ExtractValueInst"));
 } 
 
 extern "C"
@@ -976,6 +1037,9 @@ R_IRBuilder_CreateSwitch(SEXP r_builder, SEXP r_val, SEXP r_dest, SEXP numCases,
     llvm::BasicBlock *dest = GET_REF(r_dest, BasicBlock);
     llvm::SwitchInst *ans = builder->CreateSwitch(val, dest, INTEGER(numCases)[0]);
 
+    if(Rf_length(r_id)) 
+        ans->setName(makeTwine(r_id));
+    
     return(R_createRef(ans, "SwitchInst"));
 }
 
@@ -1110,6 +1174,41 @@ R_IRBuilder_CreateTrunc(SEXP r_builder, SEXP r_value, SEXP r_type, SEXP r_id)
 }
 
 
+extern "C"
+SEXP
+R_IRBuilder_CreateIndirectBr(SEXP r_builder, SEXP r_value, SEXP r_id)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *value = GET_REF(r_value, Value);
+
+    llvm::Value *ans = builder->CreateIndirectBr(value);
+    if(Rf_length(r_id)) 
+        ans->setName(makeTwine(r_id));
+
+    return(R_createRef(ans, "IndirectBrInst"));
+}
+
+extern "C"
+SEXP
+R_IndirectBrInst_addDestination(SEXP r_inst, SEXP r_dest)
+{
+    llvm::IndirectBrInst *inst = GET_REF(r_inst, IndirectBrInst);
+    llvm::BasicBlock *block = GET_REF(r_dest, BasicBlock);
+    inst->addDestination(block);
+    return(ScalarInteger(inst->getNumSuccessors()));
+}
+
+extern "C"
+SEXP
+R_IndirectBrInst_removeDestination(SEXP r_inst, SEXP r_idx)
+{
+    llvm::IndirectBrInst *inst = GET_REF(r_inst, IndirectBrInst);
+    for(int i= 0; i< Rf_length(r_idx); i++)
+        inst->removeDestination(INTEGER(r_idx)[i]);
+    
+    return(ScalarInteger(inst->getNumSuccessors()));
+}
 
 
 extern "C"
@@ -1121,6 +1220,7 @@ R_IRBuilder_CreatePHI(SEXP r_builder, SEXP r_type, SEXP r_numReservedValues, SEX
     llvm::Type *type = GET_REF(r_type, Type);
 
     llvm::PHINode *ret = builder->CreatePHI(type, INTEGER(r_numReservedValues)[0]);
+    
     if(Rf_length(r_id)) 
         ret->setName(makeTwine(r_id));
 
@@ -1263,3 +1363,28 @@ R_PHINode_incoming_values(SEXP r_phi)
     return(ans);
 }
 
+
+
+
+extern "C"
+SEXP
+R_IRBuilder_CreateShuffleVector(SEXP r_builder, SEXP r_vec1, SEXP r_vec2, SEXP r_mask, SEXP r_id)
+{
+    llvm::IRBuilder<> *builder;
+    builder = GET_REF(r_builder, IRBuilder<>);
+    llvm::Value *val1 = GET_REF(r_vec1, Value);
+    llvm::Value *val2 = GET_REF(r_vec2, Value);    
+    
+    std::vector<uint32_t> vidx;
+    for(int i = 0; i < Rf_length(r_mask); i++)
+        vidx.push_back((uint32_t) REAL(r_mask)[i]);
+    llvm::ArrayRef<unsigned> idx = llvm::makeArrayRef(vidx);        
+
+    
+    llvm::Value *ret = builder->CreateShuffleVector(val1, val2, idx);
+
+    if(Rf_length(r_id)) 
+        ret->setName(makeTwine(r_id));
+    
+    return(R_createRef(ret, "ShuffleVectorInst"));
+}

@@ -21,6 +21,61 @@ R_Instruction_getOpcode(SEXP r_inst)
 
 
 /***************************/
+
+#define Ins_is(method)                          \
+extern "C" \
+SEXP \
+R_Instruction_##method(SEXP r_inst) \
+{ \
+	llvm::Instruction *inst = GET_REF(r_inst, Instruction); \
+	if(!inst) return(ScalarLogical(NA_LOGICAL)); \
+	return(ScalarLogical(inst->method())); \
+}    
+
+Ins_is(isTerminator)
+Ins_is(isUnaryOp)
+Ins_is(isBinaryOp)
+Ins_is(isIntDivRem)
+Ins_is(isShift)
+Ins_is(isCast)
+Ins_is(isFuncletPad)
+Ins_is(isExceptionalTerminator)
+Ins_is(isLogicalShift)
+Ins_is(isArithmeticShift)
+Ins_is(isBitwiseLogicOp)
+Ins_is(hasMetadata)
+Ins_is(hasMetadataOtherThanDebugLoc)
+Ins_is(hasNoUnsignedWrap)
+Ins_is(hasNoSignedWrap)
+Ins_is(isExact)
+Ins_is(isFast)
+Ins_is(hasAllowReassoc)
+Ins_is(hasNoNaNs)
+Ins_is(hasNoInfs)
+Ins_is(hasNoSignedZeros)
+Ins_is(hasAllowReciprocal)
+Ins_is(hasAllowContract)
+Ins_is(hasApproxFunc)
+//Ins_is(hasMetadataHashEntry)
+Ins_is(isAssociative)
+Ins_is(isCommutative)
+Ins_is(isIdempotent)
+Ins_is(isNilpotent)
+Ins_is(mayWriteToMemory)
+Ins_is(mayReadFromMemory)
+Ins_is(mayReadOrWriteMemory)
+Ins_is(isAtomic)
+Ins_is(hasAtomicLoad)
+Ins_is(hasAtomicStore)
+Ins_is(mayThrow)
+Ins_is(isFenceLike)
+Ins_is(mayHaveSideEffects)
+Ins_is(isSafeToRemove)
+Ins_is(isEHPad)
+Ins_is(isLifetimeStartOrEnd)
+
+
+#if 0
 extern "C"
 SEXP
 R_Instruction_isTerminator(SEXP r_inst)
@@ -29,6 +84,8 @@ R_Instruction_isTerminator(SEXP r_inst)
 	if(!inst) return(ScalarLogical(NA_LOGICAL));
 	return(ScalarLogical(inst->isTerminator()));
 }
+
+
 extern "C"
 SEXP
 R_Instruction_isBinaryOp(SEXP r_inst)
@@ -133,7 +190,7 @@ R_Instruction_mayHaveSideEffects(SEXP r_inst)
 	if(!inst) return(ScalarLogical(NA_LOGICAL));
 	return(ScalarLogical(inst->mayHaveSideEffects()));
 }
-
+#endif
 
 
 extern "C"

@@ -151,6 +151,27 @@ R_getFunctionTypeArgTypes(SEXP r_funcType)
 }
 
 
+extern "C"
+SEXP
+R_Module_getInstructionCount(SEXP r_module)
+{
+    llvm::Module *module;
+    module = (GET_REF(r_module, Module)); // llvm::cast<llvm::Module>
+    return(ScalarReal(module->getInstructionCount()));
+}
+
+
+#include <llvm/Support/VersionTuple.h>
+extern "C"
+SEXP
+R_Module_getSDKVersion(SEXP r_module)
+{
+    llvm::Module *module;
+    module = (GET_REF(r_module, Module)); 
+    llvm::VersionTuple v = module->getSDKVersion();
+    return(ScalarString(mkChar(v.getAsString().c_str())));
+}
+
 
 extern "C"
 SEXP

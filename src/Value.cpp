@@ -185,3 +185,114 @@ R_Use_getValue(SEXP r_use)
     llvm::Use *use = GET_REF(r_use, Use);
     return(R_createRef(use->get(), "Value"));
 }
+
+
+
+extern "C"
+SEXP
+R_Value_isUsedInBasicBlock(SEXP r_val, SEXP r_block)
+{
+    llvm::Value * val = GET_REF(r_val, Value);
+    llvm::BasicBlock * block = GET_REF(r_val, BasicBlock);    
+    if(!block) {
+        PROBLEM "NULL value for BasicBlock reference"
+            ERROR;
+    }
+    return(ScalarLogical(val->isUsedInBasicBlock(block)));
+}
+
+extern "C"
+SEXP
+R_Value_isUsedByMetadata(SEXP r_val)
+{
+    llvm::Value * val = GET_REF(r_val, Value);
+    return(ScalarLogical(val->isUsedByMetadata()));
+}
+
+
+extern "C"
+SEXP
+R_Value_hasValueHandle(SEXP r_val)
+{
+    llvm::Value * val = GET_REF(r_val, Value);
+    return(ScalarLogical(val->hasValueHandle()));
+}
+
+extern "C"
+SEXP
+R_Value_isSwiftError(SEXP r_val)
+{
+    llvm::Value * val = GET_REF(r_val, Value);
+    return(ScalarLogical(val->isSwiftError()));
+}
+
+
+
+#if 0
+extern "C"
+SEXP
+R_Value_hasNUses(SEXP r_val, SEXP r_n)
+{
+    llvm::Value * val = GET_REF(r_val, Value);
+    double n = asReal(r_n);
+    return(ScalarLogical(val->hasNUses(n)));
+}
+
+extern "C"
+SEXP
+R_Value_hasNUsesOrMore(SEXP r_val, SEXP r_n)
+{
+    llvm::Value * val = GET_REF(r_val, Value);
+    double n = asReal(r_n);
+    return(ScalarLogical(val->hasNUsesOrMore(n)));
+}
+
+extern "C"
+SEXP
+R_Value_hasOneUse(SEXP r_val)
+{
+    llvm::Value * val = GET_REF(r_val, Value);
+    return(ScalarLogical(val->hasOneUse()));
+}
+#endif
+
+extern "C"
+SEXP
+R_Value_getNumUses(SEXP r_val)
+{
+    llvm::Value * val = GET_REF(r_val, Value);
+    return(ScalarReal(val->getNumUses()));
+}
+
+
+extern "C"
+SEXP
+R_Value_getValueName(SEXP r_val)
+{
+    llvm::Value * val = GET_REF(r_val, Value);
+    llvm::ValueName *vn = val->getValueName();
+    if(!vn)
+        return(NEW_CHARACTER(0));
+    
+    SEXP ans, names;
+    PROTECT(ans = NEW_CHARACTER(1));
+    PROTECT(names = NEW_CHARACTER(1));
+    SET_STRING_ELT(ans, 0, mkChar(vn->getKey().data()));
+    SET_STRING_ELT(names, 0, mkChar(vn->getKeyData()));                   
+    SET_NAMES(ans, names);
+    UNPROTECT(2);
+    return(ans);
+}
+
+
+
+
+// Here, but not used. S4 method gets the context from the type of the Value.
+extern "C"
+SEXP
+R_Value_getContext(SEXP r_type)
+{
+    llvm::Value *ty = GET_REF(r_type, Value);
+    const llvm::LLVMContext *ans = &(ty->getContext());
+    return(R_createRef(ans, "LLVMContext"));
+}

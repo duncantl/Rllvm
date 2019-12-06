@@ -482,3 +482,31 @@ R_getLLVMTypeClassName(SEXP r_type)
   llvm::Type *ty = GET_REF(r_type, Type);
   return(ScalarString(mkChar(getLLVMTypeClassName(ty) )));
 }
+
+
+
+extern "C"
+SEXP
+R_Type_canLosslesslyBitCastTo(SEXP r_type, SEXP r_toType)
+{
+    llvm::Type *ty = GET_REF(r_type, Type);
+    llvm::Type *toType = GET_REF(r_toType, Type);    
+    return(ScalarLogical(ty->canLosslesslyBitCastTo(toType)));
+}
+
+
+extern "C"
+SEXP
+R_Type_isEmptyTy(SEXP r_type)
+{
+    llvm::Type *type = GET_REF(r_type, Type);
+    return(ScalarLogical(type->isEmptyTy()));
+}
+
+extern "C"
+SEXP
+R_Type_isFirstClassType(SEXP r_type)
+{
+    llvm::Type *type = GET_REF(r_type, Type);
+    return(ScalarLogical(type->isFirstClassType()));
+}
