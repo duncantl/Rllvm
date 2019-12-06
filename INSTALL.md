@@ -24,9 +24,6 @@ FFI_LIB in the form
 Alternatively, you can specify the value as a directory and the configure script will check if libffi.a 
 is available there and then expand the string to include the -L and -lffi parts.
 
-
-
-
 # New Versions of LLVM
 
 New releases of LLVM appear regularly. Often the C++ API in LLVM
