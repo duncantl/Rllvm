@@ -130,3 +130,25 @@ setAs("ConstantDataSequential", "character",
 setMethod("isZeroValue", "Constant",
           isZeroValue.Constant <- function(x, ...)
               .Call("R_Constant_isZeroValue", x))
+
+
+
+
+# May want to kill this. Does it take effect without explicitly creating the generic?
+setMethod("lapply", "ConstantArray",
+          function(X, FUN, ...) {
+              ans = vector("list", length(X))
+              for(i in seq_len(length(X)))
+                  ans[[i]] = FUN( X[[i]], ...)
+              
+              ans
+          })
+
+setMethod("[", c("ConstantArray", "missing"),
+          function(x, i, j, ...) {
+              ans = vector("list", length(x))
+              for(i in seq_len(length(x)))
+                  ans[[i]] =  x[[i]]
+              ans
+          })
+
