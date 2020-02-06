@@ -132,5 +132,6 @@ R_CREATE_PASS(createLoopIdiomPass)
 
 
 
+#include <llvm/Transforms/IPO/FunctionAttrs.h>
 
-
+R_CREATE_PASS(createPostOrderFunctionAttrsLegacyPass)
