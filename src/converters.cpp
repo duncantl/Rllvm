@@ -413,10 +413,39 @@ R_internal_convertValueToR(llvm::Value *val)
                 llvm::Type *elType = tmp->getElementType();
                 unsigned nels = tmp->getNumElements();
                 SEXP ans;
-//XXX FIX to handle different ypes.                
-                PROTECT(ans = NEW_NUMERIC(nels));
+                llvm::Type::TypeID tid = elType->getTypeID();
+
+                switch(tid) {
+                   case llvm::ArrayType::HalfTyID:
+                   case llvm::ArrayType::FloatTyID:
+                   case llvm::ArrayType::DoubleTyID:
+                        ans = NEW_NUMERIC(nels);
+                        break;
+                   case llvm::ArrayType::IntegerTyID:
+                        ans = NEW_INTEGER(nels);
+                        break;
+                   default:
+                        ans = NEW_LIST(nels);
+                        break;
+                }
+                
+                PROTECT(ans);
                 for(int i = 0; i < nels; i++) {
-                    REAL(ans)[i] = tmp->getElementAsDouble(i);
+                   switch(tid) {
+                      case llvm::ArrayType::HalfTyID:
+                      case llvm::ArrayType::FloatTyID:
+                           REAL(ans)[i] = tmp->getElementAsFloat(i);
+                           break;
+                      case llvm::ArrayType::DoubleTyID:
+                           REAL(ans)[i] = tmp->getElementAsDouble(i);
+                           break;
+                      case llvm::ArrayType::IntegerTyID:
+                           INTEGER(ans)[i] = tmp->getElementAsInteger(i);
+                           break;
+                      default:
+                           SET_VECTOR_ELT(ans, i, R_NilValue);//XXX Fix
+                           break;
+                   }           
                 }
                 UNPROTECT(1);
                 return(ans);
