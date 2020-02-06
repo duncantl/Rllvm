@@ -144,7 +144,7 @@ setMethod("lapply", "ConstantArray",
               ans
           })
 
-setMethod("[", c("ConstantArray", "missing"),
+setMethod("[", c("ConstantAggregate", "missing"),
           function(x, i, j, ...) {
               ans = vector("list", length(x))
               for(i in seq_len(length(x)))
