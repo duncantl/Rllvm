@@ -786,3 +786,18 @@ getLLVMGlobalContext()
     return(*gcontext);
 }
 #endif
+
+
+
+
+
+
+extern "C"
+SEXP
+R_Module_getSourceFileName(SEXP r_module)
+{
+    llvm::Module *module;
+    module = (GET_REF(r_module, Module));
+    const std::string str = module->getSourceFileName();
+    return(ScalarString(mkChar(str.c_str() ? str.c_str() : "")));
+}
