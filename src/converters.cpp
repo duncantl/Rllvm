@@ -328,8 +328,11 @@ convertNativeValuePtrToR(void *ptr, const llvm::Type *type)
         case llvm::Type::ArrayTyID:
             ans = convertRawPointerToR(ptr, type);
             break;
+        case llvm::Type::FunctionTyID:
+            ans = R_createRef(ptr, "Function");
+            break;            
 	default:
-	  PROBLEM  "no code to handle converting native value to R for %d", ty
+	  PROBLEM  "no code yet to handle converting native value to R for %d", ty
            WARN;
     }
 
@@ -350,49 +353,92 @@ R_convertNativeValuePtrToR(SEXP r_ptr, SEXP r_type)
 
 SEXP
 R_internal_convertValueToR(llvm::Value *val)
-{    
+{
+    if(!val)
+        return(R_NilValue);
+    
     if(llvm::dyn_cast<llvm::Constant>(val)) {
         if(llvm::dyn_cast<llvm::ConstantInt>(val)) {
+            
             llvm::ConstantInt *tmp = llvm::dyn_cast<llvm::ConstantInt>(val);
             return(ScalarInteger(tmp->getSExtValue()));
+            
         } else if(llvm::dyn_cast<llvm::ConstantFP>(val)) {
+            
             llvm::ConstantFP *tmp = llvm::dyn_cast<llvm::ConstantFP>(val);
             /* See Constants.cpp */
             const llvm::APFloat &lval = tmp->getValueAPF();
             double val = lval.convertToDouble();
-            return(ScalarReal(val)); 
+            return(ScalarReal(val));
+            
         } else if(llvm::dyn_cast<llvm::ConstantPointerNull>(val)) {
+            
             return(R_NilValue);
-        } else if(llvm::dyn_cast<llvm::ConstantArray>(val)) {
-#if R_DEBUG
+            
+        } else if(llvm::dyn_cast<llvm::ConstantAggregate>(val)) {
+
+            llvm::ConstantAggregate *tmp = llvm::dyn_cast<llvm::ConstantAggregate>(val);
+            unsigned nels = tmp->getNumOperands();
+            SEXP ans;
+            PROTECT(ans = NEW_LIST(nels));
+            for(int i = 0; i < nels; i++) {
+                SET_VECTOR_ELT(ans, i, R_internal_convertValueToR(tmp->getOperand(i)));
+            }
+            UNPROTECT(1);
+            return(ans);            
+/*            
             Rprintf("ConstantArray\n");
-#endif
+            llvm::ConstantArray *tmp = llvm::dyn_cast<llvm::ConstantArray>(val);
+            unsigned nels = tmp->getNumOperands();
+            SEXP ans;
+            PROTECT(ans = NEW_LIST(nels));
+            for(int i = 0; i < nels; i++) {
+                SET_VECTOR_ELT(ans, i, R_internal_convertValueToR(tmp->getOperand(i)));
+            }
+            UNPROTECT(1);
+            return(ans);
+*/
+
+        } else if(llvm::dyn_cast<llvm::ConstantExpr>(val)) {
+            llvm::ConstantExpr *expr = llvm::dyn_cast<llvm::ConstantExpr>(val);
+            unsigned op = expr->getOpcode();
+            llvm::Value *val = expr->getOperand(0);
+            return(R_internal_convertValueToR(val));
         } else if(llvm::dyn_cast<llvm::ConstantDataSequential>(val)) {
-#if R_DEBUG
-            Rprintf("ConstantDataSequential\n");
-#endif
-            llvm::ConstantDataSequential *tmp = llvm::dyn_cast<llvm::ConstantDataSequential>(val);                      if(tmp->isCString()) {
+            llvm::ConstantDataSequential *tmp = llvm::dyn_cast<llvm::ConstantDataSequential>(val);
+            if(tmp->isCString()) {
                 llvm::StringRef str = tmp->getAsCString();
-//                return(ScalarString(mkChar("got it")));
                 return(ScalarString( str.data() ? mkCharLen(str.data(), str.size()) : R_NaString));
             } else {
-                Rprintf("Fix ConstantDataSequential\n");
+                llvm::Type *elType = tmp->getElementType();
+                unsigned nels = tmp->getNumElements();
+                SEXP ans;
+//XXX FIX to handle different ypes.                
+                PROTECT(ans = NEW_NUMERIC(nels));
+                for(int i = 0; i < nels; i++) {
+                    REAL(ans)[i] = tmp->getElementAsDouble(i);
+                }
+                UNPROTECT(1);
+                return(ans);
+                                                          
             }
         } else if(llvm::dyn_cast<llvm::ConstantDataArray>(val)) {
-#if R_DEBUG
             Rprintf("ConstantDataArray\n");
-#endif
         } else if(llvm::dyn_cast<llvm::GlobalVariable>(val)) {
-#if R_DEBUG
-            Rprintf("GlobalVariable\n");
-#endif
             llvm::GlobalVariable *tmp = llvm::dyn_cast<llvm::GlobalVariable>(val);
             return(R_internal_convertValueToR(tmp->getInitializer()));
         } else if(llvm::dyn_cast<llvm::GlobalValue>(val)) {
-#if R_DEBUG
-            Rprintf("GlobalValue\n");
-#endif
+
             llvm::GlobalValue *tmp = llvm::dyn_cast<llvm::GlobalValue>(val);
+            llvm::Type *type = tmp->getValueType();
+            SEXP ans;   //   gives NULL.
+            PROTECT(ans = convertNativeValuePtrToR(tmp, type));
+//            Rf_PrintValue(ans);
+            UNPROTECT(1);
+            return(ans);
+//            Rprintf("GlobalValue %p\n", tmp);
+        } else if(llvm::dyn_cast<llvm::ConstantAggregateZero>(val)) {
+            return(R_NilValue);
         }
     }
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 6
