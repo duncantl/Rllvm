@@ -214,7 +214,7 @@ function(x, single = TRUE, ...)
 
 setMethod("isEHPad", "BasicBlock",
            function(x, ...)
-             .Call("R_Block_isEHPad", x))
+             .Call("R_BasicBlock_isEHPad", x))
 
 
 getAncestors =
