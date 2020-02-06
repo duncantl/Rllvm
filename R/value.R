@@ -100,7 +100,7 @@ function(val)
 getNumUses =
 function(val)    
 {
-  .Call("R_Value_getNumUsesr", as(val, "Value"))
+  .Call("R_Value_getNumUses", as(val, "Value"))
 }
 
 
