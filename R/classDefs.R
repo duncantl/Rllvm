@@ -144,6 +144,8 @@ setClass("PointerType", contains = "SequentialType")
 setClass("ArrayType", contains = "SequentialType")
 setClass("VectorType", contains = "SequentialType")
 
+
+
 setClass("FunctionType", contains = "Type")
 setClass("IntegerType", contains = "Type")
 setClass("DoubleType", contains = "Type") #XXX Not in LLVM
@@ -182,6 +184,13 @@ setClass("GlobalValue", contains = "Constant")
 setClass("GlobalVariable", contains = "GlobalValue")
 
 setClass("ConstantPointerNull", contains = "Constant")
+
+setClass("ConstantAggregate", contains = "Constant")
+setClass("ConstantArray", contains = "ConstantAggregate")
+setClass("ConstantStruct", contains = "ConstantAggregate")
+
+setAs("Value", "ConstantStruct", function(from) new("ConstantStruct", ref = from@ref))
+
 
 setClass("ConstantExpr", contains = "User")
 setClass("BinaryConstantExpr", contains = "ConstantExpr")
