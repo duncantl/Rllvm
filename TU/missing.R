@@ -68,4 +68,16 @@ h = list.files("~/LLVM/clang+llvm-8.0.0-x86_64-apple-darwin/include/llvm/IR", fu
 # 54 seconds. Errors but succeeds.
 tus = lapply(h, getLLVMTU)
 system.time({kks = mapply(function(tu, h){ print(h); getCppClasses(tu, h)}, tus,  basename(h))})
-# Use takes forever.
+# 105 seconds
+
+names(kks) = basename(h)
+
+
+isPubMethods =
+function(x)
+   sapply(x, slot, "access") == "public" & !sapply(x, is, 'C++ClassConstructor')
+
+# Get the public methods for each file with the corresponding class name
+pub = sapply(kks, function(x) { tmp = lapply(x, function(x) names(x@methods)[isPubMethods(x@methods)]); data.frame(class = rep(names(x), sapply(tmp, length)), method = unlist(tmp), stringsAsFactors = FALSE)})
+
+pub = do.call(rbind, pub)
