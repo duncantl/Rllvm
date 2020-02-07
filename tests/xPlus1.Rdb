@@ -18,8 +18,7 @@
 <title></title>
 
 <para>
-We'll use the benchmark function from 
-Luke's UseR! talk in 2010.
+We'll use the benchmark function from Luke's UseR! talk in 2010.
 The function is
 <r:function><![CDATA[
 p1 = 
@@ -178,15 +177,11 @@ Optimize(mod, ee)
 </section>
 
 <section>
-<title></title>
+<title>Invoking the Routine</title>
 <para>
-And now we will call this function
-
+And now we will call this routine
 <r:code>
 n = 1e7
-</r:code>
-
-<r:code>
 x = rep(1, n)  
 ll = system.time({.llvm(fun, x = x, n = length(x), .all = TRUE, .ee = ee)$x})
 </r:code>
