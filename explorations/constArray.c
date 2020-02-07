@@ -25,3 +25,6 @@ struct A b[] = {
     {11, 11.5, "xA"},
     {21, 12.6, "xBCD"}
 };
+
+const void *ptrs[] = {&a, &b, &Ints};
+

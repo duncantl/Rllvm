@@ -23,7 +23,12 @@ SEXP
 R_getOperand(SEXP r_user, SEXP r_i)
 {
     llvm::User *u = GET_REF(r_user, User)  ;
-    llvm::Value *v = u->getOperand(INTEGER(r_i)[0]);
+    int i = INTEGER(r_i)[0];
+    if(i >= u->getNumOperands()) {
+        PROBLEM  "requesting operand %d, but only %d", i+1, u->getNumOperands()
+            ERROR;
+    }
+    llvm::Value *v = u->getOperand(i);
     return(R_createRef(v, "Value"));
 }
 
