@@ -397,8 +397,7 @@ variable for <r/>'s <r:null/>.
 
 
 <para>
-  The second clause (for the else) is similar but the second element
-  is a call.
+The second clause (for the else) is similar but the second element is a call.
 <r:code>
 sapply(i[[3]], function(x) x$kind)
 <r:output><![CDATA[
@@ -422,7 +421,7 @@ and the length in the first and second arguments respectively.
 <title>Subsetting</title>
 
 <para>
-  Consider r_subset in foo.c
+Consider r_subset in foo.c
 <r:code>
 k = getChildren(r$r_subset)
 </r:code>  
