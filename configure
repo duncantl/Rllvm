@@ -1813,7 +1813,7 @@ echo "LLVM_HAS_SYS_LIBS = ${LLVM_SYS_LIBS}"
 LLVM_VERSION_NUMBER=`${LLVM_CONFIG} --version | sed -e 's/svn//'`
 
 LLVM_VERSION=`${LLVM_CONFIG} --version | sed -Ee 's/\.[0-9]*(\.[0-9]*)?//' | sed -e 's/svn//'`
-LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -Ee 's/[0-9]\.//' | sed -Ee 's/\.[0-9]*//' | sed -e 's/svn//'`
+LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -Ee 's/[0-9]+\.//' | sed -Ee 's/\.[0-9]*//' | sed -e 's/svn//'`
 
 
 echo "LLVM_VERSION_NUMBER = ${LLVM_VERSION_NUMBER},  VERSION = ${LLVM_VERSION}, MINOR = ${LLVM_MINOR_VERSION}"
@@ -2695,6 +2695,9 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 #CXXFLAGS=$TMP_CXXFLAGS
 
 
+
+# For LLVM 10, need to use llvm::CGFT_ObjectFile rather than TargetMachine.
+# Need to test this first.
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <llvm/Target/TargetMachine.h>

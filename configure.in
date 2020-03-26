@@ -30,7 +30,7 @@ dnl LLVM_VERSION=`${LLVM_CONFIG} --version | sed -e 's/\.[[0-9].]*//' | sed -e '
 dnl LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -e 's/[[0-9]]\.//' | sed -e 's/svn//'`
 
 LLVM_VERSION=`${LLVM_CONFIG} --version | sed -Ee 's/\.[[0-9]]*(\.[[0-9]]*)?//' | sed -e 's/svn//'`
-LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -Ee 's/[[0-9]]\.//' | sed -Ee 's/\.[[0-9]]*//' | sed -e 's/svn//'`
+LLVM_MINOR_VERSION=`${LLVM_CONFIG} --version | sed -Ee 's/[[0-9]]+\.//' | sed -Ee 's/\.[[0-9]]*//' | sed -e 's/svn//'`
 
 
 echo "LLVM_VERSION_NUMBER = ${LLVM_VERSION_NUMBER},  VERSION = ${LLVM_VERSION}, MINOR = ${LLVM_MINOR_VERSION}"
@@ -186,6 +186,9 @@ CHECK_INST(ElementUnorderedAtomicMemSetInst, HAVE_ElementUnorderedAtomicMemSetIn
 #CXXFLAGS=$TMP_CXXFLAGS
 
 
+
+# For LLVM 10, need to use llvm::CGFT_ObjectFile rather than TargetMachine.
+# Need to test this first.
 AC_TRY_COMPILE([#include <llvm/Target/TargetMachine.h>
 	        #include <llvm/IR/LegacyPassManager.h>
 		#include <llvm/Support/raw_ostream.h>
