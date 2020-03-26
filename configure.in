@@ -189,6 +189,18 @@ CHECK_INST(ElementUnorderedAtomicMemSetInst, HAVE_ElementUnorderedAtomicMemSetIn
 
 # For LLVM 10, need to use llvm::CGFT_ObjectFile rather than TargetMachine.
 # Need to test this first.
+
+AC_TRY_COMPILE([#include <llvm/Target/TargetMachine.h>
+               ],
+	       [
+	         llvm::CodeGenFileType ty;
+	       ],
+	       [LLVM_CFLAGS="$LLVM_CFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1";
+	        CXXFLAGS="$CXXFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1"
+	       ],
+	       [echo "CodeGenFileType enum is defined in llvm::TargetMachine::CodeGenFileType"]
+	       )
+
 AC_TRY_COMPILE([#include <llvm/Target/TargetMachine.h>
 	        #include <llvm/IR/LegacyPassManager.h>
 		#include <llvm/Support/raw_ostream.h>
@@ -196,7 +208,13 @@ AC_TRY_COMPILE([#include <llvm/Target/TargetMachine.h>
                [llvm::TargetMachine *m;
  	        llvm::legacy::PassManager mgr;
 		llvm::raw_pwrite_stream *out;
-	        m->addPassesToEmitFile(mgr, *out, NULL, llvm::TargetMachine::CGFT_ObjectFile)
+	        m->addPassesToEmitFile(mgr, *out, NULL,
+		#ifdef CODE_GEN_FILE_TYPE_IN_LLVM
+		llvm::CGFT_ObjectFile		
+		#else
+		llvm::TargetMachine::CGFT_ObjectFile		
+		#endif
+		);
 	       ],
 	       [LLVM_CFLAGS="$LLVM_CFLAGS -DADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG=1";
 	        echo "addPassesToEmitFile takes an extra stream argument"],

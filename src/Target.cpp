@@ -217,7 +217,13 @@ R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SE
     bool ans = false;
 
 #if defined(ADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG) && ADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG
-    ans = targetMachine->addPassesToEmitFile(*passManager, *out, NULL, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);    
+    ans = targetMachine->addPassesToEmitFile(*passManager, *out, NULL,
+#ifdef CODE_GEN_FILE_TYPE_IN_LLVM
+                                             (llvm::CodeGenFileType)                                             
+#else                                             
+                                             (llvm::TargetMachine::CodeGenFileType)
+#endif
+                                               INTEGER(r_fileType)[0]);    
 #else
     ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);    
 #endif    
