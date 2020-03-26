@@ -716,3 +716,4 @@ setUnwindDest)
 export(isUsedInBasicBlock, isUsedByMetadata, hasValueHandle, isSwiftError, getNumUses, getValueName)
 
 
+export(noCapture, noAlias, hasSExtAttr, hasZExtAttr, hasNestAttr)

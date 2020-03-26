@@ -340,7 +340,7 @@ R_Argument_mutateType(SEXP r_arg, SEXP r_type)
 #define R_LLVM_ARG_HAS(name) \
 extern "C" \
 SEXP  \
-R_Argument_has##name##Attr(SEXP r_arg, SEXP r_vals) \
+R_Argument_has##name##Attr(SEXP r_arg) \
 { \
      llvm::Argument *arg = GET_REF(r_arg, Argument); \
      return(ScalarLogical(arg->has##name##Attr())); \
@@ -352,6 +352,9 @@ R_LLVM_ARG_HAS(Nest)
 R_LLVM_ARG_HAS(NoAlias)
 R_LLVM_ARG_HAS(NoCapture)
 R_LLVM_ARG_HAS(StructRet)
+R_LLVM_ARG_HAS(SExt)
+R_LLVM_ARG_HAS(ZExt)
+R_LLVM_ARG_HAS(Returned)
 //R_LLVM_ARG_HAS(InAlloca)
 
 
