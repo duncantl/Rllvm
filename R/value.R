@@ -57,7 +57,7 @@ function(obj)
 getAllUsers = 
 function(obj, uses = getAllUses(obj))
 {
-   lapply(uses, getUser)
+   rev(lapply(uses, getUser))
 }
 
 
