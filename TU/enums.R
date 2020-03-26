@@ -17,9 +17,17 @@ version = c(9, 0)
 llvmDir = path.expand("~/LLVM/9.0.0/llvm-9.0.0.src/include")
 llvmDir = c(llvmDir, path.expand(sprintf("%s/../build/include", llvmDir)))
 
+version = c(10, 0)
+llvmDir = path.expand("~/LLVM/clang+llvm-10.0.0-x86_64-apple-darwin/include")
+#llvmDir = c(llvmDir, path.expand(sprintf("%s/../build/include", llvmDir)))
+
+sysdir = system("xcrun --show-sdk-path", intern = TRUE)
+sysdir = file.path(sysdir, "usr/include")
+llvmDir = c(llvmDir, sysdir)
+
 stopifnot(all(file.exists(llvmDir)))
 
-tu = createTU("../TU/llvm.cpp", includes = c(llvmDir, "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/usr/include/c++/4.2.1/tr1"), args = c("-std=c++11", "-Wc++11-extensions"))
+#tu = createTU("../TU/llvm.cpp", includes = llvmDir,, args = c("-std=c++11", "-Wc++11-extensions"))
 
 tu = createTU("../TU/llvm.cpp", includes = llvmDir, args = c("-Wc++11-extensions", "-ferror-limit=10000"))
 
@@ -34,7 +42,7 @@ if(FALSE) {
  ids = grep("(^__|::)", names(enums), invert = TRUE, value = TRUE) # remove llvm:: , std::, __lx
  Rfilename = sprintf("../R/z_enumDefs_%d.%d.R", version[1], version[2])
  if(file.exists(Rfilename))
-     stop("File already exists")
+     stop("File ", Rfilename, " already exists")
  con = file(Rfilename, "w")
  sink(con)
  cat("if(all(llvmVersion() == c(", version[1], ", ", version[2], "))) {\n\n")

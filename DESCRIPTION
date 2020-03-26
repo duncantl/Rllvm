@@ -56,7 +56,8 @@ Collate: llvmVersion.R classDefs.R manual_generics.R generics_bools.R
          z_enumDefs_6.0.R
          z_enumDefs_7.0.R
          z_enumDefs_8.0.R
-	 z_enumDefs_9.0.R	 
+	 z_enumDefs_9.0.R
+	 z_enumDefs_10.0.R	 	 
 	 types.R
 	 Function.R
          ascii.R
@@ -74,3 +75,4 @@ Collate: llvmVersion.R classDefs.R manual_generics.R generics_bools.R
 	 LoadStore.R
          CallInst.R
 	 InvokeInst.R
+	 Argument.R
