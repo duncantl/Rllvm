@@ -1,5 +1,9 @@
 #include "Rllvm.h"
 
+#if LLVM_VERSION >= 10
+#include <llvm/InitializePasses.h>
+#endif
+
 extern "C"
 SEXP
 R_getPassRegistry()
