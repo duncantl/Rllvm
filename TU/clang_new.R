@@ -2,8 +2,14 @@ library(RCIndex)
 #
 #*** Change the next two lines of code.
 
-version = c(3, 8)
-inc = c("/usr/local/include", "/usr/local/include/llvm", "/Users/duncan/R-3.3-devel/src/include")
+version = c(10, 0)
+inc = c("/usr/local/include", "/usr/local/include/llvm", "/Users/duncan/R-devel/src/include")
+inc = c(path.expand("~/LLVM/clang+llvm-10.0.0-x86_64-apple-darwin/include"), "/usr/local/include", "/usr/local/include/llvm", "/Users/duncan/R-devel/src/include")
+
+
+sysdir = system("xcrun --show-sdk-path", intern = TRUE)
+sysdir = file.path(sysdir, "usr/include")
+inc = c(inc, sysdir)
 
 #version = c(8, 0)
 #inc = path.expand(c("~/LLVM/clang+llvm-8.0.0-x86_64-apple-darwin/include", "/Users/duncan/R-devel/src/include"))
