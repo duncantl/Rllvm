@@ -4,6 +4,12 @@ function(phi, index, block)
     .Call("R_PHINode_setIncomingBlock", as(phi, "PHINode"), as(index, "integer"), as(block, "BasicBlock"))
 }
 
+getIncomingBlock =
+function(phi, index)
+{    
+    .Call("R_PHINode_getIncomingBlock", as(phi, "PHINode"), as(index, "integer"))
+}
+
 addIncoming =
 function(phi, val, block)
 {    
