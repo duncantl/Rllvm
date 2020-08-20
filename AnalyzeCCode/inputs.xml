@@ -1,0 +1,109 @@
+<article
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:c="http://www.C.org"
+	 xmlns:sh="http://www.shell.org">
+
+<para>
+  Consider len_character in foo.c.
+<r:code>
+library(Rllvm)
+m = parseIR("foo.ir")
+</r:code>
+The only argument is a SEXP.
+But what type of SEXP is expected?
+It is easy for us to see that it is used in a call to <c:func>INTEGER</c:func>
+and so it is expected to be an integer vector.
+How can we compute this?
+By finding all the uses of the parameter and examining  the calls:
+<r:code>
+p = getParameters(m$len_character)[[1]]  
+u = getAllUsers(p)
+</r:code>
+</para>
+
+<para>
+<r:code>
+source("getType.R")
+getCallType(p[[2]])
+</r:code>
+</para>
+
+
+
+<para>
+<r:code>
+ty = getCallType(p[[1]])
+</r:code>
+These three uses are calls to getListElement.
+Need to examine this function and see how it uses its arguments.
+In our case, <r:expr eval="false">p[[1]]</r:expr> is the first argument
+in each call to <c:func>getListElement</c:func>.
+We happen to know that <c:func>getListElement</c:func> is defined in nls.c
+in src/library/stats/src. So we generate the IR code for that and we can get the expected
+type of the first argument with
+<r:code>
+nls = parseIR("~/R-devel/build/src/library/stats/src/nls.ir")
+getCallType(nls$getListElement[[1]])
+</r:code>
+And this indicates that it expects a list, i.e., a VECSXP.
+</para>
+<para>
+  In fact, this is the wrong getListElement routine.
+  The actual one is in optim.c.  The one in nls.c is declared
+  to be static and so is visible only within the nls.c.
+  The one in optim.c is accessible to the code in influence.c
+</para>
+  
+
+<para>
+  If we didn't know that our first parameter for the influence routine
+  was the first argument in the calls to getListElement, we could determine this
+<r:code>
+which(sapply(ty[[1]][], identical, p[[1]]))
+</r:code>  
+</para>
+<para>
+  If we didn't know in which file <c:func>getListElement</c:func> was defined,
+  we could find it in various ways.
+  <ol>
+    <li>create the IR for each file in the src/ directory and read each module and find where it is defined</li>
+    <li>use <omg:pkg>RCIndex</omg:pkg> to read the C code directly to find the definition of the routine</li>
+    <li>grep the source code</li>
+  </ol>
+  The final version will work pretty well, but requires manual intervention in many cases, i.e.,
+  it is not a robust programmatic approach.
+  Since we want the IR code anyway, we might as well generate them all.
+<sh:code>
+for f in `ls *.o | sed -e 's/.o$//'` ; do gcc -S -emit-llvm  -I"../../../../include" -DNDEBUG -I../../../include -I../../../../../src/include -DHAVE_CONFIG_H  -I/usr/local/include -O2  ../../../../../src/library/stats/src/$f.c -o $f.ir ; done
+</sh:code>
+
+Then we can read these
+<r:code>
+mods = lapply(list.files("~/R-devel/build/src/library/stats/src", pattern = "\\.ir$", full.names = TRUE), parseIR)
+</r:code>
+Next we get the "table of contents" for each module:
+<r:code>
+tocs = lapply(mods, function(m) getDefinedRoutines(, m))
+names(tocs) = basename(sapply(mods, getName))
+i = which(sapply(tocs, function(x) "getListElement" %in% x))
+</r:code>
+This is where we see there are two definitions, one in optim.c and the other in nls.c.
+<r:code>
+sapply(mods[i], function(m) getLinkage(m$getListElement))
+<r:output><![CDATA[
+InternalLinkage ExternalLinkage 
+              7               0 
+]]></r:output>
+</r:code>
+So this confirms that the on in optim.c is the visible one.
+They have different numbers of parameters:
+<r:code>
+lapply(mods[i], function(m) getParameters(m$getListElement))
+</r:code>
+</para>
+<para>
+Of course, it is possible the routine is defined in an other library
+or <r/> itself. So we might have to look further.
+</para>
+</article>
+

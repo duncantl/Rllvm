@@ -1,0 +1,46 @@
+\documentclass[tikz]{standalone}
+\usetikzlibrary{chains,shadows.blur}
+% For decorating a path with text.
+\usetikzlibrary{decorations.text}
+\parindent=0pt
+\begin{document}
+\begin{tikzpicture}[%auto,
+  node distance = 8mm,
+  start chain = going below,
+  box/.style = {draw,rounded corners,%fill=white,  % blur shadow,
+        on chain,align=center}]
+ \node[box, sharp corners] (entry)  at (.5, -.2)  {\tiny Rf_checkArity() };
+ \node[box] (if.then)  at (.5, -.5)  {\tiny Rf_error() };      
+ \node[box, sharp corners] (if.end)  at (2.5, -1.25)  {\tiny CAR(args) == R_NilValue }; % 
+ \node[box] (if.end7)  at (-.5, -1.5)  {\tiny Rf_isVectorAtomic(CAR(args)) };  
+ \node[box, sharp corners] (if.then10)  at (.5, -2.25) {\tiny Rf_error() };
+ \node[box, sharp corners] (if.end12)  at (-1.82, -2.5)  {\tiny TYPEOF(CAR(args)) == 24 };      
+ \node[box, sharp corners] (if.then16)  at (-1.82, -3.5)  {\tiny Rf_error() };
+ \node[box, sharp corners] (if.end18)  at (-1.82, -4.5)  {\tiny Rf_duplicate() \\
+                                                                ... \\
+                                                              Rf_sortVector(); }; 
+ \node[box, sharp corners] (cleanup)  at (-1.82, -5.5)  {\tiny return() };
+ 
+ \begin{scope}[rounded corners,-latex]
+   \path  (b1.-90) edge (b2.90);
+   \path  [color=red] (b2.south) edge[bend left=0] (b7.north);
+   \path  [color=green] (b2.south) edge[bend left=0] (b3.north);   
+%   \path [decorate,decoration={text along path,text align=center,text={\small TRUER}}] (b3.south) edge[bend left=0] (b4.north) ; % node [sloped, pos=.5] {\tiny  TRUE}
+% postaction={decorate,decoration={text along path,text align=center,text={|\tiny|TRUER}}}
+   \path [color=green,decorate,decoration={text={TRUE}}] (b3.south)  edge[bend left=0,decorate,decoration={text={TRUE}}] (b4.north) ; % node [sloped, pos=.5] {\tiny  TRUE}
+   \path [color=red]  (b3.south) edge[bend right=0] (b5.north);
+   \path  (b4.east) edge[bend right=10] (b7.south);
+   \path  (b6.west) edge[bend left=60] (b2.west);
+   \path  (b5.south) edge (b6.north);                  
+\def\myshift#1{\raisebox{.5ex}}
+\draw [-,color=green,postaction={decorate,decoration={text along path,text align=center,text={|\tiny\myshift|TRUE}}}] (b3.south) to [bend right=0]  (b4.north);
+ \end{scope}
+\end{tikzpicture}
+%  \path (b2.-40) edge[bend left=50] (b4.40)
+%  (b1) edge (b2) (b2) edge (b3);
+%  \draw (b3.230) -- ++(0,-0.3) -| ([xshift=-5mm]b2.west) |-
+%  ([yshift=3mm]b2.130) -- (b2.130);
+
+%This is regular text.
+%Why is there are large gray gap in between.
+\end{document}
