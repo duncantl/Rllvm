@@ -81,6 +81,11 @@ setMethod("names<-", c("ParameterList", "character"),
            function(x, value) {
               mapply(setName, x, value)
               x
+          })
+
+setMethod("names", c("ParameterList"),
+           function(x) {
+               x@names
            })
 
 
