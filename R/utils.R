@@ -41,8 +41,21 @@ function(file, args, march = "nvptx64", out = NA)
 
 
 
+DemangleEnumMap =
+c(    
+  unknown_error = -4,
+  invalid_args = -3,
+  invalid_mangled_name = -2,
+  memory_alloc_failure = -1,
+  success = 0)
+
 demangle =
-function(str)
+function(str, status = FALSE)
 {
-   .Call("R_itaniumDemangle", as.character(str))
+    ans = .Call("R_itaniumDemangle", as.character(str), as.logical(status))
+    if(status) {
+        i =  match(ans, DemangleEnumMap)
+        names(ans) = names(DemanglEnumMap)[i]
+    }
+    ans
 }
