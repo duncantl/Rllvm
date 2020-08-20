@@ -73,10 +73,14 @@ which(w)
 <r:code>
 ret = getTerminator(b[[which(w)]])
 </r:code>
+Alternatively, we can now use
+<r:code>
+ret = getReturnValues(f)[[1]]
+</r:code>
 
 <r:code>
 ret[[1]]
-llvmDump(ret[[1]])
+#llvmDump(ret[[1]])
 </r:code>
 So this is a call to Rf_protect().
 Of course, there is a corresponding call to Rf_unprotect() that takes place
@@ -86,7 +90,8 @@ It is populated in code that is run before the return.
 
 So we get the "code" for the object being protected
 <r:code>
-llvmDump(ret[[1]][[1]])
+ret[[1]][[1]]  
+#llvmDump(ret[[1]][[1]])
 </r:code>
 This is a call to Rf_allocVector.
 We are now back in familiar territory (as in <ulink url="eg.R"/>)
@@ -94,7 +99,7 @@ We are now back in familiar territory (as in <ulink url="eg.R"/>)
 We look at the first argument in the call to Rf_allocVector to find the type of the
 R object:
 <r:code>
-ans = ret[[1]][[1]]
+ans = ret[[1]]
 getValue(ans[[1]])
 </r:code>
 This returns 19 corresponding to VECSXP in Rinternals.h. (This is a regular/generic list.)
@@ -116,15 +121,29 @@ We can get these values with
 <r:code>
 sapply(ans[[2]][2:3], getValue)
 </r:code>
+since they are literal constants in this case.
+If they were computations, we'd have to follow their contents.
 
 
-The condition in the SelectInst is docoef which comes from
-the value in the logical scalar passed to the routine as an argument <c:param>do_coef</c:param>.
+The condition in the SelectInst
+<r:code>
+ans[[2]][[1]]
+<r:output><![CDATA[
+[1] "  %tobool29 = icmp eq i32 %9, 0"
+]]></r:output>
+</r:code>
+corresponds to the docoef in the <c/> code
+which comes from
+the value in the logical scalar passed to the routine as an argument <c:param>do_coef</c:param>,
+i.e.,
+<c:code>
+int docoef = asLogical(do_coef);  
+</c:code>
 
 
 
 What is interesting about the <c:func>influence</c:func> routine is that
-it inserts named elements into the list it returns and we want to know their types.
+it inserts named elements into the list it returns and we want to know the types and the names of these elements.
 </para>
 
 <para>
@@ -132,7 +151,7 @@ Rather than looking at how the value of ans was created, let's look at the varia
 This was ans[[1]].
 We can find where it is used directly and from this we get the users.
 <r:code>
-usrs = getAllUsers(ret[[1]])
+usrs = getAllUsers(ret) # [[1]]
 </r:code>
 
 <!--
@@ -143,7 +162,7 @@ usrs = getAllUsers(ret[[1]])
 
 We can look at the instructions that use this return value:
 <r:code>
-  sapply(usrs, as, 'character')
+sapply(usrs, as, 'character')
 <r:output><![CDATA[
   ret %struct.SEXPREC* %call32
   %call57 = call %struct.SEXPREC* @SET_VECTOR_ELT(%struct.SEXPREC* %call32, i64 %18, %struct.SEXPREC* %e) #3
@@ -153,7 +172,7 @@ We can look at the instructions that use this return value:
   %call37 = call %struct.SEXPREC* @Rf_setAttrib(%struct.SEXPREC* %call32, %struct.SEXPREC* %11, %struct.SEXPREC* %call36) #3
 ]]></r:output>  
 </r:code>
-Note that these appear in reverse order.
+<!-- no longer true: Note that these appear in reverse order. -->
 </para>
 
 <para>
@@ -166,13 +185,13 @@ if this docoef condition is true or false.
 
 
 <para>
-Let's take a look at the 5th user in our list <r:var>usrs</r:var>.
+Let's take a look at the 2nd user in our list <r:var>usrs</r:var>.
 This corresponds to the first element to be added to the list.
 We "know" that this is a call to SET_VECTOR_ELT (but we could check)
 and that the first argument is the list we are returning.
 We can query what value is being inserted
 <r:code>
-v = usrs[[5]]
+v = usrs[[2]]
 v[[3]]
 </r:code>
 This is a call to Rf_protect.
@@ -199,7 +218,7 @@ This is an instruction of class SExtInst.
 This casts a value to an 64-bit integer.
 What is the number:
 <r:code>
-as(v[[3]][[1]][[2]][[1]], 'character')
+v[[3]][[1]][[2]][[1]]  
 <r:output><![CDATA[
 "  %call2 = tail call i32 @Rf_nrows(%struct.SEXPREC* %call) #3"
 ]]></r:output>
@@ -208,7 +227,7 @@ This is a call to Rf_nrows()
 What is this being called with, or more importantly, which
 R object are we getting the number of rows for?
 <r:code>
-as(v[[3]][[1]][[2]][[1]][[1]], 'character')
+v[[3]][[1]][[2]][[1]][[1]]
 <r:output><![CDATA[
 [1] "  %call = tail call %struct.SEXPREC* @getListElement(%struct.SEXPREC* %mqr, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i64 0, i64 0)) #3"
 ]]></r:output>
@@ -221,8 +240,19 @@ So this comes from the call <c:expr>nrows(qr)</c:expr> and <c:var>qr</c:var> com
 
 
 <para>
-  The basics of the following are partially implemented in getType.R.
+  The basics of the following are partially implemented in <file>getType.R</file>
+  (but not the <r:func>getType</r:func> function in <omg:pkg>Rllvm</omg:pkg>.)
   It needs more work, but gives the basics.
+<r:code>
+source("getType.R")
+r = compReturnType(f)
+class(r)
+names(r)
+r$length
+r$elNames
+sapply(r$els, class)
+</r:code>
+
 </para>
 
 

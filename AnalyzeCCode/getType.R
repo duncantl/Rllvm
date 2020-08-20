@@ -61,29 +61,32 @@ function(usrs, ret)
 
 
 setGeneric("getCallType",
-           function(x, ...) {
+           function(x, var = NULL, ...) {
                standardGeneric("getCallType")
            })
 
 setMethod("getCallType", "Argument",
-          function(x, ...) {
-              list(type = "SEXP")
+          function(x, var = NULL, ...) {
+              ans = lapply(getAllUsers(x), getCallType, x, ...)
+              ans[!sapply(ans, is.null)]
+
+#              list(type = "SEXP")
            })
 
 setMethod("getCallType", "PHINode",
-          function(x, ...) {
+          function(x, var = NULL, ...) {
               #XXX implement -    lapply(x[], getCallType)
               lapply(seq(length = length(x)), function(i) getCallType(x[[i]]))
            })
 
 setMethod("getCallType", "LoadInst",
-          function(x, ...) {
-              getCallType(x[[1]])
+          function(x, var = NULL, ...) {
+              getCallType(x[[1]], var, ...)
           })
 
 
 setMethod("getCallType", "GlobalVariable",
-          function(x, ...) {
+          function(x, var = NULL, ...) {
               id = getName(x)
               if(id == "R_NilValue")
                   return(structure(list("NULL"), class = "RNULL"))
@@ -92,11 +95,11 @@ setMethod("getCallType", "GlobalVariable",
 
 
 setMethod("getCallType", "CallInst",           
-function(x, ...)
+function(x, var = NULL, ...)
 {
     kall = x
     id = getName(getCalledFunction(kall))
-
+#browser()
     if(id == "Rf_protect")
         return(getCallType(kall[[1]]))
 
@@ -105,9 +108,10 @@ function(x, ...)
     if(id == "Rf_allocVector") {
         ty = kall[[1]]
         len = kall[[2]]
+        #??? Change the class to RList if we know the type is VECSXP.
         ans = structure(list(type = mapRType(findValue(ty)), length = findValue(len)), class = "RVector")
     } else if(id == "Rf_allocMatrix") {
-        browser()
+#        browser()
         ans = structure(list(type = mapRType(findValue(kall[[1]])),
                              dims = list(nrow = findValue(kall[[2]]),
                                          ncol = findValue(kall[[3]]))),
@@ -118,6 +122,16 @@ function(x, ...)
                                      Rf_ScalarLogical = "LGLSXP",
                                      Rf_ScalarInteger = "INTSXP",
                                      Rf_ScalarReal = "REALSXP",               
+                                     NA)
+                      ), class = "RScalar")
+            
+
+    } else if(grepl("^Rf_as", id)) {
+
+      ans = structure(list(type = switch(id,
+                                     Rf_asLogical = "LGLSXP",
+                                     Rf_asIntger = "INTSXP",
+                                     Rf_asReal = "REALSXP",               
                                      NA)
                       ), class = "RScalar")
             
@@ -141,7 +155,27 @@ function(x, ...)
     }  else if(id == "Rf_coerceVector") {
 #        browser()
         ans = NULL # Fix.
-    }  else {
+    }  else if(id == "INTEGER") {
+        ans = "INTSXP"
+    }  else if(id == "LOGICAL") {
+        ans = "LGLSXP"
+    }  else if(id == "REAL") {
+        ans = "REALSXP"
+    }  else if(id == "VECTOR_ELT") {
+        ans = "VECSXP"
+    }  else if(id == "STRING_ELT") {
+        ans = "STRSXP"
+    } else if(id == "SET_VECTOR_ELT") {
+        browser()
+        if(!is.null(var)) {
+            w = sapply(kall[], identical, var)
+            if(any(w) && which(w) == 3)
+                return(NULL)
+        }
+        ans = kall
+    } else  if(id %in% c("Rf_length", "Rf_getAttrib")) {
+        ans = NULL
+    } else {
         ans = kall
     }
 
@@ -161,7 +195,7 @@ setGeneric("findValue",
 setMethod("findValue", "ANY",
           function(val, rtype = FALSE, ...) {
               cat("findValue default", class(val), "\n")
-              browser()
+#              browser()
           })
 
 tmp = function(val, rtype = FALSE, ...)  findValue(val[[1]])
@@ -230,7 +264,7 @@ setMethod("findValue", "CallInst",
                   if(is(val, "CallInst") && getName(val[[length(val)]]) == "INTEGER")
                       return(findValue(val[[1]]))
 
-                  browser()
+#                  browser()
               }
               
               NULL
@@ -367,7 +401,7 @@ setMethod("compInputType", "CallInst",
               if(fn %in% c("Rf_nrows", "Rf_ncols"))
                   return(list(type = "RMatrix"))
               
-              browser()
+#              browser()
               "???"
           })
 

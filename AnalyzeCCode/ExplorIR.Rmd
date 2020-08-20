@@ -98,6 +98,10 @@ We can find which function is being called with
 ```
 getName(call[[3]])
 ```
+or
+```
+getName(getCalledFunction(call))
+```
 
 Note that the NEW_NUMERIC() call in the C code was converted to Rf_allocVector() by
 the preprocessor.
