@@ -498,7 +498,7 @@ exportMethods("[[")
 
 
 
-export(setIncomingBlock, addIncoming, getBasicBlockIndex, getIncomingValueForBlock, hasConstantValue)
+export(setIncomingBlock, getIncomingBlock, addIncoming, getBasicBlockIndex, getIncomingValueForBlock, hasConstantValue)
 
 
 # DataLayout
