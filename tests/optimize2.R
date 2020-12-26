@@ -14,7 +14,7 @@ mgr = getPassManager(m, ee, 3L)
   # Reassociate expressions.
   addPass(mgr, .Call("R_createReassociatePass"))
   # Simplify the control flow graph (deleting unreachable blocks, etc).
-addPass(mgr, .Call("R_createCFGSimplificationPass"))
+
 addPass(mgr, .Call("R_createDeadCodeEliminationPass"))
   addPass(mgr, .Call("R_createDeadStoreEliminationPass"))
 #createAggressiveDCEPass
@@ -27,6 +27,7 @@ showModule(m)
 
 Optimize(m, ee)
 fun = m$foo
+N = 1000
 tm3 = system.time(replicate(N, .llvm(fun, 3, 12, 4, .ee = ee)))
 
 
