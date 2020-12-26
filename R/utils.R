@@ -55,7 +55,7 @@ function(str, status = FALSE)
     ans = .Call("R_itaniumDemangle", as.character(str), as.logical(status))
     if(status) {
         i =  match(ans, DemangleEnumMap)
-        names(ans) = names(DemanglEnumMap)[i]
+        names(ans) = names(DemangleEnumMap)[i]
     }
     ans
 }
