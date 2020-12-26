@@ -1,7 +1,7 @@
 library(Rllvm)
 source("getType.R")
 m = parseIR("foo.ir")
-setMethod("show", "Value", function(x) print(as(x,'character')))
+setMethod("show", "Value", function(object) print(as(object, 'character')))
 
 # Given a SEXP input, can we determine what the R types are for these inputs.
 

@@ -21,6 +21,13 @@ ret[[1]]
 ]]></r:output>
 </r:code>
 
+Since there is only one element in the list, we'll assign that element directly to <r:var>ret</r:var>
+<r:code>
+ret = ret[[1]]
+</r:code>
+
+
+The elements of this return expression are
 <r:code>
 ret[]
 <r:output><![CDATA[
@@ -64,7 +71,7 @@ These are all 14 and so the return type is definitely a <r:func>numeric</r:func>
 </para>
 
 <para>
-We can apply the same optimistic processing to the length of the vector:
+We can apply the same optimistic processing to the length of the vector which is the second argument in each call to <c:func>Rf_allocVector3</c:func>:
 <r:code>
 lens = sapply(ret[], function(x) if(is(x[[2]], "ConstantInt") ) getValue(x[[2]]) else x[[2]])
 <r:output><![CDATA[
@@ -84,9 +91,9 @@ lens = sapply(ret[], function(x) if(is(x[[2]], "ConstantInt") ) getValue(x[[2]])
 Of course, these are not constant integers as they are data-dependent.
 Each is a call to <c:func>Rf_asVecSize</c:func>.
 We can see that the first two pass %3 to this routine,
-and the other two calls past %6.
+and the other two calls pass %6.
 In fact, we can determine that the first two return values
-in the PHI node, are identical as are the 3rd and 4th:
+in the return PHI node, are identical as are the 3rd and 4th:
 <r:code>
 identical(ret[[1]], ret[[2]])
 identical(ret[[3]], ret[[3]])  
@@ -101,7 +108,7 @@ lapply(lens[c(1,3)], function(x) x[[1]])
 DO AGAIN WITH WRITING_BARRIER OFF
 ]]></r:output>
 </r:code>
-Since these are load instructions, we can get the value being loaded
+Since these are load instructions<fix>Are they? Seem to be calls to CAR()</fix>, we can get the value being loaded
 <r:code>
 sapply(lens[c(1,3)], function(x) x[[1]][[1]])
 <r:output><![CDATA[
@@ -116,9 +123,9 @@ sapply(lens[c(1,3)], function(x) x[[1]][[1]])
 
 [[2]]
 [1] "  %carval12 = getelementptr inbounds %struct.SEXPREC, %struct.SEXPREC* %5, i64 0, i32 4, i32 0, i32 0"
-]]></r:output>
+]]></r:output><fix> Not sure where the second two of these came from. Doing it again, I get just the first 2.</fix>
 </r:code>
-When we active the writing barrier in <r/>, these become calls to CDR
+When we activate the writing barrier in <r/>, these become calls to CDR
 <r:output><![CDATA[
 [[1]]
 [1] "  %call2 = tail call %struct.SEXPREC.5* @CDR(%struct.SEXPREC.5* %args) #11"
@@ -155,7 +162,8 @@ call1 is x and the first element of args.
 call2 is the CDR(args).
 call3 is the second element extracted from the original args.
 So we see a common idiom of a sequence of CDR() assigned to a value and then next extracting the CAR().
-
+</para>
+<para>
 Connecting this to the <r/> code calling
 <r:code>
  .Internal(colSums(x, n, prod(dn), na.rm))

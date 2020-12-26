@@ -162,6 +162,7 @@ function(x, var = NULL, ...)
     }  else if(id == "REAL") {
         ans = "REALSXP"
     }  else if(id == "VECTOR_ELT") {
+         # could be in the second argument of VECTOR_ELT
         ans = "VECSXP"
     }  else if(id == "STRING_ELT") {
         ans = "STRSXP"
