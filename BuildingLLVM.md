@@ -52,6 +52,23 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr  -DLLVM_ENABLE_FFI=ON -DLLVM_BUILD_LLVM_DYLIB=
 
 # Compiling Clang with LLVM
 
+See 
+https://quuxplusone.github.io/blog/2019/11/09/llvm-from-scratch/
+or in the README.md file for monorepo source code.
+
+<!-- (Instructions for previous version(s) at
+https://quuxplusone.github.io/blog/2018/04/16/building-llvm-from-source/)
+-->
+
+The build takes 32G  on my OSX machine 
+```
+cmake -G Ninja 
+   -DLLVM_ENABLE_PROJECTS="clang;libcxx;libcxxabi;clang-tools-extra;lldb;compiler-rt" 
+   -DCMAKE_BUILD_TYPE=RelWithDebInfo 
+   -DCMAKE_INSTALL_PREFIX=$HOME/local ../llvm
+```
+
+
 Download the clang source code, named cfe,
 extra clang tools, compiler-rt (runtime), libcxx.
 You extract these source archives into the following sub-directories
