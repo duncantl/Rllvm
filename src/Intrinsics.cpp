@@ -37,7 +37,11 @@ SEXP
 R_Intrinsic_getName(SEXP r_id)
 {
     llvm::Intrinsic::ID id = (llvm::Intrinsic::ID) INTEGER(r_id)[0];
+#if LLVM_VERSION <= 10
     std::string str = llvm::Intrinsic::getName(id);
+#else
+    std::string str = llvm::Intrinsic::getName(id).str();    
+#endif    
     return(ScalarString(mkChar(str.data())));
 }
 
