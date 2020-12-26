@@ -8,7 +8,8 @@ o = getClassHierarchy("llvm::Type", k)
 klasses = unique(c(unlist(o), names(o[[1]])))
 tyClasses = c(klasses, # "llvm::SequentialType", "llvm::CompositeType",
                "llvm::Type")
-cat(paste(sprintf("   if(%s.classof(obj))\n\tans = \"%s\";\n", tyClasses, gsub("llvm::", "", tyClasses)), collapse = "   else "))
+cat(paste(sprintf("   if(%s::classof(obj))\n\tans = \"%s\";\n", tyClasses, gsub("llvm::", "", tyClasses)), collapse = "   else "))
+
 */
 
 const char  * getLLVMTypeClassName(llvm::Type *obj)
@@ -19,21 +20,21 @@ const char  * getLLVMTypeClassName(llvm::Type *obj)
 #if LLVM_VERSION > 10
    if(llvm::IntegerType.classof(obj))
 	ans = "IntegerType";
-   else    if(llvm::FunctionType.classof(obj))
+   else    if(llvm::FunctionType::classof(obj))
 	ans = "FunctionType";
-   else    if(llvm::StructType.classof(obj))
+   else    if(llvm::StructType::classof(obj))
 	ans = "StructType";
-   else    if(llvm::ArrayType.classof(obj))
+   else    if(llvm::ArrayType::classof(obj))
 	ans = "ArrayType";
-   else    if(llvm::FixedVectorType.classof(obj))
+   else    if(llvm::FixedVectorType::classof(obj))
 	ans = "FixedVectorType";
-   else    if(llvm::ScalableVectorType.classof(obj))
+   else    if(llvm::ScalableVectorType::classof(obj))
 	ans = "ScalableVectorType";
-   else    if(llvm::PointerType.classof(obj))
+   else    if(llvm::PointerType::classof(obj))
 	ans = "PointerType";
-   else    if(llvm::VectorType.classof(obj))
+   else    if(llvm::VectorType::classof(obj))
 	ans = "VectorType";
-   else    if(llvm::Type.classof(obj))
+   else    if(llvm::Type::classof(obj))
 	ans = "Type";
 #else
    if(llvm::PointerType::classof(obj))
