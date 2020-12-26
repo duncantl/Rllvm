@@ -164,12 +164,16 @@ R_IRBuilder_CreateCall(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_id)
             args.push_back(GET_REF(VECTOR_ELT(r_args, i), Value));
 #if LLVM_VERSION > 2
         llvm::ArrayRef<llvm::Value*> argsRef = makeArrayRef(args); // args.begin(), nargs);
-        ans = builder->CreateCall(callee, argsRef);
+        llvm::FunctionCallee fc((llvm::Function *) callee); //, ((llvm::PointerType *)callee->getType())->getElementType());
+        ans = builder->CreateCall(fc, argsRef);
+//        ans = builder->CreateCall(callee, argsRef);
 #else
         ans = builder->CreateCall(callee, args.begin(), args.end()); // Use the name or leave to below.
 #endif
     } else {
-        ans = builder->CreateCall(callee);
+        llvm::FunctionCallee fc((llvm::Function *) callee); //, ((llvm::PointerType *)callee->getType())->getElementType());
+        ans = builder->CreateCall(fc);
+//        ans = builder->CreateCall(callee);
     }
 #if USE_EXCEPTIONS
 } catch (std::exception e) {
@@ -538,6 +542,14 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
 
     llvm::Type *type = GET_TYPE(r_type);
     llvm::AllocaInst *ans;
+
+#if 1
+    ans = builder->CreateAlloca(type, Rf_length(r_size) > 0 ? (llvm::Value*)GET_REF(r_size, Value) : NULL, makeTwine(r_id));
+    return(R_createRef(ans, "AllocaInst"));
+#endif    
+    
+
+    llvm::BasicBlock *block = builder->GetInsertBlock();
     
     if(Rf_length(r_size)) {
         llvm::Value *size = GET_REF(r_size, Value);
@@ -546,17 +558,23 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
 #if LLVM_VERSION >= 5                                           
                                    0,
 #endif                                   
-                                   size, makeTwine(r_id));
+                                   size, makeTwine(r_id)
+#if LLVM_VERSION >= 11
+                                   ,  block
+#endif                                   
+            );
     } else
         ans = new llvm::AllocaInst(type,
 #if LLVM_VERSION >= 5                                           
                                    0,
 #endif                                   
-                                   makeTwine(r_id));            
+                                   makeTwine(r_id)
+#if LLVM_VERSION >= 11
+                                   , block
+#endif                                   
+            );            
     
     if(LOGICAL(r_beforeTerminator)[0]) {
-        llvm::BasicBlock *block;
-        block = builder->GetInsertBlock();
 
         /* TerminatorInst - removed in LLVM8.0 */
         llvm::Instruction *inst = block->getTerminator();
@@ -573,6 +591,7 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
     } else    
         ans = builder->Insert(ans);
 
+    // Isn't this already done in the new AllocaInst() ?
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
@@ -802,10 +821,15 @@ R_BinaryOperator_CreateNeg(SEXP r_value, SEXP r_id, SEXP r_type, SEXP r_block)
             break;
         case llvm::Type::FloatTyID:
         case llvm::Type::DoubleTyID:
+#if LLVM_VERSION <= 10
+#define NEG_OP            CreateFNeg
+#else
+#define NEG_OP            CreateNeg            
+#endif            
             if(block)
-               op = llvm::BinaryOperator::CreateFNeg(val, makeTwine(r_id), block);
+               op = llvm::BinaryOperator::NEG_OP(val, makeTwine(r_id), block);
             else
-               op = llvm::BinaryOperator::CreateFNeg(val);
+               op = llvm::BinaryOperator::NEG_OP(val);
             break;
             /*XXX what is the logical type? */
         default:
@@ -899,7 +923,7 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
 #if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5) || LLVM_VERSION >= 4
         buf = llvm::MemoryBuffer::getMemBuffer(fn).get();
         llvm::MemoryBufferRef ref = buf->getMemBufferRef();
-   printf("buffer: (# chars %zu) %s\n",  ref.getBufferSize(), ref.getBufferStart());
+//   printf("buffer: (# chars %zu) %s\n",  ref.getBufferSize(), ref.getBufferStart());
 
         std::unique_ptr<llvm::Module> tmp;
         tmp = llvm::parseIR(ref, err, *context);
@@ -1096,7 +1120,9 @@ R_IRBuilder_CreateInvoke(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_normal,
     for(int i = 0; i < nargs; i++)
         args.push_back(GET_REF(VECTOR_ELT(r_args, i), Value));
 
-    ans = builder->CreateInvoke(callee, normal, unwind, args);
+    llvm::FunctionCallee fc((llvm::Function *) callee); //, ((llvm::PointerType *)callee->getType())->getElementType());
+    ans = builder->CreateInvoke(fc, normal, unwind, args);    
+//    ans = builder->CreateInvoke(callee, normal, unwind, args);
 
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
