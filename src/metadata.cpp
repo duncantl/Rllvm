@@ -61,7 +61,7 @@ NOT_FOR_VERSION4(
             args.push_back(GET_REF(VECTOR_ELT(r_vals, i), MD_TYPE));
     llvm::ArrayRef<llvm::MD_TYPE *> vals = makeArrayRef(args);
     llvm::LLVMContext *context = GET_REF(r_context, LLVMContext);
-    llvm::MDNode *node = llvm::MDNode::get(*context, vals);
+    llvm::MDTuple *node = llvm::MDNode::get(*context, vals);
 
     namedNode->addOperand(node);
     )
@@ -152,7 +152,11 @@ SEXP
 R_NamedMDNode_getName(SEXP r_node)
 {
     llvm::NamedMDNode *node = GET_REF(r_node, NamedMDNode);
+#if LLVM_VERSION <= 10    
     std::string str = node->getName();
+#else
+    std::string str = node->getName().str();    
+#endif    
     return( ScalarString(str.data() ? mkChar(str.data()) : R_NaString) );
 }
 
