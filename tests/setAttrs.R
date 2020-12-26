@@ -1,5 +1,10 @@
 source("parseAssembler.R")
 f = m[['test_func']]
+a = getFuncAttributes(f)
+
 setFuncAttributes(f, "NoUnwind", "NoInline", "NoCapture")
 
-getFuncAttributes(f)
+b = getFuncAttributes(f)
+a
+b
+
