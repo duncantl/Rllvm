@@ -34,8 +34,10 @@ const char  * getLLVMTypeClassName(llvm::Type *obj)
 	ans = "PointerType";
    else    if(llvm::VectorType::classof(obj))
 	ans = "VectorType";
+/*
    else    if(llvm::Type::classof(obj))
 	ans = "Type";
+*/
 #else
    if(llvm::PointerType::classof(obj))
 	ans = "PointerType";
