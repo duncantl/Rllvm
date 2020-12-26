@@ -242,9 +242,16 @@ R_showModule(SEXP r_module, SEXP asString)
     PM.add(llvm::createPrintModulePass(&llvm::outs())); //XXX fix
 #elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
     PM.add(llvm::createPrintModulePass(LOGICAL(asString)[0] ? to : llvm::outs())); // llvm::outs()));
-#else
+#elif LLVM_VERSION <= 10
     // with new PassManager this is addPass
     PM.add(llvm::createPrintModulePass(LOGICAL(asString)[0] ? to : llvm::outs())); // llvm::outs()));
+#else
+    // in llvm 11  raw_string_ostream and raw_fd_ostream are not compatible as substitutes for each other
+    // so needd two separate calls.
+    if(LOGICAL(asString)[0])
+        PM.add(llvm::createPrintModulePass(to));
+    else
+        PM.add(llvm::createPrintModulePass(llvm::outs())); 
 #endif
 
     PM.run(*Mod);
