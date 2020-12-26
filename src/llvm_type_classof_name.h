@@ -18,7 +18,7 @@ const char  * getLLVMTypeClassName(llvm::Type *obj)
    const char *ans = "Type";
 
 #if LLVM_VERSION > 10
-   if(llvm::IntegerType.classof(obj))
+   if(llvm::IntegerType::classof(obj))
 	ans = "IntegerType";
    else    if(llvm::FunctionType::classof(obj))
 	ans = "FunctionType";
