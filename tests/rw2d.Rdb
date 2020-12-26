@@ -316,9 +316,8 @@ tmp = c(interp[i], cmp[i], fastInterp[i], tt[i])
 m = matrix(c(tmp, interp[i]/tmp), length(tmp), ,
         dimnames = list(c("Interpeted", "Byte Compiled", "Vectorized", "Rllvm"), c("Time", "Speedup")))
 m
-
-
 </r:code>
+
 <r:code>
 res = structure(m, session = sessionInfo(), system = Sys.info(), when = Sys.time(), n = n)
 id = sprintf("rw2d.tm.1e7_%s_%s_gcc", Sys.info()["nodename"], Sys.info()["sysname"])
