@@ -53,7 +53,7 @@ function(func, .ee = ExecutionEngine(as(func, "Module")))
           }
       }
   
-  rm(e, al, i, parms, params, f)
+  rm(e, al, i, parms, params)
   
   f
 }
