@@ -9,6 +9,10 @@
 
 <title>Rllvm Todo List</title>
 
+<item status="done">fun.R and generating the code for llvm_type_classof_name.h.
+Need to include VectorType as it is getting dropped out as it has sub-types.
+</item>
+
 <topic>
 <title>General</title>
 <items>
