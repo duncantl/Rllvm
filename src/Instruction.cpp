@@ -224,14 +224,20 @@ R_Instruction_getOperand(SEXP r_inst, SEXP r_i)
 
 #if LLVM_VERSION >= 10
 
+#if LLVM_VERSION == 10        
+#define ATY llvm::MaybeAlign
+#else
+#define ATY llvm::Align       
+#endif
+
 #define MAKE_SET_ALIGNMENT(type)                \
 extern "C"                                      \
 SEXP \
 R_##type##_setAlignment(SEXP r_inst, SEXP r_align) \
 { \
         llvm::type *inst = GET_REF(r_inst, type);       \
-	if(!inst) return(ScalarLogical(NA_LOGICAL)); \
-        llvm::MaybeAlign al((uint64_t) INTEGER(r_align)[0]); \
+	if(!inst) return(ScalarLogical(NA_LOGICAL));    \
+        ATY  al((uint64_t) INTEGER(r_align)[0]);            \
         inst->setAlignment(al);                \
 	return(ScalarLogical(TRUE)); \
 }
@@ -245,11 +251,12 @@ SEXP \
 R_##type##_setAlignment(SEXP r_inst, SEXP r_align) \
 { \
 	llvm::type *inst = GET_REF(r_inst, type); \
-	if(!inst) return(ScalarLogical(NA_LOGICAL)); \
-        inst->setAlignment(INTEGER(r_align)[0]); \
-	return(ScalarLogical(TRUE)); \
+	if(!inst) return(ScalarLogical(NA_LOGICAL));    \
+            inst->setAlignment(INTEGER(r_align)[0]);     \
+        return(ScalarLogical(TRUE)); \
 }
 #endif
+
 
 MAKE_SET_ALIGNMENT(StoreInst)
 MAKE_SET_ALIGNMENT(LoadInst)
