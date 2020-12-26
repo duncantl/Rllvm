@@ -10,7 +10,8 @@ InitializeNativeTarget()
 #
 mod = Module("checkStruct")
 
-foo = structType(list(i = Int32Type, d = DoubleType), "foo")
+# Note there is a function structType() in the Rffi package.
+foo = Rllvm::structType(list(i = Int32Type, d = DoubleType), "foo")
 getName(foo)
 elTypes = getElementTypes(foo)
 

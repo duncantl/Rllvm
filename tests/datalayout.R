@@ -6,23 +6,22 @@ isLittleEndian(dl)
 
 getPointerSize(dl)
 
-getStackAlignment(dl)
+try(getStackAlignment(dl))
 
 getTypeAllocSize(dl, Int32Type)
 getTypeAllocSize(dl, DoubleType)
-
-ty = structType(list(a = Int32Type, b = DoubleType, c = getIntegerType(2)), "bob")
 
 
 getABITypeAlignment(dl, Int32Type)
 getABITypeAlignment(dl, DoubleType)
 
+ty = structType(list(a = Int32Type, b = DoubleType, c = getIntegerType(2)), "bob")
 
-# Fail - seq fault
+# Fail - seq fault. Okay for LLVM 11.0 (Dec 25, 2020)
 getABITypeAlignment(dl, ty)
 
-# Fail.
+# Fail. Okay for LLVM 11.0 (Dec 25, 2020)
 getTypeAllocSize(dl, ty)
 
-# Fail
+# Fail - Okay for LLVM 11.0 (Dec 25, 2020)
 getPointerTypeSize(dl, pointerType(Int32Type))

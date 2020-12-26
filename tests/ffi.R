@@ -30,6 +30,7 @@ fun = mod$bar
 #   .llvm(fun, 10, 20L, 30L, .4, .ffi = FALSE)
 ee = ExecutionEngine(mod)
 .llvm(fun, 10, 20L, 30L, .4, .ee = ee)
+# Should give 60.4 - the sum of the 4 numbers.
 
 # If we have the CIF, we can pass it to avoid recomputing it.
 ee = ExecutionEngine(mod)

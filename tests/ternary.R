@@ -11,7 +11,8 @@ ir = IRBuilder(Block(fun))
 len = ir$createLocalVariable(Int32Type, "len")
 ir$createStore(getParameters(fun)$n, len)
 
-s = ir$createSelect( ir$createICmp(ICMP_ULT, ir$createLoad(len), createIntegerConstant(3)), createIntegerConstant(1L), createIntegerConstant(100L))
+# Was ICMP_ULT for unsigned, but since we are accepting signed integers, use ICMP_SLT
+s = ir$createSelect( ir$createICmp(ICMP_SLT, ir$createLoad(len), createIntegerConstant(3)), createIntegerConstant(1L), createIntegerConstant(100L))
 
 ir$createRet(s)
 showModule(m)
@@ -25,3 +26,5 @@ showModule(m)
 .llvm(fun, 4L)
 
 
+# Now works with use of ICMP_SLT.
+.llvm(fun, -13L)

@@ -1,5 +1,7 @@
 library(Rllvm)
 
+# This creates a simple function that takes an R object and returns it.
+
 f = Function("foo", SEXPType, list(x = SEXPType))
 b = Block(f)
 ir = IRBuilder(b)

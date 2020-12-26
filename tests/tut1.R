@@ -1,5 +1,5 @@
 # This is an R version of the example in the tutorial
-#   http://llvm.org/releases/2.6/docs/tutorial/JITTutorial1.html
+#    http://llvm.org/releases/2.6/docs/tutorial/JITTutorial1.html
 #
 library(Rllvm)
 
@@ -21,7 +21,7 @@ ir = IRBuilder(block)
  # Need to add extra instructions to perform the multiplication
  # We need to get the same types, so bringing x to a double
 tmp = binOp(ir, FMul, params$x, params$y) # optional name for variable
-tmp = binOp(ir, FAdd, tmp, params$z)
+tmp = binOp(ir, BinaryOps["FAdd"], tmp, params$z)
 
 createReturn(ir, tmp)
 # now we have defined fun. So we verify the module

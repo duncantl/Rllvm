@@ -18,6 +18,11 @@ run(pm, mod)
 txt = as(fstream, "character")
 cat(txt)
 
+
+# Function to do these steps.
+txt2 = getAssemblyCode(mod)
+
+
 # Sometimes there are strange characters at the end.
 # We are probably not ensuring C++ objects stay around.
 # This was done quickly as an experiment. Look at the R_raw_svector_otream

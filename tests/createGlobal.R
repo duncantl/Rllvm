@@ -1,4 +1,4 @@
-# Withoout the execution engine specified in successive calls,
+# Without the execution engine specified in successive calls,
 # we get a new execution engine and a new instance of the
 # global variable. That is why it doesn't decrement.
 
@@ -42,8 +42,14 @@ ir$createRet(v)
 
 .llvm(fun, .ee = ee)
 replicate(10, .llvm(fun, .ee = ee))
-#??? Gives -101
+# -99, ...., -90
+
+.llvm(getGV, .ee = ee)
+
+#But the following now gives -101.  So is this the initializer value?
 getGlobalValue(getGlobalVariable(mod, "gv"), ee)
 
+# But calling fun w/o the ExecutionEngine means we create a new exec engine and so
+# reinitialize the global variable each time.
 .llvm(fun) # no ee
 .llvm(fun) # and no ee again gives -100

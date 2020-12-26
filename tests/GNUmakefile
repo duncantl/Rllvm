@@ -10,4 +10,7 @@ CC=$(CLANG)
 %.ll: %.c
 	$(CC) $(OPT_LEVEL) -S -emit-llvm $< -o $@
 
+%.ll: %.cpc
+	$(CXX) $(OPT_LEVEL) -S -emit-llvm $< -o $@
+
 

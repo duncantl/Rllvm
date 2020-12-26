@@ -6,8 +6,8 @@ mod = Module("global")
 mod[["l"]] = TRUE
 mod[["i"]] = 101L
 
-getIntegerBitWidth(getElementType(getType(mod[["l"]])))
-getIntegerBitWidth(getElementType(getType(mod[["i"]])))
+stopifnot( getIntegerBitWidth(getElementType(getType(mod[["l"]]))) == 1 )
+stopifnot( getIntegerBitWidth(getElementType(getType(mod[["i"]]))) == 32L )
 
 # 1 and 32
 
