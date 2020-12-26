@@ -28,7 +28,11 @@ SEXP
 R_GlobalVariable_setAlignment(SEXP r_var, SEXP r_val)
 {
     llvm::GlobalVariable *ans = GET_REF(r_var, GlobalVariable);
+#if LLVM_VERSION <= 10    
     ans->setAlignment(INTEGER(r_val)[0]);
+#else
+    ans->setAlignment(llvm::Align(INTEGER(r_val)[0]));    
+#endif    
     return(ScalarLogical(TRUE));
 }
 
