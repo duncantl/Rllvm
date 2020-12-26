@@ -288,7 +288,11 @@ R_VectorType_get(SEXP r_elType, SEXP r_numEls)
     unsigned numEls =  REAL(r_numEls)[0];
     llvm::VectorType *ans;
 
+#if LLVM_VERSION <= 10
     ans = llvm::VectorType::get(elType, numEls);
+#else
+    ans = llvm::FixedVectorType::get(elType, numEls);    
+#endif    
     return(R_createRef(ans, "VectorType"));
 }
 
