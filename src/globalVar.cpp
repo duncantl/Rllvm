@@ -76,3 +76,21 @@ R_GlobalVariable_getAttributes(SEXP r_var)
 }
 
 
+extern "C"
+SEXP
+R_GlobalValue_setUnnamedAddr(SEXP r_val, SEXP r_addr)
+{
+    llvm::GlobalValue *val = GET_REF(r_val, GlobalValue);
+    int old = (int) val->getUnnamedAddr();
+    val->setUnnamedAddr((llvm::GlobalValue::UnnamedAddr) INTEGER(r_addr)[0]);
+    return(ScalarInteger(old));
+}
+
+extern "C"
+SEXP
+R_GlobalValue_getUnnamedAddr(SEXP r_val)
+{
+    llvm::GlobalValue *val = GET_REF(r_val, GlobalValue);
+    int old = (int) val->getUnnamedAddr();
+    return(ScalarInteger(old));
+}

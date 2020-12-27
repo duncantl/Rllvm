@@ -114,3 +114,20 @@ setMethod("getInitializer", "GlobalVariable",
               ans = .Call("R_GlobalVariable_getInitializer", x)
               as(ans, getClassName(ans))
           })
+
+
+
+setUnnamedAddr =
+function(x, val)
+{
+    x = as(x, "GlobalValue")
+    val = getEnumValue(val, UnnamedAddr)
+    .Call("R_GlobalValue_setUnnamedAddr", x, val)
+}
+
+getUnnamedAddr =
+function(x, val)
+{
+    x = as(x, "GlobalValue")
+    .Call("R_GlobalValue_getUnnamedAddr", x)
+}

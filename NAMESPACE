@@ -717,3 +717,5 @@ export(isUsedInBasicBlock, isUsedByMetadata, hasValueHandle, isSwiftError, getNu
 
 
 export(noCapture, noAlias, hasSExtAttr, hasZExtAttr, hasNestAttr)
+
+export(setUnnamedAddr, getUnnamedAddr)
