@@ -8,9 +8,10 @@ function(.name, retType = VoidType, ..., .types = list(...), mod = Module(),
    
    ir = IRBuilder(b <- Block(fun))
    vars = NULL
+
+   parms = getParameters(fun)
    
    if(length(.types)) {
-      parms = getParameters(fun)
       if(.createLocalVars)
           vars = mapply(function(ty, id, param) {
                          var = ir$createLocalVariable(ty, id)
