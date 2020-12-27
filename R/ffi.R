@@ -53,6 +53,8 @@ function(type, ffi = getTypes()[c("void", "sint8", "sint32", "sint64", "float", 
 
     if(sameType(type, VoidType))
         voidType
+    else  if(sameType(type, Int1Type))
+        sint8Type    
     else  if(sameType(type, Int8Type))
         sint8Type
     else  if(sameType(type, Int32Type))
