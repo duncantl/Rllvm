@@ -72,6 +72,14 @@ void *getRReference(SEXP val);
 #endif
 
 
+// Macro that both declares an llvm object of the correct type
+// and dereferences it.
+// Unrelatedly, I may add llvm::type::classof(obj) to getRReference as a further test.
+
+#define  LDECL(type)  \
+    llvm::type *obj = static_cast<llvm::type *>(getRReference(r_obj));
+
+
 #define GET_TYPE(x)  GET_REF(x, Type) 
 
 
