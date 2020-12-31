@@ -133,6 +133,28 @@ setClass("MDNode", contains = "Value")
 setClass("MDString", contains = "Value")
 
 
+setClass("DINode", contains = "MDNode")
+setClass("DIGlobalVariableExpression", contains = "MDNode")
+setClass("GenericDINode", contains = "DINode")
+setClass("DISubrange", contains = "DINode")
+setClass("DIEnumerator", contains = "DINode")
+setClass("DIScope", contains = "DINode")
+setClass("DIFile", contains = "DINode")
+setClass("DIType", contains = "DIScope")
+setClass("DIBasicType", contains = "DIType")
+setClass("DIDerivedType", contains = "DIType")
+setClass("DICompositeType", contains = "DIType")
+setClass("DISubroutineType", contains = "DIType")
+setClass("DICompileUnit", contains = "DIScope")
+setClass("DILocalScope", contains = "DIScope")
+setClass("DILocation", contains = "MDNode")
+setClass("DISubprogram", contains = "DILocalScope")
+setClass("DILexicalBlockBase", contains = "DILocalScope")
+setClass("DILexicalBlock", contains = "DILexicalBlockBase")
+setClass("DILexicalBlockFile", contains = "DILexicalBlockBase")
+
+
+
 setClass("Type", contains = "RC++Reference")
 setClass("DerivedType", contains = "Type")
 setClass("CompositeType", contains = "DerivedType")
@@ -351,3 +373,48 @@ setGeneric("getPredecessors", function(x, ...) standardGeneric("getPredecessors"
 setGeneric("getSuccessors", function(x, ...) standardGeneric("getSuccessors"))
 setGeneric("getSuccessor", function(x, ...) standardGeneric("getSuccessor"))
 setGeneric("getPredecessor", function(x, ...) standardGeneric("getPredecessor"))
+
+
+
+
+# For DI nodes - debug info. But isLittleEndian is used for datalayout.
+setGeneric("isPrivate", function(x, ...) standardGeneric("isPrivate"))
+setGeneric("isProtected", function(x, ...) standardGeneric("isProtected"))
+setGeneric("isPublic", function(x, ...) standardGeneric("isPublic"))
+setGeneric("isForwardDecl", function(x, ...) standardGeneric("isForwardDecl"))
+setGeneric("isAppleBlockExtension", function(x, ...) standardGeneric("isAppleBlockExtension"))
+setGeneric("isVirtual", function(x, ...) standardGeneric("isVirtual"))
+setGeneric("isArtificial", function(x, ...) standardGeneric("isArtificial"))
+setGeneric("isObjectPointer", function(x, ...) standardGeneric("isObjectPointer"))
+setGeneric("isObjcClassComplete", function(x, ...) standardGeneric("isObjcClassComplete"))
+setGeneric("isVector", function(x, ...) standardGeneric("isVector"))
+setGeneric("isBitField", function(x, ...) standardGeneric("isBitField"))
+setGeneric("isStaticMember", function(x, ...) standardGeneric("isStaticMember"))
+setGeneric("isLValueReference", function(x, ...) standardGeneric("isLValueReference"))
+setGeneric("isRValueReference", function(x, ...) standardGeneric("isRValueReference"))
+setGeneric("isTypePassByValue", function(x, ...) standardGeneric("isTypePassByValue"))
+setGeneric("isTypePassByReference", function(x, ...) standardGeneric("isTypePassByReference"))
+setGeneric("isBigEndian", function(x, ...) standardGeneric("isBigEndian"))
+setGeneric("isLittleEndian", function(x, ...) standardGeneric("isLittleEndian"))
+
+
+setGeneric("getElements",
+           function(x, ...)
+           standardGeneric("getElements"))
+
+
+setGeneric("getEmissionKind",
+           function(x, ...)
+           standardGeneric("getEmissionKind"))
+
+setGeneric("isOptimized",
+           function(x, ...)
+           standardGeneric("isOptimized"))
+
+setGeneric("getLine",
+           function(x, ...)
+           standardGeneric("getLine"))
+
+setGeneric("getNameTableKind", function(x, ...) standardGeneric("getNameTableKind"))
+setGeneric("stripDebugInfo", function(x, ...) standardGeneric("stripDebugInfo"))
+
