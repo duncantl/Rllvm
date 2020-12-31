@@ -719,3 +719,34 @@ export(isUsedInBasicBlock, isUsedByMetadata, hasValueHandle, isSwiftError, getNu
 export(noCapture, noAlias, hasSExtAttr, hasZExtAttr, hasNestAttr)
 
 export(setUnnamedAddr, getUnnamedAddr)
+
+
+
+export(getElements)
+
+export(isPrivate, isProtected, isPublic, isForwardDecl, isAppleBlockExtension, isVirtual, isArtificial,
+              isObjectPointer, isObjcClassComplete, isVector, isBitField, isStaticMember, isLValueReference, isRValueReference,
+              isTypePassByValue, isTypePassByReference, isBigEndian, isLittleEndian, getLine, getNameTableKind)
+
+exportMethods(isPrivate, isProtected, isPublic, isForwardDecl, isAppleBlockExtension, isVirtual, isArtificial,
+              isObjectPointer, isObjcClassComplete, isVector, isBitField, isStaticMember, isLValueReference, isRValueReference,
+              isTypePassByValue, isTypePassByReference, isBigEndian, isLittleEndian, getLine, getNameTableKind)
+
+
+exportClasses(DINode, GenericDINode, DISubrange, DIEnumerator, DIScope, DIFile, DIType, DIBasicType, DIDerivedType, DIGlobalVariableExpression,
+              DICompositeType, DISubroutineType, DICompileUnit, DILocalScope, DILocation, DISubprogram, DILexicalBlockBase, DILexicalBlock, DILexicalBlockFile)
+
+
+# May change this interface.
+export(lapplyDebugInfoTypes, lapplyDebugInfo)
+
+export(isOptimized, getEmissionKind)
+exportMethods(isOptimized, getEmissionKind)
+
+export(getSDK, getSourceLanguage, getRuntimeVersion, getProducer, isDebugDirectivesOnly)
+
+export(getDebugCounts)
+
+
+export(stripDebugInfo)
+exportMethods(stripDebugInfo)
