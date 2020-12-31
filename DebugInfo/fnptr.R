@@ -1,3 +1,6 @@
+# This is a check we can call a function stored in a global variable, i.e.  a function/routine pointer.
+# Then we move on to getting a function pointer from a field in a struct in simple2.R
+
 library(Rllvm)
 m = parseIR("fnptr.ir")
 .llvm(m$a, 10)

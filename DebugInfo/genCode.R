@@ -1,3 +1,6 @@
+# R code that generates R and C++ code to implement methods for Rllvm related to DINode types.
+# This is code we put in Rllvm.
+
 ditypes = c("llvm::DIBasicType", "llvm::DIDerivedType", "llvm::DICompositeType", "llvm::DISubroutineType")
 
 
