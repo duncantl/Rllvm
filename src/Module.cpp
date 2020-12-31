@@ -808,3 +808,196 @@ R_Module_getSourceFileName(SEXP r_module)
     const std::string str = module->getSourceFileName();
     return(ScalarString(mkChar(str.c_str() ? str.c_str() : "")));
 }
+
+
+
+
+extern "C"
+SEXP
+R_Module_debugIterate(SEXP r_module, SEXP r_fun)
+{
+    llvm::Module *module;
+    module = (GET_REF(r_module, Module));    
+    auto du = module->debug_compile_units();
+    int n = 0;
+    for(auto e : du) {
+        n++;
+    }
+    return(ScalarInteger(n));
+}
+
+#include <llvm/IR/DebugInfo.h>
+
+//https://wiki.aalto.fi/display/t1065450/LLVM+DebugInfo
+
+extern "C"
+SEXP
+R_Module_debugInfo(SEXP r_module)
+{
+    llvm::Module *module;
+    module = (GET_REF(r_module, Module));
+    llvm::DebugInfoFinder df;
+    df.processModule(*module);
+    SEXP ans, names;
+    int i = 0;
+    PROTECT(ans = NEW_INTEGER(5));
+    PROTECT(names = NEW_CHARACTER(5));
+    INTEGER(ans)[i] = df.compile_unit_count();
+    SET_STRING_ELT(names, i++, mkChar("compile_unit"));
+    INTEGER(ans)[i] = df.global_variable_count();
+    SET_STRING_ELT(names, i++, mkChar("global_variable"));    
+    INTEGER(ans)[i] = df.subprogram_count();
+    SET_STRING_ELT(names, i++, mkChar("subprogram"));        
+    INTEGER(ans)[i] = df.type_count();
+    SET_STRING_ELT(names, i++, mkChar("type"));        
+    INTEGER(ans)[i] = df.scope_count();
+    SET_STRING_ELT(names, i++, mkChar("scope"));        
+    SET_NAMES(ans, names);
+    UNPROTECT(2);
+    return(ans);
+}
+
+
+
+
+#define FOO(x) if(llvm::x::classof(obj))       \
+                     ans = #x;
+
+static 
+char const *
+getDITypeClassName(llvm::MDNode *obj) // DINode 
+{
+    char const *ans = "DINode"; // "DIType";
+    FOO(DIGlobalVariableExpression);    
+    FOO(DIFile);
+    FOO(DIScope);
+    FOO(DIType);
+    FOO(DIBasicType);
+    FOO(DIDerivedType);
+    FOO(DICompositeType);
+    if(llvm::DISubroutineType::classof(obj)) 
+        ans = "DISubroutineType";    
+    FOO(DICompileUnit);        
+    FOO(DISubprogram);
+    FOO(DILocalScope);
+    FOO(DILexicalBlockBase);
+    FOO(DILexicalBlock);
+    FOO(DILexicalBlockFile);        
+    FOO(DITemplateParameter);
+    FOO(DITemplateTypeParameter);        
+    FOO(DIVariable);
+    FOO(DIMacroNode);
+    FOO(DIMacroFile);
+    FOO(DIImportedEntity);        
+    FOO(DIObjCProperty);        
+
+    return(ans);
+}
+
+
+
+extern "C"
+SEXP
+R_Module_lapplyDebugInfoTypes(SEXP r_module, SEXP r_expr, SEXP r_setClass)
+{
+    llvm::Module *module;
+    module = (GET_REF(r_module, Module));
+    llvm::DebugInfoFinder df;
+    df.processModule(*module);
+    int n = 0;
+    SEXP ans = NEW_LIST(df.type_count());
+    SEXP names = NEW_CHARACTER(df.type_count());        
+    PROTECT(ans);
+    PROTECT(names);
+    for(auto e : df.types()) {
+        char const *className = "DINode"; 
+        if(LOGICAL(r_setClass)[0])  
+            className = getDITypeClassName(e);  
+        SETCAR(CDR(r_expr), R_createRef((void *)e, className)); 
+        SEXP tmp = Rf_eval(r_expr, R_GlobalEnv); 
+        SET_VECTOR_ELT(ans, n, tmp);                 
+        const char *nm = e->getName().data();
+        if(nm)
+            SET_STRING_ELT(names, n, mkChar(nm));
+        n++;
+    }
+    SET_NAMES(ans, names);
+    UNPROTECT(2);
+    return(ans);
+}
+
+
+#define DODI(op)                                \
+    for(auto e : df.op ()) {  \
+        const char *nm = e->getName().data(); \
+        char const *className = "DINode"; \
+        if(LOGICAL(r_setClass)[0])  \
+            className = getDITypeClassName(e);  \
+                                                \
+        SETCAR(CDR(r_expr), R_createRef((void *)e, className)); \
+        SEXP tmp = Rf_eval(r_expr, R_GlobalEnv); \
+        SET_VECTOR_ELT(ans, n, tmp);         \
+        if(nm)                               \
+           SET_STRING_ELT(names, n, mkChar(nm)); \
+        n++; \
+    }
+
+
+// No e->getName() method
+#define DODI2(op)                                \
+    for(auto e : df.op ()) {  \
+        char const *className = "DINode"; \
+        if(LOGICAL(r_setClass)[0])  \
+            className = getDITypeClassName(e);  \
+                                                \
+        SETCAR(CDR(r_expr), R_createRef((void *)e, className)); \
+        SEXP tmp = Rf_eval(r_expr, R_GlobalEnv); \
+        SET_VECTOR_ELT(ans, n, tmp);         \
+        n++; \
+    } 
+
+
+extern "C"
+SEXP
+R_Module_getDebugInfo(SEXP r_module, SEXP r_expr, SEXP r_setClass)
+{
+    llvm::Module *module;
+    module = (GET_REF(r_module, Module));
+    llvm::DebugInfoFinder df;
+    df.processModule(*module);
+    int count = df.compile_unit_count() + df.global_variable_count() +
+                  df.type_count() + df.scope_count() + df.subprogram_count();
+    int n = 0;
+    SEXP ans = NEW_LIST(count);
+    SEXP names = NEW_CHARACTER(count);        
+    PROTECT(ans);
+    PROTECT(names);
+
+    DODI(types);
+    DODI2(global_variables);
+    DODI(compile_units);
+    DODI(scopes);
+    DODI(subprograms);
+
+    SET_NAMES(ans, names);
+    UNPROTECT(2);
+    return(ans);
+}
+
+extern "C"
+SEXP
+R_Module_StripDebugInfo(SEXP r_module)
+{
+    llvm::Module *module = GET_REF(r_module, Module);
+    bool ans = llvm::StripDebugInfo(*module);
+    return(ScalarLogical(ans));
+}
+
+extern "C"
+SEXP
+R_Function_StripDebugInfo(SEXP r_fun)
+{
+    llvm::Function *fun = GET_REF(r_fun, Function);
+    bool ans = llvm::stripDebugInfo(*fun);
+    return(ScalarLogical(ans));
+}

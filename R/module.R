@@ -291,3 +291,11 @@ function(module)
 }
 
 
+
+setMethod("stripDebugInfo", "Module",
+          function(x, ...) 
+          .Call("R_Module_StripDebugInfo", x))
+
+setMethod("stripDebugInfo", "Function",
+          function(x) 
+              .Call("R_Function_StripDebugInfo", x))
