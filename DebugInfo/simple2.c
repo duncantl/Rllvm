@@ -8,6 +8,9 @@ struct A {
 struct A var, *pvar;
 
 #include <stdio.h>
+
+int foo();
+
 int
 doit(int i, double d)
 {
@@ -23,6 +26,7 @@ init()
     var.i = 2;
     var.d = 3.1415;
     var.f = doit;
+    var.v = foo;
 }
 
 int
