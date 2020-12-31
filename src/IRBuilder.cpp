@@ -144,7 +144,7 @@ R_IRBuilder_CreateBinOp(SEXP r_builder, SEXP r_op, SEXP r_lhs, SEXP r_rhs, SEXP 
 
 extern "C"
 SEXP
-R_IRBuilder_CreateCall(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_id)
+R_IRBuilder_CreateCall(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_id, SEXP r_funType)
 {
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
@@ -162,18 +162,29 @@ R_IRBuilder_CreateCall(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_id)
         std::vector<llvm::Value *> args; // does this disappear and we lose the elements?
         for(int i = 0; i < nargs; i++)
             args.push_back(GET_REF(VECTOR_ELT(r_args, i), Value));
+
 #if LLVM_VERSION > 2
         llvm::ArrayRef<llvm::Value*> argsRef = makeArrayRef(args); // args.begin(), nargs);
-        llvm::FunctionCallee fc((llvm::Function *) callee); //, ((llvm::PointerType *)callee->getType())->getElementType());
-        ans = builder->CreateCall(fc, argsRef);
-//        ans = builder->CreateCall(callee, argsRef);
+
+        if(Rf_length(r_funType) == 0) {
+            llvm::FunctionCallee fc((llvm::Function *) callee); //, ((llvm::PointerType *)callee->getType())->getElementType());
+            ans = builder->CreateCall(fc, argsRef);
+        } else {
+            llvm::FunctionType *ftype = GET_REF(r_funType, FunctionType);
+            ans = builder->CreateCall(ftype, callee, argsRef);
+        }
 #else
         ans = builder->CreateCall(callee, args.begin(), args.end()); // Use the name or leave to below.
 #endif
     } else {
-        llvm::FunctionCallee fc((llvm::Function *) callee); //, ((llvm::PointerType *)callee->getType())->getElementType());
-        ans = builder->CreateCall(fc);
-//        ans = builder->CreateCall(callee);
+
+        if(Rf_length(r_funType) == 0) {
+            llvm::FunctionCallee fc((llvm::Function *) callee);
+            ans = builder->CreateCall(fc);
+        } else {
+            llvm::FunctionType *ftype = GET_REF(r_funType, FunctionType);
+            ans = builder->CreateCall(ftype, callee);
+        }
     }
 #if USE_EXCEPTIONS
 } catch (std::exception e) {
@@ -181,6 +192,8 @@ R_IRBuilder_CreateCall(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_id)
    ERROR;
 }
 #endif
+
+  
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 

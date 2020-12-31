@@ -78,7 +78,14 @@ function(builder)
 createCall =
 function(builder, fun, ..., .args = list(...), id = character())
 {
-  .Call("R_IRBuilder_CreateCall", builder, fun, .args, as.character(id))
+    ftype = NULL
+    if(!is(fun, "Function")) {
+        ftype = getType(fun)
+        if(isPointerType(ftype))
+            ftype = getElementType(ftype)
+    }
+        
+    .Call("R_IRBuilder_CreateCall", builder, fun, .args, as.character(id), ftype)
 }    
 
 
