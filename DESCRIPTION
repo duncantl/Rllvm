@@ -77,3 +77,4 @@ Collate: llvmVersion.R classDefs.R manual_generics.R generics_bools.R
          CallInst.R
 	 InvokeInst.R
 	 Argument.R
+	 debugInfo.R
