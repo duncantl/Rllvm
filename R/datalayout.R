@@ -1,9 +1,9 @@
 
-isLittleEndian =
-function(dataLayout)
+setMethod("isLittleEndian", "DataLayout",
+function(x)
 {
-    .Call("R_DataLayout_isLittleEndian", as(dataLayout, "DataLayout"))
-}
+    .Call("R_DataLayout_isLittleEndian", as(x, "DataLayout"))
+})
 
 getPointerSize =
 function(dataLayout)
