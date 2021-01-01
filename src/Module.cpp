@@ -1001,3 +1001,29 @@ R_Function_StripDebugInfo(SEXP r_fun)
     bool ans = llvm::stripDebugInfo(*fun);
     return(ScalarLogical(ans));
 }
+
+
+
+#include <llvm/IR/TypeFinder.h>
+
+extern "C"
+SEXP
+R_Module_getTypes(SEXP r_module)
+{
+    LDECL2(Module, module);
+    llvm::TypeFinder finder;
+    finder.run(*module, true);
+    size_t n = finder.size();
+    SEXP ans, names;
+    PROTECT(ans = NEW_LIST(n));
+    PROTECT(names = NEW_CHARACTER(n));
+    for(int i = 0; i < n; i++) {
+        llvm::StructType *ty = finder[i];
+        SET_VECTOR_ELT(ans, i, R_createRef(ty, "Type"));
+        llvm::StringRef str = ty->getName();
+        SET_STRING_ELT(names, i, str.data() ? mkChar(str.data()) : R_NaString);
+    }
+    SET_NAMES(ans, names);
+    UNPROTECT(2);
+    return(ans);
+}
