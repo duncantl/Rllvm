@@ -1,0 +1,48 @@
+library(Rllvm)
+m = Module()
+v = Function("v", Int32Type, module = m)
+ir = IRBuilder(Block(v))
+ir$createReturn(ir$createConstant(3L))
+
+m2 = Module()
+v2 = Function("v2", Int32Type, module = m2)
+.Call("R_CloneFunctionInto", v, v2, FALSE)
+
+stopifnot(verifyModule(m2))
+stopifnot(.llvm(v2) == 3)
+
+# With parameters
+m = Module()
+v = Function("v", Int32Type, list(Int32Type, DoubleType), module = m)
+ir = IRBuilder(Block(v))
+ir$createReturn(ir$createConstant(3L))
+stopifnot(.llvm(v, 10, 3.5) == 3)
+
+
+m2 = Module()
+v2 = Function("v2", Int32Type, list(Int32Type, DoubleType), module = m2)
+.Call("R_CloneFunctionInto", v, v2, FALSE)
+stopifnot(verifyModule(m2))
+stopifnot(.llvm(v2, 10, 3.5) == 3)
+
+# If we don't create the parameters, we don't copy them.
+# Does the ValueToValueMapTy help with this.
+m2 = Module()
+v2 = Function("v2", Int32Type, module = m2)
+.Call("R_CloneFunctionInto", v, v2, FALSE)
+stopifnot(verifyModule(m2))
+stopifnot(.llvm(v2) == 3)
+
+
+
+copyFunction=
+function(fun, id, module = as(fun, "Module"))
+{
+    
+}
+
+setMethod("$<-", c("Module", value = "Function"),
+          function(x, name, value) {
+             
+          })
+
