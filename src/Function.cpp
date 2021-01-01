@@ -462,3 +462,46 @@ R_Function_setMetadata(SEXP r_func, SEXP r_kind, SEXP r_node)
 }
 
 
+
+
+#include <llvm/Transforms/Utils/Cloning.h>
+
+void
+setVVMap(llvm::Function *from, llvm::Function *to, llvm::ValueToValueMapTy &map)
+{
+    map[from] = to;
+#if 1    
+    llvm::Function::arg_iterator toa = to->arg_begin();
+    for (llvm::Function::const_arg_iterator J = from->arg_begin(); J != from->arg_end(); ++J) {
+       map[&*J] = &*toa++;
+    }
+#endif
+}
+
+extern "C"
+SEXP
+R_CloneFunctionInto(SEXP r_func, SEXP r_to, SEXP r_moduleLevelChanges)
+{
+    LDECL2(Function, func);
+    LDECL2(Function, to);
+
+    llvm::Function *from = func;
+    
+    llvm::ValueToValueMapTy map;
+#if 0   
+    setVVMap(func, to, map);
+#else
+    llvm::Function::arg_iterator toa = to->arg_begin();
+    int n = 0;
+    for (llvm::Function::const_arg_iterator J = from->arg_begin(); J != from->arg_end(); ++J) {
+        map[&*J] = &*toa++;
+    }
+    map[from] = to;    
+#endif
+    llvm::SmallVector<llvm::ReturnInst*, 8> returns;
+    llvm::CloneFunctionInto(to, func, map, LOGICAL(r_moduleLevelChanges)[0], returns);
+
+    // to->replaceAllUsesWith(func);
+    
+    return(R_NilValue);
+}

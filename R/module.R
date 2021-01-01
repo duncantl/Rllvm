@@ -313,4 +313,20 @@ setMethod("getTypes", "Module",
 
 
 
+copyFunction=
+function(fun, module = as(fun, "Module"), id = getName(fun))
+{
+  if(missing(id) && identical(as(fun, "Module"), module)) 
+      id = paste0(id, "clone")
+
+  f2 = Function(id, getReturnType(fun), lapply(getParameters(fun), getType), module = module)
+  .Call("R_CloneFunctionInto", fun, f2, FALSE)
+  f2
+}
+
+setMethod("$<-", c("Module", value = "Function"),
+          function(x, name, value) {
+              copyFunction(value, x, id = name)
+              x
+          })
 

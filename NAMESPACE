@@ -1,9 +1,11 @@
 useDynLib(Rllvm)
 
 #import(RAutoGenRunTime)
-import(methods)
-#import(Rffi)
-importFrom(Rffi, callCIF, CIF)
+importFrom(methods, setGeneric, setMethod, setClass,
+             as, new, is, "body<-") # cbind, rbind,
+
+importFrom(Rffi, callCIF, CIF,
+           doubleType, floatType, sexpType, sint32Type, sint64Type, sint8Type, stringType, voidType)
 
 export(llvmDump)
 exportMethods(llvmDump)
@@ -756,3 +758,6 @@ exportMethods(stripDebugInfo)
 export(getTypes)
 exportMethods(getTypes)
 
+
+export(copyFunction)
+exportMethods("$<-")
