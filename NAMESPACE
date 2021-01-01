@@ -2,7 +2,8 @@ useDynLib(Rllvm)
 
 #import(RAutoGenRunTime)
 import(methods)
-import(Rffi)
+#import(Rffi)
+importFrom(Rffi, callCIF, CIF)
 
 export(llvmDump)
 exportMethods(llvmDump)
@@ -750,3 +751,8 @@ export(getDebugCounts)
 
 export(stripDebugInfo)
 exportMethods(stripDebugInfo)
+
+
+export(getTypes)
+exportMethods(getTypes)
+

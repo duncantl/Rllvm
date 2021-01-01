@@ -418,3 +418,7 @@ setGeneric("getLine",
 setGeneric("getNameTableKind", function(x, ...) standardGeneric("getNameTableKind"))
 setGeneric("stripDebugInfo", function(x, ...) standardGeneric("stripDebugInfo"))
 
+
+setGeneric("getTypes", function(x, ...) standardGeneric("getTypes"))
+
+

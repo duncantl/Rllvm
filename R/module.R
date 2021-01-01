@@ -299,3 +299,18 @@ setMethod("stripDebugInfo", "Module",
 setMethod("stripDebugInfo", "Function",
           function(x) 
               .Call("R_Function_StripDebugInfo", x))
+
+
+setMethod("getTypes", "Module",
+          # Only gets the StructType elements, not the primitive types.
+          # So if you want those, loop over the instructions.
+          function(x, removePrefix = TRUE, ...) {
+              ans = .Call("R_Module_getTypes", x)
+              if(removePrefix)
+                  names(ans) =  gsub("^struct\\.", "", names(ans))
+              ans
+          })
+
+
+
+

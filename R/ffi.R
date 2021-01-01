@@ -42,7 +42,7 @@ function(fun, params = getParameters(fun))
 
 
 mapLLVMTypeToFFI =
-function(type, ffi = getTypes()[c("void", "sint8", "sint32", "sint64", "float", "double", "pointer", "string", "sexp")])
+function(type, ffi = Rffi::getTypes()[c("void", "sint8", "sint32", "sint64", "float", "double", "pointer", "string", "sexp")])
 {
      # Note that there is a function pointerType in Rllvm and a object named pointerType in Rffi.
 # llvm = list(VoidType, Int8Type, Int32Type, Int64Type, FloatType, DoubleType, pointerType(Int8Type), StringType, SEXPType)
