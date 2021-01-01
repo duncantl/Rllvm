@@ -141,7 +141,7 @@ ShiftedIntMask = NA_integer_)
 ##########################
 
 `ReturnIndex` = NA
-`FunctionIndex` = 4294967295L
+`FunctionIndex` = -1L
 `FirstArgIndex` = 1L
 
 
@@ -211,9 +211,9 @@ ConstantDataLastVal = NA, ConstantAggregateFirstVal = NA, ConstantAggregateLastV
 
 ##########################
 
-`DW_TAG_invalid` = 4294967295L
-`DW_VIRTUALITY_invalid` = 4294967295L
-`DW_MACINFO_invalid` = 4294967295L
+`DW_TAG_invalid` = -1L
+`DW_VIRTUALITY_invalid` = -1L
+`DW_MACINFO_invalid` = -1L
 `DW_LENGTH_lo_reserved` = NA
 `DW_LENGTH_DWARF64` = NA
 `DW_LENGTH_hi_reserved` = NA

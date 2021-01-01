@@ -210,7 +210,7 @@ if(all(llvmVersion() == c( 9 ,  0 ))) {
 ##########################
 
 `ReturnIndex` = NA
-`FunctionIndex` = 4294967295L
+`FunctionIndex` = -1L
 `FirstArgIndex` = 1L
 
 
@@ -520,9 +520,9 @@ DefaultOption = 16L)
 
 ##########################
 
-`DW_TAG_invalid` = 4294967295L
-`DW_VIRTUALITY_invalid` = 4294967295L
-`DW_MACINFO_invalid` = 4294967295L
+`DW_TAG_invalid` = -1L
+`DW_VIRTUALITY_invalid` = -1L
+`DW_MACINFO_invalid` = -1L
 `DWARF_VERSION` = 4L
 `DW_PUBTYPES_VERSION` = 2L
 `DW_PUBNAMES_VERSION` = 2L

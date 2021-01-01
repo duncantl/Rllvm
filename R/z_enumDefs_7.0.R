@@ -203,7 +203,7 @@ if(all(llvmVersion() == c( 7 ,  0 ))) {
 ##########################
 
 `ReturnIndex` = NA
-`FunctionIndex` = 4294967295L
+`FunctionIndex` = -1L
 `FirstArgIndex` = 1L
 
 
@@ -500,9 +500,9 @@ value_too_large = NA_integer_, wrong_protocol_type = NA_integer_
 
 ##########################
 
-`DW_TAG_invalid` = 4294967295L
-`DW_VIRTUALITY_invalid` = 4294967295L
-`DW_MACINFO_invalid` = 4294967295L
+`DW_TAG_invalid` = -1L
+`DW_VIRTUALITY_invalid` = -1L
+`DW_MACINFO_invalid` = -1L
 `DWARF_VERSION` = 4L
 `DW_PUBTYPES_VERSION` = 2L
 `DW_PUBNAMES_VERSION` = 2L

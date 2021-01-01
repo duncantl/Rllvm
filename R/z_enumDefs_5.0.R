@@ -332,7 +332,7 @@ NA_integer_, NA_integer_, NA_integer_, NA_integer_), .Names = c("address_family_
 ##########################
 
 `ReturnIndex` = NA
-`FunctionIndex` = 4294967295L
+`FunctionIndex` = -1L
 `FirstArgIndex` = 1L
 
 
@@ -481,9 +481,9 @@ NA, NA, NA, NA, NA, NA), .Names = c("ArgumentVal", "BasicBlockVal",
 
 ##########################
 
-`DW_TAG_invalid` = 4294967295L
-`DW_VIRTUALITY_invalid` = 4294967295L
-`DW_MACINFO_invalid` = 4294967295L
+`DW_TAG_invalid` = -1L
+`DW_VIRTUALITY_invalid` = -1L
+`DW_MACINFO_invalid` = -1L
 `DWARF_VERSION` = 4L
 `DW_PUBTYPES_VERSION` = 2L
 `DW_PUBNAMES_VERSION` = 2L
