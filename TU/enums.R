@@ -34,7 +34,11 @@ stopifnot(all(file.exists(llvmDir)))
 
 tu = createTU("../TU/llvm.cpp", includes = llvmDir, args = c("-Wc++11-extensions", "-ferror-limit=10000"))
 
+options(nwarnings = 1000)
 enums = getEnums(tu)
+
+w = warnings()
+names(w)
 
 # dput(enums$AttrKind@values)
 
