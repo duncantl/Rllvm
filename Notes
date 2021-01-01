@@ -26,3 +26,29 @@ Activating Different Targets
 A call instruction is represented as 
   arg1, arg2, ...,  called routine
 This the order of the operands.
+
+
+
+## Data Layout String
+See https://llvm.org/docs/LangRef.html#1264
+datalayout = "e-m:o-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
+elements separated by -
+e -  little endian
+m:o - name mangling.  o is the option => Mach-O mangling.  Private symbols get L prefix. Other symbols get a _ prefix.
+p270:32:32 - specifies the size of a pointer and its <abi> and <pref>erred alignments for address space n
+p271:32:32
+p272:64:64
+i64:64 -  alignment for an integer type of a given bit <size> = 64 (the first one).
+f80:128 - alignment for a floating-point type of a given bit <size>.
+n8:16:32:64 - set of native integer widths for the target CPU in bit
+S128 - natural alignment of the stack in bits.
+
+
+## Target Triple
+
+Of the form
+```
+ARCHITECTURE-VENDOR-OPERATING_SYSTEM-ENVIRONMENT
+```
+with elements separated by -
+e.g., "x86_64-apple-darwin19.0.0"

@@ -12,3 +12,10 @@ code will try to access that. This avoids having to explicitly
 pass x@ref, but instead just x.
 If the S4 class extends RC++Reference, the ref slot is immediately available
 and all will work.
+
+
+Why i32 or i64 indexing in GEP
+  See  https://stackoverflow.com/questions/30383342/the-gep-instruction-i32-vs-i64
+  Says they are basically the same for 0L
+  https://blog.yossarian.net/2020/09/19/LLVMs-getelementptr-by-example
+   Google:  <LLVM GEP>
