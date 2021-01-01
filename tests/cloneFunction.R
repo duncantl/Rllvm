@@ -10,6 +10,7 @@ v2 = Function("v2", Int32Type, module = m2)
 
 stopifnot(verifyModule(m2))
 stopifnot(.llvm(v2) == 3)
+rm(v2, m2)
 
 # With parameters
 m = Module()
@@ -20,29 +21,19 @@ stopifnot(.llvm(v, 10, 3.5) == 3)
 
 
 m2 = Module()
-v2 = Function("v2", Int32Type, list(Int32Type, DoubleType), module = m2)
+v2 = Function("v3", Int32Type, list(Int32Type, DoubleType), module = m2)
 .Call("R_CloneFunctionInto", v, v2, FALSE)
 stopifnot(verifyModule(m2))
 stopifnot(.llvm(v2, 10, 3.5) == 3)
+rm(v2, m2)
 
 # If we don't create the parameters, we don't copy them.
 # Does the ValueToValueMapTy help with this.
 m2 = Module()
-v2 = Function("v2", Int32Type, module = m2)
+v2 = Function("v4", Int32Type, module = m2)
 .Call("R_CloneFunctionInto", v, v2, FALSE)
 stopifnot(verifyModule(m2))
 stopifnot(.llvm(v2) == 3)
 
 
-
-copyFunction=
-function(fun, id, module = as(fun, "Module"))
-{
-    
-}
-
-setMethod("$<-", c("Module", value = "Function"),
-          function(x, name, value) {
-             
-          })
 
