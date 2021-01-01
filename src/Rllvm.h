@@ -79,6 +79,9 @@ void *getRReference(SEXP val);
 #define  LDECL(type)  \
     llvm::type *obj = static_cast<llvm::type *>(getRReference(r_obj));
 
+#define  LDECL2(type, id)  \
+    llvm::type *id = static_cast<llvm::type *>(getRReference(r_##id));    
+
 
 #define GET_TYPE(x)  GET_REF(x, Type) 
 
