@@ -1,20 +1,34 @@
+Version 0.10-0
+
+	*  Compiles with LLVM 11.0
+
+	*  createCall() can handle function pointers and not just Function objects.
+
+	*  getTypes() for a Module. Returns named list of the composite/aggregate/struct types.
+
+	*  Functions to read the debugging information from a Module, typically generated with -g -S -emit-llvm, but possibly with the DIBuilder
+
+	*  Fixed the enum values that should have been -1L but were 4294967295L and giving (28) warnings during installation.
+
+	*  Functions for querying and setting attributes on Arguments in Function objects.
+
+	*  getIncomingBlock()
+
+	*  demangle() function can also be used to check the status of the demangling, i.e. whether it worked or not.
+
+	*  Additional and additions to case studies in AnalyzeCCode.
+
 Version 0.9-0
 
 	*  To differentiate between StringType and generic pointers, we add metadata to the module
 	   for the return type of a Function.  (Will add more support for parameters, etc.)
 
 	*  show() method for the different SEXPType objects displays their class to differentiate
-	them. Same for StringType.
-
-	*  
-
-
+	   them. Same for StringType.
 
 
 
 Version 0.8-0	
-
-
 
 
 	*  getSuccessor(), getNumSuccessors() deal with ReturnInst correctly.
