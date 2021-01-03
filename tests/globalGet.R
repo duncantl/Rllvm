@@ -18,6 +18,7 @@ ee = ExecutionEngine(mod)
 getGlobalValue(mod[[id]], ee)
 mod[[id, value = TRUE]]
 
+mod[["i", value = TRUE]] 
 mod[["l", value = TRUE]]
 mod[["r", value = TRUE]]
 
