@@ -421,4 +421,13 @@ setGeneric("stripDebugInfo", function(x, ...) standardGeneric("stripDebugInfo"))
 
 setGeneric("getTypes", function(x, ...) standardGeneric("getTypes"))
 
+setGeneric("getFilename", function(x, ...) standardGeneric("getFilename"))
+setGeneric("getDirectory", function(x, ...) standardGeneric("getDirectory"))
+
+
+
+
+setGeneric("getType",
+            function(obj, ...)
+              standardGeneric("getType"))
 
