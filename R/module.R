@@ -330,3 +330,12 @@ setMethod("$<-", c("Module", value = "Function"),
               x
           })
 
+
+
+setMethod("getType", c("Module"), # "character"),
+          function(obj, id, ...) {
+              if(length(id) > 0)
+                  return(lapply(id, function(i) getType(obj, i)))
+
+              .Call("R_Module_getTypeByName", obj, id)
+          })
