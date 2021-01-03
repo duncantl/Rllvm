@@ -72,7 +72,7 @@ xyz(int x)
     return(x + 1);
 }
 
-int (*fun)(int x)  = xyz;
+int (*fun)(int x1)  = xyz;
 
 void
 init4()
