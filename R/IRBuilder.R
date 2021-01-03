@@ -17,10 +17,12 @@ function(builder, block)
 setInsertPoint =
 function(builder, instruction)
 {
-  if(is(instruction, "BasicBlock"))
-     setInsertBlock(builder, instruction)
-  else
-     .Call("R_IRBuilder_SetInsertPointInstruction", builder, as(instruction, "Instruction") )
+  invisible(
+       if(is(instruction, "BasicBlock"))
+          setInsertBlock(builder, instruction)
+       else
+          .Call("R_IRBuilder_SetInsertPointInstruction", builder, as(instruction, "Instruction") )
+  )
 }
          
 
@@ -446,6 +448,8 @@ function(ir)
 parseIR =
 function(content, context = NULL, asText = is(content, "AsIs") || !file.exists(content))
 {
+    kall = sys.call()
+    masText = missing(asText)
     if(!asText)
       content = path.expand(content)
     else
@@ -457,7 +461,17 @@ function(content, context = NULL, asText = is(content, "AsIs") || !file.exists(c
       stop(paste("no such file ", content))
 
     
-   .Call("R_llvm_ParseIRFile", content, as.logical(asText), context)
+    tryCatch(.Call("R_llvm_ParseIRFile", content, as.logical(asText), context),
+             error = function(e) {
+                 if(masText) {
+                     e = simpleError(paste("does the file", content, "exist?"), kall)
+                     class(e) = c("FileNotFound", class(e))
+                 } else {
+                     e = simpleError(paste("failed to interpret text as IR code:", e$message, "at line = ", e$lineNum, ", column = ", e$colNum), kall)
+                     class(e) = c("IncorrectIRCode", class(e))                     
+                 }
+                 stop(e)
+             })
 }
 
 parseIRError =
