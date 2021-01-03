@@ -86,11 +86,11 @@ setGeneric("removeFromParent",
 
 setMethod("removeFromParent", "Instruction",
            function(inst, ...)          
-          .Call("R_Instruction_eraseFromParent", inst, FALSE))
+             .Call("R_Instruction_eraseFromParent", inst, FALSE))
 
 setMethod("removeFromParent", "BasicBlock",
           function(inst, ...)
-          .Call("R_BasicBlock_eraseFromParent", inst, FALSE))
+             .Call("R_BasicBlock_eraseFromParent", inst, FALSE))
 
 setMethod("eraseFromParent", "Instruction",
           function(x, delete = TRUE, ...)  
