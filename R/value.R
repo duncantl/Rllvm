@@ -3,15 +3,18 @@ setAs("GlobalValue", "Module",
          .Call("R_GlobalValue_getParent", from))
 
 
-setGeneric("getType",
-            function(obj, ...)
-              standardGeneric("getType"))
 
 setMethod("getType", "Value",
            function(obj, ...) {
                ans = .Call("R_Value_getType", obj)
                upgradeTypeClass(ans)
-        })
+           })
+
+#XXX Hopefully this won't come back to bite me.
+# Adding it here so that
+#   createGlobalVariable("counter1", m, val = 0L)
+# doesn't raise an error.
+setMethod("getType", "integer", function(obj, ...) Int32Type)
 
 
 
