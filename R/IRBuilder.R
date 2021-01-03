@@ -460,27 +460,29 @@ function(content, context = NULL, asText = is(content, "AsIs") || !file.exists(c
    if(!asText && !file.exists(content))
       stop(paste("no such file ", content))
 
-    
+
+    # Note the parseIRError function below. It is called by the C code.
+    # It has the correct information. However, it is called from a different level in the call stack.
+    # Too bad!
     tryCatch(.Call("R_llvm_ParseIRFile", content, as.logical(asText), context),
              error = function(e) {
                  if(masText) {
                      e = simpleError(paste("does the file", content, "exist?"), kall)
+                     e$file = content
                      class(e) = c("FileNotFound", class(e))
-                 } else {
-                     e = simpleError(paste("failed to interpret text as IR code:", e$message, "at line = ", e$lineNum, ", column = ", e$colNum), kall)
-                     class(e) = c("IncorrectIRCode", class(e))                     
-                 }
+                 } 
                  stop(e)
              })
 }
 
 parseIRError =
-function(line, col, msg)
+function(line, col, msg, txt = "")
 {
-   e = simpleError(msg)
+   e = simpleError(paste("failed to interpret text as IR code:", msg, "at line =", line, ", column =", col))
    e$lineNum = line
    e$colNum = col
-   stop( structure(e, class = c("ParseIRError", "LLVMError", class(e))))
+   e$text = txt
+   stop(structure(e, class = c("ParseIRError", "LLVMError", class(e))))
 }
 
 
