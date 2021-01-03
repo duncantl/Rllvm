@@ -10,8 +10,8 @@
 
 compReturnType =
     #
-    # This is intended for analyzing C routines in R source code or R packages to find the return
-    # type of the SEXPs they return.
+    # AFAIR, this is intended for analyzing C routines in R source code or R packages to find the return
+    # type of the SEXPs they return. But it is general  for all routines at the moment.
     #
 function(fun, blocks = getBlocks(fun))
 {
@@ -31,6 +31,7 @@ function(fun, blocks = getBlocks(fun))
         ans
 }
 
+
 getReturnInstructions =
     #
     # for a routine, get the return instruction(s). Should only ever be one, but we won't insist on that yet.
@@ -44,10 +45,19 @@ function(fun, blocks = getBlocks(fun))
 }
 
 compListTypes =
+    # Determine the types of the elements in an R list
 function(x, ret)
 {
-  if(!(inherits(x, "RVector") && x$type == "VECSXP"))
+  if(!(inherits(x, "RVector") && x$type == "VECSXP")) {
+
+      # Need to process these.
+      k = sapply(x, is, "CallInst")
+      # XXX Have to handle the case where the actual return entity is passed by reference to a function
+      # and is not just the assignment
+      x[k] = lapply(x[k], function(x) compReturnType(getCalledFunction(x)))
+
       return(x)
+  }
 
   usrs = rev(getAllUsers(ret[[1]]))
   w = sapply(usrs, function(x) is(x, "CallInst") && getName(getCalledFunction(x)) == "SET_VECTOR_ELT")
@@ -83,6 +93,10 @@ setGeneric("getCallType",
                standardGeneric("getCallType")
            })
 
+setMethod("getCallType", "ANY",
+          function(x, var = NULL, ...)
+              return(NULL))
+
 setMethod("getCallType", "Argument",
           function(x, var = NULL, ...) {
               ans = lapply(getAllUsers(x), getCallType, x, ...)
@@ -100,6 +114,21 @@ setMethod("getCallType", "PHINode",
 setMethod("getCallType", "LoadInst",
           function(x, var = NULL, ...) {
               getCallType(x[[1]], var, ...)
+          })
+
+
+setMethod("getCallType", "StoreInst",
+          function(x, var = NULL, ...) {
+              getCallType(x[[1]], var, ...)
+          })
+
+setMethod("getCallType", "AllocaInst",
+          function(x, var = NULL, ...) {
+              u = getAllUsers(x)
+              classes = sapply(u, class)
+              # The loads shouldn't change this so ignore those for now. May need to put them back in e.g., for
+              # being used in a function call as a pointer. DispatchGroup in do_Math2
+              lapply(u[!(classes %in% c("LoadInst", "BitCastInst"))], getCallType, var, ...)
           })
 
 
@@ -123,7 +152,7 @@ function(x, var = NULL, ...)
 
     ans = NULL
 
-    if(id == "Rf_allocVector") {
+    if(id %in% c("Rf_allocVector", "Rf_allocVector3")) {
         ty = kall[[1]]
         len = kall[[2]]
         #??? Change the class to RList if we know the type is VECSXP.
