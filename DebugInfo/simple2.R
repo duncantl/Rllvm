@@ -11,7 +11,7 @@ offsets = structure(seq(along = fields) - 1L, names = names(fields))
 
 
 # Create a version of foo() named bar that does the exact same thing.
-bar = simpleFunction("bar", Int32Type, mod = m) # n = Int32Type, mod = m)
+bar = simpleFunction("bar", Int32Type, module = m) # n = Int32Type, mod = m)
 ir = bar$ir
 
 pvar = ir$createLoad(m[["pvar"]])
@@ -27,7 +27,7 @@ ir$createReturn(ans)
 
 
 
-v = simpleFunction("callv", Int32Type, mod = m) # n = Int32Type, mod = m)
+v = simpleFunction("callv", Int32Type, module = m) # n = Int32Type, mod = m)
 ir = v$ir
 
 pvar = ir$createLoad(m[["pvar"]])
