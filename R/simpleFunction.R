@@ -1,10 +1,10 @@
 simpleFunction =
-function(.name, retType = VoidType, ..., .types = list(...), mod = Module(),
+function(.name, retType = VoidType, ..., .types = list(...), module = Module(),
          .createLocalVars = FALSE)
 {
    if(length(names(.types)) == 0)
        names(.types) = letters[seq(along = .types)]
-   fun = Function(.name, retType, .types, module = mod)
+   fun = Function(.name, retType, .types, module = module)
    
    ir = IRBuilder(b <- Block(fun))
    vars = NULL
@@ -20,5 +20,5 @@ function(.name, retType = VoidType, ..., .types = list(...), mod = Module(),
                        }, .types, names(.types), parms)
    } 
    
-   list(ir = ir, params = parms, vars = vars, module = mod, fun = fun, block = b)
+   list(ir = ir, params = parms, vars = vars, module = module, fun = fun, block = b)
 }
