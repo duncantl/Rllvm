@@ -115,3 +115,13 @@ setMethod("getLine", "DIType",
             .Call("R_DIType_getLine", x))
 
 setMethod("getLine", "MDNode", function(x, ...)  as.integer(NA))
+
+
+
+setMethod("getFilename", "DILocation",
+          function(x, ...)
+          .Call("R_DILocation_getFilename", x))
+
+setMethod("getDirectory", "DILocation",
+          function(x, ...)
+          .Call("R_DILocation_getDirectory", x))

@@ -749,6 +749,8 @@ exportMethods(isOptimized, getEmissionKind)
 export(getSDK, getSourceLanguage, getRuntimeVersion, getProducer, isDebugDirectivesOnly)
 
 export(getDebugCounts)
+export(getFilename, getDirectory)
+exportMethods(getFilename, getDirectory)
 
 
 export(stripDebugInfo)
