@@ -26,7 +26,7 @@ function(id, mod, type = getType(val), val = NULL, # guessType(val),
 
  
   if(!is.null(val)) {
-    if(is.character(val) && length(val) == 1) {
+     if(is.character(val) && length(val) == 1) {
        txt = val
        val = createStringConstant(val, getContext(mod), NULL)
        if(missing(type)) {
@@ -34,8 +34,9 @@ function(id, mod, type = getType(val), val = NULL, # guessType(val),
           if(is.na(alignment))
              alignment = 1L
        }
-     } else if(is(val, "numeric"))
+     } else if(is(val, "numeric")) {         # an integer will test true for is(, "numeric")
          val = createConstant(, val, type, getContext(mod))
+       }
 
     if(!is(val, "Constant"))
        stop("val must be an object of class Constant")
