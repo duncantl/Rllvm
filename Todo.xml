@@ -9,6 +9,29 @@
 
 <title>Rllvm Todo List</title>
 
+<item>
+  get attributes on parameters, e.g. byval
+  See tests/clang.ir and clangTraverseHandlers/clang.c
+</item>
+
+<item>
+  Issue in clangTraverseHandlers/clang.R
+  with removing the terminator in a block and calling IRBuilder(block)
+  and then the new instructions go before the last call
+</item>
+
+<item>
+  !! CloneFunctionInto
+   + *** Find out why cloneFunction.R segfaults.  Could it be garbage collection and not our
+     CloneFunctionInto? Use different variable names to avoid garbage collecting and see if that
+     helps?
+	   + Is this a case 
+   + [verify seg fault is not ] Fix CloneFunctionInto in Function.cpp
+</item>
+<item>
+  Fix setMethod for addFinalizer to specify where to avoid warnings.
+</item>
+
 <item status="done">fun.R and generating the code for llvm_type_classof_name.h.
 Need to include VectorType as it is getting dropped out as it has sub-types.
 </item>
