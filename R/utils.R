@@ -52,10 +52,14 @@ c(
 demangle =
 function(str, status = FALSE)
 {
-    ans = .Call("R_itaniumDemangle", as.character(str), as.logical(status))
+    str = as.character(str)
+    ans = .Call("R_itaniumDemangle", str, as.logical(status))
     if(status) {
         i =  match(ans, DemangleEnumMap)
         names(ans) = names(DemangleEnumMap)[i]
+    } else {
+        w = is.na(ans)
+        ans[w] = str[w]
     }
     ans
 }
