@@ -40,7 +40,7 @@ In versions 7 and 8 of LLVM, the names are not included in the resulting IR.
 
 <para>
 Let's look at <c:param>wt2</c:param>.
-We access this as an <r:class>Argument</r:class> object via
+We access this as an <r:class>Argument</r:class> object via either of
 <r:code>
 p = m3$rpart$wt2
 p = m3$rpart[[9]]
