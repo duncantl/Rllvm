@@ -35,7 +35,7 @@ public:
     }
 };
 
-int 
+double
 doit()
 {
     Rectangle r(1, 2, 4, 8);
@@ -45,5 +45,5 @@ doit()
     a = c.area();
     a = r.area();
 
-    return(1);
+    return(a);
 }

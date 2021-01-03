@@ -98,7 +98,7 @@ accessing the x, y, z components of <c:var>threadIdx</c:var>,
 With the module created, we define our new <r:func>Function</r:func>
 which will become or GPU kernel.
 <r:code>
-fun = simpleFunction("kern", VoidType, n = Int32Type, out = Int32PtrType, mod = m)
+fun = simpleFunction("kern", VoidType, n = Int32Type, out = Int32PtrType, module = m)
 ir = fun$ir
 localVars = fun$vars
 fun = fun$fun

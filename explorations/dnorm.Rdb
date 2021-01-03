@@ -474,7 +474,7 @@ so that we define our routine in the same module as <c:func>dnorm</c:func>:
 vfun = simpleFunction("v_dnorm", VoidType, 
                       x = DoublePtrType, n = Int32Type, 
                       mean = DoubleType, sd = DoubleType,
-                      mod = sfun$module)
+                      module = sfun$module)
 ir = vfun$ir
 </r:code>
 </para>

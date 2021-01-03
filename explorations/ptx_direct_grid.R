@@ -12,7 +12,7 @@ setDataLayout(m, "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:3
 #
 # Using addrspace = 1  gets the st.global at the end
 globalInt32PtrType = pointerType(Int32Type, , 1L)
-fun = simpleFunction("kern", VoidType, n = Int32Type, out = globalInt32PtrType, mod = m)
+fun = simpleFunction("kern", VoidType, n = Int32Type, out = globalInt32PtrType, module = m)
 
 ir = fun$ir
 localVars = fun$vars

@@ -6,7 +6,7 @@ m = ModuleForNVVM("ptx kernel")
 dimFuns = PTXRegisterRoutines
 
  # takes a number of elements and an array
-fun = simpleFunction("kern", VoidType, n = Int32Type, out = Int32PtrType, mod = m)
+fun = simpleFunction("kern", VoidType, n = Int32Type, out = Int32PtrType, module = m)
 ir = fun$ir
 localVars = fun$vars
 fun = fun$fun

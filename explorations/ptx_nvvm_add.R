@@ -13,7 +13,7 @@ library(Rllvm)
 
 m = ModuleForNVVM("simple ptx kernel")
 
-fun = simpleFunction("kern", VoidType, N = Int32Type, out = Int32PtrType, mod = m)
+fun = simpleFunction("kern", VoidType, N = Int32Type, out = Int32PtrType, module = m)
 ir = fun$ir
 localVars = fun$vars
 fun = fun$fun
