@@ -812,6 +812,8 @@ R_Module_getSourceFileName(SEXP r_module)
 
 
 
+//XXX Currently only counts the number of compilation units in the debug information.
+// want to process these.
 extern "C"
 SEXP
 R_Module_debugIterate(SEXP r_module, SEXP r_fun)
@@ -869,8 +871,8 @@ getDITypeClassName(llvm::MDNode *obj) // DINode
 {
     char const *ans = "DINode"; // "DIType";
     FOO(DIGlobalVariableExpression);    
-    FOO(DIFile);
     FOO(DIScope);
+    FOO(DIFile);
     FOO(DIType);
     FOO(DIBasicType);
     FOO(DIDerivedType);
@@ -878,8 +880,8 @@ getDITypeClassName(llvm::MDNode *obj) // DINode
     if(llvm::DISubroutineType::classof(obj)) 
         ans = "DISubroutineType";    
     FOO(DICompileUnit);        
-    FOO(DISubprogram);
     FOO(DILocalScope);
+    FOO(DISubprogram);
     FOO(DILexicalBlockBase);
     FOO(DILexicalBlock);
     FOO(DILexicalBlockFile);        
@@ -973,11 +975,12 @@ R_Module_getDebugInfo(SEXP r_module, SEXP r_expr, SEXP r_setClass)
     PROTECT(ans);
     PROTECT(names);
 
-    DODI(types);
-    DODI2(global_variables);
     DODI(compile_units);
-    DODI(scopes);
     DODI(subprograms);
+    DODI2(global_variables);    
+    DODI(scopes);
+    DODI(types);
+
 
     SET_NAMES(ans, names);
     UNPROTECT(2);
@@ -1027,3 +1030,16 @@ R_Module_getTypes(SEXP r_module)
     UNPROTECT(2);
     return(ans);
 }
+
+
+// Test this works.
+extern "C"
+SEXP
+R_Module_getTypeByName(SEXP r_module, SEXP r_name)
+{
+    LDECL2(Module, module);
+    llvm::StringRef str(CHAR(STRING_ELT(r_name, 0)));
+    llvm::StructType *ty = module->getTypeByName(str);
+    return( ty ? R_createRef(ty, "Type") : R_NilValue );
+}
+
