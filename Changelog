@@ -2,6 +2,8 @@ Version 0.10-0
 
 	*  Compiles with LLVM 11.0
 
+	*  copyFunction() and assignment of a Function to a module (mod$name = Function).
+
 	*  createCall() can handle function pointers and not just Function objects.
 
 	*  getTypes() for a Module. Returns named list of the composite/aggregate/struct types.
@@ -13,6 +15,11 @@ Version 0.10-0
 	*  Functions for querying and setting attributes on Arguments in Function objects.
 
 	*  getIncomingBlock()
+
+	*  Added getType() method for integer to return Int32Type so that createGlobalVariable() with an integer value for val but without a
+	   type will work. We may remove this and it is always better to specify the desired type.
+
+	*  names() and [[ name ]] methods for BasicBlock class, e.g. names(b) and b[["val"]].   
 
 	*  demangle() function can also be used to check the status of the demangling, i.e. whether it worked or not.
 
