@@ -323,3 +323,19 @@ R_Instruction_setMetadata(SEXP r_inst, SEXP r_kind, SEXP r_node)
 
     return(R_NilValue);
 }
+
+
+
+
+extern "C"
+SEXP
+R_Instruction_getDebugLoc(SEXP r_ins)
+{
+    LDECL2(Instruction, ins);
+    llvm::DebugLoc loc = ins->getDebugLoc();
+    llvm::DILocation *loc2 = loc.get();
+    if(!loc2)
+        return(R_NilValue);
+    
+    return(R_createRef(loc2, "DILocation"));
+}
