@@ -42,27 +42,33 @@ function(block, cast = TRUE)
     ans = .Call("R_BasicBlock_getBlockInstructions", block)
 
     if(cast) 
-     coerceGenericInstruction(ans)
+       coerceGenericInstruction(ans)
     else   
      ans
 }
 
 setMethod("getInstructions", "Module",
-          function(x, dropEmpty = TRUE, ...) {
+          function(x, debug = TRUE, dropEmpty = TRUE, ...) {
               funs = getModuleFunctions(x)
-              ans = lapply(funs, getInstructions)
+              ans = lapply(funs, getInstructions, debug, dropEmpty = dropEmpty, ...)
               if(dropEmpty)
                   ans = ans[sapply(ans, length) > 0]
               ans
           })
 
 setMethod("getInstructions", "BasicBlock",
-          function(x, ...)
-             getBlockInstructions(x, ...))
+          function(x, debug = TRUE, ...) {
+              ins = getBlockInstructions(x)
+              if(!debug) {
+                  w = sapply(ins, function(x) is(x, "CallInst") && grepl("^llvm.dbg", getName(getCalledFunction(x))))
+                  ins = ins[!w]
+              }
+              ins
+      })
 
 setMethod("getInstructions", "Function",
-          function(x, collapse = TRUE, ...) {
-              ans = lapply(getBlocks(x), getBlockInstructions)
+          function(x, debug = TRUE, collapse = TRUE, ...) {
+              ans = lapply(getBlocks(x), getInstructions, debug , ...)
               if(collapse)
                   unlist(ans, recursive = FALSE)
               else
@@ -130,7 +136,57 @@ setMethod("[", c("BasicBlock", "numeric"),
 setMethod("[[", c("BasicBlock", "numeric"),
            function(x, i, j, ...) {
              getBlockInstructions(x, ...)[[i]]
-           })
+         })
+
+
+
+# See clangTraverseHandlers/clang.ir for an example of a block
+#
+# b[["val"]]
+# b[["%val"]]
+# b[ c("data.addr", "%val")] # gets both, fixing the % in val.
+# b[[ I("%val")]]  # Fails
+# b[ I(c("data.addr", "%val"))] # gets first one
+
+# Need to sort out the possiblity of I(1).
+# Also do we want a [ method for character vectors.
+
+tmp =     function(x, i, j, ...) {
+              if(grepl("^%", i) && !is(i, "AsIs"))
+                  i = substring(i, 2)
+
+              # Should we use pmatch?
+              m = match(i, sapply(x, getName))
+              if(is.na(m))
+                  return(NULL)
+              
+              x[[ m ]]
+          }
+
+setOldClass("AsIs")
+setMethod("[[", c("BasicBlock", "character", "missing"), tmp)
+setMethod("[[", c("BasicBlock", "AsIs", "missing"), tmp)
+
+tmp =     function(x, i, j, ...) {
+    
+              if(!is(i, "AsIs") && any(w <- grepl("^%", i) ))
+                  i[w] = substring(i[w], 2)
+
+              # Should we use pmatch?
+              m = match(i, sapply(x, getName), 0L)
+              if(all(m == 0))
+                  return(NULL)
+              
+              x[ m ]
+          }
+
+setMethod("[", c("BasicBlock", "character", "missing"), tmp)
+setMethod("[", c("BasicBlock", "AsIs", "missing"), tmp)
+
+
+setMethod('names', "BasicBlock",
+          function(x)
+             sapply(x, getName))
 
 setMethod("getParent", "BasicBlock",
           function(x, ...)
