@@ -4,18 +4,24 @@
 # This is a proof-of-concept and has come a reasonable way to be useful.
 
 
-#XXX When  return is a VECSXP, we may be listing the elements in reverse order.
-#   "getOptimumForBBOBFunctionCPP" in bbob_r_to_c_interface.c in smoof package.
-# Now reversed the order.  getAllUses() returns in reverse order, so we reverse that.
+# In compListTypes() below, getAllUsers() returns in reverse order, so we reverse that.
+# But does getAllUses() do the reversing for us now?
 
-compReturnType = 
+
+compReturnType =
+    #
+    # This is intended for analyzing C routines in R source code or R packages to find the return
+    # type of the SEXPs they return.
+    #
 function(fun, blocks = getBlocks(fun))
 {
-    terms = lapply(blocks, getTerminator, FALSE)
-    isRet = sapply(terms, is, 'ReturnInst')
-    rets = terms[isRet]
+    if(length(blocks) == 0) {
+        warning(getName(fun), " has no BasicBlocks; probably implemented in another module")
+        return(NULL)
+    }
+    
+    rets = getReturnInstructions(blocks = blocks)
     ans = lapply(rets, function(x) getCallType(x[[1]]))
-    # Can we ever have multiple returns???
 
     ans = mapply(compListTypes, ans, rets, SIMPLIFY = FALSE)
 
@@ -23,6 +29,18 @@ function(fun, blocks = getBlocks(fun))
         ans[[1]]
     else
         ans
+}
+
+getReturnInstructions =
+    #
+    # for a routine, get the return instruction(s). Should only ever be one, but we won't insist on that yet.
+    #
+function(fun, blocks = getBlocks(fun))
+{
+    terms = lapply(blocks, getTerminator, FALSE)
+    isRet = sapply(terms, is, 'ReturnInst')
+    rets = terms[isRet]
+        # Can we ever have multiple returns???
 }
 
 compListTypes =
