@@ -5,6 +5,15 @@ function(name, retType, paramTypes = list(), module = Module(), varArgs = FALSE,
 {
   if(!is.list(paramTypes))  # in case just a single type.
       paramTypes = list(paramTypes)
+
+  if(!all(sapply(paramTypes, is, "Type"))) {
+      if(all(sapply(paramTypes, is, "Argument")))
+          paramTypes = lapply(paramTypes, getType)
+      else
+        # While we could call lapply(paramTypes, getType), the caller should be careful to provide types and is probably confused.
+          stop("parameters must be Type objects")
+  }
+
   
   # check if any are structures and need a byval
   isStruct = sapply(paramTypes, isStructType)
