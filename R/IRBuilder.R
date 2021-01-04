@@ -464,9 +464,11 @@ function(content, context = NULL, asText = is(content, "AsIs") || !file.exists(c
     # Note the parseIRError function below. It is called by the C code.
     # It has the correct information. However, it is called from a different level in the call stack.
     # Too bad!
+  .Call("R_llvm_ParseIRFile", content, as.logical(asText), context)
+if(FALSE)    
     tryCatch(.Call("R_llvm_ParseIRFile", content, as.logical(asText), context),
              error = function(e) {
-                 if(masText) {
+                 if(masText && !asText) {
                      e = simpleError(paste("does the file", content, "exist?"), kall)
                      e$file = content
                      class(e) = c("FileNotFound", class(e))
@@ -476,13 +478,43 @@ function(content, context = NULL, asText = is(content, "AsIs") || !file.exists(c
 }
 
 parseIRError =
-function(line, col, msg, txt = "")
+function(line, col, msg, inMemory, txt = character())
 {
-   e = simpleError(paste("failed to interpret text as IR code:", msg, "at line =", line, ", column =", col))
+    if(!inMemory && !file.exists(txt)) {
+        # So user explicitly said has to be a file, but then got it wrong.
+        msg = paste("failed to parse ", txt, "as IR code as it doesn't exist")
+        class = "FileNotFound"
+    } else {
+        alt = guessFile(txt)
+        if(length(alt))
+        else
+        msg =  paste("failed to parse IR code:", msg, "at line =", line, ", column =", col)
+        class = character()
+    }
+   e = simpleError(msg)
    e$lineNum = line
    e$colNum = col
-   e$text = txt
-   stop(structure(e, class = c("ParseIRError", "LLVMError", class(e))))
+   if(inMemory)
+      e$IR = txt
+    else
+      e$filename = txt
+    
+   stop(structure(e, class = c(class, "ParseIRError", "LLVMError", class(e))))
+}
+
+guessFile =
+function(file)
+{
+    dir = dirname(file)
+    files = list.files(dir, full.names = TRUE)
+    w = !grepl("(\\.[oacfRrs]$|~$|\\.(cc|cpp))", files) # , invert = TRUE, value = TRUE)
+    i = agrep(file, files[w])
+    if(length(i))
+        return(dir[w][i])
+
+    # Check the chain of directories to see if they exist.
+
+    return(character())
 }
 
 

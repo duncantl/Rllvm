@@ -895,14 +895,16 @@ R_IRBuilder_getCurrentFunctionReturnType(SEXP r_builder)
 #if 1
 
 void
-raiseError(llvm::SMDiagnostic err)
+raiseError(llvm::SMDiagnostic err, SEXP inMemory, SEXP content)
 {
     SEXP e, cur;
-    PROTECT(e = allocVector(LANGSXP, 4));
+    PROTECT(e = allocVector(LANGSXP, 6));
     SETCAR(e, Rf_install("parseIRError")); cur = CDR(e);
     SETCAR(cur, ScalarInteger(err.getLineNo())); cur = CDR(cur);
     SETCAR(cur, ScalarInteger(err.getColumnNo())); cur = CDR(cur);
-    SETCAR(cur, ScalarString(mkChar(err.getMessage().data())));
+    SETCAR(cur, ScalarString(mkChar(err.getMessage().data()))); cur = CDR(cur);
+    SETCAR(cur, inMemory); cur = CDR(cur);
+    SETCAR(cur, content);
     Rf_eval(e, R_GlobalEnv);
     UNPROTECT(1);
 }
@@ -936,7 +938,6 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
 #if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 5) || LLVM_VERSION >= 4
         buf = llvm::MemoryBuffer::getMemBuffer(fn).get();
         llvm::MemoryBufferRef ref = buf->getMemBufferRef();
-//   printf("buffer: (# chars %zu) %s\n",  ref.getBufferSize(), ref.getBufferStart());
 
         std::unique_ptr<llvm::Module> tmp;
         tmp = llvm::parseIR(ref, err, *context);
@@ -952,24 +953,25 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
         tmp = llvm::parseIRFile(fn, err, *context);
         mod = tmp.get();
         tmp.release();
-//        tmp.reset(NULL);
-        
-        // mod = llvm::parseIRFile(fn, err, *context).get();
 #else
         mod = llvm::ParseIRFile(fn, err, *context);
 #endif
     }
     if(!mod) {
-  raiseError(err);
-       char msg[1000];
-       sprintf(msg, "(%d)  %s", (int) strlen(err.getMessage().data()), err.getMessage().data());
-       msg[120] = '\0';
-//   Rprintf("%s", msg);
-   Rf_error(msg);
-        PROBLEM "failed to parse IR: (line = %d, col = %d) %s", 
+        
+        raiseError(err, r_inMemory, r_content);
+#if 0               
+       int len = (int) strlen(err.getMessage().data());
+       char msg[len]; // was 1000
+       sprintf(msg, "(%d)  %s", (int) len, err.getMessage().data());
+       msg[len] = '\0'; //XXX was msg[120] ????????
+       Rf_error(msg);
+
+       PROBLEM "failed to parse IR: (line = %d, col = %d) %s", 
             err.getLineNo(), err.getColumnNo(), msg
       //      err.getMessage().data()  // c_str()
            ERROR;
+#endif       
 
     }
     return(mod  ?  R_createRef(mod, "Module") : R_NilValue );
