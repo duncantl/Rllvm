@@ -465,29 +465,21 @@ function(content, context = NULL, asText = is(content, "AsIs") || !file.exists(c
     # It has the correct information. However, it is called from a different level in the call stack.
     # Too bad!
   .Call("R_llvm_ParseIRFile", content, as.logical(asText), context)
-if(FALSE)    
-    tryCatch(.Call("R_llvm_ParseIRFile", content, as.logical(asText), context),
-             error = function(e) {
-                 if(masText && !asText) {
-                     e = simpleError(paste("does the file", content, "exist?"), kall)
-                     e$file = content
-                     class(e) = c("FileNotFound", class(e))
-                 } 
-                 stop(e)
-             })
 }
 
 parseIRError =
 function(line, col, msg, inMemory, txt = character())
 {
+    alt = guessFile(txt)
+    
     if(!inMemory && !file.exists(txt)) {
         # So user explicitly said has to be a file, but then got it wrong.
         msg = paste("failed to parse ", txt, "as IR code as it doesn't exist")
         class = "FileNotFound"
     } else {
-        alt = guessFile(txt)
-        if(length(alt))
-        else
+        if(length(alt)) {
+            msg = paste("failed to parse IR code:", msg, "at line =", line, ", column =", col)
+        } else
         msg =  paste("failed to parse IR code:", msg, "at line =", line, ", column =", col)
         class = character()
     }
@@ -501,24 +493,6 @@ function(line, col, msg, inMemory, txt = character())
     
    stop(structure(e, class = c(class, "ParseIRError", "LLVMError", class(e))))
 }
-
-guessFile =
-function(file)
-{
-    dir = dirname(file)
-    files = list.files(dir, full.names = TRUE)
-    w = !grepl("(\\.[oacfRrs]$|~$|\\.(cc|cpp))", files) # , invert = TRUE, value = TRUE)
-    i = agrep(file, files[w])
-    if(length(i))
-        return(dir[w][i])
-
-    # Check the chain of directories to see if they exist.
-
-    return(character())
-}
-
-
-
 
 
 if(FALSE) {

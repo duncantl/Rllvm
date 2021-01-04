@@ -918,16 +918,12 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
 
     llvm::LLVMContext *context;
     if(Rf_length(r_context))
-        context = (GET_REF(r_context, LLVMContext)); // llvm::cast<llvm::LLVMContext> 
+        context = GET_REF(r_context, LLVMContext); 
     else {
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 9
         context = & llvm::getGlobalContext();
 #else
         context = & getLLVMGlobalContext();
-/*
-        PROBLEM "Need to pass an LLVMContext"
-            ERROR;
-*/
 #endif
     }
 
@@ -957,23 +953,10 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
         mod = llvm::ParseIRFile(fn, err, *context);
 #endif
     }
-    if(!mod) {
-        
+    if(!mod) 
         raiseError(err, r_inMemory, r_content);
-#if 0               
-       int len = (int) strlen(err.getMessage().data());
-       char msg[len]; // was 1000
-       sprintf(msg, "(%d)  %s", (int) len, err.getMessage().data());
-       msg[len] = '\0'; //XXX was msg[120] ????????
-       Rf_error(msg);
 
-       PROBLEM "failed to parse IR: (line = %d, col = %d) %s", 
-            err.getLineNo(), err.getColumnNo(), msg
-      //      err.getMessage().data()  // c_str()
-           ERROR;
-#endif       
-
-    }
+    // if we get here mod has to be okay.
     return(mod  ?  R_createRef(mod, "Module") : R_NilValue );
 }
 #endif
@@ -1407,6 +1390,8 @@ R_PHINode_incoming_values(SEXP r_phi)
 
 
 
+#if LLVM_VERSION < 11
+// no corresponding R function anyway.
 extern "C"
 SEXP
 R_IRBuilder_CreateShuffleVector(SEXP r_builder, SEXP r_vec1, SEXP r_vec2, SEXP r_mask, SEXP r_id)
@@ -1429,3 +1414,4 @@ R_IRBuilder_CreateShuffleVector(SEXP r_builder, SEXP r_vec1, SEXP r_vec2, SEXP r
     
     return(R_createRef(ret, "ShuffleVectorInst"));
 }
+#endif
