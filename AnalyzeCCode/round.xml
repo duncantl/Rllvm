@@ -1,0 +1,254 @@
+<section
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:omg="http://www.omegahat.org"
+	 xmlns:c="http://www.C.org"
+	 xmlns:sh="http://www.shell.org">
+<title></title>
+
+<!--  Connect this to what we have already done for determining return types. 
+getType.R in this directory ?
+
+-->
+<para>
+  The round function calls .Primitive("round").
+  In names.c, we map this to do_Math2.
+  That is in arithmetic.c.
+  We generate the IR for this with make -f IRMakefile having put a symbolic link to IRMakefile in the build/src/main directory.
+  We read the IR arithmetic.ir.
+<r:code>
+m = parseIR("arithmetic.ir")
+r = m$do_Math2
+compReturnType(r) # error with no method for getCallType for AllocaInst.
+</r:code>  
+
+In do_Math2, we get the return instruction
+<r:code>
+ret = getReturnInstructions(r)[[1]]
+</r:code>
+Its value is a load instruction. So we follow that
+which brings us to
+<r:code>
+ ret[[1]][[1]]
+<r:output><![CDATA[
+[1] "  %res = alloca %struct.SEXPREC*, align 8"
+]]></r:output>
+</r:code>
+an AllocaInst identifying a local variable.
+So where is this used
+<r:code>
+u = getAllUsers( ret[[1]][[1]])
+sapply(u, class)
+<r:output><![CDATA[
+[1] "BitCastInst" "CallInst"    "StoreInst"   "LoadInst"   
+]]></r:output>
+</r:code>
+We've seen the LoadInst and the BitCastInst isn't important for changing the contents of the variable.
+The StoreInst does assign a value to the <c:var>res</c:var>.
+And the CallInst passes the address of <c:var>res</c:var>, i.e, <c:expr>&amp;res</c:expr>.
+
+</para>
+<para>
+  Let's look at the StoreInst.
+<r:code>
+u[[3]][[1]]
+<r:output><![CDATA[
+[1] "  %call97 = call %struct.SEXPREC* @do_math2(%struct.SEXPREC* %call, %struct.SEXPREC* %op, %struct.SEXPREC* %args.addr.2, %struct.SEXPREC* %env)"
+]]></r:output>
+</r:code>
+So this is a call to do_math2.
+Can we unambiguously determine the return type of do_math2? or of this call to do_math2() ? do we need to know anything
+about the values being passed to it based on earlier computations in this routine?
+We'll examine do_math2 below.
+</para>
+
+
+<para>
+  The CallInst is to Rf_DispatchGroup:
+<r:code>
+getName(getCalledFunction(u[[2]]))
+</r:code>
+Note also that the StoreInst is only invoked if this call returns 0;
+otherwise, this do_Math2 returns res without doing any other computations that affect it.
+So we need to examine DispatchGroup in the context of these arguments in the call.
+</para>
+
+
+
+<section>
+<title>Analyzing do_math2</title>
+
+<para>
+<r:code>
+rtypes = compReturnType(m$do_math2)
+</r:code>
+There are 29 return types.
+They are all CallInst instructions:
+<r:code>
+table(sapply(rtypes, class))
+</r:code>
+They all return a SEXP
+<r:code>
+table( sapply(rtypes, function(x) Rllvm:::getTypeName(getType(x))))
+</r:code>
+or better, get the actual type and compare it to the SEXPREC type:
+<r:code>
+sexpType = pointerType(getTypes(m)$SEXPREC)
+table(sapply(rtypes, function(x) sameType(getType(x), sexpType)) )
+</r:code>
+</para>
+<para>
+  What functions are being called?
+<r:code>
+funs = sapply(rtypes, getCalledFunction)
+names(funs) = sapply(funs, getName)
+table(names(funs))
+<r:output><![CDATA[
+complex_math2         math2       math2_1       math2_2        math2B 
+            1             8             6            12             2 
+]]></r:output>
+</r:code>
+</para>
+
+
+<para>
+  Let's look at math2.
+<r:code>
+rets = compReturnType(m$math2)
+</r:code>
+There are two instructions returned and both are CallInsts
+to Rf_allocVector3 and the first argument to each is the integer 14.
+This is corresponds to the REALSXP symbolic constant and so we know math2 returns a numeric vector.
+The same approach applies to math2_1, math2_2, math2B.
+</para>
+
+
+<para>
+<r:code>
+compReturnType(m$complex_math2)
+</r:code>
+returns <r:null/> as it is not defined in this <r:class>Module</r:class>.
+This is where we need the table-of-contents of all of the <ir/> files so
+that we can find where it is defined and examine it there.
+<r:code>
+library(NativeCodeAnalysis)  
+toc = mkRoutineFileTOC("~/R-4.1/build3/src/main/")
+toc[toc$routine == "complex_math2",]
+</r:code>
+So this is in complex.ir
+<r:code>
+m2 = parseIR("complex.ir")
+</r:code>
+
+</para>
+
+
+
+
+<para>
+Can we see where any R objects are created in these routines and see if it is just one SEXP type?
+If there are more than
+As an example, let's look at the math2 routine:
+<r:code>
+ins2 = getInstructions(m$math2)
+kalls = ins2[sapply(ins2, is, "CallInst")]
+names(kalls) = unname(sapply(kalls, function(x) getName(getCalledFunction(x))))
+<r:output><![CDATA[
+ [1] "Rf_isNumeric"             "Rf_isNumeric"            
+ [3] "libintl_gettext"          "Rf_errorcall"            
+ [5] "XLENGTH"                  "XLENGTH"                 
+ [7] "Rf_allocVector3"          "Rf_protect"              
+ [9] "SHALLOW_DUPLICATE_ATTRIB" "Rf_unprotect"            
+[11] "Rf_coerceVector"          "Rf_protect"              
+[13] "Rf_coerceVector"          "Rf_protect"              
+[15] "Rf_allocVector3"          "Rf_protect"              
+[17] "REAL_RO"                  "REAL_RO"                 
+[19] "REAL"                     NA                        
+[21] "libintl_gettext"          "Rf_warning"              
+[23] "SHALLOW_DUPLICATE_ATTRIB" "SHALLOW_DUPLICATE_ATTRIB"
+[25] "Rf_unprotect"            
+]]></r:output>
+</r:code>
+We'll look at the Rf_allocVector3 and Rf_coerceVector calls.
+</para>
+
+
+</section>
+
+
+
+<para>
+To recap   and take stock:
+  
+compReturnType(m$do_Math2)   returns 2 calls to Rf_DispatchGroup and do_math2.
+
+The first of these passes the return value by pointer to the routine so it can be set.
+This is tricky to deal with so we'll return to it.
+
+
+The second is a call to do_math2.  We "assume" this is a return value. How do we know the returned object is not in this
+call. Since it is not, we  compute the return type of this function.
+So we call compReturnType on this getCalledFunc
+
+
+<r:code>
+z = compReturnType(m$do_Math2, toc = toc)
+# Now unravel the types
+z2 = unlist(lapply(z, unlist, recursive = FALSE), recursive = FALSE)
+unique(sapply(z2, `[[`, "type"))
+unlist(unique(sapply(z2, `[[`, "type")))
+</r:code>
+This returns
+<r:output><![CDATA[
+[1] "CPLXSXP" "REALSXP"
+]]></r:output>
+and we see that these are the only two possible types.
+</para>
+<para>
+We would like to know that complex inputs lead to complex outputs
+and numeric/real inputs lead to numeric/real outputs.
+</para>
+
+
+
+<para>
+  complex_math2 takes is args and calls CAR and CADR  in calls to coerceVector to make CPLXSXP vectors.
+  If both have length 0, it returns a CPLXSPX with length 0.
+  Otherwise, it allocates a CPLXSXP vector as large as the larges of the two arguments.
+  So
+<r:code>
+compReturnType(m2$complex_math2)
+</r:code>
+returns two types and both are CPLXSXP.  The second doesn't have a length.  We can determine this.
+</para>
+
+<para>
+  The one call to complex_math2 in do_math2 is within an if statement
+<c:code>
+   if (isComplex(CAR(args)) ||
+	(PRIMVAL(op) == 0 && isComplex(CADR(args))))
+</c:code>
+So both - the first two more precisely - have to satisfy isComplex
+</para>
+
+
+<para>
+  isComplex is defined in memory.c which we determine from the toc.  We can get its instructions
+<r:code>
+  mem = parseIR("memory.ir")
+  getInstructions(mem$Rf_isComplex)
+</r:code>
+Note the switch to Rf_isComplex.  This is fine and we get that from the calls.
+However, the body of Rf_isComplex actually calls isComplex which was undef'ed earlier to expand to something different,
+i.e.,
+<c:code>
+#define isComplex(s)	(TYPEOF(s) == CPLXSXP)
+</c:code>
+So this is inlined as a macro. There is a check whether casted object == 15, i.e. the CPLSXP.
+There is a call to CHK.  We should note this generally as being just a GC check that doesn't modify the SEXP.
+Is this inlined??  There is an AND check for 31 which is FREESXP.
+</para>
+
+
+
+
+</section>
