@@ -129,8 +129,9 @@ setClass("CatchReturnInst", contains = "Instruction")
 setClass("CleanupReturnInst", contains = "Instruction")
 
 setClass("NamedMDNode", contains = "RC++Reference")
-setClass("MDNode", contains = "Value")
-setClass("MDString", contains = "Value")
+setClass("Metadata", contains = "RC++Reference")
+setClass("MDNode", contains = "Metadata") # "Value")
+setClass("MDString", contains = "Metadata") # "Value")
 
 
 setClass("DINode", contains = "MDNode")
@@ -304,6 +305,20 @@ setGeneric("setDataLayout", function(x, value, ...) standardGeneric("setDataLayo
 
 
 
+llvmISA =
+    function(obj, type, noChecks = FALSE) {
+        if(!noChecks) {
+            if(!is(obj, "Value"))
+                return(FALSE)
+
+            def = getClass("Value")
+            if(!( def %in% names(def@subclasses)))
+                stop(type, " is not a subclass of Value")
+            
+        }
+       .Call( paste0("R_isA_", type), obj)
+    }
+      
 
 
 setGeneric("llvmDump", function(x, ...) standardGeneric("llvmDump"))
