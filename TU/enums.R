@@ -22,7 +22,7 @@ llvmDir = path.expand("~/LLVM/clang+llvm-10.0.0-x86_64-apple-darwin/include")
 #llvmDir = c(llvmDir, path.expand(sprintf("%s/../build/include", llvmDir)))
 
 version = c(11, 0)
-llvmDir = path.expand("~/LLVM/clang+llvm-11.0.0-x86_64-apple-darwin/include")
+llvmDir = path.expand("~/local/include")  #  "~/LLVM/clang+llvm-11.0.0-x86_64-apple-darwin/include")
 
 sysdir = system("xcrun --show-sdk-path", intern = TRUE)
 sysdir = file.path(sysdir, "usr/include")

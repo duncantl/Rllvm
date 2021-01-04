@@ -1,11 +1,13 @@
 
 # Getting the class hierarchy takes about 100 seconds.
-k = getCppClasses(tu, "include/llvm")
+k = getCppClasses(tu, "include/llvm", numClasses = 1000)
 
-source("../fun.R") # move this.
+# getClassHierarchy in NativeCodeAnalysis
+#library(NativeCodeAnalysis)
+#source("../fun.R") # move this.
 
-h = getClassHierarchy("llvm::Value", k)
-h2 =unique(unlist(h))
+h = NativeCodeAnalysis::getSublcasses("llvm::Value", k)
+h2 = unique(unlist(h))
 
 #  MemIntrinsicBase  is a templated class.
 h3 = setdiff(h2, "llvm::MemIntrinsicBase")
