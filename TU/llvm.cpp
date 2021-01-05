@@ -21,4 +21,9 @@
 
 #include <llvm/Demangle/Demangle.h>
 
+#include <llvm/ExecutionEngine/JITEventListener.h>
+
+
+// not clear we need this anymore.
+#include <llvm/Object/ObjectFile.h>
 
