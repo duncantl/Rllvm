@@ -28,7 +28,7 @@ RFunctionJITEventListener::NotifyObjectEmitted(const llvm::object::ObjectFile &O
                                                const llvm::RuntimeDyld::LoadedObjectInfo &L) 
 {
     SETCAR(CDR(expr), R_createRef(&Obj, "ObjectFile", "native symbol"));
-    SETCAR(CDR(CDR(expr)), R_createRef(&L, "LoadObjectInfo", "native symbol"));
+    SETCAR(CDR(CDR(expr)), R_createRef(&L, "LoadedObjectInfo", "native symbol"));
     int error = 0;
     R_tryEval(expr, R_GlobalEnv, &error);
 }
