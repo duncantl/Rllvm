@@ -8,7 +8,11 @@
 
 
 <title>Rllvm Todo List</title>
-
+<item>
+  Implement handling second argument for dlsym.
+  character string, character vector (multiple entries and search sequentially),
+  and a DLL object.
+</item>
 <item>
   get attributes on parameters, e.g. byval
   See tests/clang.ir and clangTraverseHandlers/clang.c
@@ -20,16 +24,24 @@
   and then the new instructions go before the last call
 </item>
 
+
 <item>
+  Fix setMethod for addFinalizer to specify where to avoid warnings.
+</item>
+
+<item>
+  Fix the class hierarchy programmatically.
+</item>
+
+<item status="done">
   !! CloneFunctionInto
+  I was using the Argument and not their Type when creating the Function object before the clone.
+  
    + *** Find out why cloneFunction.R segfaults.  Could it be garbage collection and not our
      CloneFunctionInto? Use different variable names to avoid garbage collecting and see if that
      helps?
 	   + Is this a case 
    + [verify seg fault is not ] Fix CloneFunctionInto in Function.cpp
-</item>
-<item>
-  Fix setMethod for addFinalizer to specify where to avoid warnings.
 </item>
 
 <item status="done">fun.R and generating the code for llvm_type_classof_name.h.
