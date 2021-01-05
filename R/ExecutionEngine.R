@@ -72,11 +72,16 @@ function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .a
   if(!is(.x, "Function"))
     stop("argument to .llvm must be a Function")
 
+
+  if(length(.args) != length(getParameters(.x)))
+      stop(sprintf("incorrect number of  arguments provided in call to .llvm() for %s: %d provided, %d expected",
+            getName(.x), length(.args),  length(getParameters(.x))))
+  
 # If an argument is a Function, we probably want to treat it as a function pointer and so want
 # its address which can be obtained via getPointerToFunction() with the exec engine also.
 #  .args = lapply(.args, function(x) if(is(x, "Function")) getPointerToFunction(x, .ee)@ref else x)
 
-  if(length(.duplicate))
+  if(length(.duplicate) && length(.args))
     .args[.duplicate] =  lapply(.args[.duplicate], function(x) .Call('Rllvm_Rf_duplicate', x))
 
   finalizeEngine(.ee)
@@ -197,4 +202,4 @@ function(engine)
 
 setClass("RFunctionJITEventListener", contains = "RC++Reference")
 setClass("ObjectFile", contains = "RC++Reference")
-setClass("LoadObjectInfo", contains = "RC++Reference")
+setClass("LoadedObjectInfo", contains = "RC++Reference")
