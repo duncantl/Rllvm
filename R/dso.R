@@ -36,6 +36,11 @@ function(..., .syms = list(...))
 
 setOldClass("NativeSymbol")
 setOldClass("NativeSymbolInfo")
+setOldClass("externalptr")
+
+setAs("externalptr", "NativeSymbol",
+      function(from)
+        structure(list(address = from), class = "NativeSymbol"))
 
 setAs("character", "NativeSymbol",
         function(from)
@@ -49,3 +54,13 @@ setAs("NativeSymbolInfo", "NativeSymbol",
         function(from)
            from$address)
 
+
+dlsym =
+function(id, dll = NULL)
+{
+    ans = .Call("R_llvm_dlsym", id)
+    if(!is.null(ans))
+        as(ans, "NativeSymbol")
+    else
+        NULL
+}
