@@ -1022,7 +1022,7 @@ R_Module_getTypes(SEXP r_module)
     PROTECT(names = NEW_CHARACTER(n));
     for(int i = 0; i < n; i++) {
         llvm::StructType *ty = finder[i];
-        SET_VECTOR_ELT(ans, i, R_createRef(ty, "Type"));
+        SET_VECTOR_ELT(ans, i, R_createRef(ty, getLLVMTypeClassName(ty))); // "Type"));
         llvm::StringRef str = ty->getName();
         SET_STRING_ELT(names, i, str.data() ? mkChar(str.data()) : R_NaString);
     }
