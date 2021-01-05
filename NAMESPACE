@@ -17,12 +17,10 @@ exportClasses(
   BranchInst,
   CallInst,
   CastInst,
-  CompositeType,
   Constant,
   ConstantFP,
   ConstantInt,
   ConstantAggregateZero,              
-  DerivedType,
   ExecutionEngine,
   Function,
   GetElementPtrInst,
@@ -35,23 +33,18 @@ exportClasses(
   PointerType,
   'RC++Reference',
   ReturnInst,
-  SequentialType,
   SExtInst,
   StoreInst,
   StructType,
-  TerminatorInst,
   Type,
   UnaryInstruction,
-  UnionType,
   User,
   Value,
-  FunctionPassManager,
   BinaryOperator,
   SelectInst,
   Use)
 
 
-exportClass(Mangler)
 
 
 export(functionType)
@@ -384,7 +377,7 @@ export(sapply, lapply)
 exportMethods(sapply, lapply)
 
 
-exportClasses(raw_string_ostream, formatted_raw_ostream)
+exportClasses(raw_string_ostream)
 
 
 export(addAnalysisPasses, addPassesToEmitFile)
@@ -519,7 +512,7 @@ export(finalizeEngine)
 
 
 
-exportClass("RFunctionJITEventListener", "ObjectFile", "LoadObjectInfo")
+exportClass("RFunctionJITEventListener", "ObjectFile", "LoadedObjectInfo")
 
 export(getHostCPUFeatures, getHostCPUName)
 exportClasses("raw_svector_ostream")
@@ -766,3 +759,17 @@ exportMethods("$<-")
 
 
 export(llvmISA)
+
+
+
+# Retired
+#exportClass(Mangler)
+# CompositeType,
+#  TerminatorInst,
+#  SequentialType,
+#  DerivedType,    
+#  UnionType,  FunctionPassManager,
+#  formatted_raw_ostream
+
+
+export(dlsym)

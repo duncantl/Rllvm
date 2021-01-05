@@ -15,7 +15,6 @@ if(TRUE || all(llvmVersion() >= c(3, 6))) {
 setClass("raw_ostream", contains = "RC++Reference")
 setClass("raw_fd_ostream", contains = "raw_ostream")
 setClass("raw_string_ostream", contains = "raw_ostream")
-setClass("formatted_raw_ostream", contains = "raw_ostream")
 setClass("raw_svector_ostream", contains = "raw_ostream")
 
 
@@ -46,7 +45,6 @@ setAs("Value", "character",
 setClass("Argument", contains = "Value")
 
 setClass("PassManagerBase", contains = "RC++Reference")
-setClass("FunctionPassManager", contains = "PassManagerBase")
 setClass("LegacyPassManager", contains = "PassManagerBase")
 
 # if llvm 3.1, otherwise Instruction extends RC++Reference
@@ -59,8 +57,8 @@ setClass("Use", contains = "RC++Reference")
 setClass("UnaryInstruction", contains = "Instruction")
 setClass("UnaryOperator", contains = "UnaryInstruction")
 
-setClass("TerminatorInst", contains = "Instruction")
-setClass("ReturnInst", contains = "TerminatorInst")
+#setClass("ReturnInst", contains = "TerminatorInst")
+setClass("ReturnInst", contains = "Instruction")
 setClass("CallInst", contains = "Instruction")
 setClass("InvokeInst", contains = "Instruction")
 setClass("CastInst", contains = "UnaryInstruction")
@@ -76,7 +74,7 @@ setClass("Operator", contains = "User")
 setClass("OverflowingBinaryOperator", contains = "Operator")
 setClass("FPMathOperator", contains = "Operator")
 
-setClass("BranchInst", contains = "TerminatorInst")
+setClass("BranchInst", contains = "Instruction")
 
 setClass("ParameterList", representation(names = "character"), contains = "list")
 
@@ -90,6 +88,9 @@ setClass("PtrDiff", contains = "Value")  # was Instruction, but looks incorrect.
 
 setClass("SwitchInst", contains = "Instruction")
 
+
+#XXXX remove TerminatorInst
+setClass("TerminatorInst", contains = "Instruction")
 setClass('IndirectBrInst', contains = 'TerminatorInst')
 setClass('ResumeInst', contains = 'TerminatorInst')
 setClass('UnreachableInst', contains = 'TerminatorInst')
@@ -157,15 +158,13 @@ setClass("DILexicalBlockFile", contains = "DILexicalBlockBase")
 
 
 setClass("Type", contains = "RC++Reference")
-setClass("DerivedType", contains = "Type")
-setClass("CompositeType", contains = "DerivedType")
-setClass("StructType", contains = "CompositeType")
+setClass("StructType", contains = "Type")# was CompositeType
 setClass("StructTypeWithNames", representation(names = "character"), contains = "StructType")
-setClass("UnionType", contains = "CompositeType")
-setClass("SequentialType", contains = "CompositeType")
-setClass("PointerType", contains = "SequentialType")
-setClass("ArrayType", contains = "SequentialType")
-setClass("VectorType", contains = "SequentialType")
+
+
+setClass("PointerType", contains = "Type")
+setClass("ArrayType", contains = "Type")
+setClass("VectorType", contains = "Type")
 
 
 
@@ -245,7 +244,7 @@ setClass("NativeFunctionPointer", contains = "RC++Reference")
 setClass("NativeGlobalVariable", contains = "RC++Reference")
 
 
-setClass("Mangler", contains = "RC++Reference")
+
 
 
 setMethod("show", "Type",
@@ -446,3 +445,17 @@ setGeneric("getType",
             function(obj, ...)
               standardGeneric("getType"))
 
+
+
+
+# Retired from LLVM.
+if(FALSE) {
+setClass("Mangler", contains = "RC++Reference")
+setClass("DerivedType", contains = "Type")    
+setClass("CompositeType", contains = "DerivedType")
+setClass("UnionType", contains = "CompositeType")
+setClass("SequentialType", contains = "CompositeType")
+setClass("FunctionPassManager", contains = "PassManagerBase")
+setClass("formatted_raw_ostream", contains = "raw_ostream")
+setClass("TerminatorInst", contains = "Instruction")
+}
