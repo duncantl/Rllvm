@@ -151,7 +151,7 @@ R_callFunction(SEXP r_fun, SEXP r_args, SEXP r_execEngine)
 
     llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
     llvm::GenericValue val = ee->runFunction(fun, args);
-    // need to return any mutable parameters.
+    //XXX need to return any mutable parameters.
     return(convertGenericValueToR(&val, fun->getReturnType()));
 }
 
@@ -210,7 +210,7 @@ R_ExecutionEngine_getPointerToGlobal(SEXP r_execEngine, SEXP r_var)
     llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
     llvm::GlobalValue *var = GET_REF(r_var, GlobalValue);
     void *ans = ee->getPointerToGlobal(var);
-    
+
     return(R_createRef(ans, "NativeGlobalVariable"));
 }
 
@@ -224,6 +224,18 @@ R_ExecutionEngine_FindFunctionNamed(SEXP r_execEngine, SEXP r_id)
     llvm::Function *ans = ee->FindFunctionNamed(CHAR(STRING_ELT(r_id, 0)));
     
     return(R_createRef(ans, "Function"));
+}
+
+
+extern "C"
+SEXP
+R_ExecutionEngine_FindGlobalVariableNamed(SEXP r_execEngine, SEXP r_id)
+{
+    llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
+    
+    llvm::GlobalVariable *ans = ee->FindGlobalVariableNamed(CHAR(STRING_ELT(r_id, 0)));
+    
+    return(R_createRef(ans, "GlobalVariable"));
 }
 
 
@@ -302,3 +314,9 @@ R_ExecutionEngine_RegisterJITEventListener(SEXP r_ee, SEXP r_listener)
 }
 
 
+
+/*
+extern "C"
+SEXP
+R_ExecutionEngine_getPointerToGlobalIfAvailable(SEXP r_SEXP r_str)
+*/

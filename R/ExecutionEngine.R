@@ -163,6 +163,22 @@ function(funcName, execEngine)
    .Call("R_ExecutionEngine_FindFunctionNamed", execEngine, as.character(funcName))
 }
 
+findGlobalVariable =
+function(funcName, execEngine)
+{
+   .Call("R_ExecutionEngine_FindGlobalVariableNamed", execEngine, as.character(funcName))
+}
+
+setMethod("[[", c("ExecutionEngine", "character"),
+          function(x, i, ...) {
+              findGlobalVariable(i, x)
+          })
+
+setMethod("$", c("ExecutionEngine"),
+          function(x, name) {
+              findRoutine(name, x)
+          })
+
 
 getGlobalValue = 
 function(var, exec, type = getType(var))
