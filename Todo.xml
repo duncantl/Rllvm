@@ -7,12 +7,30 @@
 
 
 
-<title>Rllvm Todo List</title>
-<item>
-  Implement handling second argument for dlsym.
-  character string, character vector (multiple entries and search sequentially),
-  and a DLL object.
-</item>
+  <title>Rllvm Todo List</title>
+
+  <item status="check">
+    add offsets() and offset() functions to compute the offset into a struct.
+    Needs the names.
+  </item>
+
+  <item>
+    Allow R user to have an IRBuilder () object always
+    verify a Module() after each ir$create...
+    But don't want to warn about missing terminators.
+    So need to filter out some of the warnings.
+    Can we get them sequentially as a list()/character() and "class"ify them.
+  </item>
+  
+  <item>
+    Allow caller of .llvm to specify a more specific type, e.g. return type such as
+    pointerType(VoidType) to override pointerType(Int8Type) that the IR might generate
+    from C code.
+  </item>
+  <item status="ok">
+  Optimize() function fails.  FunctionPassManager class now restored (was removed).
+  </item>
+
 <item>
   get attributes on parameters, e.g. byval
   See tests/clang.ir and clangTraverseHandlers/clang.c
@@ -30,7 +48,29 @@
 </item>
 
 <item>
-  Fix the class hierarchy programmatically.
+  Fix the class hierarchy programmatically. See TU/ 3 files. rclasses.R and rcheck.R are the closest.
+</item>
+
+  
+<item status="low">
+  Test what happens when returning, e.g. a REALSXPType.
+  In compBook/getrusage/mk.R, getting numeric vector that printed as ...-313
+  So not quite zero and not printing as zero.
+  See real.c to show this happens from C calls to numeric(2).
+  numeric() calls do_makevector and that Memzero's the result.
+  So we will need to do this or set all the values.
+</item>
+<item status="done">
+  SEXPTypes.cpp-expt was the start of an experiment
+  to create subclasses of llvm::Type  for the different SEXP types.
+  Bad idea.
+</item>
+<item status="check">
+  Implement handling second argument for dlsym.
+  Really should be using getNativeSymbolInfo if using an already loaded
+  DLL via dyn.load(), etc. and you have the DLLInfo or the handle.
+  Does make sense if character string, character vector (multiple entries and search sequentially),
+  and a DLL object.
 </item>
 
 <item status="done">
