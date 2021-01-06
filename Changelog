@@ -25,6 +25,11 @@ Version 0.10-0
 
 	*  Additional and additions to case studies in AnalyzeCCode.
 
+	*  Added checks in createGEP() for the indices, i.e., fail for NA values and non-integer llvm::Value indices, and coerce R values to integer.
+
+	*  $ and [[ methods for ExecutionEngine to get routines and global variables, analogous to those for Module(). But this checks all the Modules in the ExecutionEngine.
+
+
 Version 0.9-0
 
 	*  To differentiate between StringType and generic pointers, we add metadata to the module
