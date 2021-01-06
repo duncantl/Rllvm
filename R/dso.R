@@ -56,9 +56,19 @@ setAs("NativeSymbolInfo", "NativeSymbol",
 
 
 dlsym =
+    #
+    # If dll != NULL, consider using getNativeSymbolInfo
+    # especially if dll is a 
+    #
+    # consider allowing dll to be a multi-element character vector and searching sequentially
+    # through these. Then need to turn off the error in the C code.
+    #
 function(id, dll = NULL)
 {
-    ans = .Call("R_llvm_dlsym", id)
+    if(is(dll, "DLLInfo"))
+        dll = dll[["handle"]]
+    
+    ans = .Call("R_llvm_dlsym", id, dll)
     if(!is.null(ans))
         as(ans, "NativeSymbol")
     else
