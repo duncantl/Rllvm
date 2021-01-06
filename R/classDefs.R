@@ -449,13 +449,14 @@ setGeneric("getType",
 
 
 # Retired from LLVM.
+# See note in NAMESPACE as to why this is still here - temporarily
+setClass("FunctionPassManager", contains = "PassManagerBase")
 if(FALSE) {
 setClass("Mangler", contains = "RC++Reference")
 setClass("DerivedType", contains = "Type")    
 setClass("CompositeType", contains = "DerivedType")
 setClass("UnionType", contains = "CompositeType")
 setClass("SequentialType", contains = "CompositeType")
-setClass("FunctionPassManager", contains = "PassManagerBase")
 setClass("formatted_raw_ostream", contains = "raw_ostream")
 setClass("TerminatorInst", contains = "Instruction")
 }

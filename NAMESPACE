@@ -768,8 +768,11 @@ export(llvmISA)
 #  TerminatorInst,
 #  SequentialType,
 #  DerivedType,    
-#  UnionType,  FunctionPassManager,
+#  UnionType,  
 #  formatted_raw_ostream
 
+# We will retire this, but still in the LLLVM class hierarchy and needed for the Optimize() function which fails because this is not exported
+exportClass(FunctionPassManager)
 
 export(dlsym)
+export(offsets, structOffsets) # same function.
