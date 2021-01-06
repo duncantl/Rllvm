@@ -190,13 +190,26 @@ function(builder, val, isVolatile = FALSE, id = character())
 createGEP =
 function(builder, val, index, id = character())
 {
-  if (isBasicType(index)) index = as.list(index)
-  else if (!is.list(index)) index = list(index)
+    if (isBasicType(index))
+         index = as.list(index)
+    else if (!is.list(index))
+        index = list(index)
 
   index =
     lapply(index, function(idx) {
-      if (isBasicType(idx)) makeConstant(builder, idx)
-      else idx
+                   if (isBasicType(idx)) {
+                       if(is.na(idx))
+                           stop("index for GEP cannot be NA")
+                       if(is.numeric(idx)) {
+                           # warning("coercing numeric to integer for GEP index")
+                           idx = as.integer(idx)
+                       }
+                       makeConstant(builder, idx)
+                   } else {
+                       if(!is(idx, "Value") && is(idx, "IntegerType"))
+                           stop("llvm Value being used in GEP is not an IntegerType")
+                       idx
+                   }
     })
 
   .Call("R_IRBuilder_CreateGEP", builder, val, index, as.character(id))
