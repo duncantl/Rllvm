@@ -119,7 +119,20 @@ setGeneric("getElementType",
               if(direct)
                 upgradeTypeClass(.Call("R_Type_getPointerElementType", type))
               standardGeneric("getElementType")
-            })
+          })
+
+
+structOffsets = offsets =
+function(ty, varNames = names(ty))
+{
+    if(length(varNames) == 0)
+        stop("offsets needs the names of the elements")
+    
+    structure(seq(along.with = ty) -1L,
+              names = varNames,
+              class = "StructOffsets")
+}
+
 
 
 upgradeTypeClass =
