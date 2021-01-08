@@ -61,6 +61,25 @@ R_CallInst_getCalledFunction(SEXP r_call)
     return(fun ? R_createRef2(fun, "Value") : R_NilValue);
 }
 
+
+// R code calling this should check r_fun takes the same number and types of arguments
+extern "C"
+SEXP
+R_CallInst_setCalledFunction(SEXP r_call, SEXP r_fun)
+{
+    llvm::CallBase *call = GET_REF(r_call, CallBase);
+    llvm::Function *fun = GET_REF(r_fun, Function);
+
+    if(!call || !fun) {
+        PROBLEM  "null pointers passed to setCalledFunction"
+            ERROR;
+    }
+    
+    call->setCalledFunction(fun);
+    return(ScalarLogical(1));
+}
+
+
 extern "C"
 SEXP
 R_CallInst_addAttribute(SEXP r_call, SEXP r_which, SEXP r_attrVal)

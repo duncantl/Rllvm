@@ -13,10 +13,23 @@ findCalledFunctions =
     #
     
 function(x, ...) {
-              ins = unlist(getInstructions(x, FALSE))
+
+    # if we want to be able to identify which routine each instruction came from by names
+    # set the names on ins after unlist, use the following
+    #
+    #  i = getInstructions(x, FALSE)
+    #  ins = unlist(i, use.names = FALSE)
+    #  names(ins) = rep(names(i), sapply(i, length))
+    #
+    #  However, since we are dealing with a small subset of the instructions, we can
+    #  compute the names on those if we care to. We can find the enclosing
+    #  function name with
+    #        getName(as(i, "Function"))
+    #
+        
+              ins = unlist(getInstructions(x, FALSE), use.names = FALSE)
               w = sapply(ins, is, "CallInst")
               calls = ins[w]
-#              ins = sapply(calls, function(x) getName(getCalledFunction(x)))
               ins = sapply(calls, getCalledFunction)
               w = sapply(ins, is.null)
               other = list()
