@@ -27,9 +27,12 @@ function(builder, val, type = NULL,
   } else if(is.numeric(val)) {
     return(createFloatingPointConstant(val, context, type))
   } else if(is.character(val)) {
-     return(createStringConstant(val, context, type))
+      if(length(builder))
+        return(.Call("R_IRBuilder_CreateGlobalString", builder, val, character(0)))
+      else
+        return(createStringConstant(val, context, type))
   } else
-    stop("Don't know yet how to create such a constant")
+        stop("Don't know yet how to create such a constant")
 }
 
 createLogicalConstant =
