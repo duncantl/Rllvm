@@ -304,23 +304,36 @@ setMethod("stripDebugInfo", "Function",
 setMethod("getTypes", "Module",
           # Only gets the StructType elements, not the primitive types.
           # So if you want those, loop over the instructions.
-          function(x, removePrefix = TRUE, ...) {
+          function(x, addElements = FALSE, addNames = TRUE, removePrefix = TRUE,  ...) {
               ans = .Call("R_Module_getTypes", x)
               if(removePrefix)
                   names(ans) =  gsub("^struct\\.", "", names(ans))
-              ans
+              if(addElements) {
+                  elTypes = lapply(ans, getElementTypes)
+                  if(addNames) {
+                      fieldNames = lapplyDebugInfoTypes(x, function(d) names(getElements(d)))
+                      if(length(fieldNames))
+                           elTypes = mapply(function(els, names) {
+                                              names(els) = names
+                                              els
+                                            },
+                                            elTypes, fieldNames[names(ans)])
+                  }
+                  elTypes
+              } else
+                  ans
           })
 
 
 
-copyFunction=
-function(fun, module = as(fun, "Module"), id = getName(fun))
+copyFunction =
+function(fun, module = as(fun, "Module"), id = getName(fun), moduleLevelChanges = FALSE)
 {
   if(missing(id) && identical(as(fun, "Module"), module)) 
       id = paste0(id, "clone")
 
   f2 = Function(id, getReturnType(fun), lapply(getParameters(fun), getType), module = module)
-  .Call("R_CloneFunctionInto", fun, f2, FALSE)
+  .Call("R_CloneFunctionInto", fun, f2, as.logical(moduleLevelChanges))
   f2
 }
 
@@ -339,3 +352,9 @@ setMethod("getType", c("Module"), # "character"),
 
               .Call("R_Module_getTypeByName", obj, id)
           })
+
+
+
+
+#setMethod("getExternalFunctions", "Module",
+#         )
