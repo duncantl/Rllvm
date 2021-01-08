@@ -733,7 +733,8 @@ R_IRBuilder_CreateGlobalString(SEXP r_builder, SEXP r_val, SEXP r_id)
     ans = builder->CreateGlobalString(llvm::StringRef(strdup(CHAR(STRING_ELT(r_val, 0)))));
 
     if(Rf_length(r_id))
-       ans->setName(makeTwine(r_id));
+        ans->setName(makeTwine(r_id));
+    
     return(R_createRef2(ans, "Value"));
 }
 
