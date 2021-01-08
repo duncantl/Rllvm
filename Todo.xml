@@ -8,7 +8,47 @@
 
 
   <title>Rllvm Todo List</title>
+  <item>
+    When get the name of an external routine wrong and it doesn't exist (e.g. mkChar rather than Rf_mkChar)
+    then .llvm() call crashes R.
+    So test for these.
+    findCalledFunctions() now available to find all called functions.
+  </item>
+  <item>
+    Think about better interface for .llvm and ee and routines. See mkExecFunc
+  </item>
+  <item>
+    When generating acessor routines, generate R functions so that the user doesn't have to
+    explicitly call them .llvm() routines.
+  </item>
+  <item>
+    routine to copy entire struct to R. Option to collapse type from list() if types are compatible.
+    Do this in compilation.  compBook/getrusageLLVM/mkGlobalAccessors.R
+  </item>
 
+  <item>
+    Note:  llvmAddSymbol() doesn't seem necessary, at least for symbols in the the executable.
+    See if if llvm finds them automatically also for DLLs introduced into R session with dyn.load().
+  </item>
+  <item>
+    hide routines that are not defined but just declared, e.g. Rf_allocVector()
+    at least when printing Module, perhaps in 
+    names() - no additional arguments, so only one setting.
+    ls() - extra argumemts.
+    
+    Can we make them invisible in the module.
+    Perhaps use . prefix but map to regular name in llvmAddSymbol
+  </item>
+  <item>
+    merge accessor generation from getrusageLLVM and generalize
+  </item>
+
+  <item>
+    copyFunction failing in compBook/getrusageLLVM/mk.R.
+    Works in RSQLiteUDF/llvm4.R for simple fib function with basic types.
+    Perhaps the rusage and timeval  structs?
+  </item>
+  
   <item status="check">
     add offsets() and offset() functions to compute the offset into a struct.
     Needs the names.
@@ -22,10 +62,10 @@
     Can we get them sequentially as a list()/character() and "class"ify them.
   </item>
   
-  <item>
+  <item status="done">
     Allow caller of .llvm to specify a more specific type, e.g. return type such as
     pointerType(VoidType) to override pointerType(Int8Type) that the IR might generate
-    from C code.
+    from C code. See tests/cifVoidPtr.R
   </item>
   <item status="ok">
   Optimize() function fails.  FunctionPassManager class now restored (was removed).
