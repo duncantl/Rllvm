@@ -28,12 +28,40 @@ function(val, values)
 }
 
 ExecutionEngine =
-function(module, optimizationLevel = CodeGenOpt_Default)
+function(module, optimizationLevel = CodeGenOpt_Default, asFunction = FALSE)
 {
   optimizationLevel = matchEnum(optimizationLevel, CodeGenOptEnum)
   
-  .Call("R_create_ExecutionEngine", as(module, "Module"), as.integer(optimizationLevel))
+  ee = .Call("R_create_ExecutionEngine", as(module, "Module"), as.integer(optimizationLevel))
+
+  if(asFunction) 
+      mkEEFun(ee, module)
+  else
+      ee
 }
+
+mkEEFun =
+function(ee, module)
+{
+   f = function(fun, ...) {
+        if(is.character(fun))
+            fun = ee[[fun]]
+
+        if(!is(fun, "Function") && !is(fun, "externalptr"))
+            stop("function to be called is not an appropriate type")
+        
+        .llvm(fun, ..., .ee = ee)
+       }
+
+   class(f) = "ExecutionEngineFunction"
+   f
+}
+
+setOldClass("ExecutionEngineFunction")
+setMethod("names", "ExecutionEngineFunction",
+          function(x)
+            names(environment(x)$module))
+
 
 addModule =
 function(engine, ...)
@@ -67,7 +95,7 @@ setGeneric("run",
 
 .llvmCallFunction =
 function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .all = FALSE,
-          .duplicate = .duplicateArgs(.x), .ffi = TRUE) 
+          .duplicate = .duplicateArgs(.x), .ffi = TRUE, .asPointer = FALSE) 
 {
   if(!is(.x, "Function"))
     stop("argument to .llvm must be a Function")
@@ -90,9 +118,9 @@ function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .a
   if( !is.logical(.ffi) || .ffi) {
 #  if(!missing(.ffi) || .ffi) {
       ans = if(is(.ffi, "CIF"))      
-               .llvmFFI(.x, .args, .ee, cif = .ffi, .all = .all)
+               .llvmFFI(.x, .args, .ee, cif = .ffi, .all = .all, .asPointer = .asPointer)
             else
-               .llvmFFI(.x, .args, .ee, .all = .all)
+               .llvmFFI(.x, .args, .ee, .all = .all, .asPointer  = .asPointer)
       return(ans)
   } else 
       ans = .Call("R_callFunction", .x, .args, .ee)
@@ -171,7 +199,11 @@ function(funcName, execEngine)
 
 setMethod("[[", c("ExecutionEngine", "character"),
           function(x, i, ...) {
-              findGlobalVariable(i, x)
+              ans = findGlobalVariable(i, x)
+              if(is.null(ans))
+                  findRoutine(name, x)
+              else
+                  ans
           })
 
 setMethod("$", c("ExecutionEngine"),
