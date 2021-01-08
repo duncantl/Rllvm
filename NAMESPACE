@@ -95,7 +95,7 @@ createFPToUI,
 DoublePtrType,
 DoubleType,
 StringType,       
-ExecutionEngine,
+ExecutionEngine, ExecEng,
 FAdd,
 FCMP_FALSE,
 FCMP_OEQ,
@@ -782,3 +782,9 @@ S3method(print, LLVMDump)
 
 
 export(findCalledFunctions)
+
+
+export(setCalledFunction)
+
+
+       
