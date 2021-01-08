@@ -776,3 +776,9 @@ exportClass(FunctionPassManager)
 
 export(dlsym)
 export(offsets, structOffsets) # same function.
+
+
+S3method(print, LLVMDump)
+
+
+export(findCalledFunctions)
