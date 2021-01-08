@@ -83,7 +83,7 @@ Need to be able to refer to global variables and find them with e[["var"]]  or e
 (although like to keep that to Functions, but maybe not necessary).
 But a function is not subsettable so [[ doesn't work.
   </item>
-  <item status="fix">
+  <item status="done">
     When creating a global string variable, allow specifying a name if the API allows it.
     createConstant() doesn't take an id, but CreateStringGlobal allows it.
   </item>

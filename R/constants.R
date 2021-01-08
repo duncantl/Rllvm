@@ -7,7 +7,8 @@ function(builder, val, type = NULL,
            context = if(!missing(builder)) 
                         as(builder, "LLVMContext") 
                      else
-                        getGlobalContext())
+                         getGlobalContext(),
+         id = character())
 {
 
   if(!is.null(type)) {
@@ -28,7 +29,7 @@ function(builder, val, type = NULL,
     return(createFloatingPointConstant(val, context, type))
   } else if(is.character(val)) {
       if(length(builder))
-        return(.Call("R_IRBuilder_CreateGlobalString", builder, val, character(0)))
+        return(.Call("R_IRBuilder_CreateGlobalString", builder, val, as.character(id)))
       else
         return(createStringConstant(val, context, type))
   } else
