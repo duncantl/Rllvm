@@ -4,9 +4,10 @@ Title: Interface to llvm for dynamically compiling native code.
 Author: Duncan Temple Lang, Vince Buffalo
 SystemRequirements: llvm (>= 2.7)
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
-Description: This package is currently an interface to some of the
-    functionality in the llvm toolkit for programmaticall constructing native code.
-    This allows us to build "compilers" in R and use llvm's optmization and JIT techniques
+Description: This package is an interface to some of the
+    functionality in the LLVM toolkit for programmatically constructing native code and
+    also comprehensively analyzing native code.
+    This allows us to build "compilers" in R and use LLVM's optmization and JIT techniques
     to improve the code we generate and then turn it into machine code.
     This is currently not a compiler. There are examples that illustrate how 
     to generate code to create native functions that are equivalent to 
@@ -25,7 +26,7 @@ Suggests: RLLVMCompile
 URL: http://www.omegahat.net/Rllvm
      https://github.com/duncantl/Rllvm
 Note:  We hope to build on this to build a compiler for parts of the R language. See the RLLVMCompile package
-       at http://www.omegahat.net/RLLVMCompile and  https://github.com/duncantl/RLLVMCompile/
+       at https://github.com/duncantl/R2llvm/ and https://github.com/duncantl/RLLVMCompile/
 Collate: llvmVersion.R classDefs.R manual_generics.R generics_bools.R
          LoadStore_generics.R
          block.R module.R typeDefs.R
