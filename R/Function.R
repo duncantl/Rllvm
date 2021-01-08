@@ -110,11 +110,14 @@ setMethod("getName", "Value",
 getFunctionArgs =
 function(fun, addNames = TRUE, ...)
 {
-   els = .Call("R_getFunctionArgs", fun)
-   ans = new("ParameterList", els)
-   if(addNames)
-     names(ans) = lapply(ans, getName) 
-   ans
+    els = .Call("R_getFunctionArgs", fun)
+    if(is.null(els))
+        return(NULL)
+    
+    ans = new("ParameterList", els)
+    if(addNames)
+        names(ans) = lapply(ans, getName) 
+    ans
 }
 
 
