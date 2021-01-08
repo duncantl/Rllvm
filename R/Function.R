@@ -199,6 +199,7 @@ setMethod("getReturnType",
              upgradeTypeClass(.Call("R_Function_getReturnType", getCalledFunction(obj))))
 
 
+# Does this need to be a method. How many C++ methods are there? Exactly 1.
 setGeneric("getCalledFunction",
            function(obj, ...)
              standardGeneric("getCalledFunction"))
@@ -207,6 +208,26 @@ setMethod("getCalledFunction", "CallInst",
            function(obj, ...)
              .Call("R_CallInst_getCalledFunction", obj))
 
+setCalledFunction = 
+function(obj, fun, check = FALSE)
+{
+    obj = as(obj, "CallInst")
+    fun = as(fun, "Function")
+    if(check) {
+        args = obj[ -  length(obj) ]
+        params = getParameters(fun)
+
+        # could have C++ optional arguments. See how these represented.
+        if(length(args) != length(params))
+            stop("incompatible number of arguments and parameters")
+
+        w = mapply(sameType, lapply(args, getType), lapply(params, getType))
+        if(!all(w)) 
+            stop("incompatible argument types: arguments ", paste(which(w), collapse = ", "))
+    }
+    
+    .Call("R_CallInst_setCalledFunction", obj, fun)
+}
   
 
 
