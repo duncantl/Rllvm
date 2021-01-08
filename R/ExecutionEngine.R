@@ -27,7 +27,7 @@ function(val, values)
   val
 }
 
-ExecutionEngine =
+ExecEng = ExecutionEngine =
 function(module, optimizationLevel = CodeGenOpt_Default, asFunction = FALSE)
 {
   optimizationLevel = matchEnum(optimizationLevel, CodeGenOptEnum)
@@ -45,7 +45,7 @@ function(ee, module)
 {
    f = function(fun, ...) {
         if(is.character(fun))
-            fun = ee[[fun]]
+            fun = findRoutine(fun, ee)
 
         if(!is(fun, "Function") && !is(fun, "externalptr"))
             stop("function to be called is not an appropriate type")
@@ -61,6 +61,12 @@ setOldClass("ExecutionEngineFunction")
 setMethod("names", "ExecutionEngineFunction",
           function(x)
             names(environment(x)$module))
+
+setMethod("[[", c("ExecutionEngineFunction", "character"),
+          function(x, i, j, ...) {
+              e = environment(x)$ee
+              e[[ x ]]
+          })
 
 
 addModule =
