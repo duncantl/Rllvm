@@ -280,6 +280,9 @@ setGeneric("getName",
 function(obj, ...)
            standardGeneric("getName"))
 
+#??? Do we want this?
+setMethod("getName", "NULL", function(obj, ...) NA)
+
 
 setGeneric("clone", function(x, ...) standardGeneric("clone"))
 
@@ -324,11 +327,15 @@ setGeneric("llvmDump", function(x, ...) standardGeneric("llvmDump"))
 
 setMethod("llvmDump", "Value",
            function(x, ...) 
-               .Call("R_Value_dump", x))
+               structure(.Call("R_Value_dump", x), class = "LLVMDump"))
 
 setMethod("llvmDump", "Type",
            function(x, ...) 
                .Call("R_Type_dump", x))
+
+print.LLVMDump =
+function(x, ...)
+    cat(x, "\n")
 
 
 setGeneric("getValue", function(x, ...) standardGeneric("getValue"))
@@ -460,3 +467,9 @@ setClass("SequentialType", contains = "CompositeType")
 setClass("formatted_raw_ostream", contains = "raw_ostream")
 setClass("TerminatorInst", contains = "Instruction")
 }
+
+
+
+
+# setGeneric("getExternalFunctions", function(x, ...) standardGeneric("getExternalFunctions"))
+
