@@ -4,28 +4,98 @@
 	 xmlns:c="http://www.C.org"
 	 xmlns:sh="http://www.shell.org">
 
-
-
-
   <title>Rllvm Todo List</title>
   <item>
     When get the name of an external routine wrong and it doesn't exist (e.g. mkChar rather than Rf_mkChar)
     then .llvm() call crashes R.
     So test for these.
     findCalledFunctions() now available to find all called functions.
+
+    Figure out what LLVM does before the first call to a routine in a Module in terms of
+    resolving the routines.
+
+    If find made a mistake in name, can change all Uses of that routine.
+    See tests/noSymbol.R
+    That also shows how to check the names  against R's bitcode module we made from src/main
+    and to guess the intended name if it is an R routine.
+    
+  </item>
+  <item status="finish">
+    Build the table of routines for the R API so that we don't have to
+    define the functions but can copy the routines and the types into our modules
+    'passively'.
+<r:code>
+r = readBitcode("~/R-4.1/build3/src/main/Rmain.bc")
+m  = Module()
+sc = copyFunction(r$Rf_ScalarReal, m)
+</r:code>
+
+When building, have to deal with different versions, compiler flags, configuration options.
+IRMakefile does this for us on each machine. But if we ship a prebuilt one, can be incompatabilities.
+<br/>
+Can build all the ir files and then combine them into one.
+<sh:code>
+cd Rllvm/src      
+R CMD make -f IRMakefile all.bc CFLAGS= CXXFLAGS=
+</sh:code>
+
+For R/src/main, says can't build xxxpr.ir (since no corresponding C file) so fails.
+But we can link the all of the other .bc files
+<sh:code>
+llvm-link *.bc -o Rmain.bc
+</sh:code>
+<r:code>
+r = readBitcode("~/R-4.1/build3/src/main/Rmain.bc")
+</r:code>
+There are 13475 entries in the Module (computed via names()) and 173 types.
   </item>
   <item>
-    Think about better interface for .llvm and ee and routines. See mkExecFunc
+    Problem with DICompositetype_getElements seg faulting
+    when getting the types of elements of a struct.
+<r:code>
+r = readBitcode("~/R-4.1/build3/src/main/Rmain.bc")
+rtypes = getTypes(r, TRUE)
+</r:code>
+
+<sh:output><![CDATA[
+R_DICompositeType_getElements(r_obj=0x000000013dada0a0) at DebugInfoMeta.cpp:176:52
+   173 	    PROTECT(ans = NEW_LIST(nels));
+   174 	    PROTECT(names = NEW_CHARACTER(nels));
+   175 	    for(int i = 0; i < nels; i++) {
+-> 176 	        const char *nm = ((llvm::DIType *)els[i])->getName().data();
+    	                                                   ^
+   177 	        if(nm)
+   178 	           SET_STRING_ELT(names, i, mkChar(nm));
+   179 	        SET_VECTOR_ELT(ans, i, R_createRef(els[i], "DINode"));
+]]></sh:output>
+
+
+  </item>
+
+  <item>
+    Think about better interface for .llvm and ee and routines. See mkEEFun.
+<r:code>
+  ee =  ExecEng(m, asFunction = TRUE)
+  ee("fun", arg1, arg2)
+  ee(fun, arg1, arg2)  # fun as an assignment from fun = Function(...)
+</r:code>
+Need to be able to refer to global variables and find them with e[["var"]]  or e$var
+(although like to keep that to Functions, but maybe not necessary).
+But a function is not subsettable so [[ doesn't work.
+  </item>
+  <item status="fix">
+    When creating a global string variable, allow specifying a name if the API allows it.
+    createConstant() doesn't take an id, but CreateStringGlobal allows it.
   </item>
   <item>
-    When generating acessor routines, generate R functions so that the user doesn't have to
+    When generating accessor routines, generate R functions so that the user doesn't have to
     explicitly call them .llvm() routines.
   </item>
   <item>
+    merge accessor generation from getrusageLLVM and generalize
     routine to copy entire struct to R. Option to collapse type from list() if types are compatible.
     Do this in compilation.  compBook/getrusageLLVM/mkGlobalAccessors.R
   </item>
-
   <item>
     Note:  llvmAddSymbol() doesn't seem necessary, at least for symbols in the the executable.
     See if if llvm finds them automatically also for DLLs introduced into R session with dyn.load().
@@ -39,9 +109,7 @@
     Can we make them invisible in the module.
     Perhaps use . prefix but map to regular name in llvmAddSymbol
   </item>
-  <item>
-    merge accessor generation from getrusageLLVM and generalize
-  </item>
+  
 
   <item>
     copyFunction failing in compBook/getrusageLLVM/mk.R.
@@ -81,7 +149,6 @@
   with removing the terminator in a block and calling IRBuilder(block)
   and then the new instructions go before the last call
 </item>
-
 
 <item>
   Fix setMethod for addFinalizer to specify where to avoid warnings.
