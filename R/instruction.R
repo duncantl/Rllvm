@@ -104,3 +104,16 @@ setMethod("getMetadata", c("Instruction", "character"),
 setMethod("getMetadata", c("Instruction", "numeric"),
            function(obj, id, ...)
               .Call("R_Instruction_getMetadata", obj, as.integer(id)))
+
+
+
+
+setAs("Instruction", "Function",
+      function(from) {
+          b = getParent(from) # as(from, "BasicBlock")
+          while(is(b, "BasicBlock"))
+              b = getParent(b)
+
+          b
+      })
+      
