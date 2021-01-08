@@ -29,6 +29,10 @@ Version 0.10-0
 
 	*  $ and [[ methods for ExecutionEngine to get routines and global variables, analogous to those for Module(). But this checks all the Modules in the ExecutionEngine.
 
+	*  findCalledFunctions() finds the Functions that are called (directly or indirectly) within a can Module and so can be used to identify missing Functions.
+
+	*  .llvm() has a .asPointer parameter that allows the caller to indicate the return type should be treated as equivanelt to a void *, which is important when the return type is int8* and could be interpreted as a character string/array.
+
 
 Version 0.9-0
 

@@ -5,20 +5,22 @@
 # See https://github.com/libffi/libffi.git for more recent libffi.
 
 #
-# The idea is that given an LLVM Function object, we can get query its return and parameter types.
+# The idea is that given an LLVM Function object, we can query its return and parameter types.
 # Given these, we can map these two Rffi's type system and create a CIF.
-# Given an ExecutionEngine, we can get the pointer to the routine
+# Given an ExecutionEngine, we can get the pointer to the routine.
 #
 
+# See ExecutionEngine.R for the .llvm.  But that calls this one if the .ffi argument is not degenerate.
+
 .llvmFFI =
-function(fun, args, .ee, cif = genCIF(fun), .all = FALSE, ...)
+function(fun, args, .ee, cif = genCIF(fun, pointerReturn = .asPointer), .all = FALSE, .asPointer = FALSE, ...)
 {
    if(is(fun, "Function"))
       funptr = getPointerToFunction(fun, .ee)@ref
    else if(typeof(fun) == "externalptr")  # is(fun, "externalptr"))
-       funptr = fun
+      funptr = fun
    else
-       stop("I'm confused! I need an LLVM Function object or an externalptr.")
+      stop("I'm confused! I need an LLVM Function object or an externalptr.")
    
    callCIF(cif, funptr, .args = args, ..., returnInputs = .all)
 }
@@ -27,10 +29,10 @@ function(fun, args, .ee, cif = genCIF(fun), .all = FALSE, ...)
 
 genCIF =
 function(fun, retType = getReturnType(fun),
-         paramTypes = getParameterTypes(fun))
+         paramTypes = getParameterTypes(fun), pointerReturn = FALSE)
 {
 
-  CIF(mapLLVMTypeToFFI(retType), lapply(paramTypes, mapLLVMTypeToFFI))
+  CIF(mapLLVMTypeToFFI(retType, asPointer = pointerReturn), lapply(paramTypes, mapLLVMTypeToFFI))
 }
 
 
@@ -42,14 +44,19 @@ function(fun, params = getParameters(fun))
 
 
 mapLLVMTypeToFFI =
-function(type, ffi = Rffi::getTypes()[c("void", "sint8", "sint32", "sint64", "float", "double", "pointer", "string", "sexp")])
+    function(type,
+             ffi = Rffi::getTypes()[c("void", "sint8", "sint32", "sint64", "float", "double", "pointer", "string", "sexp")],
+             asPointer = FALSE)
 {
      # Note that there is a function pointerType in Rllvm and a object named pointerType in Rffi.
 # llvm = list(VoidType, Int8Type, Int32Type, Int64Type, FloatType, DoubleType, pointerType(Int8Type), StringType, SEXPType)
 # rawllvm = sapply(llvm, function(x) x@ref)
 # i = match(type@ref, rawllvm)
 # if(is.na(i))
-#    stop("no matching LLVM type (yet)")
+    #    stop("no matching LLVM type (yet)")
+
+    if(asPointer)
+       return( Rffi::pointerType )
 
     if(sameType(type, VoidType))
         voidType
