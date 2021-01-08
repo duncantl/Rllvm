@@ -3,9 +3,17 @@ function(block = getGlobalContext())
 {
     # if no block, use the context
    if(is(block, "LLVMContext"))
-      .Call("R_new_IRBuilder_LLVMContext", block)     
-   else
-     .Call("R_new_IRBuilder", block)
+      return(.Call("R_new_IRBuilder_LLVMContext", block)  )
+
+   if(is(block, "Function")) {
+       blocks = getBlocks(block)
+       if(length(blocks))
+           block = blocks[[1]]
+       else
+           block = Block(block)
+   }
+       
+   .Call("R_new_IRBuilder", block)
 }
 
 setInsertBlock = 
@@ -86,7 +94,10 @@ function(builder, fun, ..., .args = list(...), id = character())
         if(isPointerType(ftype))
             ftype = getElementType(ftype)
     }
-        
+
+    .args = mapply(function(x, ty) if(isBasicType(x)) builder$createConstant(x, ty) else x,
+                   .args, lapply(getParameters(fun), getType))
+
     .Call("R_IRBuilder_CreateCall", builder, fun, .args, as.character(id), ftype)
 }    
 
@@ -634,3 +645,10 @@ function(builder, value, id = character())
     
     .Call("R_IRBuilder_CreateIndirectBr", builder, value, as.character(id))
 }
+
+
+
+setAs("IRBuilder", "Module",
+      function(from)
+         as(as(from, "Block"), "Module"))
+               
