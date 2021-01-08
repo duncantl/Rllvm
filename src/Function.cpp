@@ -162,7 +162,7 @@ SEXP
 R_Function_getReturnType(SEXP r_func)
 {
     llvm::Function *func = GET_REF(r_func, Function);
-    return(R_createRef(func->getReturnType(), "Type"));
+    return(R_createTypeRef(func->getReturnType(), "Type"));
 }
 
 

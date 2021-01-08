@@ -329,7 +329,7 @@ convertNativeValuePtrToR(void *ptr, const llvm::Type *type)
             ans = convertRawPointerToR(ptr, type);
             break;
         case llvm::Type::FunctionTyID:
-            ans = R_createRef(ptr, "Function");
+            ans = R_createRef2((llvm::Value *) ptr, "Function");
             break;            
 	default:
 	  PROBLEM  "no code yet to handle converting native value to R for %d", ty

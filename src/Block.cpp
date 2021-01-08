@@ -13,7 +13,7 @@ R_new_BasicBlock(SEXP r_context, SEXP r_name, SEXP r_fun)
         name = "";
 
     llvm::BasicBlock *ans = llvm::BasicBlock::Create(*context, name, fun);
-    return(R_createRef(ans, "BasicBlock"));
+    return(R_createRef2(ans, "BasicBlock"));
 }
 
 
@@ -43,7 +43,7 @@ R_BasicBlock_getTerminator(SEXP r_block, SEXP r_genericClass)
             className = "CatchSwitchInst";
 // InvokeInst ??
     }
-    return(R_createRef(ans, className)); 
+    return(R_createRef2(ans, className)); 
 }
 
 extern "C"
@@ -52,9 +52,9 @@ R_BasicBlock_getFirstNonPHI(SEXP r_block)
 {
 
     llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
-    const llvm::Instruction *ans = block->getFirstNonPHI();
+    llvm::Instruction *ans = block->getFirstNonPHI();
    
-    return(ans ? R_createRef(ans, "Instruction") : R_NilValue);
+    return(ans ? R_createRef2(ans, "Instruction") : R_NilValue);
 }
 
 
@@ -72,7 +72,7 @@ R_BasicBlock_getBlockInstructions(SEXP r_block)
     //??  ctr = block->size();
     PROTECT(ans = NEW_LIST(ctr));
     for(ctr = 0, ib = block->begin(), ie = block->end(); ib != ie; ++ib, ctr++) {
-        SET_VECTOR_ELT(ans, ctr, R_createRef(&(*ib), "Instruction")); //XXX LLVM 3.8
+        SET_VECTOR_ELT(ans, ctr, R_createRef2(&(*ib), "Instruction")); //XXX LLVM 3.8
     }    
     UNPROTECT(1);
     return(ans);
@@ -127,7 +127,7 @@ R_BasicBlock_getLandingPadInst(SEXP r_block)
     llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
     llvm::LandingPadInst *ans;
     ans = block->getLandingPadInst();
-    return(ans ? R_createRef(ans, "LandingPadInst") : R_NilValue);    
+    return(ans ? R_createRef2(ans, "LandingPadInst") : R_NilValue);    
 }
 
 extern "C"
@@ -137,7 +137,7 @@ R_InvokeInst_getLandingPadInst(SEXP r_block)
     llvm::InvokeInst *block = GET_REF(r_block, InvokeInst);
     llvm::LandingPadInst *ans;
     ans = block->getLandingPadInst();
-    return(ans ? R_createRef(ans, "LandingPadInst") : R_NilValue);    
+    return(ans ? R_createRef2(ans, "LandingPadInst") : R_NilValue);    
 }
 
 
@@ -154,7 +154,7 @@ R_BasicBlock_getPredecessor(SEXP r_block, SEXP r_single)
     else
        pre = block->getUniquePredecessor();
 
-    return(pre ? R_createRef(pre, "BasicBlock") : R_NilValue);
+    return(pre ? R_createRef2(pre, "BasicBlock") : R_NilValue);
 }
 
 
@@ -169,7 +169,7 @@ R_BasicBlock_getSuccessor(SEXP r_block, SEXP r_single)
     else
        pre = block->getUniqueSuccessor();
 
-    return(pre ? R_createRef(pre, "BasicBlock") : R_NilValue);
+    return(pre ? R_createRef2(pre, "BasicBlock") : R_NilValue);
 }
 
 
@@ -235,7 +235,7 @@ R_ValueSymbolTable_lookup(SEXP r_sym, SEXP r_name)
     PROTECT(ans = NEW_LIST(n));
     for(int i = 0; i < n; i++) {
         llvm::Value *val = sym->lookup(llvm::StringRef(CHAR(STRING_ELT(r_name, i))));
-        SET_VECTOR_ELT(ans, i, R_createRef(val, "Value"));
+        SET_VECTOR_ELT(ans, i, R_createRef2(val, "Value"));
     }
     SET_NAMES(ans, r_name);
     UNPROTECT(1);
@@ -266,7 +266,7 @@ R_BasicBlock_getPredecessors(SEXP r_block)
     PROTECT(ans = NEW_LIST(n));
     i = 0;
     for(llvm::BasicBlock *pre : predecessors(block) ) {
-         SET_VECTOR_ELT(ans, i, pre ? R_createRef(pre, "BasicBlock") : R_NilValue);        
+         SET_VECTOR_ELT(ans, i, pre ? R_createRef2(pre, "BasicBlock") : R_NilValue);        
         i ++;
     }    
 //    for(i = 0, ib = pred_begin(block), ie = pred_end(block); ib != ie; i++) {    
@@ -292,7 +292,7 @@ R_BasicBlock_getSuccessors(SEXP r_block)
     PROTECT(ans = NEW_LIST(n));
     i = 0;
     for(llvm::BasicBlock *pre : successors(block) ) {
-         SET_VECTOR_ELT(ans, i, pre ? R_createRef(pre, "BasicBlock") : R_NilValue);        
+         SET_VECTOR_ELT(ans, i, pre ? R_createRef2(pre, "BasicBlock") : R_NilValue);        
         i ++;
     }    
 

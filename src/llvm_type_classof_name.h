@@ -12,7 +12,7 @@ cat(paste(sprintf("   if(%s::classof(obj))\n\tans = \"%s\";\n", tyClasses, gsub(
 
 */
 
-const char  * getLLVMTypeClassName(llvm::Type *obj)
+const char  * getLLVMTypeClassName(const llvm::Type *obj)
 {
 
    const char *ans = "Type";

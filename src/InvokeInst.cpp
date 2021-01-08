@@ -6,7 +6,7 @@ SEXP
 R_InvokeInst_getNormalDest(SEXP r_inst)
 {
     llvm::InvokeInst *ins = GET_REF(r_inst, InvokeInst);
-    return(R_createRef(ins->getNormalDest(), "BasicBlock"));
+    return(R_createRef2(ins->getNormalDest(), "BasicBlock"));
 }
 
 extern "C"
@@ -14,7 +14,7 @@ SEXP
 R_InvokeInst_getUnwindDest(SEXP r_inst)
 {
     llvm::InvokeInst *ins = GET_REF(r_inst, InvokeInst);
-    return(R_createRef(ins->getUnwindDest(), "BasicBlock"));
+    return(R_createRef2(ins->getUnwindDest(), "BasicBlock"));
 }
 
 extern "C"

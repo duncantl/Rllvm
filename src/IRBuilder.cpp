@@ -33,6 +33,18 @@ R_createRef(const void *ptr, const char * const className, const char * tag)
     return(ans);
 }
 
+SEXP
+R_createRef2(const llvm::Value *ptr, const char *const className, const char *tag)
+{
+    return(R_createRef(ptr, ptr ? getLLVMClassName(ptr) : "Value", tag));
+}
+
+SEXP R_createTypeRef(const llvm::Type *ptr, const char * const className, const char *tagName)
+{
+    return(R_createRef(ptr, ptr ? getLLVMTypeClassName(ptr) : "Value", tagName));    
+}
+
+
 extern "C"
 SEXP
 R_new_IRBuilder(SEXP r_block)
@@ -89,7 +101,7 @@ R_IRBuilder_GetInsertBlock(SEXP r_builder)
     builder = GET_REF(r_builder, IRBuilder<>);
 
     llvm::BasicBlock *ans = builder->GetInsertBlock();
-    return(R_createRef(ans, "BasicBlock"));
+    return(R_createRef2(ans, "BasicBlock"));
 }
 
 
@@ -104,7 +116,7 @@ R_IRBuilder_CreateRetVoid(SEXP r_builder)
         ERROR;
     }
     llvm::ReturnInst *ret = builder->CreateRetVoid();
-    return(R_createRef(ret, "ReturnInst"));
+    return(R_createRef2(ret, "ReturnInst"));
 } 
 
 extern "C"
@@ -115,7 +127,7 @@ R_IRBuilder_CreateRet(SEXP r_builder, SEXP r_val)
     builder = GET_REF(r_builder, IRBuilder<>);
     llvm::Value *val = GET_REF(r_val, Value);
     llvm::ReturnInst *ret = builder->CreateRet(val);
-    return(R_createRef(ret, "ReturnInst"));
+    return(R_createRef2(ret, "ReturnInst"));
 } 
 
 extern "C"
@@ -139,7 +151,7 @@ R_IRBuilder_CreateBinOp(SEXP r_builder, SEXP r_op, SEXP r_lhs, SEXP r_rhs, SEXP 
         ret->setName(makeTwine(r_id));
     }
    
-    return(R_createRef(ret, "Value"));
+    return(R_createRef2(ret, "Value"));
 } 
 
 extern "C"
@@ -197,7 +209,7 @@ R_IRBuilder_CreateCall(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_id, SEXP 
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "CallInst"));
+    return(R_createRef2(ans, "CallInst"));
 }
 
 extern "C"
@@ -209,7 +221,7 @@ R_IRBuilder_CreateBr(SEXP r_builder, SEXP r_block)
     llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
 
     llvm::BranchInst *ans = builder->CreateBr(block);
-    return(R_createRef(ans, "BranchInst"));
+    return(R_createRef2(ans, "BranchInst"));
 }
 
 extern "C"
@@ -224,7 +236,7 @@ R_IRBuilder_CreateCondBr(SEXP r_builder, SEXP r_cond, SEXP r_true, SEXP r_false)
 
     llvm::BranchInst *ans = builder->CreateCondBr(cond, block1, block2);
 
-    return(R_createRef(ans, "BranchInst"));
+    return(R_createRef2(ans, "BranchInst"));
 }
 
 
@@ -235,7 +247,7 @@ R_BranchInst_getCondition(SEXP r_branch)
     llvm::BranchInst *branch;
     branch = GET_REF(r_branch, BranchInst);
     llvm::Value *ans = branch->getCondition();
-    return(R_createRef(ans, "Value"));    
+    return(R_createRef2(ans, "Value"));    
 }
 
 extern "C"
@@ -266,7 +278,7 @@ R_BranchInst_getSuccessor(SEXP r_branch, SEXP r_i)
 	PROBLEM "asking to retrieve a BranchInst successor beyond the actual number %d", branch->getNumSuccessors()
 	    ERROR;
     }
-    return(R_createRef(branch->getSuccessor(INTEGER(r_i)[0]), "BasicBlock"));
+    return(R_createRef2(branch->getSuccessor(INTEGER(r_i)[0]), "BasicBlock"));
 }
 
 
@@ -289,7 +301,7 @@ R_BranchInst_getOperand(SEXP r_branch, SEXP r_i)
 	PROBLEM "asking to retrieve a BranchInst operand beyond the actual number %d", branch->getNumOperands()
 	    ERROR;
     }
-    return(R_createRef(branch->getOperand(INTEGER(r_i)[0]), "Value"));
+    return(R_createRef2(branch->getOperand(INTEGER(r_i)[0]), "Value"));
 }
 
 
@@ -303,7 +315,7 @@ R_IRBuilder_CreateNot(SEXP r_builder, SEXP r_val)
     builder = GET_REF(r_builder, IRBuilder<>);
     llvm::Value *val = GET_REF(r_val, Value);
     llvm::Value * ans = builder->CreateNot(val);
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 extern "C"
@@ -314,7 +326,7 @@ R_IRBuilder_CreateNeg(SEXP r_builder, SEXP r_val)
     builder = GET_REF(r_builder, IRBuilder<>);
     llvm::Value *val = GET_REF(r_val, Value);
     llvm::Value * ans = builder->CreateNeg(val);
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 extern "C"
@@ -325,7 +337,7 @@ R_IRBuilder_CreateFNeg(SEXP r_builder, SEXP r_val)
     builder = GET_REF(r_builder, IRBuilder<>);
     llvm::Value *val = GET_REF(r_val, Value);
     llvm::Value * ans = builder->CreateFNeg(val);
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 extern "C"
@@ -339,7 +351,7 @@ R_IRBuilder_CreateUIToFP(SEXP r_builder, SEXP r_val, SEXP r_type)
 
     llvm::Value * ans = builder->CreateUIToFP(val, type);
 
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 
@@ -354,7 +366,7 @@ R_IRBuilder_CreateFPToSI(SEXP r_builder, SEXP r_val, SEXP r_type)
 
     llvm::Value * ans = builder->CreateFPToSI(val, type);
 
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 extern "C"
@@ -368,7 +380,7 @@ R_IRBuilder_CreateFPToUI(SEXP r_builder, SEXP r_val, SEXP r_type)
 
     llvm::Value * ans = builder->CreateFPToUI(val, type);
 
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 
@@ -383,7 +395,7 @@ R_IRBuilder_CreateSIToFP(SEXP r_builder, SEXP r_val, SEXP r_type)
 
     llvm::Value * ans = builder->CreateSIToFP(val, type);
 
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 
@@ -401,7 +413,7 @@ R_IRBuilder_CreateICmp(SEXP r_builder, SEXP r_op, SEXP r_lhs, SEXP r_rhs)
 
     llvm::Value* ans = builder->CreateICmp(op, lhs, rhs);
 
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 extern "C"
@@ -417,7 +429,7 @@ R_IRBuilder_CreateFCmp(SEXP r_builder, SEXP r_op, SEXP r_lhs, SEXP r_rhs)
 
     llvm::Value* ans = builder->CreateFCmp(op, lhs, rhs);
 
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 
@@ -434,7 +446,7 @@ R_IRBuilder_CreateStore(SEXP r_builder, SEXP r_val, SEXP r_ptr, SEXP r_isVolatil
     llvm::StoreInst *ans;
     ans = builder->CreateStore(val, ptr, LOGICAL(r_isVolatile)[0]);
 
-    return(R_createRef(ans, "StoreInst"));
+    return(R_createRef2(ans, "StoreInst"));
 
 }
 
@@ -462,7 +474,7 @@ R_IRBuilder_CreateLoad(SEXP r_builder, SEXP r_val, SEXP r_isVolatile, SEXP r_id)
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "LoadInst"));
+    return(R_createRef2(ans, "LoadInst"));
 
 }
 
@@ -499,7 +511,7 @@ R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id)
         try {	
 #endif
 #if 1
-             ans = builder->CreateGEP(val, args);
+            ans = builder->CreateGEP(val, args);
 #else
 	 fprintf(stderr, "Calling GetElementPtrInst::Create()\n");
          llvm::Instruction *inst = llvm::GetElementPtrInst::Create(val, args); // idxs
@@ -542,7 +554,7 @@ R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id)
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "Value"));
+    return(ans ? R_createRef2(ans, "Value") : R_NilValue); 
 }
 
 
@@ -558,7 +570,7 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
 
 #if 1
     ans = builder->CreateAlloca(type, Rf_length(r_size) > 0 ? (llvm::Value*)GET_REF(r_size, Value) : NULL, makeTwine(r_id));
-    return(R_createRef(ans, "AllocaInst"));
+    return(R_createRef2(ans, "AllocaInst"));
 #endif    
     
 
@@ -608,7 +620,7 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "AllocaInst"));
+    return(R_createRef2(ans, "AllocaInst"));
 
 }
 
@@ -629,7 +641,7 @@ R_IRBuilder_CreateSExt(SEXP r_builder, SEXP r_val, SEXP r_type, SEXP r_id, SEXP 
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 
@@ -649,7 +661,7 @@ R_IRBuilder_CreateZExt(SEXP r_builder, SEXP r_val, SEXP r_type, SEXP r_id)
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 
@@ -668,7 +680,7 @@ R_IRBuilder_CreateBitCastInst(SEXP r_builder, SEXP r_val, SEXP r_type, SEXP r_id
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "CastInst"));
+    return(R_createRef2(ans, "CastInst"));
 }
 
 
@@ -686,7 +698,7 @@ R_IRBuilder_AddrSpaceCastInst(SEXP r_builder, SEXP r_val, SEXP r_type, SEXP r_id
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "AddrSpaceCastInst"));
+    return(R_createRef2(ans, "AddrSpaceCastInst"));
 }
 
 
@@ -705,7 +717,7 @@ R_IRBuilder_CreateIntCastInst(SEXP r_builder, SEXP r_val, SEXP r_type, SEXP r_is
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "CastInst"));
+    return(R_createRef2(ans, "CastInst"));
 }
 
 
@@ -722,7 +734,7 @@ R_IRBuilder_CreateGlobalString(SEXP r_builder, SEXP r_val, SEXP r_id)
 
     if(Rf_length(r_id))
        ans->setName(makeTwine(r_id));
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 
@@ -740,7 +752,7 @@ R_IRBuilder_CreateIsNull(SEXP r_builder, SEXP r_val, SEXP r_id)
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 
@@ -757,7 +769,7 @@ R_IRBuilder_CreateIsNotNull(SEXP r_builder, SEXP r_val, SEXP r_id)
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 
 
@@ -772,7 +784,7 @@ R_IRBuilder_CreateUnwind(SEXP r_builder, SEXP r_id)
 #else
     llvm::IRBuilder<> *builder;
     llvm::UnwindInst *ans = builder->CreateUnwind();
-    return(R_createRef(ans, "UnwindInst"));
+    return(R_createRef2(ans, "UnwindInst"));
 #endif
 }
 
@@ -782,7 +794,7 @@ R_IRBuilder_CreateUnreachable(SEXP r_builder, SEXP r_id)
 {
     llvm::IRBuilder<> *builder = GET_REF(r_builder, IRBuilder<>);
     llvm::UnreachableInst *ans = builder->CreateUnreachable();
-    return(R_createRef(ans, "UnreachableInst"));
+    return(R_createRef2(ans, "UnreachableInst"));
 }
 
 extern "C"
@@ -800,7 +812,7 @@ R_IRBuilder_CreateSelect(SEXP r_builder, SEXP r_cond, SEXP r_lhs, SEXP r_rhs, SE
     if(Rf_length(r_id)) 
         ret->setName(makeTwine(r_id));
    
-    return(R_createRef(ret, "Value"));
+    return(R_createRef2(ret, "Value"));
 } 
 
 
@@ -856,7 +868,7 @@ R_BinaryOperator_CreateNeg(SEXP r_value, SEXP r_id, SEXP r_type, SEXP r_block)
     if(!block && Rf_length(r_id)) 
         op->setName(makeTwine(r_id));
 
-    return(R_createRef(op, "BinaryOperator"));
+    return(R_createRef2(op, "BinaryOperator"));
 }
 
 
@@ -867,7 +879,7 @@ R_IRBuilder_getTrue(SEXP r_builder)
 {
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
-    return(R_createRef(builder->getTrue(), "ConstantInt"));
+    return(R_createRef2(builder->getTrue(), "ConstantInt"));
 }
 
 extern "C"
@@ -876,7 +888,7 @@ R_IRBuilder_getFalse(SEXP r_builder)
 {
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
-    return(R_createRef(builder->getFalse(), "ConstantInt"));
+    return(R_createRef2(builder->getFalse(), "ConstantInt"));
 }
 
 
@@ -886,7 +898,7 @@ R_IRBuilder_getCurrentFunctionReturnType(SEXP r_builder)
 {
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
-    return(R_createRef(builder->getCurrentFunctionReturnType(), "Type"));
+    return(R_createTypeRef(builder->getCurrentFunctionReturnType(), "Type"));
 }
 
 
@@ -984,7 +996,7 @@ R_IRBuilder_CreateExtractElement(SEXP r_builder, SEXP r_vec, SEXP r_idx, SEXP r_
     if(Rf_length(r_id)) 
         ret->setName(makeTwine(r_id));
     
-    return(R_createRef(ret, "ExtractElementInst"));
+    return(R_createRef2(ret, "ExtractElementInst"));
 } 
 
 extern "C"
@@ -1001,7 +1013,7 @@ R_IRBuilder_CreateInsertElement(SEXP r_builder, SEXP r_vec, SEXP r_elt, SEXP r_i
     if(Rf_length(r_id)) 
         ret->setName(makeTwine(r_id));
     
-    return(R_createRef(ret, "InsertElementInst"));
+    return(R_createRef2(ret, "InsertElementInst"));
 }
 
 
@@ -1025,7 +1037,7 @@ R_IRBuilder_CreateInsertValue(SEXP r_builder, SEXP r_vec, SEXP r_elt, SEXP r_idx
     if(Rf_length(r_id)) 
         ret->setName(makeTwine(r_id));
     
-    return(R_createRef(ret, "InsertValueInst"));
+    return(R_createRef2(ret, "InsertValueInst"));
 }
 
 
@@ -1046,7 +1058,7 @@ R_IRBuilder_CreateExtractValue(SEXP r_builder, SEXP r_vec, SEXP r_idx, SEXP r_id
     
     if(Rf_length(r_id)) 
         ret->setName(makeTwine(r_id));    
-    return(R_createRef(ret, "ExtractValueInst"));
+    return(R_createRef2(ret, "ExtractValueInst"));
 } 
 
 extern "C"
@@ -1062,7 +1074,7 @@ R_IRBuilder_CreateSwitch(SEXP r_builder, SEXP r_val, SEXP r_dest, SEXP numCases,
     if(Rf_length(r_id)) 
         ans->setName(makeTwine(r_id));
     
-    return(R_createRef(ans, "SwitchInst"));
+    return(R_createRef2(ans, "SwitchInst"));
 }
 
 
@@ -1080,7 +1092,7 @@ R_IRBuilder_CreatePtrDiff(SEXP r_builder, SEXP r_lhs, SEXP r_rhs, SEXP r_id)
     if(Rf_length(r_id)) 
         ret->setName(makeTwine(r_id));
    
-    return(R_createRef(ret, "PtrDiff"));
+    return(R_createRef2(ret, "PtrDiff"));
 } 
 
 extern "C"
@@ -1096,7 +1108,7 @@ R_IRBuilder_CreateCast(SEXP r_builder, SEXP r_op, SEXP r_lhs, SEXP r_type, SEXP 
     if(Rf_length(r_id)) 
         ret->setName(makeTwine(r_id));
    
-    return(R_createRef(ret, "Value"));
+    return(R_createRef2(ret, "Value"));
 }
 
 
@@ -1125,7 +1137,7 @@ R_IRBuilder_CreateInvoke(SEXP r_builder, SEXP r_fun, SEXP r_args, SEXP r_normal,
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "InvokeInst"));
+    return(R_createRef2(ans, "InvokeInst"));
 }
 
 #if (LLVM_VERSION >= 3 && LLVM_MINOR_VERSION >= 7) || LLVM_VERSION >= 4
@@ -1142,7 +1154,7 @@ R_IRBuilder_CreateStructGEP(SEXP r_builder, SEXP r_type, SEXP r_value, SEXP r_in
     if(Rf_length(r_id)) 
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 #else
 extern "C"
@@ -1157,7 +1169,7 @@ R_IRBuilder_CreateStructGEP(SEXP r_builder, SEXP r_value, SEXP r_index, SEXP r_i
     if(Rf_length(r_id)) 
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "Value"));
+    return(R_createRef2(ans, "Value"));
 }
 #endif
 
@@ -1177,7 +1189,7 @@ R_IRBuilder_CreateFPTrunc(SEXP r_builder, SEXP r_value, SEXP r_type, SEXP r_id)
     if(Rf_length(r_id)) 
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "FPTruncInst"));
+    return(R_createRef2(ans, "FPTruncInst"));
 }
 
 
@@ -1194,7 +1206,7 @@ R_IRBuilder_CreateTrunc(SEXP r_builder, SEXP r_value, SEXP r_type, SEXP r_id)
     if(Rf_length(r_id)) 
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "TruncInst"));
+    return(R_createRef2(ans, "TruncInst"));
 }
 
 
@@ -1210,7 +1222,7 @@ R_IRBuilder_CreateIndirectBr(SEXP r_builder, SEXP r_value, SEXP r_id)
     if(Rf_length(r_id)) 
         ans->setName(makeTwine(r_id));
 
-    return(R_createRef(ans, "IndirectBrInst"));
+    return(R_createRef2(ans, "IndirectBrInst"));
 }
 
 extern "C"
@@ -1248,7 +1260,7 @@ R_IRBuilder_CreatePHI(SEXP r_builder, SEXP r_type, SEXP r_numReservedValues, SEX
     if(Rf_length(r_id)) 
         ret->setName(makeTwine(r_id));
 
-    return(R_createRef(ret, "PHINode"));
+    return(R_createRef2(ret, "PHINode"));
 } 
 
 
@@ -1297,7 +1309,7 @@ R_PHINode_getIncomingValueForBlock(SEXP r_phi, SEXP r_block)
     llvm::Value *val;
     val = phi->getIncomingValueForBlock(block);
 
-    return(R_createRef(val, "Value"));
+    return(R_createRef2(val, "Value"));
 }
 
 extern "C"
@@ -1308,7 +1320,7 @@ R_PHINode_hasConstantValue(SEXP r_phi)
     
     llvm::Value *val;
     val = phi->hasConstantValue();
-    return(val ? R_createRef(val, "Value") : R_NilValue);
+    return(val ? R_createRef2(val, "Value") : R_NilValue);
 }
 
 
@@ -1318,7 +1330,7 @@ R_createFwdRef_for_phi(SEXP r_type)
 {
     llvm::Type *type = GET_REF(r_type, Type);
     llvm::Argument *arg = new llvm::Argument(type);
-    return(R_createRef(arg, "Argument"));
+    return(R_createRef2(arg, "Argument"));
 }
 
 
@@ -1331,7 +1343,7 @@ R_PHINode_getIncomingBlock(SEXP r_phi, SEXP r_num)
     llvm::BasicBlock *val;
     int num = INTEGER(r_num)[0];
     val = phi->getIncomingBlock(num);
-    return(val ? R_createRef(val, "BasicBlock") : R_NilValue);
+    return(val ? R_createRef2(val, "BasicBlock") : R_NilValue);
 }
 
 
@@ -1360,7 +1372,7 @@ R_PHINode_blocks(SEXP r_phi)
 
     PROTECT(ans = allocVector(VECSXP, n));
     for(ctr = 0, i = r.begin(); i != r.end(); i++, ctr++) {
-        SET_VECTOR_ELT(ans, ctr, R_createRef(*i, "BasicBlock"));
+        SET_VECTOR_ELT(ans, ctr, R_createRef2(*i, "BasicBlock"));
     }
 
     UNPROTECT(1);
@@ -1380,7 +1392,7 @@ R_PHINode_incoming_values(SEXP r_phi)
     PROTECT(ans = allocVector(VECSXP, n));
     for(ctr = 0; ctr < n; ctr++) {
         llvm::Value *val = phi->getIncomingValue(ctr);
-        SET_VECTOR_ELT(ans, ctr, R_createRef(val, getLLVMClassName(val)));
+        SET_VECTOR_ELT(ans, ctr, R_createRef2(val, "Value"));
     }
 
     UNPROTECT(1);

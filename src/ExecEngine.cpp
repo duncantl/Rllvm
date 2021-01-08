@@ -187,7 +187,7 @@ R_ExecutionEngine_getPointerToFunction(SEXP r_execEngine, SEXP r_func)
     llvm::Function *fun = GET_REF(r_func, Function);
     void *ans = ee->getPointerToFunction(fun);
     
-    return(R_createRef(ans, "NativeFunctionPointer", "native symbol"));
+    return(ans ? R_createRef(ans, "NativeFunctionPointer", "native symbol") : R_NilValue);
 }
 
 extern "C"
@@ -211,7 +211,7 @@ R_ExecutionEngine_getPointerToGlobal(SEXP r_execEngine, SEXP r_var)
     llvm::GlobalValue *var = GET_REF(r_var, GlobalValue);
     void *ans = ee->getPointerToGlobal(var);
 
-    return(R_createRef(ans, "NativeGlobalVariable"));
+    return(ans ? R_createRef(ans, "NativeGlobalVariable") : R_NilValue );
 }
 
 
@@ -223,7 +223,7 @@ R_ExecutionEngine_FindFunctionNamed(SEXP r_execEngine, SEXP r_id)
     
     llvm::Function *ans = ee->FindFunctionNamed(CHAR(STRING_ELT(r_id, 0)));
     
-    return(R_createRef(ans, "Function"));
+    return(ans ? R_createRef(ans, "Function") : R_NilValue);
 }
 
 
@@ -235,7 +235,7 @@ R_ExecutionEngine_FindGlobalVariableNamed(SEXP r_execEngine, SEXP r_id)
     
     llvm::GlobalVariable *ans = ee->FindGlobalVariableNamed(CHAR(STRING_ELT(r_id, 0)));
     
-    return(R_createRef(ans, "GlobalVariable"));
+    return( ans ? R_createRef(ans, "GlobalVariable") : R_NilValue );
 }
 
 

@@ -1,4 +1,4 @@
-const char  * getLLVMClassName(llvm::Value *obj)
+const char  * getLLVMClassName(const llvm::Value *obj)
 {
 	const char *ans = "Value";
 	if(llvm::Constant::classof(obj))

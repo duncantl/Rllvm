@@ -61,7 +61,7 @@ R_IntegerType_get(SEXP r_context, SEXP r_bits)
 
     llvm::Type *ans;
     ans = llvm::IntegerType::get(*ctxt, INTEGER(r_bits)[0]);
-    return(R_createRef(ans, "Type"));
+    return(R_createTypeRef(ans, "Type"));
 }
 
 extern "C"
@@ -79,7 +79,7 @@ R_pointerType(SEXP r_type, SEXP r_noClass, SEXP r_addrSpace)
 
     return(LOGICAL(r_noClass)[0] ? 
              R_MakeExternalPtr((void *) ans, Rf_install("PointerType"), R_NilValue) :
-             R_createRef(ans, "PointerType"));
+             R_createTypeRef(ans, "PointerType"));
 }
 
 
@@ -132,7 +132,7 @@ R_Type_getScalarType(SEXP r_type)
 {
     llvm::Type *ty = GET_TYPE(r_type);
     const llvm::Type *ans = ty->getScalarType();
-    return(R_createRef(ans, "Type"));
+    return(R_createTypeRef(ans, "Type"));
 }
 
 
@@ -215,7 +215,7 @@ R_StructType_create(SEXP elTypes, SEXP name, SEXP r_context, SEXP r_isPacked, SE
     
     return(LOGICAL(r_noClass)[0] ? 
              R_MakeExternalPtr((void *) ans, Rf_install("Type"), R_NilValue) :
-             R_createRef(ans, "StructType"));
+             R_createTypeRef(ans, "StructType"));
 }
 
 
@@ -248,7 +248,7 @@ R_StructType_getElementTypes(SEXP r_type)
     SEXP ans;
     PROTECT(ans = NEW_LIST(n));
     for(int i = 0; i < n ; i++)
-        SET_VECTOR_ELT(ans, i, R_createRef(type->getElementType(i), "Type"));
+        SET_VECTOR_ELT(ans, i, R_createTypeRef(type->getElementType(i), "Type"));
 
     UNPROTECT(1);
     return(ans);
@@ -266,7 +266,7 @@ R_ArrayType_get(SEXP r_elType, SEXP r_numEls)
     llvm::ArrayType *ans;
 
     ans = llvm::ArrayType::get(elType, numEls);
-    return(R_createRef(ans, "ArrayType"));
+    return(R_createTypeRef(ans, "ArrayType"));
 }
 
 
@@ -293,7 +293,7 @@ R_VectorType_get(SEXP r_elType, SEXP r_numEls)
 #else
     ans = llvm::FixedVectorType::get(elType, numEls);    
 #endif    
-    return(R_createRef(ans, "VectorType"));
+    return(R_createTypeRef(ans, "VectorType"));
 }
 
 extern "C"
@@ -324,7 +324,7 @@ R_Type_getPointerElementType(SEXP r_type)
         return(R_NilValue);
     }
 
-    return(R_createRef(ans, "Type"));
+    return(R_createTypeRef(ans, "Type"));
 }
 
 
@@ -341,7 +341,7 @@ R_FunctionType_get(SEXP r_returnType, SEXP r_argTypes, SEXP r_varArgs)
 
     llvm::Type *returnType = GET_REF(r_returnType, Type);
     ans = llvm::FunctionType::get(returnType, args, INTEGER(r_varArgs)[0]);
-    return(R_createRef(ans, "FunctionType"));
+    return(R_createTypeRef(ans, "FunctionType"));
 }
 
 extern "C"
@@ -349,7 +349,7 @@ SEXP
 R_FunctionType_getReturnType(SEXP r_funType)
 {
     llvm::FunctionType *funType = GET_REF(r_funType, FunctionType);
-    return(R_createRef(funType->getReturnType(), "Type"));
+    return(R_createTypeRef(funType->getReturnType(), "Type"));
 }
 
 extern "C"
@@ -364,7 +364,7 @@ R_FunctionType_params(SEXP r_funType)
     for(int i = 0; i < n; i++) {
         // What about element names?
         llvm::Type *el = arr[i];
-        SET_VECTOR_ELT(ans, i, R_createRef(el, "Type")); //XX make these types more specific, rather than generic Type. 
+        SET_VECTOR_ELT(ans, i, R_createTypeRef(el, "Type")); 
     }
     UNPROTECT(1);
     return(ans);
@@ -470,7 +470,7 @@ R_StructType_elements(SEXP r_type)
     for(int i = 0; i < n; i++) {
         // What about element names?
         llvm::Type *el = arr[i];
-        SET_VECTOR_ELT(ans, i, R_createRef(el, "Type")); //XX make these types more specific, rather than generic Type. 
+        SET_VECTOR_ELT(ans, i, R_createTypeRef(el, "Type")); 
     }
     UNPROTECT(1);
     return(ans);

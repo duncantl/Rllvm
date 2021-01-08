@@ -67,7 +67,7 @@ R_createFunction(SEXP r_module, SEXP r_name, SEXP r_retType, SEXP r_types, SEXP 
     ans = llvm::Function::Create(fty, llvm::GlobalValue::ExternalLinkage, strdup(CHAR(STRING_ELT(r_name, 0))), module);
 #endif
     
-    return(R_createRef(ans, "Function"));
+    return(R_createRef2(ans, "Function"));
 }
 
 extern "C"
@@ -86,7 +86,15 @@ R_getFunctionParamNames(SEXP r_func)
 {
     llvm::Function *fun;
     fun =  GET_REF(r_func, Function);
+
+    if(!fun) {
+        return(R_NilValue);
+        PROBLEM "null pointer passed for llvm Function object"
+            ERROR;
+    }
+    
     int n = 0;
+    
     llvm::Function::arg_iterator it = fun->arg_begin();
     const llvm::FunctionType *fty = fun->getFunctionType();
   
@@ -109,6 +117,14 @@ R_getFunctionArgs(SEXP r_func)
 {
     llvm::Function *fun;
     fun =  GET_REF(r_func, Function);
+
+    if(!fun) {
+        return(R_NilValue);
+        PROBLEM "null pointer passed for llvm Function object"
+            ERROR;
+    }
+        
+    
     int n = 0;
     llvm::Function::arg_iterator it = fun->arg_begin();
     const llvm::FunctionType *fty = fun->getFunctionType();
@@ -121,7 +137,7 @@ R_getFunctionArgs(SEXP r_func)
     llvm::Value *el;
     for(int i = 0; i < n ; i++, it++) {
         el = &(*it) ; //XXX  compiles. But is this reference to the persistent parameter object???
-        SET_VECTOR_ELT(ans, i, R_createRef(el, "Argument"));
+        SET_VECTOR_ELT(ans, i, R_createRef2(el, "Argument"));
     }
     UNPROTECT(1);
     return(ans);
@@ -137,6 +153,12 @@ R_getFunctionTypeArgTypes(SEXP r_funcType)
     fty =  GET_REF(r_funcType, FunctionType);
     int n = 0;
 
+    if(!fty) {
+        return(R_NilValue);
+        PROBLEM "null pointer passed for llvm FunctionType object"
+            ERROR;
+    }
+    
     n = fty->getNumParams();
 
     SEXP ans;
@@ -144,7 +166,7 @@ R_getFunctionTypeArgTypes(SEXP r_funcType)
     llvm::Type *el;
     for(int i = 0; i < n ; i++) {
         el = fty->getParamType(i);
-        SET_VECTOR_ELT(ans, i, R_createRef(el, "Type"));
+        SET_VECTOR_ELT(ans, i, R_createTypeRef(el, "Type"));
     }
     UNPROTECT(1);
     return(ans);
@@ -268,6 +290,7 @@ R_Module_dump(SEXP r_module)
 {
     llvm::Module *Mod = GET_REF(r_module, Module);
     Mod->print( NULL);
+    return(R_NilValue)
 }
 #endif
 
@@ -366,7 +389,7 @@ R_Module_getFunctionList(SEXP r_module)
     {
         const llvm::Function *curfunc = &(*it);
         SET_STRING_ELT(names, i, mkChar(curfunc->getName().data()));
-        SET_VECTOR_ELT(rans, i, R_createRef(curfunc, "Function"));
+        SET_VECTOR_ELT(rans, i, R_createRef2(curfunc, "Function"));
     }
     SET_NAMES(rans, names);
 
@@ -397,7 +420,7 @@ R_Module_getGlobalList(SEXP r_module)
     {
         const llvm::GlobalVariable *curfunc = &(*it);
         SET_STRING_ELT(names, i, mkChar(curfunc->getName().data()));
-        SET_VECTOR_ELT(rans, i, R_createRef(curfunc, "GlobalVariable"));
+        SET_VECTOR_ELT(rans, i, R_createRef2(curfunc, "GlobalVariable"));
     }
     SET_NAMES(rans, names);
 
@@ -423,7 +446,7 @@ R_Module_getGlobalVariable(SEXP r_module, SEXP r_name, SEXP r_allowInternal)
     if(!var)
       return(R_NilValue);
 
-    return(R_createRef(var, "GlobalVariable"));
+    return(R_createRef2(var, "GlobalVariable"));
 }
 
 
@@ -1022,7 +1045,7 @@ R_Module_getTypes(SEXP r_module)
     PROTECT(names = NEW_CHARACTER(n));
     for(int i = 0; i < n; i++) {
         llvm::StructType *ty = finder[i];
-        SET_VECTOR_ELT(ans, i, R_createRef(ty, getLLVMTypeClassName(ty))); // "Type"));
+        SET_VECTOR_ELT(ans, i, R_createTypeRef(ty, "Type")); 
         llvm::StringRef str = ty->getName();
         SET_STRING_ELT(names, i, str.data() ? mkChar(str.data()) : R_NaString);
     }
@@ -1033,6 +1056,8 @@ R_Module_getTypes(SEXP r_module)
 
 
 // Test this works.
+// Need to know the exact name, e.g. struct.A.1021
+// So probably better to use getTypes(module) and grep the names for the name.
 extern "C"
 SEXP
 R_Module_getTypeByName(SEXP r_module, SEXP r_name)
@@ -1040,6 +1065,6 @@ R_Module_getTypeByName(SEXP r_module, SEXP r_name)
     LDECL2(Module, module);
     llvm::StringRef str(CHAR(STRING_ELT(r_name, 0)));
     llvm::StructType *ty = module->getTypeByName(str);
-    return( ty ? R_createRef(ty, "Type") : R_NilValue );
+    return( ty ? R_createTypeRef(ty, "Type") : R_NilValue );
 }
 

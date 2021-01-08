@@ -48,7 +48,7 @@ R_Value_getType(SEXP r_val)
 {
     llvm::Value *val = GET_REF(r_val, Value);
     
-    return(R_createRef((void *) val->getType(), "Type"));
+    return(R_createTypeRef(val->getType(), "Type"));
 }
 
 extern "C"
@@ -154,15 +154,25 @@ SEXP
 R_Use_get(SEXP r_val)
 {
     llvm::Use *use = GET_REF(r_val, Use);
-    return(R_createRef(use->get(), "Value"));
+    return(R_createRef2(use->get(), "Value"));
 }
+// this appears to be identical to the one above.
+extern "C"
+SEXP
+R_Use_getValue(SEXP r_use)
+{
+    llvm::Use *use = GET_REF(r_use, Use);
+    return(R_createRef2(use->get(), "Value"));
+}
+
+
 
 extern "C"
 SEXP
 R_Use_getUser(SEXP r_val)
 {
     llvm::Use *use = GET_REF(r_val, Use);
-    return(R_createRef(use->getUser(), "User"));
+    return(R_createRef2(use->getUser(), "User"));
 }
 
 
@@ -178,13 +188,6 @@ R_Value_print(SEXP r_value)
 }
 
 
-extern "C"
-SEXP
-R_Use_getValue(SEXP r_use)
-{
-    llvm::Use *use = GET_REF(r_use, Use);
-    return(R_createRef(use->get(), "Value"));
-}
 
 
 

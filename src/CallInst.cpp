@@ -53,7 +53,12 @@ R_CallInst_getCalledFunction(SEXP r_call)
     llvm::CallInst *call = GET_REF(r_call, CallInst);
     llvm::Function *fun = call->getCalledFunction();
 
-    return(R_createRef(fun, "Function"));
+    // if fun is NULL, should we return R_NilValue or a Function with @ref = 0x0
+    // with R_NilValue, things like getName(getCalledFunction()) don't work and we need to check for NULL
+    // before calling getName() - irritating/distracting.  But can have method for getName for NULL which returns NA
+    // but that is what we already get by returning Function with @ref = 0x0
+//    return(R_createRef(fun, fun ? getLLVMClassName((llvm::Value *) fun) : "Function")); // : R_NilValue);
+    return(fun ? R_createRef2(fun, "Value") : R_NilValue);
 }
 
 extern "C"

@@ -9,7 +9,7 @@ R_createIntegerConstant_from_string(SEXP r_val, SEXP r_context, SEXP r_bw, SEXP 
 
     ans = llvm::ConstantInt::get(*ctxt,  llvm::APInt(INTEGER(r_bw)[0], llvm::StringRef(CHAR(STRING_ELT(r_val, 0))), INTEGER(r_radix)[0]));
     
-    return(R_createRef(ans, "ConstantInt"));
+    return(R_createRef2(ans, "ConstantInt"));
 }
 
 
@@ -28,7 +28,7 @@ R_createFPConstant(SEXP r_val, SEXP r_context, SEXP r_type)
         llvm::LLVMContext *ctxt = GET_REF(r_context, LLVMContext);
         ans = llvm::ConstantFP::get(*ctxt, llvm::APFloat(val));
     }
-    return(R_createRef(ans, "ConstantFP"));
+    return(R_createRef2(ans, "ConstantFP"));
 }
 
 
@@ -40,7 +40,7 @@ R_getLogicalConstant(SEXP r_val, SEXP r_context)
     llvm::LLVMContext *ctxt = GET_REF(r_context, LLVMContext);
 
     ans = INTEGER(r_val)[0] ? llvm::ConstantInt::getTrue(*ctxt) : llvm::ConstantInt::getFalse(*ctxt);
-    return(R_createRef(ans, "ConstantInt"));
+    return(R_createRef2(ans, "ConstantInt"));
 }
 
 
@@ -52,7 +52,7 @@ R_createStringConstant(SEXP r_val, SEXP r_context, SEXP r_type)
     llvm::LLVMContext *ctxt = GET_REF(r_context, LLVMContext);
 
     ans = llvm::ConstantDataArray::getString(*ctxt, CHAR(STRING_ELT(r_val, 0)), true);
-    return(R_createRef(ans, "Constant"));
+    return(R_createRef2(ans, "Constant"));
 }
 
 
@@ -74,7 +74,7 @@ R_Constant_getGetElementPtr( SEXP r_constant, SEXP r_index, SEXP r_inBounds) // 
     ans = llvm::ConstantExpr::getGetElementPtr(cons, idx, LOGICAL(r_inBounds)[0]);
 #endif
 
-    return(R_createRef(ans, "Constant"));
+    return(R_createRef2(ans, "Constant"));
 }
 
 
@@ -101,7 +101,7 @@ SEXP
 R_GetElementPtrInst_getResultElementType(SEXP r_gep)
 {
     llvm::GetElementPtrInst *gep = GET_REF(r_gep, GetElementPtrInst);
-    return(R_createRef(gep->getResultElementType(), "Type"));
+    return(R_createTypeRef(gep->getResultElementType(), "Type"));
 }
 
 extern "C"
@@ -109,7 +109,7 @@ SEXP
 R_GetElementPtrInst_getSourceElementType(SEXP r_gep)
 {
     llvm::GetElementPtrInst *gep = GET_REF(r_gep, GetElementPtrInst);
-    return(R_createRef(gep->getSourceElementType(), "Type"));
+    return(R_createTypeRef(gep->getSourceElementType(), "Type"));
 }
 
 extern "C"
@@ -141,7 +141,7 @@ R_ConstantAggregateZero_get(SEXP r_type)
     llvm::Type *type = GET_REF(r_type, Type);
     llvm::ConstantAggregateZero *ans;
     ans = llvm::ConstantAggregateZero::get(type);
-    return(R_createRef(ans, "ConstantAggregateZero"));
+    return(R_createRef2(ans, "ConstantAggregateZero"));
 }
 
 
@@ -183,7 +183,7 @@ R_ConstantPointerNull_get(SEXP r_pointerType)
     llvm::ConstantPointerNull *ans;
     llvm::PointerType *type = GET_REF(r_pointerType, PointerType);
     ans = llvm::ConstantPointerNull::get(type);
-    return(R_createRef(ans, "ConstantPointerNull"));
+    return(R_createRef2(ans, "ConstantPointerNull"));
 }
 
 
@@ -200,7 +200,7 @@ SEXP
 R_ConstantExpr_getAsInstruction(SEXP r_this)
 {
     llvm::ConstantExpr *val = GET_REF(r_this, ConstantExpr);
-    return(R_createRef(val->getAsInstruction(), "Instruction"));
+    return(R_createRef2(val->getAsInstruction(), "Instruction"));
 }
 
 

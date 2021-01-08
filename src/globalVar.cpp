@@ -20,7 +20,7 @@ R_createGlobalVariable(SEXP r_module, SEXP r_type, SEXP r_val, SEXP r_name, SEXP
 #endif
                                     INTEGER(r_threadLocal)[0]);
 
-    return(R_createRef(ans, "GlobalVariable"));
+    return(R_createRef2(ans, "GlobalVariable"));
 }
 
 extern "C"
@@ -53,7 +53,7 @@ SEXP
 R_GlobalVariable_getInitializer(SEXP r_var)
 {
     llvm::GlobalVariable *ans = GET_REF(r_var, GlobalVariable);
-    return(R_createRef(ans->getInitializer(), "Constant"));
+    return(R_createRef2(ans->getInitializer(), "Constant"));
 }
 
 

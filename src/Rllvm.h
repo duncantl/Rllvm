@@ -60,6 +60,10 @@
 
 
 SEXP R_createRef(const void *ptr, const char * const className, const char *tagName = NULL);
+SEXP R_createRef2(const llvm::Value *ptr, const char *const className, const char *tag = NULL);
+
+SEXP R_createTypeRef(const llvm::Type *ptr, const char * const className, const char *tagName = NULL);
+
 
 void *getRReference(SEXP val);
 
@@ -121,7 +125,7 @@ extern llvm::Twine makeTwine(SEXP);
       if(!block) \
 	  return(R_NilValue); \
       llvm::ReturnType *  ans = block->getParent();	\
-      return(R_createRef(ans, #ReturnType));		\
+      return(R_createRef2(ans, #ReturnType));		\
    }
 
 #if 1
@@ -162,8 +166,8 @@ llvm::LLVMContext & getLLVMGlobalContext();
 
 
 
-const char * getLLVMClassName(llvm::Value *obj);
-const char  * getLLVMTypeClassName(llvm::Type *obj);
+const char * getLLVMClassName(const llvm::Value *obj);
+const char  * getLLVMTypeClassName(const llvm::Type *obj);
 
 #endif // #define R_LLVM_H
 
