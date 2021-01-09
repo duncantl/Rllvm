@@ -6,6 +6,10 @@
 
   <title>Rllvm Todo List</title>
   <item>
+    See if we can import(RAutoGenRunTime) and export its operators for Enums.
+       We don't actually use any functions other than these. | and & 
+  </item>
+  <item>
     Derived class and implementing methods.
     compBook/ExportRCode/Subclass
   </item>

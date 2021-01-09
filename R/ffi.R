@@ -15,13 +15,16 @@
 .llvmFFI =
 function(fun, args, .ee, cif = genCIF(fun, pointerReturn = .asPointer), .all = FALSE, .asPointer = FALSE, ...)
 {
-   if(is(fun, "Function"))
-      funptr = getPointerToFunction(fun, .ee)@ref
+   if(is(fun, "Function")) {
+       funptr = getPointerToFunction(fun, .ee)@ref
+      #  funptr = getFunctionAddress(getName(fun), .ee)@ref
+   } else if(is(fun, "character"))  # XXX  we need to get the CIF from the Function object so this won't work as is but what we should be moving towards.
+       funptr = getFunctionAddress(fun, .ee)@ref
    else if(typeof(fun) == "externalptr")  # is(fun, "externalptr"))
-      funptr = fun
+       funptr = fun
    else
-      stop("I'm confused! I need an LLVM Function object or an externalptr.")
-   
+       stop("I'm confused! I need an LLVM Function object or an externalptr.")
+
    callCIF(cif, funptr, .args = args, ..., returnInputs = .all)
 }
 
@@ -61,7 +64,7 @@ mapLLVMTypeToFFI =
     if(sameType(type, VoidType))
         voidType
     else  if(sameType(type, Int1Type))
-        sint8Type    
+        Rffi::uint32Type #sint8Type    
     else  if(sameType(type, Int8Type))
         sint8Type
     else  if(sameType(type, Int32Type))
