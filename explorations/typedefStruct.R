@@ -3,7 +3,11 @@ library(Rllvm)
 m = parseIR("typedefStruct.ir")
 getTypes(m)
 elTypes = getTypes(m, TRUE)
+names(elTypes$A)
 
+if(FALSE) {
+    # The above now works and returns i and d
+    # But this is how we found out what to do.
 getElementTypes(z$A)
 k = lapplyDebugInfoTypes(m, class)
 
@@ -13,4 +17,4 @@ ids = lapplyDebugInfoTypes(m, function(x)
                         names(getElements(ty))
                      else
                         character())
-
+}
