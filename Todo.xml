@@ -5,29 +5,35 @@
 	 xmlns:sh="http://www.shell.org">
 
   <title>Rllvm Todo List</title>
-
+  <item>
+   Instructions for  CreateMalloc(), CreateFree(), etc. In Instructions.h in CallInst class.
+  </item>
+  
   <item>
     Build call graph for R source code.   Show in D3.
   </item>
 
   <item>
-    Solution: when only a declaration, don't CloneFunctionInto - just create the declaration in the target module +
-    function.   Seems to work.  See compBook/getrusageLLVM/copyCrash.R and see explorations/copyCrash.R.
-    copyFunction failing in compBook/getrusageLLVM/mk.R.
-    Works in RSQLiteUDF/llvm4.R for simple fib function with basic types.
-    Perhaps the rusage and timeval  structs?
-  </item>  
-  <item>
-   Implement getFunctionAddress() as replacement for getFunctionToPointer().
-    Calls finalizeObject() for ExecEngine for you.
+    Sort out getFunctionAddress(), twoMods.R and calling bar and foo.
   </item>
+  
+  <item>
+    Think about better interface for .llvm and ee and routines. See mkEEFun.
+<r:code>
+  ee =  ExecEng(m, asFunction = TRUE)
+  ee("fun", arg1, arg2)
+  ee(fun, arg1, arg2)  # fun as an assignment from fun = Function(...)
+</r:code>
+Need to be able to refer to global variables and find them with e[["var"]]  or e$var
+(although like to keep that to Functions, but maybe not necessary).
+But a function is not subsettable so [[ doesn't work.
+  </item>
+  
+
   <item status="check">
     Method for ExecutionEngine(list(mod1, mod2, mod3)) and add the other modules.
   </item>
-  <item>
-    When copyFunction(), verifyModule() still gives errors about referencing a Function in another module.
-    See tests/noSymbol.R for sample code, but not quite the same 
-  </item>
+
   <item>
     When get the name of an external routine wrong and it doesn't exist (e.g. mkChar rather than Rf_mkChar)
     then .llvm() call crashes R.
@@ -73,9 +79,21 @@ r = readBitcode("~/R-4.1/build3/src/main/Rmain.bc")
 There are 13475 entries in the Module (computed via names()) and 173 types.
   </item>
 
-  <item>
+  <item status="check">
+    Why are there no names on the structs in Rmain.bc?
+    
     Problem with DICompositetype_getElements seg faulting
     when getting the types of elements of a struct.
+    (Need to build the .ir/.bc files for Rmain.bc with -g. Fine if no debug info.)
+    Is this because the debug information is wrong as identified gcc! So different compilers. but probably versions of
+    clang?
+    No - still segfaults. (0x9)
+    But now I check whether the DINode is a DIType and only cast if it is to be able to get the name. Doesn't crash. But
+    no names. But still works for ~/compBook/getrusageLLVM/getrusage_info.ir.  What's different about this? It is .bc
+    code. Were the llvm-link and the clang that generated the .ir and the llvm-as all the same version?
+    Yes. ~/local/bin/.
+    But maybe the .bc discards the names? No. Works on getrusage_info.bc
+    What about when we llvm-link. No, still seems to work.
 <r:code>
 r = readBitcode("~/R-4.1/build3/src/main/Rmain.bc")
 rtypes = getTypes(r, TRUE)
@@ -97,30 +115,23 @@ R_DICompositeType_getElements(r_obj=0x000000013dada0a0) at DebugInfoMeta.cpp:176
 
   </item>
 
-  <item>
-    Think about better interface for .llvm and ee and routines. See mkEEFun.
-<r:code>
-  ee =  ExecEng(m, asFunction = TRUE)
-  ee("fun", arg1, arg2)
-  ee(fun, arg1, arg2)  # fun as an assignment from fun = Function(...)
-</r:code>
-Need to be able to refer to global variables and find them with e[["var"]]  or e$var
-(although like to keep that to Functions, but maybe not necessary).
-But a function is not subsettable so [[ doesn't work.
-  </item>
   <item status="done">
     When creating a global string variable, allow specifying a name if the API allows it.
     createConstant() doesn't take an id, but CreateStringGlobal allows it.
   </item>
+
+
   <item>
     When generating accessor routines, generate R functions so that the user doesn't have to
     explicitly call them .llvm() routines.
   </item>
+
   <item>
     merge accessor generation from getrusageLLVM and generalize
     routine to copy entire struct to R. Option to collapse type from list() if types are compatible.
     Do this in compilation.  compBook/getrusageLLVM/mkGlobalAccessors.R
   </item>
+  
   <item>
     See Chapter 7 of "Getting Started with LLVM Core Libraries book".
     Note:  llvmAddSymbol() doesn't seem necessary, at least for symbols in the the executable.
@@ -150,15 +161,6 @@ But a function is not subsettable so [[ doesn't work.
     Can we get them sequentially as a list()/character() and "class"ify them.
   </item>
   
-  <item status="done">
-    Allow caller of .llvm to specify a more specific type, e.g. return type such as
-    pointerType(VoidType) to override pointerType(Int8Type) that the IR might generate
-    from C code. See tests/cifVoidPtr.R
-  </item>
-  <item status="ok">
-  Optimize() function fails.  FunctionPassManager class now restored (was removed).
-  </item>
-
 <item>
   get attributes on parameters, e.g. byval
   See tests/clang.ir and clangTraverseHandlers/clang.c
@@ -171,7 +173,7 @@ But a function is not subsettable so [[ doesn't work.
 </item>
 
 <item>
-  Fix setMethod for addFinalizer to specify where to avoid warnings.
+Fix setMethod for addFinalizer to specify where to avoid warnings.
 </item>
 
 <item>
@@ -187,6 +189,36 @@ But a function is not subsettable so [[ doesn't work.
   numeric() calls do_makevector and that Memzero's the result.
   So we will need to do this or set all the values.
 </item>
+
+  <item status="done">
+    Wasn't using the result of copyFunction() in createCall(), just creating it.
+    When copyFunction(), verifyModule() still gives errors about referencing a Function in another module.
+    See tests/noSymbol.R for sample code, but not quite the same 
+  </item>
+
+  <item status="done">
+    Allow caller of .llvm to specify a more specific type, e.g. return type such as
+    pointerType(VoidType) to override pointerType(Int8Type) that the IR might generate
+    from C code. See tests/cifVoidPtr.R
+  </item>
+  <item status="ok">
+  Optimize() function fails.  FunctionPassManager class now restored (was removed).
+  </item>
+
+
+  <item status="done">
+    Solution: when only a declaration, don't CloneFunctionInto - just create the declaration in the target module +
+    function.   Seems to work.  See compBook/getrusageLLVM/copyCrash.R and see explorations/copyCrash.R.
+    copyFunction failing in compBook/getrusageLLVM/mk.R.
+    Works in RSQLiteUDF/llvm4.R for simple fib function with basic types.
+    Perhaps the rusage and timeval  structs?
+  </item>
+  
+  <item status="done">
+   Implement getFunctionAddress() as replacement for getFunctionToPointer().
+    Calls finalizeObject() for ExecEngine for you.
+  </item>
+
 <item status="done">
   SEXPTypes.cpp-expt was the start of an experiment
   to create subclasses of llvm::Type  for the different SEXP types.
