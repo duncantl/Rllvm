@@ -33,6 +33,10 @@ Version 0.10-0
 
 	*  .llvm() has a .asPointer parameter that allows the caller to indicate the return type should be treated as equivanelt to a void *, which is important when the return type is int8* and could be interpreted as a character string/array.
 
+	*  When creating a call to a routine from a different modulee, createCall() will copy a	declaration for that routine into the current module.
+
+	*  Catch errors in ExecutionEngine so avoid preventable crashes. 
+
 
 Version 0.9-0
 
