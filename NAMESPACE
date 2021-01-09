@@ -2,7 +2,7 @@ useDynLib(Rllvm)
 
 #import(RAutoGenRunTime)
 importFrom(methods, setGeneric, setMethod, setClass,
-             as, new, is, "body<-") # cbind, rbind,
+             as, new, is, "body<-") # cbind, rbind are not exported from methods.
 
 importFrom(Rffi, callCIF, CIF,
            doubleType, floatType, sexpType, sint32Type, sint64Type, sint8Type, stringType, voidType)
