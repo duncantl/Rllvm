@@ -173,7 +173,10 @@ R_DICompositeType_getElements(SEXP r_obj)
     PROTECT(ans = NEW_LIST(nels));
     PROTECT(names = NEW_CHARACTER(nels));
     for(int i = 0; i < nels; i++) {
-        const char *nm = ((llvm::DIType *)els[i])->getName().data();
+        llvm::DINode* el = els[i];
+        const char *nm = NULL;
+        if(llvm::DIType::classof(el)) 
+            nm = ((llvm::DIType *)els[i])->getName().data(); // was llvm::DIType *
         if(nm)
            SET_STRING_ELT(names, i, mkChar(nm));
         SET_VECTOR_ELT(ans, i, R_createRef(els[i], "DINode"));
