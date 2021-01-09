@@ -105,7 +105,7 @@ setMethod("names", "Module",
              c(names(getModuleFunctions(x)), names(getGlobalVariables(x, private = TRUE))) # global variables?
            })
 
- # This creates a the GlobalVariable object
+ # This creates the GlobalVariable object
 setMethod("[[<-", c("Module", "character", "missing"),
            function(x, i, j, ..., value) {
              # use the context of the module
@@ -333,7 +333,8 @@ function(fun, module = as(fun, "Module"), id = getName(fun), moduleLevelChanges 
       id = paste0(id, "clone")
 
   f2 = Function(id, getReturnType(fun), lapply(getParameters(fun), getType), module = module)
-  .Call("R_CloneFunctionInto", fun, f2, as.logical(moduleLevelChanges))
+  if(length(getBlocks(fun)))
+     .Call("R_CloneFunctionInto", fun, f2, as.logical(moduleLevelChanges))
   f2
 }
 
@@ -354,7 +355,13 @@ setMethod("getType", c("Module"), # "character"),
           })
 
 
+if(FALSE) {
+    # See Todo.xml to allow showing names of different types of objects in the module
+    #  defined routines, non-constants, etc.
+setGeneric("ls", function(name, ...) standardGeneric('ls'))
 
+setMethod("ls", "Module",
+          function(name, definedOnly = TRUE) {
 
-#setMethod("getExternalFunctions", "Module",
-#         )
+          })
+}
