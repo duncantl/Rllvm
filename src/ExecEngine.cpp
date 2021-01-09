@@ -181,11 +181,16 @@ R_ExecutionEngine_addModule(SEXP r_execEngine, SEXP r_mods)
 
 extern "C"
 SEXP
-R_ExecutionEngine_getPointerToFunction(SEXP r_execEngine, SEXP r_func)
+R_ExecutionEngine_getPointerToFunction(SEXP r_execEngine, SEXP r_func, SEXP r_asStub)
 {
     llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
     llvm::Function *fun = GET_REF(r_func, Function);
-    void *ans = ee->getPointerToFunction(fun);
+    void *ans;
+
+    if(LOGICAL(r_asStub)[0])
+        ans = ee->getPointerToFunctionOrStub(fun);
+    else
+        ans = ee->getPointerToFunction(fun);
     
     return(ans ? R_createRef(ans, "NativeFunctionPointer", "native symbol") : R_NilValue);
 }
@@ -196,10 +201,8 @@ R_ExecutionEngine_getFunctionAddress(SEXP r_execEngine, SEXP r_func)
 {
     llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
     uint64_t ans = ee->getFunctionAddress(std::string(CHAR(STRING_ELT(r_func, 0))));
-//XXXX
- PROBLEM "not implemented yet.  uint64_t as pointer"
-  ERROR;
-//    return(R_createRef(ans, "NativeFunctionPointer", "native symbol"));
+
+    return(R_createRef( reinterpret_cast<void *>(ans) , "NativeFunctionPointer", "native symbol"));
 }
 
 
@@ -320,3 +323,30 @@ extern "C"
 SEXP
 R_ExecutionEngine_getPointerToGlobalIfAvailable(SEXP r_SEXP r_str)
 */
+
+
+
+#define EE_LOGICAL(fun) \
+extern "C" \
+SEXP \
+R_ExecutionEngine_##fun(SEXP r_ee) \
+{ \
+   llvm::ExecutionEngine *EE = GET_REF(r_ee, ExecutionEngine); \
+   return(ScalarLogical(EE->fun())); \
+}
+
+EE_LOGICAL(isCompilingLazily)
+EE_LOGICAL(isGVCompilationDisabled)
+EE_LOGICAL(isSymbolSearchingDisabled)
+EE_LOGICAL(getVerifyModules)
+EE_LOGICAL(hasError)
+
+
+extern "C"
+SEXP
+R_ExecutionEngine_DisableLazyCompilation(SEXP r_ee, SEXP r_val)
+{
+    llvm::ExecutionEngine *EE = GET_REF(r_ee, ExecutionEngine);
+    EE->DisableLazyCompilation(LOGICAL(r_val)[0]);
+    return(R_NilValue);
+}

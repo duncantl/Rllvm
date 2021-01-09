@@ -787,4 +787,9 @@ export(findCalledFunctions)
 export(setCalledFunction)
 
 
-       
+     
+
+export(hasError, isCompilingLazily, isGVCompilationDisabled, isSymbolSearchingDisabled, getVerifyModules)
+exportMethods(hasError)
+export(DisableLazyCompilation)
+

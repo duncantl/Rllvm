@@ -31,8 +31,18 @@ ExecEng = ExecutionEngine =
 function(module, optimizationLevel = CodeGenOpt_Default, asFunction = FALSE)
 {
   optimizationLevel = matchEnum(optimizationLevel, CodeGenOptEnum)
+
+  modules = list()
+  if(is.list(module)) {
+      modules = module[-1]
+      module = modules[[1]]
+  }
   
   ee = .Call("R_create_ExecutionEngine", as(module, "Module"), as.integer(optimizationLevel))
+
+  if(length(modules) > 0) 
+      lapply(modules, function(m) addModule(ee, m))
+
 
   if(asFunction) 
       mkEEFun(ee, module)
@@ -169,19 +179,22 @@ function()
 
 
 getPointerToFunction = getPointerToRoutine =
-function(fun, execEngine)
+function(fun, execEngine, asStub = FALSE)
 {
    execEngine = as(execEngine, "ExecutionEngine")
-   finalizeEngine(execEngine)
-   .Call("R_ExecutionEngine_getPointerToFunction", execEngine, as(fun, "Function"))
+   if(!asStub)
+       finalizeEngine(execEngine)
+   
+   .Call("R_ExecutionEngine_getPointerToFunction", execEngine, as(fun, "Function"), as.logical(asStub))
 }
 
 getFunctionAddress =
 function(funName, execEngine)
 {
    execEngine = as(execEngine, "ExecutionEngine")
-   finalizeEngine(execEngine)
-   .Call("R_ExecutionEngine_getFunctionAddress", execEngine, as(fun, "character"))
+   # Will be called automatically -
+   # finalizeEngine(execEngine)
+   .Call("R_ExecutionEngine_getFunctionAddress", execEngine, as(funName, "character"))
 }
 
 
@@ -207,7 +220,7 @@ setMethod("[[", c("ExecutionEngine", "character"),
           function(x, i, ...) {
               ans = findGlobalVariable(i, x)
               if(is.null(ans))
-                  findRoutine(name, x)
+                  findRoutine(i, x)
               else
                   ans
           })
@@ -257,3 +270,19 @@ function(engine)
 setClass("RFunctionJITEventListener", contains = "RC++Reference")
 setClass("ObjectFile", contains = "RC++Reference")
 setClass("LoadedObjectInfo", contains = "RC++Reference")
+
+
+# there is only method across the LLVM classes for these 4 so no need for a generic.
+isSymbolSearchingDisabled = function(ee) .Call("R_ExecutionEngine_isSymbolSearchingDisabled", as(ee, "ExecutionEngine"))
+isCompilingLazily = function(ee) .Call("R_ExecutionEngine_isCompilingLazily", as(ee, "ExecutionEngine"))
+isGVCompilationDisabled = function(ee) .Call("R_ExecutionEngine_isGVCompilationgDisabled", as(ee, "ExecutionEngine"))
+getVerifyModules = function(ee) .Call("R_ExecutionEngine_getVerifyModules", as(ee, "ExecutionEngine"))
+
+
+setMethod("hasError", "ExecutionEngine",  function(x) .Call("R_ExecutionEngine_hasError", x))
+
+DisableLazyCompilation  =
+function(x, value)
+{
+   .Call("R_ExecutionEngine_DisableLazyCompilation", as(x, "ExecutionEngine"), as.logical(value))
+}

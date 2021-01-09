@@ -472,4 +472,6 @@ setClass("TerminatorInst", contains = "Instruction")
 
 
 # setGeneric("getExternalFunctions", function(x, ...) standardGeneric("getExternalFunctions"))
+# See findCalledFunctions.R
 
+setGeneric("hasError", function(x, ...) standardGeneric("hasError"))
