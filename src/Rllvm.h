@@ -169,5 +169,8 @@ llvm::LLVMContext & getLLVMGlobalContext();
 const char * getLLVMClassName(const llvm::Value *obj);
 const char  * getLLVMTypeClassName(const llvm::Type *obj);
 
+
+char const *getDITypeClassName(llvm::MDNode *obj);
+
 #endif // #define R_LLVM_H
 

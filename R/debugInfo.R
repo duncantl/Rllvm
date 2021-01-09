@@ -46,7 +46,15 @@ setMethod("getName", "DINode",
 setMethod("getElements", "DINode",
           function(x, ...)
              .Call("R_DICompositeType_getElements", x))
-          
+
+setMethod("getElements", "DIDerivedType",
+          function(x, ...) {
+              if(is(x, "DIDerivedType") && is(ty <- getBaseType(x), "DICompositeType"))
+                  getElements(ty)
+              else
+                  list()
+          })
+
 
 setMethod("getNameTableKind", "DICompileUnit",
           function(x, ...)
@@ -125,3 +133,17 @@ setMethod("getFilename", "DILocation",
 setMethod("getDirectory", "DILocation",
           function(x, ...)
           .Call("R_DILocation_getDirectory", x))
+
+
+
+setGeneric("getBaseType",
+           function(x, ...)
+              standardGeneric("getBaseType"))
+
+setMethod("getBaseType", "DIDerivedType",
+          function(x, ...)
+          .Call("R_DIDerivedType_getBaseType", x))
+setMethod("getBaseType", "DICompositeType",
+          function(x, ...)
+          .Call("R_DICompositeType_getBaseType", x))
+

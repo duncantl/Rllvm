@@ -888,7 +888,6 @@ R_Module_debugInfo(SEXP r_module)
 #define FOO(x) if(llvm::x::classof(obj))       \
                      ans = #x;
 
-static 
 char const *
 getDITypeClassName(llvm::MDNode *obj) // DINode 
 {

@@ -305,3 +305,17 @@ R_DILocation_getDirectory(SEXP r_obj)
     llvm::StringRef str = obj->getDirectory();
     return(ScalarString(mkChar( str.data() ? str.data() : "")));
 }
+
+
+#define GET_BASE_TYPE(type) \
+extern "C" \
+SEXP \
+R_##type##_getBaseType(SEXP r_obj)                \
+{ \
+    LDECL(type)                                   \
+    llvm::DIType *ty = obj->getBaseType();                         \
+    return(ty ? R_createRef(ty, getDITypeClassName(ty)) : R_NilValue); \
+}
+
+GET_BASE_TYPE(DICompositeType)
+GET_BASE_TYPE(DIDerivedType)

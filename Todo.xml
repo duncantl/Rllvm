@@ -79,8 +79,36 @@ r = readBitcode("~/R-4.1/build3/src/main/Rmain.bc")
 There are 13475 entries in the Module (computed via names()) and 173 types.
   </item>
 
-  <item status="check">
+  <item status="done">
+    Get the names now.  For DIDerivedType (e.g. typedef), getBaseType() gets the real type and
+    if that is a DICompositeType, we can get its elements and if the names are available
+    we use those for the names of the derived type's elements. 
+    
     Why are there no names on the structs in Rmain.bc?
+    Actually, now 103 of thee 169 have no names, but 66 do, e.g. _DllInfo.
+
+    Some types are opaque, so okay not to have elements.
+    DIR is an example with no names when should. See platform.ir
+    DIR comes from
+    /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/dirent.h
+    Looking at the debug nodes in platform.ir
+<shoutput><![CDATA[
+!2884 = !DIDerivedType(tag: DW_TAG_typedef, name: "DIR", file: !2885, line: 84, baseType: !2886)
+!2885 = !DIFile(filename: "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/dirent.h", directory: "")
+!2886 = distinct !DICompositeType(tag: DW_TAG_structure_type, file: !2885, line: 73, size: 1088, elements: !2887)
+!2887 = !{!2888, !2889, !2890, !2891, !2892, !2893, !2894, !2895, !2896, !2906}
+!2888 = !DIDerivedType(tag: DW_TAG_member, name: "__dd_fd", scope: !2886, file: !2885, line: 74, baseType: !19, size: 32)
+]]></sh:output>
+So DIR is a typedef, a derived type. The field/element names are on the struct to which the typedef points.
+So !2884 gives the name DIR, but tag is typedef and baseType !2886.
+!2886 is the struct type and the elements are !2887. And that array of debug pointers bring us first to
+!2888 which is a field named __dd_fd.
+<br/>
+This raises the old issue which is do we want to keep DIR as a typedef and the struct to which
+it refers separate or treat the struct as having name DIR.
+Different occasions different needs, but here we want the field  names from the struct
+since we are connecting the fields to the name DIR.
+    <br/>
     
     Problem with DICompositetype_getElements seg faulting
     when getting the types of elements of a struct.

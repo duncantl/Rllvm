@@ -317,7 +317,7 @@ setMethod("getTypes", "Module",
                                               names(els) = names
                                               els
                                             },
-                                            elTypes, fieldNames[names(ans)])
+                                            elTypes, fieldNames[names(ans)], SIMPLIFY = FALSE)
                   }
                   elTypes
               } else
