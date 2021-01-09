@@ -97,7 +97,7 @@ function(builder, fun, ..., .args = list(...), id = character())
 
         m = as(builder, "Module")
         if(!identical(m, as(fun, "Module")))
-            copyFunction(fun, m)
+            fun = copyFunction(fun, m)
     }
 
     .args = mapply(function(x, ty) if(isBasicType(x)) builder$createConstant(x, ty) else x,
