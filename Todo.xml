@@ -6,6 +6,10 @@
 
   <title>Rllvm Todo List</title>
   <item>
+    Derived class and implementing methods.
+    compBook/ExportRCode/Subclass
+  </item>
+  <item>
    Instructions for  CreateMalloc(), CreateFree(), etc. In Instructions.h in CallInst class.
   </item>
   
@@ -14,13 +18,20 @@
   </item>
 
   <item>
-    Sort out getFunctionAddress(), twoMods.R and calling bar and foo.
+    Sort out getFunctionAddress(), twoMods.R and calling both bar and foo.
   </item>
   
   <item>
+    If use getFunctionAddress(), how do we lookup the Function to get the signature.
+  </item>
+  
+  <item>
+    If use .llvm("foo", .ee = ee) can get the getFunctionAddress(), but how to get the Function
+    for the signature.
+    
     Think about better interface for .llvm and ee and routines. See mkEEFun.
 <r:code>
-  ee =  ExecEng(m, asFunction = TRUE)
+  ee = ExecEng(m, asFunction = TRUE)
   ee("fun", arg1, arg2)
   ee(fun, arg1, arg2)  # fun as an assignment from fun = Function(...)
 </r:code>
@@ -31,28 +42,15 @@ But a function is not subsettable so [[ doesn't work.
   
 
   <item status="check">
-    Method for ExecutionEngine(list(mod1, mod2, mod3)) and add the other modules.
+  Method for ExecutionEngine(list(mod1, mod2, mod3)) and add the other modules.
   </item>
 
-  <item>
-    When get the name of an external routine wrong and it doesn't exist (e.g. mkChar rather than Rf_mkChar)
-    then .llvm() call crashes R.
-    So test for these.
-    findCalledFunctions() now available to find all called functions.
 
-    Figure out what LLVM does before the first call to a routine in a Module in terms of
-    resolving the routines. MCJIT - chapter 7 of LLVM Core Libraries book.
 
-    If find made a mistake in name, can change all Uses of that routine.
-    See tests/noSymbol.R
-    That also shows how to check the names  against R's bitcode module we made from src/main
-    and to guess the intended name if it is an R routine.
-    
-  </item>
   <item status="finish">
     Build the table of routines for the R API so that we don't have to
     define the functions but can copy the routines and the types into our modules
-    'passively'.  createCall() now copies them for us. (But see resulting problems in verifyModule())
+    'passively'.  createCall() now copies them for us. 
 <r:code>
 r = readBitcode("~/R-4.1/build3/src/main/Rmain.bc")
 m  = Module()
@@ -78,6 +76,162 @@ r = readBitcode("~/R-4.1/build3/src/main/Rmain.bc")
 </r:code>
 There are 13475 entries in the Module (computed via names()) and 173 types.
   </item>
+
+
+  <item status="done">
+    When creating a global string variable, allow specifying a name if the API allows it.
+    createConstant() doesn't take an id, but CreateStringGlobal allows it.
+  </item>
+
+
+  <item>
+    When generating accessor routines, generate R functions so that the user doesn't have to
+    explicitly call them .llvm() routines.
+  </item>
+
+  <item>
+    merge accessor generation from getrusageLLVM and generalize
+    routine to copy entire struct to R. Option to collapse type from list() if types are compatible.
+    Do this in compilation.  compBook/getrusageLLVM/mkGlobalAccessors.R
+  </item>
+  
+  <item>
+    See Chapter 7 of "Getting Started with LLVM Core Libraries book".
+    Note:  llvmAddSymbol() doesn't seem necessary, at least for symbols in the the executable.
+    See if if llvm finds them automatically also for DLLs introduced into R session with dyn.load().
+  </item>
+
+  <item>
+    hide routines that are not defined but just declared, e.g. Rf_allocVector()
+    at least when printing Module, perhaps in 
+    names() - no additional arguments, so only one setting.
+    ls() - extra argumemts.
+    
+    Can we make them invisible in the module.
+    Perhaps use . prefix but map to regular name in llvmAddSymbol
+  </item>
+ 
+ 
+  <item status="check">
+    add offsets() and offset() functions to compute the offset into a struct.
+    Needs the names.
+  </item>
+
+  <item>
+    Allow R user to have an IRBuilder () object always
+    verify a Module() after each ir$create...
+    But don't want to warn about missing terminators.
+    So need to filter out some of the warnings.
+    Can we get them sequentially as a list()/character() and "class"ify them.
+  </item>
+  
+<item>
+  get attributes on parameters, e.g. byval
+  See tests/clang.ir and clangTraverseHandlers/clang.c
+</item>
+
+<item status="done">
+  Fix: remove the terminator and then setInsertPoint(ir, block), not on the last
+  instruction in the BasicBlock.
+  <br/>
+  Issue in clangTraverseHandlers/clang.R
+  with removing the terminator in a block and calling IRBuilder(block)
+  and then the new instructions go before the last call
+</item>
+
+<item>
+Fix setMethod for addFinalizer to specify where to avoid warnings.
+</item>
+
+<item>
+  Fix the class hierarchy programmatically. See TU/ 3 files. rclasses.R and rcheck.R are the closest.
+</item>
+
+  
+<item status="low">
+  Test what happens when returning, e.g. a REALSXPType.
+  In compBook/getrusage/mk.R, getting numeric vector that printed as ...-313
+  So not quite zero and not printing as zero.
+  See real.c to show this happens from C calls to numeric(2).
+  numeric() calls do_makevector and that Memzero's the result.
+  So we will need to do this or set all the values.
+</item>
+
+  <item status="done">
+    Now checks the error message in the ExecutionEngine when calling
+    finalizeEngine() and if there is an error, raises an error.
+    
+    When get the name of an external routine wrong and it doesn't exist (e.g. mkChar rather than Rf_mkChar)
+    then .llvm() call crashes R.
+    So test for these.
+    findCalledFunctions() now available to find all called functions.
+
+    Figure out what LLVM does before the first call to a routine in a Module in terms of
+    resolving the routines. MCJIT - chapter 7 of LLVM Core Libraries book.
+
+    If find made a mistake in name, can change all Uses of that routine.
+    See tests/noSymbol.R
+    That also shows how to check the names  against R's bitcode module we made from src/main
+    and to guess the intended name if it is an R routine.
+    
+  </item>
+
+  <item status="done">
+    Wasn't using the result of copyFunction() in createCall(), just creating it.
+    When copyFunction(), verifyModule() still gives errors about referencing a Function in another module.
+    See tests/noSymbol.R for sample code, but not quite the same 
+  </item>
+
+  <item status="done">
+    Allow caller of .llvm to specify a more specific type, e.g. return type such as
+    pointerType(VoidType) to override pointerType(Int8Type) that the IR might generate
+    from C code. See tests/cifVoidPtr.R
+  </item>
+  <item status="ok">
+  Optimize() function fails.  FunctionPassManager class now restored (was removed).
+  </item>
+
+
+  <item status="done">
+    Solution: when only a declaration, don't CloneFunctionInto - just create the declaration in the target module +
+    function.   Seems to work.  See compBook/getrusageLLVM/copyCrash.R and see explorations/copyCrash.R.
+    copyFunction failing in compBook/getrusageLLVM/mk.R.
+    Works in RSQLiteUDF/llvm4.R for simple fib function with basic types.
+    Perhaps the rusage and timeval  structs?
+  </item>
+  
+  <item status="done">
+   Implement getFunctionAddress() as replacement for getFunctionToPointer().
+    Calls finalizeObject() for ExecEngine for you.
+  </item>
+
+<item status="done">
+  SEXPTypes.cpp-expt was the start of an experiment
+  to create subclasses of llvm::Type  for the different SEXP types.
+  Bad idea.
+</item>
+<item status="check">
+  Implement handling second argument for dlsym.
+  Really should be using getNativeSymbolInfo if using an already loaded
+  DLL via dyn.load(), etc. and you have the DLLInfo or the handle.
+  Does make sense if character string, character vector (multiple entries and search sequentially),
+  and a DLL object.
+</item>
+
+<item status="done">
+  !! CloneFunctionInto
+  I was using the Argument and not their Type when creating the Function object before the clone.
+  
+   + *** Find out why cloneFunction.R segfaults.  Could it be garbage collection and not our
+     CloneFunctionInto? Use different variable names to avoid garbage collecting and see if that
+     helps?
+	   + Is this a case 
+   + [verify seg fault is not ] Fix CloneFunctionInto in Function.cpp
+</item>
+
+<item status="done">fun.R and generating the code for llvm_type_classof_name.h.
+Need to include VectorType as it is getting dropped out as it has sub-types.
+</item>
 
   <item status="done">
     Get the names now.  For DIDerivedType (e.g. typedef), getBaseType() gets the real type and
@@ -143,137 +297,6 @@ R_DICompositeType_getElements(r_obj=0x000000013dada0a0) at DebugInfoMeta.cpp:176
 
   </item>
 
-  <item status="done">
-    When creating a global string variable, allow specifying a name if the API allows it.
-    createConstant() doesn't take an id, but CreateStringGlobal allows it.
-  </item>
-
-
-  <item>
-    When generating accessor routines, generate R functions so that the user doesn't have to
-    explicitly call them .llvm() routines.
-  </item>
-
-  <item>
-    merge accessor generation from getrusageLLVM and generalize
-    routine to copy entire struct to R. Option to collapse type from list() if types are compatible.
-    Do this in compilation.  compBook/getrusageLLVM/mkGlobalAccessors.R
-  </item>
-  
-  <item>
-    See Chapter 7 of "Getting Started with LLVM Core Libraries book".
-    Note:  llvmAddSymbol() doesn't seem necessary, at least for symbols in the the executable.
-    See if if llvm finds them automatically also for DLLs introduced into R session with dyn.load().
-  </item>
-  <item>
-    hide routines that are not defined but just declared, e.g. Rf_allocVector()
-    at least when printing Module, perhaps in 
-    names() - no additional arguments, so only one setting.
-    ls() - extra argumemts.
-    
-    Can we make them invisible in the module.
-    Perhaps use . prefix but map to regular name in llvmAddSymbol
-  </item>
- 
- 
-  <item status="check">
-    add offsets() and offset() functions to compute the offset into a struct.
-    Needs the names.
-  </item>
-
-  <item>
-    Allow R user to have an IRBuilder () object always
-    verify a Module() after each ir$create...
-    But don't want to warn about missing terminators.
-    So need to filter out some of the warnings.
-    Can we get them sequentially as a list()/character() and "class"ify them.
-  </item>
-  
-<item>
-  get attributes on parameters, e.g. byval
-  See tests/clang.ir and clangTraverseHandlers/clang.c
-</item>
-
-<item>
-  Issue in clangTraverseHandlers/clang.R
-  with removing the terminator in a block and calling IRBuilder(block)
-  and then the new instructions go before the last call
-</item>
-
-<item>
-Fix setMethod for addFinalizer to specify where to avoid warnings.
-</item>
-
-<item>
-  Fix the class hierarchy programmatically. See TU/ 3 files. rclasses.R and rcheck.R are the closest.
-</item>
-
-  
-<item status="low">
-  Test what happens when returning, e.g. a REALSXPType.
-  In compBook/getrusage/mk.R, getting numeric vector that printed as ...-313
-  So not quite zero and not printing as zero.
-  See real.c to show this happens from C calls to numeric(2).
-  numeric() calls do_makevector and that Memzero's the result.
-  So we will need to do this or set all the values.
-</item>
-
-  <item status="done">
-    Wasn't using the result of copyFunction() in createCall(), just creating it.
-    When copyFunction(), verifyModule() still gives errors about referencing a Function in another module.
-    See tests/noSymbol.R for sample code, but not quite the same 
-  </item>
-
-  <item status="done">
-    Allow caller of .llvm to specify a more specific type, e.g. return type such as
-    pointerType(VoidType) to override pointerType(Int8Type) that the IR might generate
-    from C code. See tests/cifVoidPtr.R
-  </item>
-  <item status="ok">
-  Optimize() function fails.  FunctionPassManager class now restored (was removed).
-  </item>
-
-
-  <item status="done">
-    Solution: when only a declaration, don't CloneFunctionInto - just create the declaration in the target module +
-    function.   Seems to work.  See compBook/getrusageLLVM/copyCrash.R and see explorations/copyCrash.R.
-    copyFunction failing in compBook/getrusageLLVM/mk.R.
-    Works in RSQLiteUDF/llvm4.R for simple fib function with basic types.
-    Perhaps the rusage and timeval  structs?
-  </item>
-  
-  <item status="done">
-   Implement getFunctionAddress() as replacement for getFunctionToPointer().
-    Calls finalizeObject() for ExecEngine for you.
-  </item>
-
-<item status="done">
-  SEXPTypes.cpp-expt was the start of an experiment
-  to create subclasses of llvm::Type  for the different SEXP types.
-  Bad idea.
-</item>
-<item status="check">
-  Implement handling second argument for dlsym.
-  Really should be using getNativeSymbolInfo if using an already loaded
-  DLL via dyn.load(), etc. and you have the DLLInfo or the handle.
-  Does make sense if character string, character vector (multiple entries and search sequentially),
-  and a DLL object.
-</item>
-
-<item status="done">
-  !! CloneFunctionInto
-  I was using the Argument and not their Type when creating the Function object before the clone.
-  
-   + *** Find out why cloneFunction.R segfaults.  Could it be garbage collection and not our
-     CloneFunctionInto? Use different variable names to avoid garbage collecting and see if that
-     helps?
-	   + Is this a case 
-   + [verify seg fault is not ] Fix CloneFunctionInto in Function.cpp
-</item>
-
-<item status="done">fun.R and generating the code for llvm_type_classof_name.h.
-Need to include VectorType as it is getting dropped out as it has sub-types.
-</item>
 
 <topic>
 <title>General</title>

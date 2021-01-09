@@ -9,9 +9,24 @@ ir = IRBuilder(f)
 obj = ir$createCall(g, ir$createConstant(3.1415))
 ir$createReturn(obj)
 
+verifyModule(m)
+
 if(FALSE)
-{    
-    .llvm(f)
+{
+    # throws an error now.
+    try(.llvm(f))
+
+    ee = ExecEng(m)
+    finalizeEngine(ee)
+    hasError(ee)
+
+    getFunctionAddress("ScalarReal", ee)
+    getFunctionAddress("foo", ee)
+    .llvm(f, .ee = ee)
+    
+    #
+    # 
+    #
 }
 
 

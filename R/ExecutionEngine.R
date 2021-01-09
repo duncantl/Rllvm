@@ -255,6 +255,14 @@ function(exeEng, val)
 }
 
 
+execErrorFun =
+function(ee, msg)
+{
+    e = simpleError(msg)
+    e$ExecutionEngine = ee
+    class(e) = c('ExecutionEngineError', class(e))
+    stop(e)
+}
 
 finalizeEngine =
 function(engine)
@@ -262,7 +270,7 @@ function(engine)
    if(!is(engine, "ExecutionEngine"))
      stop("can only finalize an ExecutionEngine")
    
-  .Call("R_ExecutionEngine_finalize", engine)
+  .Call("R_ExecutionEngine_finalize", engine, execErrorFun)
 }
 
 
@@ -286,3 +294,9 @@ function(x, value)
 {
    .Call("R_ExecutionEngine_DisableLazyCompilation", as(x, "ExecutionEngine"), as.logical(value))
 }
+
+
+
+getGlobalValueAtAddress =
+function(execEng,  addr)
+  .Call("R_ExecutionEngine_getGlobalValueAtAddress", as(execEng, "ExecutionEngine"), addr)

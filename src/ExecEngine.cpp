@@ -275,15 +275,37 @@ R_ExecutionEngine_getGlobalValue(SEXP r_gv, SEXP r_convert)
 
 
 
+static void
+mkError(SEXP r_ee, llvm::ExecutionEngine *ee, SEXP errorFun)
+{
+    SEXP call, expr;
+    PROTECT(expr = Rf_allocVector(LANGSXP, 3));
+    SETCAR(expr, errorFun); call = CDR(expr);
+    SETCAR(call, r_ee); call = CDR(call);
+    SETCAR(call, ScalarString(mkChar( ee->getErrorMessage().data() )));
+    Rf_eval(expr, R_GlobalEnv);
+    UNPROTECT(1);
+}
 
-/* finalize engine must be called before invoking code compiled with MC Jit */
+/* finalize engine must be called before invoking code compiled with MC Jit 
+
+  getFunctionAddress() apparently calls it for us. So we have to handle errors there.
+*/
 extern "C"
 SEXP
-R_ExecutionEngine_finalize(SEXP r_ee)
+R_ExecutionEngine_finalize(SEXP r_ee, SEXP errorFun)
 {
-   llvm::ExecutionEngine *EE = GET_REF(r_ee, ExecutionEngine);
-   EE->finalizeObject();
-   return(R_NilValue);
+    llvm::ExecutionEngine *EE = GET_REF(r_ee, ExecutionEngine);
+    EE->clearErrorMessage();
+    EE->finalizeObject();
+    if(EE->hasError()) {
+        mkError(r_ee, EE, errorFun);
+/*        
+       PROBLEM  "ExecutionEngine error: %s", EE->getErrorMessage().data()
+           ERROR;
+*/
+    }
+    return(R_NilValue);
 }
 
 
@@ -349,4 +371,42 @@ R_ExecutionEngine_DisableLazyCompilation(SEXP r_ee, SEXP r_val)
     llvm::ExecutionEngine *EE = GET_REF(r_ee, ExecutionEngine);
     EE->DisableLazyCompilation(LOGICAL(r_val)[0]);
     return(R_NilValue);
+}
+
+
+
+
+extern "C"
+SEXP
+R_ExecutionEngine_getGlobalValueAtAddress(SEXP r_ee, SEXP r_addr)
+{
+    LDECL2(ExecutionEngine, ee);
+    if(!ee) {
+        PROBLEM "null pointer passed as ExecutionEngine"
+            ERROR;
+    }
+    void *addr = getRReference(r_addr);
+    if(!addr)
+        return(R_NilValue);
+    
+    const llvm::GlobalValue *val = ee->getGlobalValueAtAddress(addr);
+    return(val ? R_createRef2(val, "Value") : R_NilValue);
+}
+
+
+extern "C"
+SEXP
+R_ExecutionEngine_getErrorMessage(SEXP r_ee, SEXP r_clear)
+{
+    LDECL2(ExecutionEngine, ee);
+    if(!ee->hasError())
+        return(NEW_CHARACTER(0));
+    
+    const char * str = ee->getErrorMessage().data();
+    SEXP ans = ScalarString(mkChar(str));
+    
+    if(INTEGER(r_clear)[0])
+        ee->clearErrorMessage();
+    
+    return(ans);
 }
