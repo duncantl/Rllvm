@@ -5,6 +5,29 @@
 	 xmlns:sh="http://www.shell.org">
 
   <title>Rllvm Todo List</title>
+
+  <item>
+    Build call graph for R source code.   Show in D3.
+  </item>
+
+  <item>
+    Solution: when only a declaration, don't CloneFunctionInto - just create the declaration in the target module +
+    function.   Seems to work.  See compBook/getrusageLLVM/copyCrash.R and see explorations/copyCrash.R.
+    copyFunction failing in compBook/getrusageLLVM/mk.R.
+    Works in RSQLiteUDF/llvm4.R for simple fib function with basic types.
+    Perhaps the rusage and timeval  structs?
+  </item>  
+  <item>
+   Implement getFunctionAddress() as replacement for getFunctionToPointer().
+    Calls finalizeObject() for ExecEngine for you.
+  </item>
+  <item status="check">
+    Method for ExecutionEngine(list(mod1, mod2, mod3)) and add the other modules.
+  </item>
+  <item>
+    When copyFunction(), verifyModule() still gives errors about referencing a Function in another module.
+    See tests/noSymbol.R for sample code, but not quite the same 
+  </item>
   <item>
     When get the name of an external routine wrong and it doesn't exist (e.g. mkChar rather than Rf_mkChar)
     then .llvm() call crashes R.
@@ -12,7 +35,7 @@
     findCalledFunctions() now available to find all called functions.
 
     Figure out what LLVM does before the first call to a routine in a Module in terms of
-    resolving the routines.
+    resolving the routines. MCJIT - chapter 7 of LLVM Core Libraries book.
 
     If find made a mistake in name, can change all Uses of that routine.
     See tests/noSymbol.R
@@ -23,7 +46,7 @@
   <item status="finish">
     Build the table of routines for the R API so that we don't have to
     define the functions but can copy the routines and the types into our modules
-    'passively'.
+    'passively'.  createCall() now copies them for us. (But see resulting problems in verifyModule())
 <r:code>
 r = readBitcode("~/R-4.1/build3/src/main/Rmain.bc")
 m  = Module()
@@ -49,6 +72,7 @@ r = readBitcode("~/R-4.1/build3/src/main/Rmain.bc")
 </r:code>
 There are 13475 entries in the Module (computed via names()) and 173 types.
   </item>
+
   <item>
     Problem with DICompositetype_getElements seg faulting
     when getting the types of elements of a struct.
@@ -57,6 +81,7 @@ r = readBitcode("~/R-4.1/build3/src/main/Rmain.bc")
 rtypes = getTypes(r, TRUE)
 </r:code>
 
+lldb output:
 <sh:output><![CDATA[
 R_DICompositeType_getElements(r_obj=0x000000013dada0a0) at DebugInfoMeta.cpp:176:52
    173 	    PROTECT(ans = NEW_LIST(nels));
@@ -97,6 +122,7 @@ But a function is not subsettable so [[ doesn't work.
     Do this in compilation.  compBook/getrusageLLVM/mkGlobalAccessors.R
   </item>
   <item>
+    See Chapter 7 of "Getting Started with LLVM Core Libraries book".
     Note:  llvmAddSymbol() doesn't seem necessary, at least for symbols in the the executable.
     See if if llvm finds them automatically also for DLLs introduced into R session with dyn.load().
   </item>
@@ -109,14 +135,8 @@ But a function is not subsettable so [[ doesn't work.
     Can we make them invisible in the module.
     Perhaps use . prefix but map to regular name in llvmAddSymbol
   </item>
-  
-
-  <item>
-    copyFunction failing in compBook/getrusageLLVM/mk.R.
-    Works in RSQLiteUDF/llvm4.R for simple fib function with basic types.
-    Perhaps the rusage and timeval  structs?
-  </item>
-  
+ 
+ 
   <item status="check">
     add offsets() and offset() functions to compute the offset into a struct.
     Needs the names.
@@ -557,13 +577,12 @@ call run(mgr, module)
 </item>
 
 <item>
-test getCppClasses().  Use inst/TU/clang.R.  Failing in assigning params
-for Links.
+test getCppClasses().  Use inst/TU/clang.R.  Failing in assigning params for Links.
 </item>
 
 <item>
 Setting attribute on an argument requires now to specify the
-index of the argument, first arugment starting at 1 in C++.
+index of the argument, first argument starting at 1 in C++.
 </item>
 
 <item>
