@@ -793,3 +793,9 @@ export(hasError, isCompilingLazily, isGVCompilationDisabled, isSymbolSearchingDi
 exportMethods(hasError)
 export(DisableLazyCompilation)
 
+
+export(getBaseType)
+exportMethods(getBaseType)
+
+export(getGlobalValueAtAddress )
+
