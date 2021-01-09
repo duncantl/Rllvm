@@ -25,7 +25,12 @@ function(fun, args, .ee, cif = genCIF(fun, pointerReturn = .asPointer), .all = F
    else
        stop("I'm confused! I need an LLVM Function object or an externalptr.")
 
-   callCIF(cif, funptr, .args = args, ..., returnInputs = .all)
+   ans = callCIF(cif, funptr, .args = args, ..., returnInputs = .all)
+   if(!.all && !.asPointer && sameType(getReturnType(fun), Int1Type))
+       ans = as.logical(ans)
+
+   ans
+       
 }
 
 
