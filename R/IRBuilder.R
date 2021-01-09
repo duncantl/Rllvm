@@ -93,6 +93,11 @@ function(builder, fun, ..., .args = list(...), id = character())
         ftype = getType(fun)
         if(isPointerType(ftype))
             ftype = getElementType(ftype)
+    } else {
+
+        m = as(builder, "Module")
+        if(!identical(m, as(fun, "Module")))
+            copyFunction(fun, m)
     }
 
     .args = mapply(function(x, ty) if(isBasicType(x)) builder$createConstant(x, ty) else x,
@@ -650,5 +655,5 @@ function(builder, value, id = character())
 
 setAs("IRBuilder", "Module",
       function(from)
-         as(as(from, "Block"), "Module"))
+         as(as(from, "BasicBlock"), "Module"))
                
