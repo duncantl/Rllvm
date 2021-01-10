@@ -100,8 +100,27 @@ function(builder, fun, ..., .args = list(...), id = character())
             fun = copyFunction(fun, m)
     }
 
-    .args = mapply(function(x, ty) if(isBasicType(x)) builder$createConstant(x, ty) else x,
-                   .args, lapply(getParameters(fun), getType))
+
+    params = getParameters(fun)
+    paramTypes = lapply(params, getType)    
+    if(length(params) != length(.args)) {
+        if(!(va <- isVarArg(fun)))
+            stop(length(params), " arguments expected in call to ", getName(fun), ", but ", length(.args), " provided")
+        else if(length(.args) < length(params)) 
+            stop("too few arguments to ", getName(fun), ". Expecting at least ", length(params))
+
+        # extend the param type so we can loop over them in parallel and provide NULL
+        # type when we don't know!
+         paramTypes = append(paramTypes, vector("list", length(.args) - length(params)))
+    }
+
+    
+    .args = mapply(function(x, ty) {
+                        if(isBasicType(x)) 
+                            builder$createConstant(x, ty)
+                        else
+                            x
+                    }, .args, paramTypes)
 
     .Call("R_IRBuilder_CreateCall", builder, fun, .args, as.character(id), ftype)
 }    
