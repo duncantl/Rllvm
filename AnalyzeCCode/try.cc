@@ -1,3 +1,4 @@
+// clang -O2 -emit-llvm -S -o try.ir try.cc -I$R_HOME/include -fno-discard-value-names
 
 int
 bob(int x)
