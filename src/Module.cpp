@@ -429,6 +429,52 @@ R_Module_getGlobalList(SEXP r_module)
 }
 
 
+/*
+   
+ */
+extern "C"
+SEXP
+R_Module_names(SEXP r_module, SEXP r_addFuncs, SEXP r_addGlobals)
+{
+    llvm::Module *mod = GET_REF(r_module, Module);
+
+    int n = 0, cur = 0;
+    bool addGlobals = INTEGER(r_addGlobals)[0];
+    bool addFuncs = INTEGER(r_addFuncs)[0];    
+
+    llvm::Module::GlobalListType &globallist(mod->getGlobalList());
+    const llvm::Module::FunctionListType &funclist(mod->getFunctionList());
+
+    if(addGlobals)
+        n += globallist.size();
+    if(addFuncs)
+        n += funclist.size();    
+
+    SEXP names;
+    PROTECT(names = NEW_CHARACTER(n));
+
+    if(addGlobals) {
+        for(llvm::Module::GlobalListType::iterator it = globallist.begin(); it != globallist.end(); it++)
+        {
+            const llvm::GlobalVariable *curfunc = &(*it);
+            SET_STRING_ELT(names, cur++, mkChar(curfunc->getName().data()));
+        }
+    }
+
+    if(addFuncs) {
+        for(llvm::Module::FunctionListType::const_iterator fit = funclist.begin(); fit != funclist.end(); fit++)
+        {
+            const llvm::Function *curfunc = &(*fit);
+            SET_STRING_ELT(names, cur++, mkChar(curfunc->getName().data()));
+
+        }
+    }
+
+    
+    UNPROTECT(1);
+
+    return(names);
+}
 
 
 

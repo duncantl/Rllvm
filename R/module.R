@@ -101,8 +101,9 @@ function(module, private = FALSE)
 # 
 
 setMethod("names", "Module",
-           function(x) {
-             c(names(getModuleFunctions(x)), names(getGlobalVariables(x, private = TRUE))) # global variables?
+          function(x) {
+              .Call("R_Module_names", x, TRUE, TRUE)
+             #   c(names(getModuleFunctions(x)), names(getGlobalVariables(x, private = TRUE))) # global variables?
            })
 
  # This creates the GlobalVariable object
@@ -327,14 +328,15 @@ setMethod("getTypes", "Module",
 
 
 copyFunction =
-function(fun, module = as(fun, "Module"), id = getName(fun), moduleLevelChanges = FALSE)
+function(fun, module = as(fun, "Module"), id = getName(fun), body = FALSE, moduleLevelChanges = FALSE)
 {
   if(missing(id) && identical(as(fun, "Module"), module)) 
       id = paste0(id, "clone")
 
   f2 = Function(id, getReturnType(fun), lapply(getParameters(fun), getType), module = module)
-  if(length(getBlocks(fun)))
-     .Call("R_CloneFunctionInto", fun, f2, as.logical(moduleLevelChanges))
+  if(body && length(getBlocks(fun)))
+      .Call("R_CloneFunctionInto", fun, f2, as.logical(moduleLevelChanges))
+  
   f2
 }
 
