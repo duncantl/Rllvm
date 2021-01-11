@@ -8,13 +8,22 @@ sameType =
 function(a, b)
 {
   if(identical(a, b))
-     TRUE
+      TRUE
+  else if(is(a, "SEXPType") && is(b, "SEXPType"))
+      TRUE  
   else if(is(a, "externalptr") && is(b, "Type"))
       identical(a, b@ref)
   else if(is(b, "externalptr") && is(a, "Type"))
       identical(a@ref, b)
-  else if(is(b, "Type") && is(a, "Type"))
-      identical(a@ref, b@ref)  
+  else if(is(a, "StructType") && is(b, "StructType"))
+      .Call("R_StructType_isLayoutIdentical", a, b)
+  else if(is(a, "PointerType") && is(b, "PointerType"))
+      # methods for the *SXPTypes for getElementType() mean these will differ
+      # if we get to the point of treating them as PointerType. So
+      # that's why we do the 
+      sameType(getElementType(a), getElementType(b))
+  else if(is(b, "Type") && is(a, "Type"))  # This has to be last or otherwise will match any Type instance.
+      identical(a@ref, b@ref)    
   else
       FALSE
 }

@@ -514,3 +514,33 @@ R_Type_isFirstClassType(SEXP r_type)
     llvm::Type *type = GET_REF(r_type, Type);
     return(ScalarLogical(type->isFirstClassType()));
 }
+
+
+
+/*
+
+eng = parseIR("engine.ir")
+env = parseIR("envir.ir")
+
+.Call("R_StructType_isLayoutIdentical", getTypes(eng)$SEXPREC, getTypes(eng)$SEXPREC)
+
+Two different IR modules, but generated from the same compilation.
+.Call("R_StructType_isLayoutIdentical", getTypes(eng)$SEXPREC, getTypes(env)$SEXPREC)
+
+But
+.Call("R_StructType_isLayoutIdentical", getTypes(eng)$SEXPREC, getElementType(SEXPType))
+
+because we just registered it in Rllvm rather than computed it.
+
+ */
+
+
+extern "C"
+SEXP
+R_StructType_isLayoutIdentical(SEXP r_type, SEXP r_otherType)
+{
+   LDECL2(StructType,type);
+   LDECL2(StructType,otherType);
+
+   return(ScalarLogical(type->isLayoutIdentical(otherType)));
+}
