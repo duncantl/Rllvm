@@ -35,3 +35,6 @@ Classes
 AttributeValues$
 test.R
 testPTX.R
+funs.Rds
+*.o
+distance*.rda
