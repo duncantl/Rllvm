@@ -11,20 +11,38 @@
 compReturnType =
     #
     # AFAIR, this is intended for analyzing C routines in R source code or R packages to find the return
-    # type of the SEXPs they return. But it is general  for all routines at the moment.
+    # type of the SEXPs they return. It doesn't make sense to do this for arbitrary routines as we can just call
+    # getReturnType().  It is only the case where we have essentially a union.  So this could be generalized for
+    # more than just SEXPs, but not relevant now.
     #
-function(fun, blocks = getBlocks(fun))
+    #
+    #' @toc data.frame providing a table of contens of defined routines in different files.
+    # toc = mkRoutineFileTOC("~/R-4.1/build3/src/main/")
+    #
+function(fun, toc = NULL, blocks = getBlocks(fun))
 {
     if(length(blocks) == 0) {
-        warning(getName(fun), " has no BasicBlocks; probably implemented in another module")
+        fn = getName(fun)
+        if(length(toc)) {
+            m = match(getName(fun), toc$routine)
+            if(!is.na(m)) {
+                f2 = parseIR(toc$file[m])[[fn]]
+                return(compReturnType(f2, toc = toc))
+            }
+        }
+            
+        warning(fn, " has no BasicBlocks; probably implemented in another module")
         return(NULL)
     }
     
     rets = getReturnInstructions(blocks = blocks)
     ans = lapply(rets, function(x) getCallType(x[[1]]))
 
-    ans = mapply(compListTypes, ans, rets, SIMPLIFY = FALSE)
+    ans = mapply(compListTypes, ans, rets, SIMPLIFY = FALSE, MoreArgs = list(toc = toc))
 
+    # collapse the result down.
+    # ans = lapply(ans, unlist, recursive = FALSE)# , recursive = FALSE)
+    
     if(length(rets) == 1)
         ans[[1]]
     else
@@ -46,7 +64,7 @@ function(fun, blocks = getBlocks(fun))
 
 compListTypes =
     # Determine the types of the elements in an R list
-function(x, ret)
+function(x, ret, ...)
 {
   if(!(inherits(x, "RVector") && x$type == "VECSXP")) {
 
@@ -54,7 +72,7 @@ function(x, ret)
       k = sapply(x, is, "CallInst")
       # XXX Have to handle the case where the actual return entity is passed by reference to a function
       # and is not just the assignment
-      x[k] = lapply(x[k], function(x) compReturnType(getCalledFunction(x)))
+      x[k] = lapply(x[k], function(x) compReturnType(getCalledFunction(x), ...))
 
       return(x)
   }
@@ -242,7 +260,7 @@ setGeneric("findValue",
 
 setMethod("findValue", "ANY",
           function(val, rtype = FALSE, ...) {
-              cat("findValue default", class(val), "\n")
+              #cat("findValue default", class(val), "\n")
 #              browser()
           })
 
