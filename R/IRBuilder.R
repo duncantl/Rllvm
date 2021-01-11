@@ -72,7 +72,7 @@ function(builder, op, x, y, id = character())
 createReturn = createRet =
 function(builder, value = NULL)
 {
-   if(missing( value ))
+   if(missing( value ) )
       createReturnVoid(builder)
    else
       .Call("R_IRBuilder_CreateRet", builder, value)
@@ -274,7 +274,13 @@ createAlloc = createLocalVariable =
   #XXX doesn't match method in IRBuilder.  Building myself. Be suspicious
 function(builder, type, id, beforeTerminator = FALSE)
 {
-  .Call("R_IRBuilder_createLocalVariable", builder, type, integer(), as.character(id), as.logical(beforeTerminator))
+    if(beforeTerminator) {
+        ins = as(builder, "BasicBlock")[]
+        if(length(ins) > 0 && is(ins[[length(ins)]], "TerminatorInst"))
+            setInsertPoint(builder, ins[[ length(ins) -1L ]])
+    }
+    
+    .Call("R_IRBuilder_createLocalVariable", builder, type, integer(), as.character(id), as.logical(beforeTerminator))
 }
 
 createLocalArrayVariable =
