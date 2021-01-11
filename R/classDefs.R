@@ -58,9 +58,7 @@ setClass("UnaryInstruction", contains = "Instruction")
 setClass("UnaryOperator", contains = "UnaryInstruction")
 
 #setClass("ReturnInst", contains = "TerminatorInst")
-setClass("ReturnInst", contains = "Instruction")
 setClass("CallInst", contains = "Instruction")
-setClass("InvokeInst", contains = "Instruction")
 setClass("CastInst", contains = "UnaryInstruction")
 setClass("SExtInst", contains = "CastInst")
 
@@ -74,7 +72,7 @@ setClass("Operator", contains = "User")
 setClass("OverflowingBinaryOperator", contains = "Operator")
 setClass("FPMathOperator", contains = "Operator")
 
-setClass("BranchInst", contains = "Instruction")
+
 
 setClass("ParameterList", representation(names = "character"), contains = "list")
 
@@ -86,14 +84,19 @@ setClass("LoadInst", contains = "Instruction")
 setClass("GetElementPtrInst", contains = "Instruction")
 setClass("PtrDiff", contains = "Value")  # was Instruction, but looks incorrect.
 
-setClass("SwitchInst", contains = "Instruction")
-
 
 #XXXX remove TerminatorInst
 setClass("TerminatorInst", contains = "Instruction")
+setClass("BranchInst", contains = "TerminatorInst")
 setClass('IndirectBrInst', contains = 'TerminatorInst')
-setClass('ResumeInst', contains = 'TerminatorInst')
+setClass("InvokeInst", contains = "TerminatorInst")
+setClass("ReturnInst", contains = "TerminatorInst")
+setClass("SwitchInst", contains = "TerminatorInst")
 setClass('UnreachableInst', contains = 'TerminatorInst')
+setClass('UnwindInst', contains = 'TerminatorInst')
+
+setClass('ResumeInst', contains = 'Instruction')
+
 setClass('FenceInst', contains = 'Instruction')
 setClass('AtomicCmpXchgInst', contains = 'Instruction')
 setClass('AtomicRMWInst', contains = 'Instruction')
