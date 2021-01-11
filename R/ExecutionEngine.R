@@ -117,16 +117,35 @@ function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .a
     stop("argument to .llvm must be a Function")
 
 
-  if(length(.args) != length(getParameters(.x)))
-      stop(sprintf("incorrect number of  arguments provided in call to .llvm() for %s: %d provided, %d expected",
-            getName(.x), length(.args),  length(getParameters(.x))))
+  params = getParameters(.x)
+  if(length(.args) != length(params)) {
+      if(!isVaArg(.x))
+         stop(sprintf("incorrect number of  arguments provided in call to .llvm() for %s: %d provided, %d expected",
+                      getName(.x), length(.args),  length(params)))
+      else if(length(.args) < length(params)) {
+         stop(sprintf("incorrect number of  arguments provided in call to .llvm() for %s: %d provided, at least %d expected for this variable number of arguments routine",
+                      getName(.x), length(.args),  length(params)))
+      }
+  }
+
   
 # If an argument is a Function, we probably want to treat it as a function pointer and so want
-# its address which can be obtained via getPointerToFunction() with the exec engine also.
+# its address which can be obtained via getPointerToFunction() with the exec engine also, or better now getFunctionAddress().
 #  .args = lapply(.args, function(x) if(is(x, "Function")) getPointerToFunction(x, .ee)@ref else x)
 
-  if(length(.duplicate) && length(.args))
-    .args[.duplicate] =  lapply(.args[.duplicate], function(x) .Call('Rllvm_Rf_duplicate', x))
+
+  if(nargs <- length(.args)) {
+        paramTypes = lapply(params, getType)
+        # pad these out with NULL if isVaArg() and we have more .args than paramTypes.
+        # same with .duplicate generally.
+        if(length(.duplicate) < nargs)
+            .duplicate = c(.duplicate, rep(FALSE, nargs -length(.duplicate)))
+        if(length(paramTypes) < nargs)
+            paramTypes = append(paramTypes, vector("list", nargs - length(paramTypes)))
+        
+        .args = mapply(coerceOrDuplicate, .args, paramTypes, .duplicate, SIMPLIFY = FALSE)
+  }
+
 
   finalizeEngine(.ee)
 
@@ -146,6 +165,18 @@ function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .a
      append(ans, structure(.args, names = names(.args)))
   else
      ans
+}
+
+
+dupFun = function(x) .Call('Rllvm_Rf_duplicate', x)
+
+coerceOrDuplicate =
+function(val, targetType, dup)
+{
+    if((is.logical(val) || is.integer(val)) && (sameType(targetType, DoubleType) || sameType(targetType, FloatType)))
+        val = as.numeric(val)
+
+    return(val)
 }
 
 setMethod("run", "Function", .llvmCallFunction)
