@@ -25,7 +25,7 @@ foo = getFunctionAddress("foo", ee)
 bar = getFunctionAddress("bar", ee)
 cif = Rffi::CIF(Rllvm:::mapLLVMTypeToFFI(Int32Type))
 Rllvm:::.llvmFFI(foo@ref, list(), ee, cif)
-Rllvm:::.llvmFFI(bar@ref, list(), ee, cif) # crashes.  Did work earlier this evening. No 0x0 when calling.
+Rllvm:::.llvmFFI(bar@ref, list(), ee, cif) # crashes.  Did work earlier this evening - but maybe not actually. No 0x0 for @ref when calling and crashes.
 
 
 # When we add a module, does the original one disappear because of the std::unique_ptr?
