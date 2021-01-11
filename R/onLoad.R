@@ -27,7 +27,7 @@ function(...)
 # The StructType class isn't available yet at this stage in loading the package.
 #typeClass = getClass("StructType", .Force = TRUE, where = e)
 #typeClass = getClass("PointerType", .Force = TRUE, where = e)
-  tmp =  makeSEXPTypes(rawPointer = TRUE)
+  tmp = makeSEXPTypes(rawPointer = TRUE)
   mapply(utils::assignInNamespace,
           c("SEXPType", sprintf("%sSXPType", names(tmp)[-1])),
           tmp, MoreArgs = list(ns = e))
