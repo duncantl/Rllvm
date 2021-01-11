@@ -26,6 +26,9 @@ function(fun, args, .ee, cif = genCIF(fun, pointerReturn = .asPointer), .all = F
        stop("I'm confused! I need an LLVM Function object or an externalptr.")
 
    ans = callCIF(cif, funptr, .args = args, ..., returnInputs = .all)
+
+   #XXX Need to handle other returns in the arguments that also need to be converted.
+   # This only handles the return value.
    if(!.all && !.asPointer && sameType(getReturnType(fun), Int1Type))
        ans = as.logical(ans)
 
