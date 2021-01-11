@@ -1428,3 +1428,29 @@ R_IRBuilder_CreateShuffleVector(SEXP r_builder, SEXP r_vec1, SEXP r_vec2, SEXP r
     return(R_createRef(ret, "ShuffleVectorInst"));
 }
 #endif
+
+
+
+
+
+/*
+ This is for bootstrapping.
+ */
+extern "C"
+SEXP
+R_ModuleInit_getRawSEXPRECType(SEXP r_filename, SEXP r_typeName)
+{
+    std::string fn(CHAR(STRING_ELT(r_filename, 0)));
+    llvm::LLVMContext *context = & getLLVMGlobalContext();
+
+    llvm::SMDiagnostic err;
+    std::unique_ptr<llvm::Module> tmp;
+    tmp = llvm::parseIRFile(fn, err, *context);
+    llvm::Module *mod = tmp.get();
+    tmp.release();
+
+    llvm::StringRef str(CHAR(STRING_ELT(r_typeName, 0)));
+    llvm::StructType *ty = mod->getTypeByName(str);
+    // free Module. Figure out best way to do so with smart pointers. Maybe not tmp.release ()
+    return(R_MakeExternalPtr(ty, Rf_install("SEXPRECType"), R_NilValue));
+}
