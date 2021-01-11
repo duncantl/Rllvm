@@ -6,8 +6,29 @@
 
   <title>Rllvm Todo List</title>
   <item>
+    Coerce numeric to integer when Function being called shows that type! See RLLVMCompile/tests/select.R and
+    the commented out call to stopifnot(.llvm(gc, 20) == 4L).  (line ~ 31)
+  </item>
+  
+  <item status="done">
+    Have a return type of Int1Type be converted to a logical.
+    Rffi doesn't have such a type. So we have to arrange it here.
+    Currently we are mapping to and from Rllvm and Rffi the same in both directions.
+    Don't want to do this in this case.  Get back a sint8 from Rffi but then convert to logical/Int1Type.
+  </item>
+  <item status="done">
+    Crashing in RLLVMCompile/tests/not.R when passing Int1Type. Fixed now
+    by mapping that to Rffi::uint32Type .
+    We'll see how portable and robust this is.
+  </item>
+  
+  <item>
+    Currently on a branch in Rlllvm to see if this works.
+    Also, turned off the message in src/library/methods/R/ for now.
+    
     See if we can import(RAutoGenRunTime) and export its operators for Enums.
-       We don't actually use any functions other than these. | and & 
+    EnumValue, GenericEnumValue
+    We don't actually use any functions other than these. | and & 
   </item>
   <item>
     Derived class and implementing methods.
