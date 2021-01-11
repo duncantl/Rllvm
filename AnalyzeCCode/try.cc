@@ -1,4 +1,3 @@
-#include <Rdefines.h>
 
 int
 bob(int x)
@@ -9,6 +8,21 @@ bob(int x)
     return(x + 1);
 }
 
+
+int
+jane(int val)
+{
+    int ans;
+    try {
+        ans = bob(val);
+    } catch(const char *msg) {
+        return(-1);
+    }
+
+    return(ans);
+}
+
+#include <Rdefines.h>
 SEXP
 foo(SEXP r_val)
 {
