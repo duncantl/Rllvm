@@ -20,8 +20,9 @@ Description: This package is an interface to some of the
     can outperform some of R's vectorized code by rearranging the computations,
     e.g. fusing loops, avoiding memory usage.
 License: GPL-2
-Depends: R (>= 2.7.0), RAutoGenRunTime
-Imports: methods, Rffi
+Depends: R (>= 2.7.0)
+NotDepends: 
+Imports: methods, Rffi, RAutoGenRunTime
 Suggests: RLLVMCompile
 URL: http://www.omegahat.net/Rllvm
      https://github.com/duncantl/Rllvm
@@ -83,3 +84,4 @@ Collate: llvmVersion.R classDefs.R manual_generics.R generics_bools.R
 	 getArray.R
 	 guessFile.R
 	 findCalledFunctions.R
+	 ModuleODSigs.R

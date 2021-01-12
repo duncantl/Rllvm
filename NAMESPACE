@@ -1,6 +1,7 @@
 useDynLib(Rllvm)
 
-#import(RAutoGenRunTime)
+
+
 importFrom(methods, setGeneric, setMethod, setClass,
              as, new, is, "body<-") # cbind, rbind are not exported from methods.
 
@@ -799,3 +800,21 @@ exportMethods(getBaseType)
 
 export(getGlobalValueAtAddress )
 
+
+
+# Putting this at the  end in the hope of avoiding RC++Reference class from RAutoGenRunTime
+# appearing first.  But it doesn't.
+if(FALSE) {
+importFrom(RAutoGenRunTime, "|", "c", "&", EnumDef, GenericEnumValue)
+} else
+    import(RAutoGenRunTime)
+exportMethods("|", "c", "&")
+# Do we want uses or Rllvm to be able to use  these
+# export(EnumDef, GenericEnumValue)
+
+
+
+exportClass("ModuleODSigs")
+export(files, modules)
+exportMethods(files, modules)
+export(ModuleODSigs)
