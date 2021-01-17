@@ -5,12 +5,12 @@ function(mod)
 
 
 lapplyDebugInfo =
-function(mod, fun, setClass = TRUE)
-  lapplyDebug(mod, fun, setClass, "R_Module_getDebugInfo")
+function(mod, fun, setClass = TRUE, ...)
+  lapplyDebug(mod, fun, setClass, "R_Module_getDebugInfo", ...)
 
 lapplyDebugInfoTypes =
-function(mod, fun, setClass = TRUE)
-    lapplyDebug(mod, fun, setClass, "R_Module_lapplyDebugInfoTypes")
+function(mod, fun, setClass = TRUE, ...)
+    lapplyDebug(mod, fun, setClass, "R_Module_lapplyDebugInfoTypes", ...)
 
 lapplyDebug =
     #
@@ -147,3 +147,42 @@ setMethod("getBaseType", "DICompositeType",
           function(x, ...)
           .Call("R_DICompositeType_getBaseType", x))
 
+
+
+setAs('DIGlobalVariableExpression', 'DIGlobalVariable',
+          function(from)
+              .Call("R_DIGlobalVariableExpression_getVariable", from))
+
+setMethod('getName', "DIVariable",
+          function(obj, ...) {
+              .Call("R_DIVariable_getName", obj)
+          })
+
+setMethod('getName', "DIGlobalVariableExpression",
+          function(obj, ...) {
+            getName(as(obj, "DIGlobalVariable"))
+          })
+
+setMethod('getType', "DIVariable",
+          function(obj, ...) {
+              .Call("R_DIVariable_getType", obj)
+          })
+
+setMethod('getType', "DIGlobalVariableExpression",
+          function(obj, ...)
+            getType(as(obj, "DIGlobalVariable")))
+
+
+getGlobalVariablesDebugInfo =
+function(m, type = TRUE, ...)
+{
+    z = lapplyDebugInfo(m, function(v)
+                             if(is(v, "DIGlobalVariableExpression"))
+                                structure(if(type) getType(v) else as(v, "DIGlobalVariable"),
+                                          names = getName(v)),
+                        simplify = FALSE)
+
+    z = z[!sapply(z, is.null)]
+    names(z) = sapply(z, names)
+    z
+}
