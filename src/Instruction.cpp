@@ -197,8 +197,8 @@ extern "C"
 SEXP
 R_Instruction_getNumOperands(SEXP r_inst)
 {
-	llvm::Instruction *inst = GET_REF(r_inst, Instruction);
-	if(!inst) return(ScalarLogical(NA_LOGICAL));
+        llvm::User *inst = GET_REF(r_inst, User);
+        if(!inst) return(ScalarLogical(NA_LOGICAL));
 	return(ScalarInteger(inst->getNumOperands()));
 }
 
