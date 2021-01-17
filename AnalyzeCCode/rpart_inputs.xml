@@ -1,0 +1,598 @@
+<article
+	 xmlns:omg="http://www.omegahat.org"
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:c="http://www.C.org">
+
+<section>
+<title></title>
+
+<para>
+<r:code>
+library(Rllvm)
+m = parseIR("rpart.ir")
+names(m$rpart)
+</r:code>
+</para>
+
+
+<para>
+<r:code>
+ptypes = inferParamTypes(m$rpart)
+</r:code>
+</para>
+<para>
+To look at the lengths of these parameters, we have
+<r:code>
+sapply(ptypes, function(x) if(is.list(x)) x$length else NA)
+<r:output><![CDATA[
+  ncat2 method2    opt2  parms2  xvals2   xgrp2   ymat2   xmat2 
+     NA       1      NA      NA       1      NA      NA      NA 
+    wt2     ny2   cost2 
+     NA       1      NA 
+]]></r:output>
+</r:code>
+So 2 of these are scalars (method2 and xvals2).
+However, the others are not obviously scalars and <r:func>inferParamTypes</r:func> doesn't determine the
+lengths by pursuing the use in the code.
+We will explore how to do that here.
+</para>
+
+
+<section>
+<title><c:arg>ncat2</c:arg> parameter</title>
+<para>
+  Consider the first parameter <c:arg>ncat2</c:arg>.
+  The type returned by <r:func>inferParamType</r:func> for this is
+<r:output><![CDATA[
+   INTSXP 
+"integer" 
+]]></r:output>
+We probably want to make this more structured than a simple character string.<fix/>
+</para>
+
+
+<para>
+To find  out where this is used, we call
+<r:code>
+u = getAllUsers(m$rpart[[1]])
+<r:output><![CDATA[
+[[1]]
+[1] "  %call = tail call i32* @INTEGER(%struct.SEXPREC.0* %ncat2) #7, !dbg !218"
+
+[[2]]
+[1] "  %call37 = tail call i32* @INTEGER(%struct.SEXPREC.0* %ncat2) #7, !dbg !300"
+]]></r:output>
+</r:code>
+So there are two uses of this and we see the calls to <c:func>INTEGER</c:func> which indicates
+that this is a <c:var>INTSXP</c:var> object.
+To get the length of <c:var>ncat2</c:var>, we have to follow where the results of these two calls are used.
+This is like what we did in FindingArrayExtent.xml.
+</para>
+
+</section>
+
+
+<para>
+  We same that the <c:arg>method2</c:arg> parameter is a scalar with type Real/numeric.
+  So we have the length and we don't need to do anything further.
+</para>
+
+
+<section>
+<title>The length of the <c:var>opt2</c:var> Parameter</title>
+
+<para>
+  Again, we find all uses of this parameter
+<r:code>
+u.opt2 = getAllUsers(m$rpart$opt2)
+</r:code>
+There is only one, a call to <c:func>REAL</c:func>, again indicating this is a numeric vector.
+We follow the users of this call to explore the length.
+<r:code>
+u2.opt2 = unlist(lapply(u.opt2, getAllUsers))
+sapply(u2.opt2, class)
+<r:output><![CDATA[
+[1] "GetElementPtrInst" "LoadInst"          "GetElementPtrInst"
+[4] "GetElementPtrInst" "GetElementPtrInst" "GetElementPtrInst"
+[7] "GetElementPtrInst" "GetElementPtrInst"
+]]></r:output>
+</r:code>
+All of the <r:class>GetElementPtrInst</r:class> objects may be accessing
+the elements directly. So we can see if the indices are constants or computed indirectly:
+<r:code>
+sapply(u2.opt2, function(x) if(is(x, "GetElementPtrInst")) x[[2]] else NA)
+<r:output><![CDATA[
+[[1]]
+[1] "i64 1"
+
+[[2]]
+[1] NA
+
+[[3]]
+[1] "i64 2"
+
+[[4]]
+[1] "i64 3"
+
+[[5]]
+[1] "i64 4"
+
+[[6]]
+[1] "i64 5"
+
+[[7]]
+[1] "i64 6"
+
+[[8]]
+[1] "i64 7"
+]]></r:output>
+</r:code>
+So the code accesses the 2nd, 3rd, ..., 8th elements (since we start counting at 0).
+Does any code index the first element?
+And what is the <r:class>LoadInst</r:class>  accessing?
+</para>
+
+<para>
+  These all correspond to the <c/> code
+<c:code>
+    dptr = REAL(opt2);
+    rp.min_node = (int) dptr[1];
+    rp.min_split = (int) dptr[0];
+    rp.complexity = dptr[2];
+    rp.maxpri = (int) dptr[3] + 1;      /* max primary splits =
+					   max competitors + 1 */
+    if (rp.maxpri < 1)
+	rp.maxpri = 1;
+    rp.maxsur = (int) dptr[4];
+    rp.usesurrogate = (int) dptr[5];
+    rp.sur_agree = (int) dptr[6];
+    rp.maxnode = (int) pow((double) 2.0, (double) dptr[7]) - 1;
+</c:code>
+So we see that we do access the 0-th  element.
+If we look at the <r:class> LoadInst</r:class>, we see
+<r:code>
+  getAllUsers(u2.opt2[[2]])
+<r:output><![CDATA[
+[1] "  %conv18 = fptosi double %18 to i32, !dbg !264"
+]]></r:output>
+</r:code>
+which is   the direct access of the first element without using the GEP.
+Its type is DoubleTyID.
+So we have to recognize this direct access.
+</para>
+
+
+<para>
+The GEP instructions have type PointerTyID. However, when we use each of these GEPs, we will get DoubleTyID.
+<r:code>
+sapply(u2.opt2[-2], function(x) getElementType(getType(x)))
+</r:code>
+</para>
+
+
+<para>
+So the length of <c:arg>opt2</c:arg> is 8.
+</para>
+
+</section>
+
+<section>
+<title>Length of <c:arg>parms2</c:arg></title>
+
+<para>
+  <c:arg>parms2</c:arg> is a REALSXP with unknown length.
+  So we explore as we did before.
+<r:code>
+u.parms2 = getAllUsers(m$rpart$parms2)
+<r:output><![CDATA[
+[1] "  %call4 = tail call double* @REAL(%struct.SEXPREC.0* %parms2) #7, !dbg !226"
+]]></r:output>
+</r:code>
+We get all the users of these uses
+<r:code>
+u2.parms2 = unlist(lapply(u.parms2, getAllUsers))
+<r:output><![CDATA[
+[[1]]
+[1] "  %call191 = call i32 (i32, double**, i32, i8**, double*, i32*, i32, double*, ...) %137(i32 %call35, double** %138, i32 %maxcat.0.lcssa, i8** nonnull %errmsg, double* %call4, i32* getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 23), i32 1, double* %call3) #7, !dbg !506"
+
+[[2]]
+[1] "  call void @xval(i32 %call2, %struct.cptable* %154, i32* %call1, i32 %maxcat.0.lcssa, i8** nonnull %errmsg, double* %call4, i32* %savesort.0) #7, !dbg !574"
+]]></r:output>  
+</r:code>
+</para>
+
+
+<para>
+Let's deal with the second of these first as it is simpler. It is a direct call to <c:func>xval</c:func>. The first is a
+call via a function pointer and we need to determine what values it may take to determine which routines to explore.
+So we turn to the call to <c:func>xval</c:func>.
+We need to determine which argument in this call corresponds to <c:arg>parms2</c:arg> which is
+reall the the result of accessing the native pointer via <c:func>REAL</c:func> in the first round use of parms2:
+<r:code>
+xv = u2.parms2[[2]]
+w = which(sapply(xv[-length(xv)], identical, u.parms2 [[1]]))
+</r:code>
+<footnote><para>The <r:expr>-length(xv)</r:expr eval="false"> is to omit the final operand which is the called function.</para></footnote>
+So this is the sixth argument.
+</para>
+<para>
+Now let's see how <c:func>xval</c:func> manipulates its 6th argument.
+Before we do this, let's check that <c:func>xval</c:func> is defined in this file. We can check it has
+baic blocks
+<r:code>
+length(getBlocks(m$xval)) > 0
+</r:code>
+and it does not. So we need to find the file in which it is actually defined.
+It would be easier if we combined all Modules for this package into a single Module.
+<r:code>
+R CMD make -f IRMakefile Rmain.bc
+</r:code>
+and then we read Rmain.bc.  The name is odd, but we'll fix the IRMakefile later.
+<r:code>
+m = parseIR("Rmain.bc")
+</r:code>
+</para>
+
+<para>
+We get all uses of the 6 parameter with
+<r:code>
+arg = getParameters(m$xval)[[6]]
+uu = getAllUsers(arg)
+<r:output><![CDATA[
+[1] "  %call120 = call i32 (i32, double**, i32, i8**, double*, double*, i32, double*, ...) %92(i32 %k.4.lcssa, double** %93, i32 %maxcat, i8** %errmsg, double* %parms, double* nonnull %temp, i32 2, double* %94) #12, !dbg !724"
+]]></r:output>
+</r:code>
+This is a call via function pointer. It passes the 6th argument (also called parms) to  this routine via the 5th
+argument.  Again, we have to compute this. But we also have to find out which routine will be called.
+So let's get the "function" being called
+<r:code>
+funptr = getCalledFunction(uu[[1]])
+funptr = uu[[1]][[length(uu[[1]])]]
+</r:code><fix> Have getCalledFunction return the instruction. Check.</fix>
+This is a LoadInst, so we get its first element.
+That is a <r:class>ConstantExpr</r:class>.
+From this, we can get the name of the entity being called:
+<r:code>
+getName(funptr[[1]][[1]])
+<r:output><![CDATA[
+[1] "rp_init"
+]]></r:output>
+</r:code>
+This is the function pointer variable that holds the address of the routine being called. We don't know its actual value
+at this point.  That will be determined at run-time.
+It could be anything. However, we can see where that variable is located and how it is set.
+</para>
+
+<para>
+  Is this a local variable within the <c:func>xval</c:func> routine, or a variable local to the <file>xvar.c</file> file
+  or a global variable shared across several of the <c/> files?
+  We check for the latter two by looking in the <r:class>Module</r:class>:
+<r:code>
+"rp_init" %in% names(m)
+</r:code>
+It is there and so either global or static.<foonote><para>
+We can see a static variable defined in RNG.c and a global variable R_NamesSymbol in the Rmain.bc
+module:
+<r:code>
+rm = parseIR("~/R-4.1/build3/src/main/Rmain.bc")
+rm[["dummy"]]
+<r:output><![CDATA[
+[1] "@dummy = internal global [628 x i32] zeroinitializer, align 16, !dbg !106"
+]]></r:output>
+[00:33] 97> rm[["R_NamesSymbol"]]
+<r:output><![CDATA[
+[1] "@R_NamesSymbol = common global %struct.SEXPREC.7* null, align 8, !dbg !4297"
+]]></r:output>
+</r:code>
+So we see the global variable as common linkage, while the static variable has internal linkage.
+</para></foonote>
+</para>
+
+<para>
+We can find all uses of <c:var>rp_init</c:var> in the Module which consists of all the <c/> files in <r:pkg>rpart</r:pkg>:
+<r:code>
+  u.rp_init = getAllUsers(m[["rp_init"]])
+<r:output><![CDATA[
+[[1]]
+[1] "i64* bitcast (i32 (...)** @rp_init to i64*)"
+
+[[2]]
+[1] "i32 (i32, double**, i32, i8**, double*, i32*, i32, double*, ...)** bitcast (i32 (...)** @rp_init to i32 (i32, double**, i32, i8**, double*, i32*, i32, double*, ...)**)"
+
+[[3]]
+[1] "i32 (i32, double**, i32, i8**, double*, double*, i32, double*, ...)** bitcast (i32 (...)** @rp_init to i32 (i32, double**, i32, i8**, double*, double*, i32, double*, ...)**)"
+]]></r:output>  
+</r:code>
+We get all of these uses
+<r:code>
+u2.rp_init = unlist(sapply(u.rp_init, getAllUsers))
+</r:code>
+There are 6 of these. Two are store instructions, and the other four are load instructions.
+It is the store commands we care about as these set the value.
+<r:code>
+w = sapply(u2.rp_init, is, "StoreInst")
+lapply(u2.rp_init[w], `[[`, 1)
+</r:code>
+These are load commands so we need to follow these and these turn out to be BitCastInst,
+so we follow all of these to get
+<r:code>
+lapply(u2.rp_init[w], function(x) x[[1]][[1]][[1]])
+<r:output><![CDATA[
+[[1]]
+[1] "  %arrayidx = getelementptr inbounds [4 x %struct.anon.26], [4 x %struct.anon.26]* @func_table, i64 0, i64 %idxprom, !dbg !586"
+
+[[2]]
+[1] "  %arrayidx = getelementptr inbounds [4 x %struct.anon.26], [4 x %struct.anon.26]* @func_table.85, i64 0, i64 %idxprom, !dbg !572"
+]]></r:output>
+</r:code>
+These both access the global variable func_table and extract the element identified by idxprom.
+We have to find out what those are:
+<r:code>
+lapply(u2.rp_init[w], function(x) x[[1]][[1]][[1]][[3]])
+<r:output><![CDATA[
+[[1]]
+[1] "  %idxprom = sext i32 %sub to i64, !dbg !586"
+
+[[2]]
+[1] "  %idxprom = sext i32 %sub to i64, !dbg !572"
+
+]]></r:output>
+</r:code>
+We are getting close, but need to find out what the inputs to these are (i.e. the %sub)
+<r:code>
+lapply(u2.rp_init[w], function(x) x[[1]][[1]][[1]][[3]][[1]])
+<r:output><![CDATA[
+[[1]]
+[1] "  %sub = add nsw i32 %call6, -1, !dbg !584"
+
+[[2]]
+[1] "  %sub = add nsw i32 %call9, -1, !dbg !570"
+]]></r:output>
+</r:code>
+And finally we get to
+<r:code>
+tmp = lapply(u2.rp_init[w], function(x) x[[1]][[1]][[1]][[3]][[1]][[1]])
+<r:output><![CDATA[
+[[1]]
+[1] "  %call6 = tail call i32 @Rf_asInteger(%struct.SEXPREC.3* %method2) #12, !dbg !582"
+
+[[2]]
+[1] "  %call9 = tail call i32 @Rf_asInteger(%struct.SEXPREC.3* %method2) #12, !dbg !568"
+]]></r:output>
+</r:code>
+</para>
+<para>
+  These are calls to Rf_asInteger(). What is the input method2? And in what routines are these occurring?
+  The functions are 
+<r:code>
+sapply(tmp, function(x) getName(as(x, "Function")))
+<r:output><![CDATA[
+[1] "rpart" "xpred"
+]]></r:output>
+</r:code>
+In <c:func>rpart</c:func>, we see the <c/> code
+<c:code>
+	i = asInteger(method2) - 1;
+	rp_init = func_table[i].init_split;
+</c:code>
+and this is where we set <c:var>rp_init</c:var> based on the value of the parameter <c:arg>method2</c:arg>.
+</para>
+
+<para>
+  <c:var>func_table</c:var> is defined in <file>func_table.h</file>
+  as
+<c:code>
+static struct {
+    int (*init_split) ();
+    void (*choose_split) ();
+    void (*eval) ();
+    double (*error) ();
+} func_table[] = {
+    {anovainit, anova, anovass, anovapred},
+    {poissoninit, poisson, poissondev, poissonpred},
+    {giniinit, gini, ginidev, ginipred},
+    {usersplit_init, usersplit, usersplit_eval, usersplit_pred}
+};
+</c:code>
+So manually we can see the values could be anovainit, poissoninit, giniinit and usersplit_init.
+Finally, we know which routines rp_init could be.
+We have to tidy up how we found these so that we can do it programatically.
+</para>
+
+<para>
+  Note that we are accessing the first element of the i-th or (method2-th) structure
+  directly to get the init_split field.
+  This is again avoiding a GEP since we don't need it but makes it different from
+  accessing the other fields which would all require a GEP.
+</para>
+
+
+<para>
+  To get the init_split elements from each each element of the <c:var>func_table</c:var>
+  variable, we can use
+<r:code>
+init_splits = lapply(m[["func_table"]][[1]], function(x) x[[1]][[1]])
+</r:code>
+We dereference the global variable with <r:expr>m[["func_table"]][[1]]</r:expr>
+and then we loop over the elements. From each of these, we get the first element which is a BitCastInst
+and so get its first element to get the actual value.
+<r:code>
+sapply(init_splits, getName)
+<r:output><![CDATA[
+[1] "anovainit"      "poissoninit"    "giniinit"   "usersplit_init"
+]]></r:output>
+</r:code>
+So now we can explore those
+<r:code>
+initFuns = m[sapply(init_splits, getName)]
+</r:code>
+</para>
+
+
+
+<para>
+  Let's reminder ourselves that we are trying  to find the length of the parms2 argument.
+  So let's look at, for example, anovainit.
+  We determined (by eye for now) that the pointer for the params2 data was being passed
+  via the 5th argument in the call to <c:var>rp_init</c:var>, which we are consider
+  <c:func>anovainit</c:func>.
+ So let's look at the fifth parameter of this routine and its uses
+<r:code>
+avi = m[["anovainit"]]
+getAllUsers(getParameters(avi)[[5]])
+</r:code>
+We get a list of length zero; there  are no uses of this parameter.
+So we need to look at the other routines.
+<r:code>
+u = lapply(initFuns, function(f) getAllUsers(getParameters(f)[[5]]))
+<r:output><![CDATA[
+$anovainit
+list()
+
+$poissoninit
+$poissoninit[[1]]
+[1] "  %33 = load double, double* %param, align 8, !dbg !578, !tbaa !546"
+
+$poissoninit[[2]]
+[1] "  %arrayidx61 = getelementptr inbounds double, double* %param, i64 1, !dbg !593"
+
+
+$giniinit
+$giniinit[[1]]
+[1] "  %arrayidx9 = getelementptr inbounds double, double* %parm, i64 %idxprom8, !dbg !544"
+
+$giniinit[[2]]
+[1] "  %arrayidx102 = getelementptr inbounds double, double* %parm, i64 %indvars.iv257, !dbg !650"
+
+$giniinit[[3]]
+[1] "  %arrayidx115 = getelementptr inbounds double, double* %parm, i64 %70, !dbg !659"
+
+
+$usersplit_init
+list()
+]]></r:output>
+</r:code>
+All but one of these is a  GEP. The other is LoadInst which access the first value.
+So for the GEP instructions, we need to find the maximum index.
+<r:code>
+lapply(u, function(x) sapply(x, function(x) if(is(x, "GetElementPtrInst")) x[[2]] else NA)
+</r:code>
+</para>
+
+
+</section>
+
+
+<section>
+<title>xgrp2</title>
+
+<para>
+  The <c:arg>xgrp2</c:arg> parameter is dereferenced by a call to <c:func>INTEGER</c:func>.
+  The resulting pointer is passed to <c:func>xval</c:func> as the third argument.
+</para>
+<para>
+  Importantly, we can find out a lot of information about the dimensions of the 
+  parameters to <c:func>rpart</c:func> from the <r/> code that calls it.
+  That coerces the objects into the appropriate form. 
+</para>
+<para>
+FINISH<fix/>
+</para>
+
+</section>
+
+
+<section>
+<title>ymat2</title>
+
+<para>
+u = getAllUsers(m$rpart$ymat2)
+u2 = unlist(lapply(u, getAllUsers))
+</para>
+</section>
+
+
+<section>
+<title><c:arg>cost2</c:arg></title>
+
+<para>
+  There is a global variable named <c:var>rp</c:var> that
+  <c:func>rpart</c:func> fills in.
+  For <c:arg>cost2</c:arg>, we have
+<c:code>
+rp.vcost = REAL(cost2);
+</c:code>
+and there is no mention of rp.vcost in the <c:func>rpart</c:func> routine.
+So <c:arg>cost2</c:arg>  may not be used, or alternatively and more likely,
+<c:var>rp</c:var> is either being passed to another routine, or simply
+being accessed directly as a global variable in another routine.
+So  we want to find  where <c:var>rp</c:var> is used in  the code,
+and it is being passed as an argument or accessed as a global.
+</para>
+
+<para>
+<r:code>
+z = findRoutinesUsingGlobal(m[["rp"]])
+table(sapply(z, getName))
+<r:output><![CDATA[
+      branch       bsplit  choose_surg make_cp_list    nodesplit 
+           6           19            8            3           12 
+   partition      printme        rpart    rpcountup     rpmatrix 
+          18            6           70            3            2 
+     rundown     rundown2    surrogate        xpred         xval 
+           6            4           13           86           38 
+]]></r:output>
+z = unique(z)
+names(z) = sapply(z, getName)
+</r:code>
+</para>
+<para>
+  But what does rpart call, both directly and indirectly.
+  So we nee the call graph.
+<r:code>
+library(NativeCodeAnalysis)
+stripDebugInfo(m)  
+# Fix and remove the funCalls
+#  funs = getCalledRoutines(m$rpart)
+funs = funCalls(m$rpart)
+mdef = getDefinedRoutines(m)
+w = names(funs) %in% mdef
+funs = funs[w]
+names(funs)
+<r:output><![CDATA[
+[1] "mysort"        "partition"     "make_cp_list"  "make_cp_table"
+[5] "xval"          "rpcountup"     "rpmatrix"      "free_tree"    
+]]></r:output>
+</r:code>  
+
+<r:code>
+intersect(names(funs), sapply(unique(z), getName))
+<r:output><![CDATA[
+[1] "partition"    "make_cp_list" "xval"         "rpcountup"   
+[5] "rpmatrix"    
+]]></r:output>
+</r:code>
+
+</para>
+
+
+<para>
+  We really want to ask the more specific question which is
+  what routines that rpart calls actually access the vcost field
+  of rp, not just access the rp structure.
+  For this, we have to know which field is vcost.
+  We need the names on the fields for the rp structure.
+<r:code>
+rp.ty = getElementType(getType(m[["rp"]]))
+rp.el.types = getElementTypes(rp.ty, TRUE)
+m.fieldNames = lapplyDebugInfoTypes(m, function(x) names(getElements(x)))
+names(rp.el.types) = m.fieldNames[[
+</r:code>  
+</para>
+
+
+</section>
+
+</section>
+
+</article>
