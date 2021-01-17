@@ -152,8 +152,6 @@ Int8Type,
 IRBuilder,
 isBasicType,
 LabelType,
-LAST_FCMP_PREDICATE,
-LAST_ICMP_PREDICATE,
 LShr,
 makeConstant,
 Module,
@@ -177,6 +175,9 @@ VoidType,
 Xor,
 createExtractElement, createInsertElement
 )
+
+# LAST_FCMP_PREDICATE,
+# LAST_ICMP_PREDICATE,
 
 
 export(createBitCast, createIntCast)
@@ -818,3 +819,8 @@ exportClass("ModuleODSigs")
 export(files, modules)
 exportMethods(files, modules)
 export(ModuleODSigs)
+
+
+export(getEntryBlock)
+
+       

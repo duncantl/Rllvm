@@ -384,3 +384,9 @@ setMethod("getMetadata", c("Function", "character"),
 setMethod("getMetadata", c("Function", "numeric"),
            function(obj, id, ...)
               .Call("R_Function_getMetadata", obj, as.integer(id)))
+
+
+
+getEntryBlock =
+function(fun)
+  .Call("R_Function_getEntryBlock", as(fun, "Function"))
