@@ -7,6 +7,4 @@ gctorture(TRUE)
 rm(mod)
 rm(f)
 
-
-
-        
+gctorture(FALSE)
