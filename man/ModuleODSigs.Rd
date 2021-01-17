@@ -1,5 +1,9 @@
 \name{ModuleODSigs}
 \alias{ModuleODSigs}
+\alias{files}
+\alias{modules}
+\alias{files,ModulesODSig-method}
+\alias{modules,ModulesODSig-method}
 \title{Module with On-Demand External Signatures}
 \description{
   This is a function and also supporting class and methods
@@ -83,7 +87,7 @@ DTL
 
 
     # Show the parseIR() calls when they happen and that we load fib when looking for doesnt_exist
-    # because it is not in the first Module()
+    # because it is not in the first Module() on the sub-Module list.
 
     other = Module()
     Function("foo", VoidType, module = other)
@@ -101,6 +105,11 @@ DTL
     f2 = files(em)
     em$fib
     em$bob
+
+    f0
+    f1
+    f2
+
     untrace(parseIR)
 }
 
