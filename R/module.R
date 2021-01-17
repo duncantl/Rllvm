@@ -341,8 +341,15 @@ function(fun, module = as(fun, "Module"), id = getName(fun), body = FALSE, modul
   if(missing(id) && identical(as(fun, "Module"), module)) 
       id = paste0(id, "clone")
 
+  if(changeSEXPTypes) {
+      retType = swapSEXPType(getReturnType(fun))
+      paramTypes = lapply(getParameters(fun), function(x) swapSEXPType(getType(x)))
+  } else {
+      retType = getReturnType(fun)
+      paramTypes = lapply(getParameters(fun), getType)
+  }
   
-  f2 = Function(id, swapSEXPType(getReturnType(fun)), lapply(getParameters(fun), function(x) swapSEXPType(getType(x))), module = module)
+  f2 = Function(id, retType, paramTypes, module = module)
   if(body && length(getBlocks(fun)))
       .Call("R_CloneFunctionInto", fun, f2, as.logical(moduleLevelChanges))
   
