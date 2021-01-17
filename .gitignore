@@ -11,3 +11,4 @@ ToFix
 XSL
 *.s
 *.tu
+AnalyzeCCode/*.html
