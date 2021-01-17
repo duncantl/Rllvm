@@ -12,7 +12,7 @@ setMethod("getParent", "Function",
 
   
 
-setMethod("getOperand", "Instruction",
+setMethod("getOperand", "User", # "Instruction",
           function(instruction, index, class = getClassName(ans)) {
             if(index < 1)
                stop("operand indices have to be positive integer values")
@@ -24,23 +24,24 @@ setMethod("getOperand", "Instruction",
                ans
           })
 
-setMethod("getNumOperands", "Instruction",
+setMethod("getNumOperands", "User", # "Instruction",
 function(x, ...)
 {
    .Call("R_Instruction_getNumOperands", x)
 })
 
-setMethod("length", "Instruction",
+setMethod("length", "User",
              function(x)
                 getNumOperands(x))
 
 
-setMethod("[[", c("Instruction", "numeric"),
-           function(x, i, j, ...) {
+# Should this be Value or User rather than Instruction so we can include Constant and its subclasses.
+setMethod("[[", c("User", "numeric"),
+           function(x, i, j, ...) 
              getOperand(x, i)
-           })
+           )
 
-setMethod("[", c("Instruction", "numeric"),
+setMethod("[", c("User", "numeric"),
               function(x, i, j, ...) {
                   if(any(i < 0))
                       (x[])[i]
@@ -48,14 +49,14 @@ setMethod("[", c("Instruction", "numeric"),
                      lapply(i, function(i) getOperand(x, i))
            })
 
-setMethod("[", c("Instruction", "missing"),
+setMethod("[", c("User", "missing"),
                 function(x, i, j, ...) {
                    getOperands(x)
               # lapply(seq_len(getNumOperands(x)), function(i) getOperand(x, i))
            })
 
 
-setMethod("getOperands", "Instruction",
+setMethod("getOperands", "User",
            function(x, ...) {
              lapply(seq(length = getNumOperands(x)), function(i) getOperand(x, i))
            })
