@@ -22,4 +22,5 @@ ptr = getPointerToFunction(f, ee)
 
 library(Rffi)
 cif = CIF(sint32Type, list(sint32Type))
+#XXX PROBLEMS
 callCIF(cif, ptr, 10L)
