@@ -218,6 +218,15 @@ R_StructType_create(SEXP elTypes, SEXP name, SEXP r_context, SEXP r_isPacked, SE
              R_createTypeRef(ans, "StructType"));
 }
 
+extern "C"
+SEXP
+R_StructType_setName(SEXP r_type, SEXP r_name)
+{
+    llvm::StructType *type = GET_REF(r_type, StructType);
+    llvm::StringRef str(CHAR(STRING_ELT(r_name, 0)));
+    type->setName(str);
+    return(R_NilValue);
+}
 
 extern "C"
 SEXP
@@ -543,4 +552,16 @@ R_StructType_isLayoutIdentical(SEXP r_type, SEXP r_otherType)
    LDECL2(StructType,otherType);
 
    return(ScalarLogical(type->isLayoutIdentical(otherType)));
+}
+
+
+
+
+extern "C"
+SEXP
+R_StructType_getTypeAtIndex(SEXP r_type, SEXP r_index)
+{
+    LDECL2(StructType, type);
+    llvm::Type *elType = type->getTypeAtIndex(INTEGER(r_index)[0]);
+    return(elType ? R_createTypeRef(elType, "Type") : R_NilValue);
 }
