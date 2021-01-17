@@ -101,7 +101,7 @@ setMethod("files", "ModuleODSigs",
 
 setMethod("modules", "ModuleODSigs",
            function(x, ...)
-              attr(x@ref, "Module"))
+              attr(x@ref, "Modules"))
 
 ####
 # Add methods to query ModuleFiles, Modules
