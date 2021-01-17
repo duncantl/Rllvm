@@ -91,8 +91,9 @@ There are 8 of these and we can see the IR code by printing <r:var>u2</r:var>:
 [[8]]
 [1] "  store double* %call3, double** getelementptr inbounds (%struct.anon.0, %struct.anon.0* @rp, i64 0, i32 6), align 8, !tbaa !27"
 ]]></r:output>
+<!-- Now returned in reverse order.
 Note that we often want to look at these in the opposite order as they are often given in reverse order of actual use in
-the code (if there is such a linear progression).
+the code (if there is such a linear progression). -->
 </para>
 <para>
 The first two uses in our output above correspond to calls in the C code  of the form

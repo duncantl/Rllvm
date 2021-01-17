@@ -1,4 +1,7 @@
-<section>
+<section
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:c="http://www.C.org"
+	 xmlns:ir="http://llvm.org/ir">
 <title></title>
 
 <para>

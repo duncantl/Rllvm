@@ -18,7 +18,7 @@ getType.R in this directory ?
 <r:code>
 m = parseIR("arithmetic.ir")
 r = m$do_Math2
-compReturnType(r) # error with no method for getCallType for AllocaInst.
+compReturnType(r) 
 </r:code>  
 
 In do_Math2, we get the return instruction
@@ -223,10 +223,10 @@ returns two types and both are CPLXSXP.  The second doesn't have a length.  We c
 
 <para>
   The one call to complex_math2 in do_math2 is within an if statement
-<c:code>
+<c:code><![CDATA[
    if (isComplex(CAR(args)) ||
 	(PRIMVAL(op) == 0 && isComplex(CADR(args))))
-</c:code>
+]]></c:code>
 So both - the first two more precisely - have to satisfy isComplex
 </para>
 

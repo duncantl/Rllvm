@@ -1,10 +1,11 @@
 <article
 	 xmlns:r="http://www.r-project.org"
 	 xmlns:c="http://www.C.org"
-	 xmlns:sh="http://www.shell.org">
-
+	 xmlns:sh="http://www.shell.org"
+	 xmlns:omg="http://www.omegahat.org">
+<title>Types of Inputs to <r/> Routines</title>
 <para>
-  Consider len_character in foo.c.
+Consider len_character in foo.c.
 <r:code>
 library(Rllvm)
 m = parseIR("foo.ir")

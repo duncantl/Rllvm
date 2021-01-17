@@ -556,7 +556,7 @@ We have lost the ability to easily detect if() statements and their branches as 
 </ignore>
 
 
-<section>
+<section id="sec:CAR">		<!-- is this the right section for the linkend above -->
 <title>Barrier Functions, e.g., CAR</title>
 <para>
 In the <ir/> code, we see

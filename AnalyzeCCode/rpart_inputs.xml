@@ -551,10 +551,10 @@ names(z) = sapply(z, getName)
   So we nee the call graph.
 <r:code>
 library(NativeCodeAnalysis)
-stripDebugInfo(m)  
+#stripDebugInfo(m)  
 # Fix and remove the funCalls
 #  funs = getCalledRoutines(m$rpart)
-funs = funCalls(m$rpart)
+funs = funCalls(m$rpart)   # for now in callGraph.R but use one in NativeCodeAnalysis.
 mdef = getDefinedRoutines(m)
 w = names(funs) %in% mdef
 funs = funs[w]
@@ -585,10 +585,65 @@ intersect(names(funs), sapply(unique(z), getName))
 <r:code>
 rp.ty = getElementType(getType(m[["rp"]]))
 rp.el.types = getElementTypes(rp.ty, TRUE)
-m.fieldNames = lapplyDebugInfoTypes(m, function(x) names(getElements(x)))
-names(rp.el.types) = m.fieldNames[[
-</r:code>  
+names(rp.el.types) = names(getElements(getGlobalVariablesDebugInfo(m)$rp))
+which(names(rp.el.types) == "vcost")
+</r:code>
+<c:func>vcost</c:func> is the 12th field and so we are looking
+for access to index 11.
 </para>
+
+<para>
+  We also need to look at all the routines that <c:func>rpart</c:func>
+  calls both directly and indirectly.
+  For this we do need the full call graph for <c:func>rpart</c:func>.
+
+<r:code>
+g = callGraph(m)
+paths = all_simple_paths(g, "rpart")
+pathNames = sapply(paths, attr, "names")
+calls = unique(unlist(sapply(pathNames, `[`, -1L)))
+calls = calls[ calls %in%  getDefinedRoutines(m) ]
+</r:code>
+</para>
+
+
+
+<para>
+<r:function><![CDATA[
+accessesRpVcost =
+function(i)
+{
+   if(is(i, "MemSetInst"))
+      return(FALSE)
+
+   any(sapply(i[], function(i) {
+                    if(is(i, "ConstantExpr"))
+                        i = as(i, "Instruction")    
+                    is(i, "GetElementPtrInst") && identical(i[[1]], m[["rp"]]) && getValue(i[[3]]) == 11L
+                }))
+}
+]]></r:function>
+Next we write a short function to apply this to each instruction in a Function:
+<r:function><![CDATA[
+funAccessesRpVcost = 
+function(f) {
+  ins = unlist(getInstructions(f))
+  w = sapply(ins, accessesRpVcost)
+  ins[w]
+}
+]]></r:function>
+
+<r:code>
+z = sapply(m[calls], funAccessesRpVcost)
+</r:code>
+</para>
+
+
+<para>
+  We find that the only routine that actually accesses (rather than sets)
+  the <c:field>vcost</c:field> field is the routine <c:func>bsplit</c:func>.
+</para>
+
 
 
 </section>
