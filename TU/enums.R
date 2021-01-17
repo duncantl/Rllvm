@@ -42,13 +42,15 @@ names(w)
 
 # dput(enums$AttrKind@values)
 
-# k = getCppClasses(tu, "include/llvm")
+k = getCppClasses(tu, "include/llvm")
 
 
 if(FALSE) {
  source("utils.R")
  library(RCodeGen)    
  ids = grep("(^__|::)", names(enums), invert = TRUE, value = TRUE) # remove llvm:: , std::, __lx
+ i = grep("^Bin", ids)
+ ids[i] = ids[rev(i)]
  Rfilename = sprintf("../R/z_enumDefs_%d.%d.R", version[1], version[2])
  if(file.exists(Rfilename))
      stop("File ", Rfilename, " already exists")

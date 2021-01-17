@@ -146,8 +146,7 @@ ShiftedIntMask = NA_integer_)
 
 
 
- `AttrIndex`  = c(ReturnIndex = NA, FunctionIndex = 4294967295, FirstArgIndex = 1
-)
+ `AttrIndex`  = c(ReturnIndex = NA, FunctionIndex = -1L, FirstArgIndex = 1L)
 
 
 ##########################
@@ -232,13 +231,13 @@ ConstantDataLastVal = NA, ConstantAggregateFirstVal = NA, ConstantAggregateLastV
 
 
 
- `LLVMConstants`  = c(DW_TAG_invalid = 4294967295, DW_VIRTUALITY_invalid = 4294967295, 
-DW_MACINFO_invalid = 4294967295, DW_LENGTH_lo_reserved = NA, 
-DW_LENGTH_DWARF64 = NA, DW_LENGTH_hi_reserved = NA, DWARF_VERSION = 4, 
-DW_PUBTYPES_VERSION = 2, DW_PUBNAMES_VERSION = 2, DW_ARANGES_VERSION = 2, 
-DWARF_VENDOR_DWARF = 0, DWARF_VENDOR_APPLE = 1, DWARF_VENDOR_BORLAND = 2, 
-DWARF_VENDOR_GNU = 3, DWARF_VENDOR_GOOGLE = 4, DWARF_VENDOR_LLVM = 5, 
-DWARF_VENDOR_MIPS = 6, DWARF_VENDOR_WASM = 7)
+ `LLVMConstants`  = c(DW_TAG_invalid = -1L, DW_VIRTUALITY_invalid = -1L, DW_MACINFO_invalid = -1L, 
+DW_LENGTH_lo_reserved = NA, DW_LENGTH_DWARF64 = NA, DW_LENGTH_hi_reserved = NA, 
+DWARF_VERSION = 4L, DW_PUBTYPES_VERSION = 2L, DW_PUBNAMES_VERSION = 2L, 
+DW_ARANGES_VERSION = 2L, DWARF_VENDOR_DWARF = 0L, DWARF_VENDOR_APPLE = 1L, 
+DWARF_VENDOR_BORLAND = 2L, DWARF_VENDOR_GNU = 3L, DWARF_VENDOR_GOOGLE = 4L, 
+DWARF_VENDOR_LLVM = 5L, DWARF_VENDOR_MIPS = 6L, DWARF_VENDOR_WASM = 7L
+)
 
 
 ##########################
@@ -382,33 +381,29 @@ LAST = 7L)
 
 ##########################
 
-`BinaryOpsBegin` = 0L
-`Add` = 13L
-`FAdd` = 14L
-`Sub` = 15L
-`FSub` = 16L
-`Mul` = 17L
-`FMul` = 18L
-`UDiv` = 19L
-`SDiv` = 20L
-`FDiv` = 21L
-`URem` = 22L
-`SRem` = 23L
-`FRem` = 24L
-`Shl` = 25L
-`LShr` = 26L
-`AShr` = 27L
-`And` = 28L
-`Or` = 29L
-`Xor` = 30L
-`BinaryOpsEnd` = 31L
+`Xchg` = 0L
+`Add` = 1L
+`Sub` = 2L
+`And` = 3L
+`Nand` = 4L
+`Or` = 5L
+`Xor` = 6L
+`Max` = 7L
+`Min` = 8L
+`UMax` = 9L
+`UMin` = 10L
+`FAdd` = 11L
+`FSub` = 12L
+`FIRST_BINOP` = 0L
+`LAST_BINOP` = 12L
+`BAD_BINOP` = 13L
 
 
 
- `BinaryOps`  = c(BinaryOpsBegin = 0L, Add = 13L, FAdd = 14L, Sub = 15L, FSub = 16L, 
-Mul = 17L, FMul = 18L, UDiv = 19L, SDiv = 20L, FDiv = 21L, URem = 22L, 
-SRem = 23L, FRem = 24L, Shl = 25L, LShr = 26L, AShr = 27L, And = 28L, 
-Or = 29L, Xor = 30L, BinaryOpsEnd = 31L)
+ `BinOp`  = c(Xchg = 0L, Add = 1L, Sub = 2L, And = 3L, Nand = 4L, Or = 5L, 
+Xor = 6L, Max = 7L, Min = 8L, UMax = 9L, UMin = 10L, FAdd = 11L, 
+FSub = 12L, FIRST_BINOP = 0L, LAST_BINOP = 12L, BAD_BINOP = 13L
+)
 
 
 ##########################
@@ -1549,29 +1544,33 @@ BAD_ICMP_PREDICATE = NA)
 
 ##########################
 
-`Xchg` = 0L
-`Add` = 1L
-`Sub` = 2L
-`And` = 3L
-`Nand` = 4L
-`Or` = 5L
-`Xor` = 6L
-`Max` = 7L
-`Min` = 8L
-`UMax` = 9L
-`UMin` = 10L
-`FAdd` = 11L
-`FSub` = 12L
-`FIRST_BINOP` = 0L
-`LAST_BINOP` = 12L
-`BAD_BINOP` = 13L
+`BinaryOpsBegin` = 0L
+`Add` = 13L
+`FAdd` = 14L
+`Sub` = 15L
+`FSub` = 16L
+`Mul` = 17L
+`FMul` = 18L
+`UDiv` = 19L
+`SDiv` = 20L
+`FDiv` = 21L
+`URem` = 22L
+`SRem` = 23L
+`FRem` = 24L
+`Shl` = 25L
+`LShr` = 26L
+`AShr` = 27L
+`And` = 28L
+`Or` = 29L
+`Xor` = 30L
+`BinaryOpsEnd` = 31L
 
 
 
- `BinOp`  = c(Xchg = 0L, Add = 1L, Sub = 2L, And = 3L, Nand = 4L, Or = 5L, 
-Xor = 6L, Max = 7L, Min = 8L, UMax = 9L, UMin = 10L, FAdd = 11L, 
-FSub = 12L, FIRST_BINOP = 0L, LAST_BINOP = 12L, BAD_BINOP = 13L
-)
+ `BinaryOps`  = c(BinaryOpsBegin = 0L, Add = 13L, FAdd = 14L, Sub = 15L, FSub = 16L, 
+Mul = 17L, FMul = 18L, UDiv = 19L, SDiv = 20L, FDiv = 21L, URem = 22L, 
+SRem = 23L, FRem = 24L, Shl = 25L, LShr = 26L, AShr = 27L, And = 28L, 
+Or = 29L, Xor = 30L, BinaryOpsEnd = 31L)
 
 
 ##########################
@@ -4386,15 +4385,17 @@ DK_FirstPluginKind = 22L)
 
 ##########################
 
-`SCK_None` = 0L
-`SCK_Function` = 1L
-`SCK_BB` = 2L
-`SCK_Edge` = 3L
+`ST_Unknown` = 0L
+`ST_Data` = 1L
+`ST_Debug` = 2L
+`ST_File` = 3L
+`ST_Function` = 4L
+`ST_Other` = 5L
 
 
 
- `Type`  = structure(0:3, .Names = c("SCK_None", "SCK_Function", "SCK_BB", 
-"SCK_Edge"))
+ `Type`  = structure(0:5, .Names = c("ST_Unknown", "ST_Data", "ST_Debug", 
+"ST_File", "ST_Function", "ST_Other"))
 
 
 ##########################
@@ -5174,6 +5175,205 @@ TM_ForcedByUser = 5, TM_SuppressedByUser = 6)
  `MSDemangleFlags`  = c(MSDF_None = 0L, MSDF_DumpBackrefs = 1L, MSDF_NoAccessSpecifier = 2L, 
 MSDF_NoCallingConvention = 4L, MSDF_NoReturnType = 8L, MSDF_NoMemberType = 16L
 )
+
+
+##########################
+
+`unknown` = 0L
+`bitcode` = 1L
+`archive` = 2L
+`elf` = 3L
+`elf_relocatable` = 4L
+`elf_executable` = 5L
+`elf_shared_object` = 6L
+`elf_core` = 7L
+`macho_object` = 8L
+`macho_executable` = 9L
+`macho_fixed_virtual_memory_shared_lib` = 10L
+`macho_core` = 11L
+`macho_preload_executable` = 12L
+`macho_dynamically_linked_shared_lib` = 13L
+`macho_dynamic_linker` = 14L
+`macho_bundle` = 15L
+`macho_dynamically_linked_shared_lib_stub` = 16L
+`macho_dsym_companion` = 17L
+`macho_kext_bundle` = 18L
+`macho_universal_binary` = 19L
+`minidump` = 20L
+`coff_cl_gl_object` = 21L
+`coff_object` = 22L
+`coff_import_library` = 23L
+`pecoff_executable` = 24L
+`windows_resource` = 25L
+`xcoff_object_32` = 26L
+`xcoff_object_64` = 27L
+`wasm_object` = 28L
+`pdb` = 29L
+`tapi_file` = 30L
+
+
+
+ `Impl`  = structure(0:30, .Names = c("unknown", "bitcode", "archive", "elf", 
+"elf_relocatable", "elf_executable", "elf_shared_object", "elf_core", 
+"macho_object", "macho_executable", "macho_fixed_virtual_memory_shared_lib", 
+"macho_core", "macho_preload_executable", "macho_dynamically_linked_shared_lib", 
+"macho_dynamic_linker", "macho_bundle", "macho_dynamically_linked_shared_lib_stub", 
+"macho_dsym_companion", "macho_kext_bundle", "macho_universal_binary", 
+"minidump", "coff_cl_gl_object", "coff_object", "coff_import_library", 
+"pecoff_executable", "windows_resource", "xcoff_object_32", "xcoff_object_64", 
+"wasm_object", "pdb", "tapi_file"))
+
+
+##########################
+
+`SF_None` = 0L
+`SF_Undefined` = 1L
+`SF_Global` = 2L
+`SF_Weak` = 4L
+`SF_Absolute` = 8L
+`SF_Common` = 16L
+`SF_Indirect` = 32L
+`SF_Exported` = 64L
+`SF_FormatSpecific` = 128L
+`SF_Thumb` = 256L
+`SF_Hidden` = 512L
+`SF_Const` = 1024L
+`SF_Executable` = 2048L
+
+
+
+ `Flags`  = c(SF_None = 0L, SF_Undefined = 1L, SF_Global = 2L, SF_Weak = 4L, 
+SF_Absolute = 8L, SF_Common = 16L, SF_Indirect = 32L, SF_Exported = 64L, 
+SF_FormatSpecific = 128L, SF_Thumb = 256L, SF_Hidden = 512L, 
+SF_Const = 1024L, SF_Executable = 2048L)
+
+
+##########################
+
+`None` = 0L
+`ShortName` = 1L
+`LinkageName` = 2L
+
+
+
+ `DINameKind`  = structure(0:2, .Names = c("None", "ShortName", "LinkageName"))
+
+
+##########################
+
+`None` = 0L
+`RawValue` = 1L
+`BaseNameOnly` = 2L
+`RelativeFilePath` = 3L
+`AbsoluteFilePath` = 4L
+
+
+
+ `FileLineInfoKind`  = structure(0:4, .Names = c("None", "RawValue", "BaseNameOnly", 
+"RelativeFilePath", "AbsoluteFilePath"))
+
+
+##########################
+
+`DIDT_ID_DebugAbbrev` = 0L
+`DIDT_ID_DebugAddr` = 1L
+`DIDT_ID_DebugAranges` = 2L
+`DIDT_ID_DebugInfo` = 3L
+`DIDT_ID_DebugTypes` = 4L
+`DIDT_ID_DebugLine` = 5L
+`DIDT_ID_DebugLineStr` = 6L
+`DIDT_ID_DebugLoc` = 7L
+`DIDT_ID_DebugLoclists` = 8L
+`DIDT_ID_DebugFrame` = 9L
+`DIDT_ID_DebugMacro` = 10L
+`DIDT_ID_DebugNames` = 11L
+`DIDT_ID_DebugPubnames` = 12L
+`DIDT_ID_DebugPubtypes` = 13L
+`DIDT_ID_DebugGnuPubnames` = 14L
+`DIDT_ID_DebugGnuPubtypes` = 15L
+`DIDT_ID_DebugRanges` = 16L
+`DIDT_ID_DebugRnglists` = 17L
+`DIDT_ID_DebugStr` = 18L
+`DIDT_ID_DebugStrOffsets` = 19L
+`DIDT_ID_DebugCUIndex` = 20L
+`DIDT_ID_DebugTUIndex` = 21L
+`DIDT_ID_AppleNames` = 22L
+`DIDT_ID_AppleTypes` = 23L
+`DIDT_ID_AppleNamespaces` = 24L
+`DIDT_ID_AppleObjC` = 25L
+`DIDT_ID_GdbIndex` = 26L
+`DIDT_ID_UUID` = 27L
+`DIDT_ID_Count` = 28L
+
+
+
+ `DIDumpTypeCounter`  = structure(0:28, .Names = c("DIDT_ID_DebugAbbrev", "DIDT_ID_DebugAddr", 
+"DIDT_ID_DebugAranges", "DIDT_ID_DebugInfo", "DIDT_ID_DebugTypes", 
+"DIDT_ID_DebugLine", "DIDT_ID_DebugLineStr", "DIDT_ID_DebugLoc", 
+"DIDT_ID_DebugLoclists", "DIDT_ID_DebugFrame", "DIDT_ID_DebugMacro", 
+"DIDT_ID_DebugNames", "DIDT_ID_DebugPubnames", "DIDT_ID_DebugPubtypes", 
+"DIDT_ID_DebugGnuPubnames", "DIDT_ID_DebugGnuPubtypes", "DIDT_ID_DebugRanges", 
+"DIDT_ID_DebugRnglists", "DIDT_ID_DebugStr", "DIDT_ID_DebugStrOffsets", 
+"DIDT_ID_DebugCUIndex", "DIDT_ID_DebugTUIndex", "DIDT_ID_AppleNames", 
+"DIDT_ID_AppleTypes", "DIDT_ID_AppleNamespaces", "DIDT_ID_AppleObjC", 
+"DIDT_ID_GdbIndex", "DIDT_ID_UUID", "DIDT_ID_Count"))
+
+
+##########################
+
+`DIDT_Null` = 0L
+`DIDT_All` = -1L
+`DIDT_DebugAbbrev` = 0L
+`DIDT_DebugAddr` = 1L
+`DIDT_DebugAranges` = 2L
+`DIDT_DebugInfo` = 3L
+`DIDT_DebugTypes` = 4L
+`DIDT_DebugLine` = 5L
+`DIDT_DebugLineStr` = 6L
+`DIDT_DebugLoc` = 7L
+`DIDT_DebugLoclists` = 8L
+`DIDT_DebugFrame` = 9L
+`DIDT_DebugMacro` = 10L
+`DIDT_DebugNames` = 11L
+`DIDT_DebugPubnames` = 12L
+`DIDT_DebugPubtypes` = 13L
+`DIDT_DebugGnuPubnames` = 14L
+`DIDT_DebugGnuPubtypes` = 15L
+`DIDT_DebugRanges` = 16L
+`DIDT_DebugRnglists` = 17L
+`DIDT_DebugStr` = 18L
+`DIDT_DebugStrOffsets` = 19L
+`DIDT_DebugCUIndex` = 20L
+`DIDT_DebugTUIndex` = 21L
+`DIDT_AppleNames` = 22L
+`DIDT_AppleTypes` = 23L
+`DIDT_AppleNamespaces` = 24L
+`DIDT_AppleObjC` = 25L
+`DIDT_GdbIndex` = 26L
+`DIDT_UUID` = 134217728L
+
+
+
+ `DIDumpType`  = c(DIDT_Null = 0L, DIDT_All = -1L, DIDT_DebugAbbrev = 0L, DIDT_DebugAddr = 1L, 
+DIDT_DebugAranges = 2L, DIDT_DebugInfo = 3L, DIDT_DebugTypes = 4L, 
+DIDT_DebugLine = 5L, DIDT_DebugLineStr = 6L, DIDT_DebugLoc = 7L, 
+DIDT_DebugLoclists = 8L, DIDT_DebugFrame = 9L, DIDT_DebugMacro = 10L, 
+DIDT_DebugNames = 11L, DIDT_DebugPubnames = 12L, DIDT_DebugPubtypes = 13L, 
+DIDT_DebugGnuPubnames = 14L, DIDT_DebugGnuPubtypes = 15L, DIDT_DebugRanges = 16L, 
+DIDT_DebugRnglists = 17L, DIDT_DebugStr = 18L, DIDT_DebugStrOffsets = 19L, 
+DIDT_DebugCUIndex = 20L, DIDT_DebugTUIndex = 21L, DIDT_AppleNames = 22L, 
+DIDT_AppleTypes = 23L, DIDT_AppleNamespaces = 24L, DIDT_AppleObjC = 25L, 
+DIDT_GdbIndex = 26L, DIDT_UUID = 134217728L)
+
+
+##########################
+
+`CK_DWARF` = 0L
+`CK_PDB` = 1L
+
+
+
+ `DIContextKind`  = structure(0:1, .Names = c("CK_DWARF", "CK_PDB"))
 
 
 ##########################
