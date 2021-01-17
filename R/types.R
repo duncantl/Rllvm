@@ -110,14 +110,17 @@ setMethod("getName", "StructType",
               .Call("R_StructType_getName", obj)
          })
 
+
+# Want to add the names but need the Module in which to look for the debug information.
 setMethod("getElementTypes", "StructType",
-          function(x, ...)
-             lapply(.Call("R_StructType_getElementTypes", x, PACKAGE = "Rllvm"), upgradeTypeClass))
+          function(x, ...) {
+              lapply(.Call("R_StructType_getElementTypes", x, PACKAGE = "Rllvm"), upgradeTypeClass)
+          })
 
 setGeneric("getElementType",
-            function(type, direct = TRUE) {
+            function(type, direct = TRUE, ...) {
               if(direct)
-                upgradeTypeClass(.Call("R_Type_getPointerElementType", type))
+                 upgradeTypeClass(.Call("R_Type_getPointerElementType", type))
               standardGeneric("getElementType")
           })
 
@@ -151,29 +154,37 @@ function(obj)
 }
 
 setMethod("getElementType", "ANY",
-           function(type, direct = TRUE) 
-              upgradeTypeClass( .Call("R_Type_getPointerElementType", type) ))
+           function(type, direct = TRUE, ...) 
+              upgradeTypeClass( .Call("R_Type_getPointerElementType", as(type, "Type") )))
 
 setMethod("getElementType", "REALSXPType",
-           function(type, direct = TRUE) {
+          function(type, direct = TRUE, regular = FALSE, ...) {
+              if(regular)
+                  return(callNextMethod())
               DoubleType
       })
 
 
 setMethod("getElementType", "VECSXPType",
-           function(type, direct = TRUE) {
-               SEXPType
+          function(type, direct = TRUE, regular = FALSE, ... ) {
+              if(regular)
+                  return(callNextMethod())
+              SEXPType
       })
 
 
 setMethod("getElementType", "INTSXPType",
-           function(type, direct = TRUE) {
-               Int32Type
+          function(type, direct = TRUE, regular = ...) {
+              if(regular)
+                  return(callNextMethod())
+              Int32Type
       })
 
 setMethod("getElementType", "LGLSXPType",
-           function(type, direct = TRUE) {
-               Int32Type
+          function(type, direct = TRUE, regular = FALSE,...) {
+              if(regular)
+                  return(callNextMethod())
+              Int32Type
       })
 
 

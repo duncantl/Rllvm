@@ -326,14 +326,23 @@ setMethod("getTypes", "Module",
           })
 
 
+swapSEXPType =
+function(ty)    
+{
+    if(sameType(ty, SEXPType)) 
+        return(SEXPType)
+
+    ty
+}
 
 copyFunction =
-function(fun, module = as(fun, "Module"), id = getName(fun), body = FALSE, moduleLevelChanges = FALSE)
+function(fun, module = as(fun, "Module"), id = getName(fun), body = FALSE, moduleLevelChanges = FALSE, changeSEXPTypes = TRUE)
 {
   if(missing(id) && identical(as(fun, "Module"), module)) 
       id = paste0(id, "clone")
 
-  f2 = Function(id, getReturnType(fun), lapply(getParameters(fun), getType), module = module)
+  
+  f2 = Function(id, swapSEXPType(getReturnType(fun)), lapply(getParameters(fun), function(x) swapSEXPType(getType(x))), module = module)
   if(body && length(getBlocks(fun)))
       .Call("R_CloneFunctionInto", fun, f2, as.logical(moduleLevelChanges))
   
