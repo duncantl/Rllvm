@@ -319,3 +319,42 @@ R_##type##_getBaseType(SEXP r_obj)                \
 
 GET_BASE_TYPE(DICompositeType)
 GET_BASE_TYPE(DIDerivedType)
+
+
+
+extern "C"
+SEXP
+R_DIGlobalVariableExpression_getVariable(SEXP r_digexpr)
+{
+    LDECL2(DIGlobalVariableExpression, digexpr);
+    llvm::DIGlobalVariable *var = digexpr->getVariable();
+    return(var ? R_createRef(var, "DIGlobalVariable") : R_NilValue);
+}
+
+extern "C"
+SEXP
+R_DIGlobalVariable_getDisplayName(SEXP r_obj)
+{
+    LDECL2(DIGlobalVariable, obj);
+    llvm::StringRef str = obj->getDisplayName();
+    return(ScalarString(mkChar(str.data() ? str.data() : "")));
+}
+
+
+extern "C"
+SEXP
+R_DIVariable_getName(SEXP r_obj)
+{
+    LDECL2(DIVariable, obj);
+    llvm::StringRef str = obj->getName();
+    return(ScalarString(mkChar(str.data() ? str.data() : "")));
+}
+
+extern "C"
+SEXP
+R_DIVariable_getType(SEXP r_obj)
+{
+    LDECL2(DIVariable, obj);
+    llvm::DIType *ty = obj->getType();
+    return(ty ? R_createRef(ty, getDITypeClassName(ty)) : R_NilValue);
+}
