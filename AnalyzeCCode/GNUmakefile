@@ -24,3 +24,6 @@ XDYNDOCS=$(HOME)/GitWorkingArea/XDynDocs/inst
 %.html: %.xml
 	$(MAKE) -f $(XDYNDOCS)/Make/Makefile $@
 
+
+
+-include $(XDYNDOCS)/Make/Makefile
