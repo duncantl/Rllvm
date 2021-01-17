@@ -64,7 +64,7 @@ function(builder, op, x, y, id = character())
    if(isBasicType(x))
      x = makeConstant(builder, x)
    if(isBasicType(y))
-     y = makeConstant(builder, y)
+     y = makeConstant(builder, y, getType(x))
 
    .Call("R_IRBuilder_CreateBinOp", builder, as.integer(op), x, y, as.character(id))
 }
@@ -210,7 +210,7 @@ createStore =
 function(builder, val, ptr, volatile = FALSE)
 {
   if(isBasicType(val))  # make a constant.
-      val = makeConstant(builder, val)
+      val = makeConstant(builder, val, getElementType(getType(ptr)))
 
   .Call("R_IRBuilder_CreateStore", builder, val, ptr, as.logical(volatile))
 }
