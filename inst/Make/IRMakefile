@@ -1,0 +1,65 @@
+# To be inserted/linked into build/src/main
+
+# Can run as
+# make -f IRMakefile all
+# or
+# R CMD make -f IRMakefile all
+# to get all the R-specific environment variables.
+
+-include $(R_HOME)/etc/Makeconf
+-include Makefile
+-include Makevars
+
+
+ifndef RTOCFILE
+RTOCFILE=FileRoutines
+endif
+
+LLFILES=$(SOURCES_C:%.c=%.o)
+OBJ_FILES=$(wildcard *.o)
+IRFILES=$(OBJ_FILES:%.o=%.ir)
+BCFILES=$(IRFILES:%.ir=%.bc)
+all: $(IRFILES)
+
+
+#CC=clang
+ifndef CFLAGS
+CFLAGS=-O2
+endif
+
+LLVM_CPPFLAGS=-DTESTING_WRITE_BARRIER
+ifndef LLVM_CFLAGS
+  LLVM_CFLAGS=-mllvm -inline-threshold=0 -mllvm -inlinehint-threshold=10 -fno-discard-value-names
+endif
+
+#clang -emit-llvm -S -I../../../src/extra  -I. -I../../src/include -I../../../src/include  -I/usr/local/include -I../../../src/nmath -DHAVE_CONFIG_H   -DTESTING_WRITE_BARRIER -O2  -c ../../../src/main/envir.c -o envir.ll -mllvm -inline-threshold=0 -mllvm -inlinehint-threshold=10 -fno-discard-value-names 
+
+%.ll: %.c
+	$(CC) -emit-llvm -S $(ALL_CPPFLAGS) $(LLVM_CPPFLAGS) $(ALL_CFLAGS) $(LLVM_CFLAGS) -c $< -o $@
+
+%.ir: %.c
+	$(CC) -emit-llvm -S $(ALL_CPPFLAGS) $(LLVM_CPPFLAGS) $(ALL_CFLAGS) $(LLVM_CFLAGS) -c $< -o $@
+
+%.ir: %.cpp
+	$(CXX) -emit-llvm -S $(ALL_CPPFLAGS) $(LLVM_CPPFLAGS) $(ALL_CXXFLAGS) $(LLVM_CXXFLAGS) $(PKG_CPPFLAGS) $(PKG_CXXFLAGS) -c $< -o $@
+
+%.ir: %.m
+	$(CC) -emit-llvm -S $(ALL_CPPFLAGS) $(LLVM_CPPFLAGS) $(ALL_CFLAGS) $(LLVM_CFLAGS) -c $< -o $@
+
+
+$(RTOCFILE).rds:
+	Rscript -e "saveRDS(NativeCodeAnalysis::mkRoutineFileTOC('.'), "$@")'
+
+
+%.bc: %.ir
+	llvm-as $< -o $@
+
+# Identified inspect and memory  as being the two IR files that did not have 
+# grep '%struct.SEXPREC.* =' *.ir | grep -v opaque
+# These two give the actual structure, which we don't want in the .bc file.
+#
+all.bc: $(filter-out memory.bc inspect.bc xxxpr.bc,$(BCFILES))
+	llvm-link $^ -o $@
+
+Rmain.bc: all.bc
+	cp all.bc Rmain.bc
