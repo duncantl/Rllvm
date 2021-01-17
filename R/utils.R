@@ -21,7 +21,7 @@ function(a, b)
       # methods for the *SXPTypes for getElementType() mean these will differ
       # if we get to the point of treating them as PointerType. So
       # that's why we do the 
-      sameType(getElementType(a), getElementType(b))
+      sameType(getElementType(a, regular = TRUE), getElementType(b,  regular = TRUE))
   else if(is(b, "Type") && is(a, "Type"))  # This has to be last or otherwise will match any Type instance.
       identical(a@ref, b@ref)    
   else
