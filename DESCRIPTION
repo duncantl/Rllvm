@@ -28,8 +28,18 @@ URL: http://www.omegahat.net/Rllvm
      https://github.com/duncantl/Rllvm
 Note:  We hope to build on this to build a compiler for parts of the R language. See the RLLVMCompile package
        at https://github.com/duncantl/R2llvm/ and https://github.com/duncantl/RLLVMCompile/
-Collate: llvmVersion.R classDefs.R manual_generics.R generics_bools.R
+Collate: llvmVersion.R
+	 oldClasses.R	 
+         classDefs.R
+	 llvmValueClasses.R
+	 llvmTypeClasses.R
+	 llvmMDNodeClasses.R
+	 otherClasses.R
+         manual_generics.R
+	 generics_bools.R
          LoadStore_generics.R
+	 methods.R
+	 asMethods.R
          block.R module.R typeDefs.R
          ExecutionEngine.R IRBuilder.R onLoad.R ICmpEnums.R constants.R
          externalLinkage.R globalVar.R value.R dso.R context.R TypeID.R
