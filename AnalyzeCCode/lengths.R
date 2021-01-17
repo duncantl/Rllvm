@@ -1,11 +1,16 @@
+library(Rllvm)
+
 # clang -O2 -S -emit-llvm -o lengths.ir lengths.c -I$R_HOME/include -fno-discard-value-names
 m = parseIR("lengths.ir")
 
 u = getAllUsers(m$two$y)
+# A call to REAL()
+
 u2 = unlist(lapply(u, getAllUsers))
+# only one use and it is a GEP.  The index is %indvars.iv
 
 idx = (u2[[1]])[[2]]
-# Phi node
+# Phi node with 0 coming from %for.body.preheader and  %indvars.iv.next from %for.body
 
 idx[]
 
@@ -17,7 +22,7 @@ u3 = getAllUsers(idx[[2]])
 # 2 elements - a phi and ICmpInst
 #  The phi is the same instance as idx.
 
-icmp = getAllUsers(idx[[2]])[[2]]
+icmp = u3[[2]]
 
 # icmp[[1]] is the binary operator val + 1
 # icmp[[2]] is
