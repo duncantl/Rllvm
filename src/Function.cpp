@@ -505,3 +505,14 @@ R_CloneFunctionInto(SEXP r_func, SEXP r_to, SEXP r_moduleLevelChanges)
     
     return(R_NilValue);
 }
+
+
+
+
+extern "C"
+SEXP
+R_Function_getEntryBlock(SEXP r_func)
+{
+    llvm::Function *func = GET_REF(r_func, Function);
+    return(R_createRef(&func->getEntryBlock(), "BasicBlock"));
+}
