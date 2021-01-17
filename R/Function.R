@@ -205,8 +205,13 @@ setGeneric("getCalledFunction",
              standardGeneric("getCalledFunction"))
 
 setMethod("getCalledFunction", "CallInst",
-           function(obj, ...)
-             .Call("R_CallInst_getCalledFunction", obj))
+           function(obj, asFunction = FALSE, ...) {
+               ans = .Call("R_CallInst_getCalledFunction", obj)
+               if(is.null(ans) && !asFunction)
+                   obj[[length(obj)]]
+               else
+                   ans
+      })
 
 setCalledFunction = 
 function(obj, fun, check = FALSE)
