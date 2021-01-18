@@ -1,6 +1,7 @@
 setClass("IntrinsicID", contains = "integer")
 
-setClass("RC++Reference", representation(ref = "externalptr"))
+#!!!  Get from Rffi
+# setClass("RC++Reference", representation(ref = "externalptr"))
 
 setClass("Metadata", representation(ref = "externalptr"))
 
