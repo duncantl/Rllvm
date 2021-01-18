@@ -51,6 +51,16 @@ if(FALSE) {
  ids = grep("(^__|::)", names(enums), invert = TRUE, value = TRUE) # remove llvm:: , std::, __lx
  i = grep("^Bin", ids)
  ids[i] = ids[rev(i)]
+
+
+ ids = c("UnaryOps", "BinOp", "BinaryOps", "CastOps", "AttrKind", "MetadataKind", 
+     "TermOps", "LinkageTypes", "LLVMCodeGenOptLevel", "Predicate", "TailCallKind",
+     "DIFlags",
+     "TypeID", "CallingConvention")
+ #     "VisiblityTypes", "DLLStorageClassTypes"
+ # 
+ # ValueTy,  OtherOps, cmpResult
+ 
  Rfilename = sprintf("../R/z_enumDefs_%d.%d.R", version[1], version[2])
  if(file.exists(Rfilename))
      stop("File ", Rfilename, " already exists")
