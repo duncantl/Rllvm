@@ -22,8 +22,8 @@ Description: This package is an interface to some of the
 License: GPL-2
 Depends: R (>= 2.7.0)
 NotDepends: 
-Imports: methods, Rffi, RAutoGenRunTime
-Suggests: RLLVMCompile
+Imports: methods, Rffi
+RelatedPackages: RLLVMCompile, NativeCodeAnalysis, RCIndex
 URL: http://www.omegahat.net/Rllvm
      https://github.com/duncantl/Rllvm
 Note:  We hope to build on this to build a compiler for parts of the R language. See the RLLVMCompile package

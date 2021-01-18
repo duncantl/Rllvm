@@ -805,12 +805,16 @@ export(getGlobalValueAtAddress )
 
 # Putting this at the  end in the hope of avoiding RC++Reference class from RAutoGenRunTime
 # appearing first.  But it doesn't.
-if(FALSE) {
-importFrom(RAutoGenRunTime, "|", "c", "&", EnumDef, GenericEnumValue)
-} else
+if(TRUE) {
+    # Can't enable this but not using these at present.
+    # importFrom(RAutoGenRunTime, "|", "c", "&", EnumDef, GenericEnumValue)
+} else {
     import(RAutoGenRunTime)
-exportMethods("|", "c", "&")
-# Do we want uses or Rllvm to be able to use  these
+ export("|", "c", "&")
+ exportMethods("|", "c", "&")
+}
+
+# Do we want users or Rllvm to be able to use  these
 # export(EnumDef, GenericEnumValue)
 
 
