@@ -1,3 +1,4 @@
+if(FALSE)  {
 setClass('Type::TypeID', representation(names = "character"), contains = 'EnumValue')
 `Type::TypeIDValues` = EnumDef('Type::TypeID', structure(as.integer(c(0,
 1,
@@ -62,3 +63,4 @@ setAs('integer', 'Type::TypeID', function(from)  asEnumValue(from, `Type::TypeID
 `NumTypeIDs` <- GenericEnumValue('NumTypeIDs', 17, 'Type::TypeID')
 `LastPrimitiveTyID` <- GenericEnumValue('LastPrimitiveTyID', 9, 'Type::TypeID')
 `FirstDerivedTyID` <- GenericEnumValue('FirstDerivedTyID', 10, 'Type::TypeID')
+}
