@@ -6,6 +6,11 @@
 
   <title>Rllvm Todo List</title>
   <item>
+    Instead of changing SEXP types in copyFunction(),
+    what if when we read a Module, we swapped the sexp type in that
+    (if it exists) just once. Or just changed its name?
+  </item>
+  <item>
     Coerce numeric to integer when Function being called shows that type! See RLLVMCompile/tests/select.R and
     the commented out call to stopifnot(.llvm(gc, 20) == 4L).  (line ~ 31)
   </item>
@@ -30,12 +35,14 @@
     EnumValue, GenericEnumValue
     We don't actually use any functions other than these. | and & 
   </item>
+  
   <item>
     Derived class and implementing methods.
     compBook/ExportRCode/Subclass
   </item>
-  <item>
-   Instructions for  CreateMalloc(), CreateFree(), etc. In Instructions.h in CallInst class.
+  <item status="low">
+    Instructions for  CreateMalloc(), CreateFree(), etc. In Instructions.h in CallInst class.
+    These are not in IRBuilder so would have to create directly. Do we need them?
   </item>
   
   <item>
@@ -164,12 +171,19 @@ There are 13475 entries in the Module (computed via names()) and 173 types.
   and then the new instructions go before the last call
 </item>
 
-<item>
-Fix setMethod for addFinalizer to specify where to avoid warnings.
+<item status="done">
+  Changed Rffi to not define this generic but use RAutoGenRunTime's version.
+  <br/>
+  Fix setMethod for addFinalizer to specify where to avoid warnings.
+  Where is addFinalizer used within this package? Nowhere.
+  Coming from both Rffi and RAutoGenRunTime.
+  Can  we get  just the small collection of features from RAutoGenRunTime.
 </item>
 
-<item>
+<item  status="check">
   Fix the class hierarchy programmatically. See TU/ 3 files. rclasses.R and rcheck.R are the closest.
+  <br/>
+  See TU/mkSetClass.R and the newly generated R/llvm*Classes.R files.
 </item>
 
   
