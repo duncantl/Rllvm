@@ -1,6 +1,10 @@
 Type equality - https://lowlevelbits.org/type-equality-in-llvm/
 
 
+URLs for DIBuilder concepts and reference
+http://llvm.org/docs/SourceLevelDebugging.html
+http://llvm.org/docs/tutorial/LangImpl8.html
+
 TBAA - Type Based Alias  Analysis
 
 .ll  files are the text version of LLVM code in its Intermediate Representation
@@ -55,3 +59,26 @@ ARCHITECTURE-VENDOR-OPERATING_SYSTEM-ENVIRONMENT
 ```
 with elements separated by -
 e.g., "x86_64-apple-darwin19.0.0"
+
+
+
+
+
+
+Build command for llvm/examples/HowToUseLLJIT:
+
+clang++  -o foo HowToUseLLJIT.cpp `llvm-config --cflags --ldflags --libs  Core OrcJIT Support nativecodegen --system-libs ` -lz
+
+
+
+LLJIT  ORC
+ https://llvm.org/docs/ORCv2.html
+ 
+Have to be very careful with smart pointers.
+ std::unique_ptr, std::move
+Should we clone the Modules
+
+
+
+llvm::Expected class for regular return value and errors.
+  + get 
