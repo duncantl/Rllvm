@@ -11,20 +11,12 @@ ir = IRBuilder(bar)
 ir$createReturn(ir$createCall(foo))
 
 
-if(FALSE) {
-setClass("LLJIT", contains = "RC++Reference")
-jit = .Call("R_LLJIT_create")
-.Call("R_LLJIT_addModule", jit, m1, NULL)
-.Call("R_LLJIT_addModule", jit, m2, NULL)
-
-bar1 = .Call("R_LLJIT_lookup", jit, "bar")
-}  else {
-    jit = lljit()
-    addModule(jit, m1)
-    addModule(jit, m2)
-
-    bar1 = jitLookup(jit, "bar")
-}
+jit = lljit()
+addModule(jit, m1, m2)
+# or
+# addModule(jit, m1)
+# addModule(jit, m2)
+bar1 = jitLookup(jit, "bar")
 
 library(Rffi)
 ans = callCIF(CIF(sint32Type, list()), bar1@ref)
