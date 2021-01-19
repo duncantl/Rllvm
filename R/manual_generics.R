@@ -133,3 +133,8 @@ setGeneric("getType",
 # See findCalledFunctions.R
 
 setGeneric("hasError", function(x, ...) standardGeneric("hasError"))
+
+
+
+setGeneric("addModule", function(engine, ...) standardGeneric("addModule"))
+

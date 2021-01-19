@@ -79,7 +79,7 @@ setMethod("[[", c("ExecutionEngineFunction", "character"),
           })
 
 
-addModule =
+setMethod("addModule", "ExecutionEngine",
 function(engine, ...)
 {
    if(!is(engine, "ExecutionEngine"))
@@ -87,7 +87,8 @@ function(engine, ...)
    
    mods = lapply(list(...), as, "Module")
    .Call("R_ExecutionEngine_addModule", engine, mods)
-}
+})
+
 
 
 needsDuplicate =
@@ -176,6 +177,9 @@ function(val, targetType, dup)
     if((is.logical(val) || is.integer(val)) && (sameType(targetType, DoubleType) || sameType(targetType, FloatType)))
         val = as.numeric(val)
 
+    else if(is(targetType, "IntegerType") && getIntegerBitWidth(targetType) == 1)
+        val = as.logical(val)
+    
     return(val)
 }
 
