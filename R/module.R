@@ -1,4 +1,8 @@
 
+setMethod("%in%", c("character", "Module"),
+          function(x, table)
+             x %in% names(table))
+
 Module =
 function(id = Sys.time(), context = NULL)
 {
@@ -13,11 +17,15 @@ function()
 }
 
 verifyModule =
-function(module)
+function(module, error = TRUE)
 {    
-  ans = .Call("R_verifyModule", as(module, "Module"))
-  if(is.character(ans))
-      stop(ans)
+    ans = .Call("R_verifyModule", as(module, "Module"))
+    
+  if(error && is.character(ans)) {
+      e = simpleError(ans)
+      class(e) = c("ModuleVerificationError", "LLVMError", class(e))
+      stop(e)
+  }
 
   ans
 }
