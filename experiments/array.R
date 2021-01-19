@@ -3,6 +3,8 @@ library(Rllvm)
 m = parseIR("array.ll")
 ee = ExecutionEngine(m)
 
-.llvm(m[["foo"]], .ee = ee)
+.llvm(m$foo, .ee = ee)
 
 m[["g", ee = ee]]
+
+.llvm(m$get, .ee = ee)
