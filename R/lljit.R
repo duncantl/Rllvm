@@ -1,8 +1,8 @@
 # ORC - on-request compilation
 lljit =
-function(..., .modules = list(...))
+function(lazy = FALSE, ..., .modules = list(...))
 {
-    jit = .Call("R_LLJIT_create")
+    jit = .Call("R_LLJIT_create", as.logical(lazy))
     if(length(modules))
         addModule(jit, .modules = .modules)
     

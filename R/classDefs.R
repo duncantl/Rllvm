@@ -24,6 +24,10 @@ setClass("Module", contains = "RC++Reference")
 setClass("IRBuilder", contains = "RC++Reference")
 setClass("LLVMContext", contains = "RC++Reference")
 setClass("ExecutionEngine", contains = "RC++Reference")
+setClass("LLJIT", contains = "RC++Reference")
+setClass("LazyLLJIT", contains = "LLJIT")
+setClass("LLJITSymbolAddress", contains = "RC++Reference")
+
 setClass("Value", contains = "RC++Reference")
 
 setClass("MemSetInst", contains = "RC++Reference")

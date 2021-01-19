@@ -3,10 +3,12 @@
 
 extern "C"
 SEXP
-R_LLJIT_create()
+R_LLJIT_create(SEXP r_lazy)
 {
     llvm::orc::LLJIT *jit;
-    llvm::Expected<std::unique_ptr<llvm::orc::LLJIT>> tmp = llvm::orc::LLJITBuilder().create();
+    bool lazy = LOGICAL(r_lazy)[0];
+    
+    llvm::Expected<std::unique_ptr<llvm::orc::LLJIT>> tmp = lazy ? llvm::orc::LLLazyJITBuilder().create() : llvm::orc::LLJITBuilder().create();
 //    auto  jit = b.create();
     if(!tmp) {
         PROBLEM  "Failed to create LLJIT"
@@ -14,7 +16,7 @@ R_LLJIT_create()
     }
     jit = (tmp.get()).release(); // XXX not get() as that will end up freeing the LLJIT at the end of the routine.
         
-    return(R_createRef(jit, "LLJIT"));
+    return(R_createRef(jit, lazy ? "LazyLLJIT" : "LLJIT"));
 }
 
 
@@ -77,6 +79,40 @@ R_LLJIT_lookup(SEXP r_jit, SEXP r_sym)
 
 
 
+#if 1
+
+#include <llvm/Support/MemoryBuffer.h>
+
+
+extern "C"
+SEXP
+R_LLJIT_addObjectFile(SEXP r_jit, SEXP r_file)
+{
+    LDECL2(orc::LLJIT, jit);
+    llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> buf = llvm::MemoryBuffer::getFile(makeTwine(r_file));
+
+    if(!buf) {
+            // add the error code bug.getError() for std::error_code
+        PROBLEM "failed to create buffer from file %s", CHAR(STRING_ELT(r_file, 0))
+            ERROR;
+    }
+    
+    llvm::Error err = jit->addObjectFile(jit->getMainJITDylib(), std::unique_ptr<llvm::MemoryBuffer>(buf.get().get()));
+    if(err) {
+        PROBLEM "failed to load object file into LLJIT"
+            ERROR
+    }
+    
+    return(ScalarLogical(1));
+}
+
+#endif
+
+
+
+
+
+
 #if 0
 extern "C"
 SEXP
@@ -86,3 +122,6 @@ R_test_call(SEXP r_ptr)
     return(ScalarInteger(f()));
 }
 #endif
+
+
+
