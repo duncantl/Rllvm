@@ -13,14 +13,15 @@ function(x)
   .Call("R_BranchInst_getNumSuccessors", as(x, "BranchInst"))
 }
 
-setMethod("getSuccessor", "ReturnInst",
-function(x, i = 1L)
-{
-  if(isa(x, "ReturnInst"))
-    return(NULL)
-     
-  .Call("R_BranchInst_getSuccessor", as(x, "BranchInst"), as.integer(i - 1L))
-})
+
+
+setMethod("getSuccessor", "ReturnInst", function(x, i = 1L) return(NULL))
+
+setMethod("getSuccessor", "BranchInst",
+          function(x, i = 1L) {
+              .Call("R_BranchInst_getSuccessor", as(x, "BranchInst"), as.integer(i - 1L))
+          })
+
 
 
 setMethod("getSuccessors", "BranchInst",
