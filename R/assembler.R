@@ -11,7 +11,7 @@ function(module)
 
     machine = createTargetMachine()
     fstream = raw_svector_ostream()
-    status = addPassesToEmitFile(machine, pm, fstream, CGFT_AssemblyFile)
+    status = addPassesToEmitFile(machine, pm, fstream) # , CGFT_AssemblyFile)
 
     run(pm, module)
 
