@@ -95,3 +95,4 @@ Collate: llvmVersion.R
 	 guessFile.R
 	 findCalledFunctions.R
 	 ModuleODSigs.R
+	 lljit.R

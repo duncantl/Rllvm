@@ -714,7 +714,7 @@ setUnwindDest)
 export(isUsedInBasicBlock, isUsedByMetadata, hasValueHandle, isSwiftError, getNumUses, getValueName)
 
 
-export(noCapture, noAlias, hasSExtAttr, hasZExtAttr, hasNestAttr)
+export(noCapture, noAlias, hasSExtAttr, hasZExtAttr, hasNest, hasNonNull, hasInReg, hasByVal, hasPassPointeeByValue, hasStructRet, hasReturned, hasInAlloca, hasPreallocated)
 
 export(setUnnamedAddr, getUnnamedAddr)
 
@@ -828,3 +828,7 @@ export(ModuleODSigs)
 export(getEntryBlock)
 
        
+
+
+export(lljit, jitLookup)
+

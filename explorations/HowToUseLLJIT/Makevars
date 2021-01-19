@@ -1,0 +1,3 @@
+PKG_CPPFLAGS=`llvm-config --cppflags` -DUSE_R=1
+PKG_CXXFLAGS=`llvm-config --cxxflags`
+PKG_LIBS=`llvm-config --ldflags --libs  Core OrcJIT Support nativecodegen --system-libs ` -lz 
