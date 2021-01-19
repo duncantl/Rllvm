@@ -108,7 +108,7 @@ R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel)
 {
 
     /* Do we want to use some of the create() methods in the ExecutionEngine class. */
-    std::string errStr;
+    std::string errStr; //  this string will disappear!
     llvm::Module *module = GET_REF(r_module, Module);
 
     llvm::ExecutionEngine *EE = llvm::EngineBuilder(
@@ -117,7 +117,11 @@ R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel)
 #else
                                    module
 #endif
-        ).setErrorStr(&errStr).setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0]).setEngineKind(llvm::EngineKind::JIT).create(); // setEngineKind(llvm::EngineKind::JIT).
+            ).setErrorStr(&errStr)
+             .setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0])
+             .setEngineKind(llvm::EngineKind::JIT)
+             .create();
+
     if(!EE) {
         PROBLEM "failed to create execution engine: %s", errStr.c_str()
             ERROR;
@@ -202,8 +206,22 @@ R_ExecutionEngine_getFunctionAddress(SEXP r_execEngine, SEXP r_func)
     llvm::ExecutionEngine *ee = GET_REF(r_execEngine, ExecutionEngine);
     uint64_t ans = ee->getFunctionAddress(std::string(CHAR(STRING_ELT(r_func, 0))));
 
-    return(R_createRef( reinterpret_cast<void *>(ans) , "NativeFunctionPointer", "native symbol"));
+    return(ans > 0 ? R_createRef( reinterpret_cast<void *>(ans) , "NativeFunctionPointer", "native symbol") : R_NilValue);
 }
+
+
+extern "C"
+SEXP
+R_ExecutionEngine_getGlobalValueAddress(SEXP r_ee, SEXP r_str)
+{
+    llvm::ExecutionEngine *EE = GET_REF(r_ee, ExecutionEngine);
+
+    std::string str (CHAR(STRING_ELT(r_str, 0)));
+    uint64_t ans = EE->getGlobalValueAddress(str);
+    return(ans > 0 ? R_createRef( reinterpret_cast<void *>(ans) , "RC++Reference", "native symbol") : R_NilValue);    
+}
+
+
 
 
 extern "C"
@@ -409,4 +427,17 @@ R_ExecutionEngine_getErrorMessage(SEXP r_ee, SEXP r_clear)
         ee->clearErrorMessage();
     
     return(ans);
+}
+
+
+
+extern "C"
+SEXP
+R_ExecutionEngine_generateCodeForModule(SEXP r_ee, SEXP r_mod)
+{
+    llvm::ExecutionEngine *EE = GET_REF(r_ee, ExecutionEngine);
+    LDECL2(Module, mod);
+
+    EE->generateCodeForModule(mod);
+    return(R_NilValue);
 }
