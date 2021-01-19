@@ -11,18 +11,27 @@ bar = Function("bar", Int32Type, module = m2)
 ir = IRBuilder(bar)
 ir$createReturn(ir$createCall(foo))
 
-ee = ExecutionEngine(list(m1, m2) )
+if(FALSE) {
+    ee = ExecutionEngine(list(m1, m2) )
+} else {
+    ee = ExecutionEngine(m1)
+    .Call("R_ExecutionEngine_generateCodeForModule", ee, m1)    
+    .Call("R_ExecutionEngine_generateCodeForModule", ee, m2)
+}
 # If we put them in this order, now I am getting 0x0 for bar
 #ee = ExecutionEngine(list(m2, m1) )
 
 if(FALSE) {
+    # now gives an error
+    #   Error: Symbol not found: _foo
 .llvm(m1$foo, .ee = ee) # works, but
 .llvm(m2$bar, .ee = ee) # crashes.
 }
 
 # Are we getting the correct address back from getFunctionAddress with the casting. Yes - now we are.
-foo = getFunctionAddress("foo", ee)
-bar = getFunctionAddress("bar", ee)
+#  Not now (Jan 18)
+foo = getFunctionAddress("foo", ee)  # NULL
+bar = getFunctionAddress("bar", ee)  # okay
 cif = Rffi::CIF(Rllvm:::mapLLVMTypeToFFI(Int32Type))
 Rllvm:::.llvmFFI(foo@ref, list(), ee, cif)
 Rllvm:::.llvmFFI(bar@ref, list(), ee, cif) # crashes.  Did work earlier this evening - but maybe not actually. No 0x0 for @ref when calling and crashes.
