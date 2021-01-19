@@ -355,8 +355,11 @@ R_LLVM_ARG_HAS(StructRet)
 R_LLVM_ARG_HAS(SExt)
 R_LLVM_ARG_HAS(ZExt)
 R_LLVM_ARG_HAS(Returned)
-//R_LLVM_ARG_HAS(InAlloca)
-
+R_LLVM_ARG_HAS(InAlloca)
+R_LLVM_ARG_HAS(NonNull)
+R_LLVM_ARG_HAS(PassPointeeByValue)
+R_LLVM_ARG_HAS(InReg)
+R_LLVM_ARG_HAS(Preallocated)
 
 extern "C"
 SEXP
