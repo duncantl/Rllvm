@@ -12,15 +12,25 @@ getType.R in this directory ?
 <para>
   The round function calls .Primitive("round").
   In names.c, we map this to do_Math2.
-  That is in arithmetic.c.
-  We generate the IR for this with make -f IRMakefile having put a symbolic link to IRMakefile in the build/src/main directory.
+  We can determine this programmatically. (See compBook/CCodeAnalysis/PrimitiveInternalNamesMap.xml)
+  <c:func>do_Math2</c:func> is in arithmetic.c.
+  We generate the IR for this with <sh:expr>make -f IRMakefile</sh:expr> having put a symbolic link to
+  Rllvm/inst/Make/IRMakefile in the build/src/main directory in the R build area.
   We read the IR arithmetic.ir.
 <r:code>
 m = parseIR("arithmetic.ir")
 r = m$do_Math2
-compReturnType(r) 
+</r:code>
+</para>
+<para>
+  <r:func>compReturnType</r:func>   is a function that does what we discuss below to find the
+  return types.
+<r:code>
+source("~/GitWorkingArea/Rllvm/AnalyzeCCode/getType.R")
+ty = compReturnType(r) 
 </r:code>  
-
+</para>
+<para>
 In do_Math2, we get the return instruction
 <r:code>
 ret = getReturnInstructions(r)[[1]]
@@ -42,34 +52,43 @@ sapply(u, class)
 [1] "BitCastInst" "CallInst"    "StoreInst"   "LoadInst"   
 ]]></r:output>
 </r:code>
-We've seen the LoadInst and the BitCastInst isn't important for changing the contents of the variable.
+We've seen the LoadInst and the BitCastInst isn't important for qualitatively changing the contents of the variable,
+i.e., how it was computed.<fix>The BitCastInst no longer appears. Probably different compilation flags.</fix>
 The StoreInst does assign a value to the <c:var>res</c:var>.
 And the CallInst passes the address of <c:var>res</c:var>, i.e, <c:expr>&amp;res</c:expr>.
 
 </para>
 <para>
   Let's look at the StoreInst.
+  What we store in <c:var>res</c:var> is 
 <r:code>
-u[[3]][[1]]
+u[[2]][[1]]
 <r:output><![CDATA[
 [1] "  %call97 = call %struct.SEXPREC* @do_math2(%struct.SEXPREC* %call, %struct.SEXPREC* %op, %struct.SEXPREC* %args.addr.2, %struct.SEXPREC* %env)"
 ]]></r:output>
 </r:code>
 So this is a call to do_math2.
-Can we unambiguously determine the return type of do_math2? or of this call to do_math2() ? do we need to know anything
+Can we unambiguously determine the return type of do_math2? or of this specific call to do_math2() ? do we need to know anything
 about the values being passed to it based on earlier computations in this routine?
 We'll examine do_math2 below.
 </para>
 
 
 <para>
-  The CallInst is to Rf_DispatchGroup:
+The CallInst is to Rf_DispatchGroup:
 <r:code>
-getName(getCalledFunction(u[[2]]))
+getName(getCalledFunction(u[[1]]))
 </r:code>
 Note also that the StoreInst is only invoked if this call returns 0;
 otherwise, this do_Math2 returns res without doing any other computations that affect it.
 So we need to examine DispatchGroup in the context of these arguments in the call.
+The CallInst is
+<r:output><![CDATA[
+[1] "  %call33 = call i32 @Rf_DispatchGroup(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.str.10, i32 0, i32 0), %struct.SEXPREC.0* %23, %struct.SEXPREC.0* %24, %struct.SEXPREC.0* %25, %struct.SEXPREC.0* %26, %struct.SEXPREC.0** %res), !dbg !140"
+]]></r:output>
+We can manually see (and programmatically determine) that
+res is passed by reference.  So <c:func>Rf_DispatchGroup</c:func> can modify its value and so
+return a value.
 </para>
 
 
