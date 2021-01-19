@@ -85,5 +85,11 @@ set. Currently, there are only methods for\code{setDataLayout} for a  \code{Modu
 }
 
 %\seealso{}
-%\examples{}
+\examples{
+dl = getDataLayoutString()
+m = Module()
+getDataLayout(m)
+setDataLayout(m,  dl)
+getDataLayout(m)
+}
 \keyword{programming}

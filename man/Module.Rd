@@ -39,7 +39,7 @@
 }
 \usage{
 Module(id, context = NULL)
-
+verifyModule(module, error = TRUE)
 getGlobalVariables(module)
 getGlobalVariable(module, var, allowInternal = TRUE) 
 }
@@ -51,7 +51,11 @@ getGlobalVariable(module, var, allowInternal = TRUE)
   \item{module}{the module containing the global variable(s)}
   \item{var}{the name of the global variable}
   \item{allowInternal}{a logical controlling whether to permit access to
-  no exported variables.}
+    no exported variables.}
+
+  \item{error}{a logical value that controls whether to throw an error
+    if the verification of the module is not successful, or just return
+    the diagnostic error message.}
 }
 \value{
 An object of class Module

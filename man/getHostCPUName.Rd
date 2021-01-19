@@ -38,22 +38,32 @@ getABITypeAlignment(datalayout, type)
   \code{getDataLayoutString} gives the information about the
   size of the data types on this architecture/machine (possibly virtual).
 }
-\references{
-}
+\references{}
 \author{
 DTL
 }
-\note{
-}
+%\note{}
 
-\seealso{
-}
+% \seealso{}
+
 \examples{
 getDataLayoutString()
 getHostCPUName()
 getHostCPUFeatures()
+
+# Get and set the data layout  generally and on a Module.
+dl = getDataLayoutString()
+m = Module()
+getDataLayout(m)
+setDataLayout(m,  dl)
+getDataLayout(m)
+
+
+f = system.file("IR/fib.ll", package = "Rllvm")
+fib = Module(f)
+getDataLayout(fib)
+setDataLayout(fib, getDataLayoutString())
+getDataLayout(fib)
+
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{programming}
