@@ -5,14 +5,42 @@
 	 xmlns:sh="http://www.shell.org">
 
   <title>Rllvm Todo List</title>
+
+<topic>
+<title>New</title>
+<items>
+  <item status="done">
+    get the default data layout and target machine for the current machine.
+    When read in a Module (parseIR or readBitcode), allow changing the data layout.
+    <br/>
+    getDataLayoutString() and createTargetMachine().  Can't easily get the DataLayout
+    as we get it from the TargetMachine_createDataLayout() method which returns a local object.
+    But the DataLayout string is probably sufficient for what we need.
+<r:code>
+a = parseIR("inst/IR/fib.ll")
+b = parseIR("explorations/HowToUseLLJIT/fib.ir")
+
+getDataLayout(b)
+setDataLayout(a,  getDataLayoutString())
+getDataLayout(a)
+</r:code>    
+  </item>
+  <item>
+    Get the load (and install) time way down. Looks like it is not the enums but probably the classes.
+    Can we define them lazily.
+  </item>
   <item>
     Instead of changing SEXP types in copyFunction(),
     what if when we read a Module, we swapped the sexp type in that
     (if it exists) just once. Or just changed its name?
   </item>
-  <item>
+  <item status="done">
+    See tests/coerceArgs.R.
+    When passing bool is 10L being sent as 0 because the last bit is 0. Yes, since passing 11 returns TRUE
+    for m$b0. Probably need to coerce to logical in R first.
+    <br/>
     Coerce numeric to integer when Function being called shows that type! See RLLVMCompile/tests/select.R and
-    the commented out call to stopifnot(.llvm(gc, 20) == 4L).  (line ~ 31)
+    the commented out call to stopifnot(.llvm(gc, 20) == 4L).  (line ~ 31).
   </item>
   
   <item status="done">
@@ -21,25 +49,27 @@
     Currently we are mapping to and from Rllvm and Rffi the same in both directions.
     Don't want to do this in this case.  Get back a sint8 from Rffi but then convert to logical/Int1Type.
   </item>
+
   <item status="done">
     Crashing in RLLVMCompile/tests/not.R when passing Int1Type. Fixed now
     by mapping that to Rffi::uint32Type .
     We'll see how portable and robust this is.
   </item>
   
-  <item>
+  <item status="done">
     Currently on a branch in Rlllvm to see if this works.
     Also, turned off the message in src/library/methods/R/ for now.
     
     See if we can import(RAutoGenRunTime) and export its operators for Enums.
     EnumValue, GenericEnumValue
-    We don't actually use any functions other than these. | and & 
+    We don't actually use any functions other than these. | and &amp; 
   </item>
   
   <item>
     Derived class and implementing methods.
     compBook/ExportRCode/Subclass
   </item>
+
   <item status="low">
     Instructions for  CreateMalloc(), CreateFree(), etc. In Instructions.h in CallInst class.
     These are not in IRBuilder so would have to create directly. Do we need them?
@@ -50,6 +80,11 @@
   </item>
 
   <item>
+    Using LLJIT, we can call bar which calls foo.
+    Have to integrate this into the ExecutionEngine/.llvm framework.
+    <br/>
+    ExecutionSession
+    <br/>
     Sort out getFunctionAddress(), twoMods.R and calling both bar and foo.
   </item>
   
@@ -285,7 +320,7 @@ Need to include VectorType as it is getting dropped out as it has sub-types.
     DIR comes from
     /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/dirent.h
     Looking at the debug nodes in platform.ir
-<shoutput><![CDATA[
+<sh:output><![CDATA[
 !2884 = !DIDerivedType(tag: DW_TAG_typedef, name: "DIR", file: !2885, line: 84, baseType: !2886)
 !2885 = !DIFile(filename: "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/dirent.h", directory: "")
 !2886 = distinct !DICompositeType(tag: DW_TAG_structure_type, file: !2885, line: 73, size: 1088, elements: !2887)
@@ -335,7 +370,8 @@ R_DICompositeType_getElements(r_obj=0x000000013dada0a0) at DebugInfoMeta.cpp:176
 
 
   </item>
-
+</items>
+</topic>
 
 <topic>
 <title>General</title>
@@ -632,21 +668,33 @@ tests/emitCode.R or tests/addOne.R
 raw_svector_ostream doesn't ensure NULL terminated string. So we use mkCharLen().
 </item>
 
-<item>
+<item status="check">
+  Fixed
+  <br/>
 Some of the enums exceed the maximum integer size. Change how we generate the code to recognize this and leave them as
 numeric.  Change code that expects an integer to check and deal with the potentially larger values, i.e. don't convert
 to int.
 </item>
 
-<item>
+<item status="done">
 accessor for a BranchInst object to be able to get the target block.
 <br/>
-Is this getSuccessor()?
+Is this getSuccessors()
+getOperands() or br[] gives the condition and blocks.
+isConditional()  determines whether this is a conditional branch
+or a simple branch.
+getCondition() gets the condition.
+getNumSuccessors() counts the successors.
+getSuccessors() gets all of them.
+getSuccessor(b, i) gets the ith successor.
+b[] gets all of the elements.
+<br/>
+ReturnInst doesn't have any successors.
 </item>
 
-<item>
+<item status="check">
 Implement R functions to call the Argument has* methods.
-The C++ code exists.
+The C++ code exists.  Added R functions and exported them. 
 </item>
 
 <item>
@@ -707,10 +755,18 @@ Setting attribute on an argument requires now to specify the
 index of the argument, first argument starting at 1 in C++.
 </item>
 
-<item>
+<item status="done">
 Ways to get the specific instruction type,
 e.g. when getOperand(), just get back generic Value object.
 Could use dynamic casts and exhaustively find one that works!
+<br/>
+<r:code>
+  m = parseIR("findCalledFuns.ir")
+  b = getBlocks(m$opt)
+  sapply(b[], sapply, class)
+  sapply(getTerminator(b[[2]])[], class)
+</r:code>
+
 </item>
 
 <item>
@@ -748,6 +804,11 @@ rather than just a single list() with the return type and parameter types.
 When we read IR back into R, lose the specific SEXP type information on the function.
 </item>
 
+<item>
+When converting SEXPs to and from GVs in C code,
+use the actual target SEXP type and not just the generic type.
+Similar/Related to registering routines with R and checking the types in a .Call().
+</item>
 
 <item>
 When a parameter type is one of the SEXP types, then coerce the input to that type.
@@ -761,7 +822,7 @@ types but compatible with the generic SEXP type.
 Could cast.
 </item>
 
-<item>
+<item status="done">
 How to handle a struct as a parameter.
 Have to match the ABI.
 Does it depend on the nature of the elements of the struct.
@@ -920,10 +981,10 @@ Mangling of overloaded names. How can we map a Function signature to a name.
 Can we already set the name on a Block? Yes - <r:func>setName</r:func>
 </item>
 
-<item>
+<item status="done">
 Get name of actual class of LLVM C++ objects.
 <br/>
-Use isa()
+Use isa().   R_createRef2() and R_createTypeRef() do this now.
 </item>
 
 <item status="done">
@@ -932,7 +993,7 @@ And getSuccessor().
 </item>
 
 <item>
-Shutdown and restart.
+Shutdown and restart  LLVM.
 See RLLVMCompile/tests/serialize.R
 </item>
 
@@ -976,9 +1037,6 @@ mod[["ctr", ee = ee]] = 0L
 </r:code>
 </item>
 
-<item>
-shutdown LLVM.
-</item>
 
 <item status="done">
 Dynamically retrieve LLVM version information. See <r:func>llvmVersion</r:func>
@@ -989,17 +1047,22 @@ Allow writeBitcode and showModule() to actually write to an ostream directly
 rather than bringing it back to R and have R do the output.
 </item>
 
-<item>
-strings &amp; string constants.
-</item>
 
-<item>
+<item status="done">
+  mod[["notexists"]] returns NULL rather than an error.
+  Implemented the %in% method.
+  <br/>
 Should m[["notexists"]] for a Module m raise an error or return NULL.
 <br/>
 If we want to have a check if a symbol is in a module, we can use %in%:
 <r:code>
 setMethod("%in%", c("character", "Module"), function(x, table)  x %in% names(table))
 </r:code>
+</item>
+
+
+<item>
+strings &amp; string constants.
 </item>
 
 <item status="check">
@@ -1020,7 +1083,7 @@ so that we can compile functions separately and then
 allow them to refer to each other.
 Perhaps hierarchies of modules?
 Use addGlobalMapping() explicitly to connect one routine to another module?
-No, use the Linker::LinkModules() method?
+No, use the Linker::LinkModules() method in include/llvm/Linker?
 What about the need for external linkage, the declaration, etc.
 when we make a call to the routine that isn't in the module.
 <br/>
@@ -1030,7 +1093,9 @@ of modules so that it can find existing Functions in those.
 </item>
 
 <item>
-Rf_length and other routines not available via getNativeSymbolInfo()
+  See dlsym(), if we need it.
+  <br/>
+  Rf_length and other routines not available via getNativeSymbolInfo()
 except on OS X. Have to find another way to access them to be able to
 invoke them from LLVM.
 Perhaps we can persuade the LLVM linker to use the 
@@ -1041,20 +1106,16 @@ libR.{so,Rdylib}
 Compile access to R connections.
 </item>
 
-<item>
+<item status="done">
 Example of accessing a struct.
-Example of working with an existing struct type in C
-and compile code to operate on it.
+Example of working with an existing struct type in C and compile code to operate on it.
 Issues with ensuring alignment and padding if compiled by another compiler.
 <br/>
 See examples of working with a pointer to a libclang CXCursor.
+And getrusage in ~/compBook.
+And differently, Rffi.  getrlimit in tests/struct.R, tests/stringArray.R
 </item>
 
-<item>
-When converting SEXPs to and from GVs in C code,
-use the actual target SEXP type and not just the generic type.
-Similar/Related to registering routines with R and checking the types in a .Call().
-</item>
 
 <item>
 varargs
@@ -1082,7 +1143,7 @@ shared object (need linker step - system or in LLVM API?)
 See pycc.
 </item>
 
-<item>
+<item status="done">
 structures
 getStructName()  (getName() in R), 
 getElementTypes equivalent to getStructElementType(), getStructNumElements() in C++.
@@ -1090,7 +1151,7 @@ How to create them?  structType() function in R.
 </item>
 
 
-<item>
+<item status="check">
 Navigate/traverse the tree of blocks, instructions,
 and the ability to remove and insert instructions and
 blocks.
@@ -1133,9 +1194,10 @@ Walk them ?
 And add  [[ method.
 </item>
 
-<item>
-How do we get the names of the elements on a struct Type?
-Do we add this in meta-data?
+<item status="partial">
+  How do we get the names of the elements on a struct Type? Do we add this in meta-data?
+  <br/>
+  Can get this from the debug meta-data.  See lapplyDebugInfoTypes.
 </item>
 
 <item>
@@ -1152,7 +1214,7 @@ See a .llcpp example.
 </item>
 
 <item>
-Methods for IRBuilder
+Methods for IRBuilder.
 <br/>
 See the TU interface generation.
 <br/>
@@ -1210,8 +1272,7 @@ How do we specify that sort of type?
 <item>
 Make certain that errors don't abort R.
 Is this just compiling w/o assertions.
-We should also check all constraints in R or C++ code before
-calling the C++ methods.
+We should also check all constraints in R or C++ code before calling the C++ methods.
 </item>
 
 <item>
@@ -1354,8 +1415,8 @@ a la C++ invocation.
 library(Rllvm)
 mod = Module("globalTest")
 mod[["i"]] = pi
+getValue(mod[["i"]])
 </r:code>
-Doesn't seem to.
 </item>
 
 <item status="done">
