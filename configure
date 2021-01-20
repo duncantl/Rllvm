@@ -6232,5 +6232,7 @@ fi
 
 chmod  -w R/targets.R
 
+echo "Creating rtypes.ir needed at load time"
+(cd inst/IR ; R CMD make rtypes.ir)
 
 echo "Compile & Link flags:  `${LLVM_CONFIG} --cxxflags --ldflags`"
