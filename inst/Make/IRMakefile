@@ -15,8 +15,15 @@ ifndef RTOCFILE
 RTOCFILE=FileRoutines
 endif
 
+CFILES=$(wildcard *.c *.cpp *.C *.cc)
 LLFILES=$(SOURCES_C:%.c=%.o)
 OBJ_FILES=$(wildcard *.o)
+
+ifeq ($(OBJ_FILES),)
+#OBJ_FILES=$(CFILES:%.%=%.o)  bob
+OBJ_FILES=$(shell echo $(CFILES) | sed -re 's/(\.c|\.cpp|\.C)/.ir/g')
+endif
+
 IRFILES=$(OBJ_FILES:%.o=%.ir)
 BCFILES=$(IRFILES:%.ir=%.bc)
 all: $(IRFILES)
@@ -63,3 +70,8 @@ all.bc: $(filter-out memory.bc inspect.bc xxxpr.bc,$(BCFILES))
 
 Rmain.bc: all.bc
 	cp all.bc Rmain.bc
+
+show:
+	@echo $(CFILES)
+	@echo $(OBJ_FILES)
+	@echo "$(SOURCES_C)"
