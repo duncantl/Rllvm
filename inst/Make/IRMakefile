@@ -39,6 +39,9 @@ ifndef LLVM_CFLAGS
   LLVM_CFLAGS=-mllvm -inline-threshold=0 -mllvm -inlinehint-threshold=10 -fno-discard-value-names
 endif
 
+# For Rcpp, hijack the CXXPICFLAGS
+RCPP_FLAGS=-I$(HOME)/Rpackages4/Rcpp/include 
+
 #clang -emit-llvm -S -I../../../src/extra  -I. -I../../src/include -I../../../src/include  -I/usr/local/include -I../../../src/nmath -DHAVE_CONFIG_H   -DTESTING_WRITE_BARRIER -O2  -c ../../../src/main/envir.c -o envir.ll -mllvm -inline-threshold=0 -mllvm -inlinehint-threshold=10 -fno-discard-value-names 
 
 %.ll: %.c
@@ -48,7 +51,13 @@ endif
 	$(CC) -emit-llvm -S $(ALL_CPPFLAGS) $(LLVM_CPPFLAGS) $(ALL_CFLAGS) $(LLVM_CFLAGS) -c $< -o $@
 
 %.ir: %.cpp
-	$(CXX) -emit-llvm -S $(ALL_CPPFLAGS) $(LLVM_CPPFLAGS) $(ALL_CXXFLAGS) $(LLVM_CXXFLAGS) $(PKG_CPPFLAGS) $(PKG_CXXFLAGS) -c $< -o $@
+	$(CXX) -emit-llvm -S $(ALL_CPPFLAGS) $(LLVM_CPPFLAGS) $(ALL_CXXFLAGS) $(LLVM_CXXFLAGS) $(PKG_CPPFLAGS) $(PKG_CXXFLAGS) $(RCPP_FLAGS) -c $< -o $@
+
+%.ir: %.cc
+	$(CXX) -emit-llvm -S $(ALL_CPPFLAGS) $(LLVM_CPPFLAGS) $(ALL_CXXFLAGS) $(LLVM_CXXFLAGS) $(PKG_CPPFLAGS) $(PKG_CXXFLAGS) $(RCPP_FLAGS) -c $< -o $@
+
+%.ir: %.C
+	$(CXX) -emit-llvm -S $(ALL_CPPFLAGS) $(LLVM_CPPFLAGS) $(ALL_CXXFLAGS) $(LLVM_CXXFLAGS) $(PKG_CPPFLAGS) $(PKG_CXXFLAGS) $(RCPP_FLAGS) -c $< -o $@
 
 %.ir: %.m
 	$(CC) -emit-llvm -S $(ALL_CPPFLAGS) $(LLVM_CPPFLAGS) $(ALL_CFLAGS) $(LLVM_CFLAGS) -c $< -o $@
