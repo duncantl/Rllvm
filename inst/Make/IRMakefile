@@ -17,11 +17,16 @@ endif
 
 CFILES=$(wildcard *.c *.cpp *.C *.cc)
 LLFILES=$(SOURCES_C:%.c=%.o)
-OBJ_FILES=$(wildcard *.o)
+
+OBJ_FILES=$(OBJECTS)
 
 ifeq ($(OBJ_FILES),)
-#OBJ_FILES=$(CFILES:%.%=%.o)  bob
-OBJ_FILES=$(shell echo $(CFILES) | sed -re 's/(\.c|\.cpp|\.C)/.ir/g')
+OBJ_FILES=$(wildcard *.o)
+endif
+
+
+ifeq ($(OBJ_FILES),)
+OBJ_FILES=$(shell echo $(CFILES) | sed -re 's/(\.c|\.cpp|\.cc|\.C)( |$$)/.ir \2/g')
 endif
 
 IRFILES=$(OBJ_FILES:%.o=%.ir)
