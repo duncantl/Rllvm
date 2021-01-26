@@ -1742,13 +1742,10 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-
 # Check whether --with-llvm-config was given.
 if test "${with_llvm_config+set}" = set; then :
   withval=$with_llvm_config; LLVM_CONFIG="${withval}"
 fi
-
-
 
 
 if test -z "${LLVM_CONFIG}" ; then
@@ -6234,5 +6231,8 @@ chmod  -w R/targets.R
 
 echo "Creating rtypes.ir needed at load time"
 (cd inst/IR ; R CMD make rtypes.ir)
+if test $? -ne 0 ; then
+ echo "Failed to create inst/IR/rtypes.ir."
+fi
 
 echo "Compile & Link flags:  `${LLVM_CONFIG} --cxxflags --ldflags`"
