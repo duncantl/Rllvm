@@ -16,7 +16,7 @@ getType.R in this directory ?
   <c:func>do_Math2</c:func> is in arithmetic.c.
   We generate the IR for this with <sh:expr>make -f IRMakefile</sh:expr> having put a symbolic link to
   Rllvm/inst/Make/IRMakefile in the build/src/main directory in the R build area.
-  We read the IR arithmetic.ir.
+  We read the IR from the arithmetic.ir file:
 <r:code>
 m = parseIR("arithmetic.ir")
 r = m$do_Math2

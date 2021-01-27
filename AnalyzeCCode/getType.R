@@ -4,10 +4,6 @@
 # This is a proof-of-concept and has come a reasonable way to be useful.
 
 
-# In compListTypes() below, getAllUsers() returns in reverse order, so we reverse that.
-# But does getAllUses() do the reversing for us now?
-
-
 compReturnType =
     #
     # AFAIR, this is intended for analyzing C routines in R source code or R packages to find the return
@@ -58,6 +54,7 @@ function(fun, blocks = getBlocks(fun))
 {
     terms = lapply(blocks, getTerminator, FALSE)
     isRet = sapply(terms, is, 'ReturnInst')
+
     rets = terms[isRet]
         # Can we ever have multiple returns???
 }
@@ -77,7 +74,7 @@ function(x, ret, ...)
       return(x)
   }
 
-  usrs = rev(getAllUsers(ret[[1]]))
+  usrs = getAllUsers(ret[[1]])
   w = sapply(usrs, function(x) is(x, "CallInst") && getName(getCalledFunction(x)) == "SET_VECTOR_ELT")
 
   els = lapply(usrs[w], function(x) getCallType(x[[3]]))
@@ -268,7 +265,7 @@ tmp = function(val, rtype = FALSE, ...)  findValue(val[[1]])
 setMethod("findValue", "BitCastInst", tmp)
 setMethod("findValue", "GetElementPtrInst", tmp)
 # Uncommenting this next method causes infinite recursion for some IR code
-# specifically due to PHI nodes that whose elements refer back to the same PHInode.
+# specifically due to PHI nodes whose elements refer back to the same PHInode.
 #setMethod("findValue", "OverflowingBinaryOperator", tmp)
 
 
