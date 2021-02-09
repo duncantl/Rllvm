@@ -2,9 +2,14 @@ ifndef CLANG
 CLANG=clang
 endif
 
-ifndef CFLAGS
-CFLAGS=-I$R_HOME/include
+ifndef R_INCLUDE
+R_INCLUDE=$(shell R RHOME)/include
 endif
+
+ifndef CFLAGS
+CFLAGS=-I$(R_INCLUDE)
+endif
+
 
 %.ll: %.c
 	$(CLANG) $(OPT_LEVEL) $(CFLAGS) -S -emit-llvm  $<  -o $@
@@ -20,7 +25,7 @@ add.ll: ../../experiments/add.c
 
 
 rtypes.ir: rtypes.c
-	$(CLANG) -S -emit-llvm -o $@ $< -I$(R_HOME)/include
+	$(CLANG) -S -emit-llvm -o $@ $< -I$(R_INCLUDE)
 
 
 all: fib.ll add.ll distance.ll

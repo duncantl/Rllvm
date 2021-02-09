@@ -38,13 +38,15 @@ function( rawPointer = FALSE, sexprecName = "struct.SEXPREC")
        # so struct.SEXPREC.
        # We can can't use getTypes(parseIR())$SEXPREC w/o adding more support for rawPointer to these routines.
        # So easier just to do it directly in C++.
-       
-    ref = ty = .Call("R_ModuleInit_getRawSEXPRECType", system.file("IR", "rtypes.ir", package = "Rllvm"), sexprecName)
 
-   
-            # Previous way of creating the struct.SEXPREC
-            #  Describe the contents of a SEXPRECStruct
-       # ref = structType(list(type = Int32Type), "SEXPRECStruct", rawPointer = rawPointer, withNames = FALSE)
+    irf = system.file("IR", "rtypes.ir", package = "Rllvm")
+    if(file.exists(irf)) 
+        ref = .Call("R_ModuleInit_getRawSEXPRECType", irf, sexprecName)
+    else
+                    # Previous way of creating the struct.SEXPREC
+                    #  Describe the contents of a SEXPRECStruct
+        ref = structType(list(type = Int32Type), "SEXPRECStruct", rawPointer = rawPointer, withNames = FALSE)
+
 
 
    if(rawPointer)

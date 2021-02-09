@@ -1,9 +1,6 @@
 AC_INIT(src/Rllvm.h)
 
-
 AC_ARG_WITH(llvm-config, [  --with-llvm-config            full path to executable for llvm-config], LLVM_CONFIG="${withval}")
-
-
 
 if test -z "${LLVM_CONFIG}" ; then
   AC_PATH_PROG(LLVM_CONFIG, llvm-config)
@@ -228,5 +225,8 @@ chmod  -w R/targets.R
 
 echo "Creating rtypes.ir needed at load time"
 (cd inst/IR ; R CMD make rtypes.ir)
+if test $? -ne 0 ; then
+ echo "Failed to create inst/IR/rtypes.ir."
+fi
 
 echo "Compile & Link flags:  `${LLVM_CONFIG} --cxxflags --ldflags`"
