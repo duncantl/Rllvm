@@ -16,14 +16,12 @@
 \alias{GetElementPtrInst-class}
 \alias{Instruction-class}
 \alias{LLVMContext-class}
-\alias{LoadInst-class}
 \alias{ParameterList-class}
 \alias{PointerType-class}
 \alias{RC++Reference-class}
 \alias{ReturnInst-class}
 \alias{SequentialType-class}
 \alias{SExtInst-class}
-\alias{StoreInst-class}
 \alias{StructType-class}
 \alias{TerminatorInst-class}
 \alias{Type-class}
@@ -38,13 +36,9 @@
 
 \alias{[[,User,ANY,ANY-method}
 
-\alias{Value-class}
-\alias{[[,Value,ANY,ANY-method}
-\alias{coerce,Value,character-method}
 
 \alias{RFunctionJITEventListener-class} %XXX
 
-\alias{Argument-class}
 \alias{FunctionType-class}
 \alias{BinaryOperator-class}
 
@@ -52,8 +46,18 @@
 
 \alias{setName}
 \alias{getName}
-\alias{getName,Value-method}
-\alias{setName,Value-method}
+
+
+
+\alias{show,AssemblerCode-method}
+\alias{show,BasicBlock-method}
+\alias{show,Function-method}
+\alias{show,Module-method}
+\alias{show,ModuleDisplay-method}
+\alias{show,SEXPType-method}
+\alias{show,StringType-method}
+\alias{show,Type-method}
+\alias{show,Value-method}
 
 
 

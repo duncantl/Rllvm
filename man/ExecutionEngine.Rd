@@ -1,5 +1,6 @@
 \name{ExecutionEngine}
 \alias{ExecutionEngine}
+\alias{ExecEng}
 \alias{findRoutine}
 \alias{getPointerToFunction}
 \alias{getPointerToRoutine}
@@ -13,6 +14,30 @@
 \alias{CodeGenOpt_Default}
 \alias{CodeGenOpt_Less}
 \alias{CodeGenOpt_Aggressive}
+
+\alias{[[,ExecutionEngine,character,ANY-method}
+\alias{[[,ExecutionEngineFunction,character,ANY-method}
+
+\alias{addModule,ExecutionEngine-method}
+\alias{hasError,ExecutionEngine-method}
+
+\alias{$,ExecutionEngine-method}
+
+\alias{names,ExecutionEngineFunction-method}
+
+\alias{hasError}
+\alias{hasError,,ExecutionEngine-method}
+
+\alias{getVerifyModules}
+
+\alias{isSymbolSearchingDisabled}
+\alias{isGVCompilationDisabled}
+
+
+\alias{getGlobalValueAtAddress}
+\alias{DisableLazyCompilation}
+
+\alias{isCompilingLazily}
 
 \title{Create LLVM engine for calling functions}
 \description{

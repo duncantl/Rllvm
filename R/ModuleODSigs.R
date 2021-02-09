@@ -8,7 +8,7 @@
 #  It hangs the other module off the @ref externalptr so that we can update it by reference
 # and not have to reassign the updated Module object to a variable.
 #
-#
+# OD - on-demand, sigs for signatures.
 setClass("ModuleODSigs", representation(moduleFiles = "character"), contains = "Module")
 # representation(moduleFiles = "character")
 

@@ -381,13 +381,33 @@ setMethod("getType", c("Module"), # "character"),
           })
 
 
-if(FALSE) {
     # See Todo.xml to allow showing names of different types of objects in the module
     #  defined routines, non-constants, etc.
-setGeneric("ls", function(name, ...) standardGeneric('ls'))
+if(!isGeneric("ls"))
+  setGeneric("ls", function(name, ...) standardGeneric('ls'))
 
 setMethod("ls", "Module",
-          function(name, definedOnly = TRUE) {
+          # add variablesOnly or variables and functions
+          # no externed variables if definedOnly
+        function(name, functionsOnly = TRUE, definedOnly = TRUE, demangle = TRUE, ...) {
 
-          })
-}
+            ans = character()
+            if(functionsOnly) {
+                funs = getModuleFunctions(name)
+                if(definedOnly) 
+                   funs = funs[ sapply(funs, function(f) length(getBlocks(f))) > 0 ]
+
+                ans = names(funs)
+            } else
+                names(name)
+
+
+            if(demangle)
+               ans = demangle(ans)
+
+            ans
+        })
+
+
+
+

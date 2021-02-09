@@ -28,6 +28,8 @@
 \alias{setDataLayout}
 \alias{setDataLayout,Module-method}
 
+\alias{isLittleEndian,DataLayout-method} %XXX
+
 
 \alias{getStackAlignment}
 

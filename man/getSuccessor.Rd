@@ -11,6 +11,7 @@
 \alias{getPredecessor,BasicBlock-method}
 \alias{getPredecessors,BasicBlock-method}
 \alias{getSuccessors,BranchInst-method}
+\alias{getSuccessor,BranchInst-method}
 \alias{isConditional}
 \title{Get different aspects of a Branch Instruction}
 \description{

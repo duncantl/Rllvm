@@ -59,6 +59,9 @@
 
 \alias{debugSetLocation}
 
+\alias{coerce,IRBuilder,Module-method}
+
+
 \title{Create an IR builder object for LLVM construction}
 \description{
   This function and class allow us to create and use

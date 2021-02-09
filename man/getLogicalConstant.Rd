@@ -18,7 +18,11 @@
 \alias{coerce,logical,Value-method}
 \alias{coerce,numeric,Value-method}
 
-\alias{setTailCall} %???? why is this here
+\alias{[,ConstantAggregate,missing,ANY-method}
+\alias{[,ConstantAggregateZero,missing,ANY-method}
+
+\alias{lapply,ConstantArray-method}
+
 
 \title{Create constants in native code}
 \description{

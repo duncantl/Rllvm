@@ -117,3 +117,9 @@ setAs("Instruction", "Function",
           b
       })
       
+
+
+setAs("Instruction", "Module",
+      function(from) {
+          as(getParent(from), "Module")
+      })

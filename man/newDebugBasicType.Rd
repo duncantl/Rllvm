@@ -17,6 +17,35 @@
 
 \alias{finalizeDIBuilder}%XXX
 
+
+
+
+\alias{isLittleEndian,DIType-method}
+\alias{isLValueReference,DIType-method}
+\alias{isObjcClassComplete,DIType-method}
+\alias{isObjectPointer,DIType-method}
+\alias{isPrivate,DIType-method}
+\alias{isProtected,DIType-method}
+\alias{isPublic,DIType-method}
+\alias{isRValueReference,DIType-method}
+\alias{isStaticMember,DIType-method}
+\alias{isTypePassByReference,DIType-method}
+\alias{isTypePassByValue,DIType-method}
+\alias{isVector,DIType-method}
+\alias{isVirtual,DIType-method}
+\alias{isForwardDecl,DIType-method}
+\alias{isBigEndian,DIType-method}
+\alias{isBitField,DIType-method}
+\alias{isAppleBlockExtension,DIType-method}
+\alias{isArtificial,DIType-method}
+\alias{isAtomic,Instruction-method}
+
+
+
+\alias{isDebugDirectivesOnly}
+\alias{getProducer}
+
+
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Debug Information Functions for DIBuilder} 
 

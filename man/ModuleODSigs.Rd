@@ -1,9 +1,17 @@
 \name{ModuleODSigs}
 \alias{ModuleODSigs}
+\alias{ModuleODSigs-class}
 \alias{files}
 \alias{modules}
 \alias{files,ModulesODSig-method}
 \alias{modules,ModulesODSig-method}
+
+\alias{files,ModuleODSigs-method}
+\alias{$,ModuleODSigs-method}
+\alias{[[,ModuleODSigs,character,missing-method}
+
+\alias{modules,ModuleODSigs-method}
+
 \title{Module with On-Demand External Signatures}
 \description{
   This is a function and also supporting class and methods

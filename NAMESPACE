@@ -1,7 +1,6 @@
 useDynLib(Rllvm)
 
 
-
 importFrom(methods, setGeneric, setMethod, setClass,
              as, new, is, "body<-") # cbind, rbind are not exported from methods.
 
@@ -55,6 +54,9 @@ export(functionType)
 
 exportMethods("$", "names", "names<-", "run", "setName", "getName", "$",
                createIntegerConstant, coerce)
+
+
+exportMethods("[", "[[", "$")
 
 export(
 Add,
@@ -194,6 +196,8 @@ export(createDoubleConstant)
 
 export(showModule)
 
+exportMethods(show)
+
 
 
 export(ExternalLinkage,
@@ -248,7 +252,6 @@ export(isVoidType, isFloatType, isDoubleType, isX86_FP80Type, isFP128Type,
 
 export(parseIR)
 
-exportMethods("names", "[", "[[", "$")
 exportMethods(coerce)
 
 
@@ -831,4 +834,19 @@ export(getEntryBlock)
 
 
 export(lljit, jitLookup)
+
+export(ls)
+exportMethods(ls)
+
+
+
+export(getArguments, getArgs)
+
+
+
+exportClasses(LLJIT, LazyLLJIT)
+
+
+export(isUnsigned)
+exportMethods(isUnsigned)
 

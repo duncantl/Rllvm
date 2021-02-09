@@ -59,3 +59,7 @@ setGeneric("getOperand",
              standardGeneric("getOperand"))
 
 
+
+setGeneric("isUnsigned",
+           function(obj, ...)
+              standardGeneric("isUnsigned"))

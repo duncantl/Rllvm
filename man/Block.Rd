@@ -14,9 +14,16 @@
 
 \alias{coerce,BasicBlock,LLVMContext-method}
 
+\alias{names,BasicBlock-method}
+
 \alias{[,BasicBlock,missing,missing-method}
 \alias{[,BasicBlock,numeric,ANY-method}
 \alias{[[,BasicBlock,numeric,ANY-method}
+\alias{[,BasicBlock,AsIs,missing-method}
+\alias{[,BasicBlock,character,missing-method}
+\alias{[[,BasicBlock,AsIs,missing-method}
+\alias{[[,BasicBlock,character,missing-method}
+
 \alias{sapply,BasicBlock-method}
 \alias{length,BasicBlock-method}
 
@@ -35,6 +42,13 @@
 
 \alias{isEHPad}
 \alias{isLandingPad}
+
+
+\alias{getLandingPadInst,BasicBlock-method}
+\alias{isEHPad,BasicBlock-method}
+
+
+
 
 \title{Functions to create and manipulate an LLVM BasicBlock}
 \description{

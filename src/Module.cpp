@@ -946,7 +946,9 @@ getDITypeClassName(llvm::MDNode *obj) // DINode
     FOO(DIDerivedType);
     FOO(DICompositeType);
     if(llvm::DISubroutineType::classof(obj)) 
-        ans = "DISubroutineType";    
+        ans = "DISubroutineType";
+//    FOO(DIStringType);
+    FOO(DIEnumerator);        
     FOO(DICompileUnit);        
     FOO(DILocalScope);
     FOO(DISubprogram);

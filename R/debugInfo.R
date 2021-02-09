@@ -186,3 +186,18 @@ function(m, type = TRUE, ...)
     names(z) = sapply(z, names)
     z
 }
+
+
+
+
+setMethod("getName", "DIEnumerator",
+          function(obj, ...)
+             .Call("R_DIEnumerator_getName", obj))
+
+setMethod("getValue", "DIEnumerator",
+           function(x, ...)
+          .Call("R_DIEnumerator_getValue", x))
+
+setMethod("isUnsigned", "DIEnumerator",
+           function(obj, ...)
+             .Call("R_DIEnumerator_isUnsigned", obj))

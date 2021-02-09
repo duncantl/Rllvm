@@ -4,6 +4,7 @@
 \alias{Function-class}
 \alias{names<-,Function,character-method}
 \alias{names<-,ParameterList,character-method}
+\alias{names,ParameterList-method}
 \alias{names,Function-method}
 \alias{[,Function,numeric,missing-method}
 \alias{[[,Function,character,ANY-method}
@@ -47,6 +48,11 @@
 \alias{getReturnType,FunctionType-method}
 
 \alias{getInstructions,Function-method}
+
+\alias{canReturnTwice}
+\alias{doesNoCfCheck}
+
+\alias{getEntryBlock}
 
 \title{Create an LLVM function/routine}
 \description{

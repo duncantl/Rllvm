@@ -36,7 +36,7 @@ setAs("IRBuilder", "BasicBlock",
 
 
 getBlockInstructions =
-function(block, cast = TRUE)
+function(block, cast = FALSE)
 {
     block = as(block, "BasicBlock")
     ans = .Call("R_BasicBlock_getBlockInstructions", block)
@@ -44,7 +44,7 @@ function(block, cast = TRUE)
     if(cast) 
        coerceGenericInstruction(ans)
     else   
-     ans
+       ans
 }
 
 setMethod("getInstructions", "Module",
@@ -108,6 +108,7 @@ function(ins)
     return(lapply(ins, coerceGenericInstruction))
 
   type = getOpcode(ins)
+  #XXX Needs updating and to computed programmatically.
   k = InstructionOpcodeClass[ names(type) ]
   if(is.na(k))
     stop("cannot map op code for instruction to R class")

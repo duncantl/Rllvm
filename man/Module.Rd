@@ -30,6 +30,27 @@
 \alias{getUndefModuleFunctions}
 \alias{provideUndefFunctions}
 
+\alias{getInstructions,Module-method}
+
+\alias{getType,integer-method}
+\alias{getType,Module-method}
+\alias{getTypes,Module-method}
+\alias{getTypes}
+
+\alias{ls}
+\alias{ls,Module-method}
+
+\alias{$<-,Module,Function-method}
+
+\alias{getSDKVersion}
+
+\alias{getInstructionCount}
+\alias{getDebugCounts}
+
+\alias{findCalledFunctions}
+
+\alias{copyFunction}
+
 \title{Create an LLVM module for one or more functions and variables}
 \description{
   When creating an LLVM routine/function, we have to house it in

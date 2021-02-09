@@ -390,3 +390,17 @@ setMethod("getMetadata", c("Function", "numeric"),
 getEntryBlock =
 function(fun)
   .Call("R_Function_getEntryBlock", as(fun, "Function"))
+
+
+
+
+getArguments = getArgs =
+function(call)
+{
+    if(!is(call, "CallInst"))
+        stop("getArguments is for CallInst objects")
+
+    call[-length(call)]
+}
+
+

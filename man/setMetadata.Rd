@@ -27,12 +27,36 @@
 \alias{length,NamedMDNode-method}
 
 
+
+% From llvm/DebugInfo
+
+\alias{DILocation-class}
+\alias{DIEnumerator-class}
+\alias{DIDerivedType-class}
+\alias{DIBasicType-class}
+\alias{DIGlobalVariableExpression-class}
+\alias{DIScope-class}
+\alias{DISubrange-class}
+\alias{DILexicalBlockBase-class}
+\alias{DILocalScope-class}
+\alias{DINode-class}
+\alias{DILexicalBlock-class}
+\alias{DICompositeType-class}
+\alias{DILexicalBlockFile-class}
+\alias{DIFile-class}
+\alias{GenericDINode-class}
+\alias{LoadedObjectInfo-class}
+
+
 \title{Functions for working with LLVM metadata}
 \description{
   These functions allow us to set and get metadata
   on a module and to access the resulting
   \code{NamedMDNode} and \code{MDNode}
   objects representing the metadata in a convenient manner.
+
+  The DI classes are for debugging information.
+  They are used in the \code{\link{DIBuilder}}.
 }
 \usage{
 setMetadata(x, id, values, ...)

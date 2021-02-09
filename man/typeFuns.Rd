@@ -45,7 +45,7 @@ getIntegerBitWidth(x, ...)
 
 functionType(returnType, argTypes, varArgs = FALSE)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{x}{the type, an Integer type for \code{getIntegerBitWidth}.}
   \item{elType}{the type of the element}

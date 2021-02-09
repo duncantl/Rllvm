@@ -179,7 +179,7 @@ R_DICompositeType_getElements(SEXP r_obj)
             nm = ((llvm::DIType *)els[i])->getName().data(); // was llvm::DIType *
         if(nm)
            SET_STRING_ELT(names, i, mkChar(nm));
-        SET_VECTOR_ELT(ans, i, R_createRef(els[i], "DINode"));
+        SET_VECTOR_ELT(ans, i, R_createRef(els[i], getDITypeClassName(els[i]))); // "DINode"));
     }
     SET_NAMES(ans, names);
     UNPROTECT(2);
@@ -358,3 +358,33 @@ R_DIVariable_getType(SEXP r_obj)
     llvm::DIType *ty = obj->getType();
     return(ty ? R_createRef(ty, getDITypeClassName(ty)) : R_NilValue);
 }
+
+
+
+extern "C"
+SEXP
+R_DIEnumerator_getValue(SEXP r_obj)
+{
+    LDECL2(DIEnumerator, obj);
+    llvm::APInt val = obj->getValue();
+    return(ScalarReal(val.roundToDouble())); //XXXX And may need to get the value using other  methods.
+}
+
+extern "C"
+SEXP
+R_DIEnumerator_isUnsigned(SEXP r_obj)
+{
+    LDECL2(DIEnumerator, obj);
+    return(ScalarLogical(obj->isUnsigned()));
+}
+
+extern "C"
+SEXP
+R_DIEnumerator_getName(SEXP r_obj)
+{
+    LDECL2(DIEnumerator, obj);
+    llvm::StringRef str = obj->getName();
+    return(ScalarString(mkChar(str.data() ? str.data() : "")));    
+}
+
+
