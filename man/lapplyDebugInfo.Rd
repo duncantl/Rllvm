@@ -1,6 +1,9 @@
 \name{lapplyDebugInfo}
 \alias{lapplyDebugInfo}
 \alias{lapplyDebugInfoTypes}
+\alias{getElements}
+\alias{getElements,DIDerivedType-method}
+\alias{getElements,DINode-method}
 
 \title{Query the Debug Information in an LLVM Module}
 \description{
@@ -8,10 +11,12 @@
 \usage{
 lapplyDebugInfo(mod, fun, setClass = TRUE, ...)
 lapplyDebugInfoTypes(mod, fun, setClass = TRUE, ...) 
+getElements(x, ...)
 }
 \arguments{
-  \item{mod}{}
-  \item{fun}{}
+  \item{mod}{the \code{\link{Module-class}} whose debugging metadata to query}
+  \item{fun}{a function that is applied to each top-level metadata
+    node or metadata type in the module.}
   \item{setClass}{a logical value that controls whether to get the
     specific class of the DINode/DIType object, or to leave it as a
     generic DINode/DIType class.}

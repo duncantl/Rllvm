@@ -7,10 +7,6 @@
 \alias{getFilename,DILocation-method}
 \alias{getDirectory,DIType-method}
 
-
-\alias{getElements,DINode-method}
-\alias{getElements,DIDerivedType-method}
-
 \alias{getBaseType,DIDerivedType-method}
 \alias{getBaseType,DICompositeType-method}
 
