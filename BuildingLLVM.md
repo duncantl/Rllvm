@@ -90,6 +90,29 @@ An alternative description of how to build LLVM is available at
 [http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html](http://www.linuxfromscratch.org/blfs/view/svn/general/llvm.html)
 
 
+
+
+# On Linux
+
+On an older linux machine with gcc 4.?, etc. I had to install
++ ninja
++ swig (4.0.2)
++ openssl  (1.1.1i)
++ cmake (3.19.3 as LLVM 12.0 will require cmake 3.13)
++ gcc 10
+
+before installing LLVM from source.
+
+Since I installed these into a local directory rather than replacing the system versions,
+I needed to update PATH and LD_LIBRARY_PATH to, e.g.,
+$HOME/local/bin and $HOME/local/lib64 respectively (if I used $HOME/local as the --prefix argument
+during the installations.)
+
+
+
+
+
+
 # Calling external routines and the Foreign Function Interface
 
 In order to be able to invoke existing routines that we do not create within our own modules, LLVM

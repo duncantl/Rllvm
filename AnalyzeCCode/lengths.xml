@@ -1,0 +1,28 @@
+<section
+	 xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:c="http://www.C.org">
+<title></title>
+
+<para>
+Consider the simple loop over the elements of two <r/> vectors.
+<c:code>
+<xi:include href="lengths.c" parse="text"/>  
+</c:code>
+We want to programatically determine that the loop
+is a) over the length of one of the <r/> objects,
+b) we are accessing elements within the vectors,
+and b) that vectors must have the same length.
+</para>
+
+<para>
+We start by find all the uses of each parameter:
+<r:code>
+m = parseIR("lengths.ir")
+p = getParameters(m$two)
+u = lapply(p, getAllUsers)
+</r:code>
+</para>
+
+</section>
+
