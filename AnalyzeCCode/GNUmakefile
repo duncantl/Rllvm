@@ -10,14 +10,14 @@ OPT_LEVEL=-O3
 XDYNDOCS=$(HOME)/GitWorkingArea/XDynDocs/inst
 
 %.ll: %.c GNUmakefile
-	$(CLANG) $(CFLAGS) $(OPT_LEVEL) -S -emit-llvm -o $@ $<
+	$(CLANG) $(CFLAGS) $(OPT_LEVEL) -S -emit-llvm -o $@ $< -fno-discard-value-names
 
 %_optimized.ll: %.c GNUmakefile
-	$(CLANG) $(OPT_LEVEL) $(CFLAGS) -S -emit-llvm -o $@ $<
+	$(CLANG) $(OPT_LEVEL) $(CFLAGS) -S -emit-llvm -o $@ $< -fno-discard-value-names
 
 
 %.ir:	 %.c
-	$(CLANG) $(CFLAGS) $(OPT_LEVEL) -S -emit-llvm  $< -o $@
+	$(CLANG) $(CFLAGS) $(OPT_LEVEL) -S -emit-llvm  $< -o $@ -fno-discard-value-names
 # -DNDEBUG   -I/usr/local/include -fPIC  -O2 -g -Wall -S -emit-llvm foo.c -o foo.ir
 
 
