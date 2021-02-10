@@ -493,6 +493,80 @@ DW_CC_lo_user = 64L, DW_CC_hi_user = 255L)
 
 ##########################
 
+`None` = 0L
+`Local` = 1L
+`Global` = 2L
+
+
+
+ `UnnamedAddr`  = structure(0:2, .Names = c("None", "Local", "Global"))
+
+
+##########################
+
+`DW_LANG_C89` = 0L
+`DW_LANG_C` = 1L
+`DW_LANG_Ada83` = 2L
+`DW_LANG_C_plus_plus` = 3L
+`DW_LANG_Cobol74` = 4L
+`DW_LANG_Cobol85` = 5L
+`DW_LANG_Fortran77` = 6L
+`DW_LANG_Fortran90` = 7L
+`DW_LANG_Pascal83` = 8L
+`DW_LANG_Modula2` = 9L
+`DW_LANG_Java` = 10L
+`DW_LANG_C99` = 11L
+`DW_LANG_Ada95` = 12L
+`DW_LANG_Fortran95` = 13L
+`DW_LANG_PLI` = 14L
+`DW_LANG_ObjC` = 15L
+`DW_LANG_ObjC_plus_plus` = 16L
+`DW_LANG_UPC` = 17L
+`DW_LANG_D` = 18L
+`DW_LANG_Python` = 19L
+`DW_LANG_OpenCL` = 20L
+`DW_LANG_Go` = 21L
+`DW_LANG_Modula3` = 22L
+`DW_LANG_Haskell` = 23L
+`DW_LANG_C_plus_plus_03` = 24L
+`DW_LANG_C_plus_plus_11` = 25L
+`DW_LANG_OCaml` = 26L
+`DW_LANG_Rust` = 27L
+`DW_LANG_C11` = 28L
+`DW_LANG_Swift` = 29L
+`DW_LANG_Julia` = 30L
+`DW_LANG_Dylan` = 31L
+`DW_LANG_C_plus_plus_14` = 32L
+`DW_LANG_Fortran03` = 33L
+`DW_LANG_Fortran08` = 34L
+`DW_LANG_RenderScript` = 35L
+`DW_LANG_BLISS` = 36L
+`DW_LANG_Mips_Assembler` = 37L
+`DW_LANG_GOOGLE_RenderScript` = 38L
+`DW_LANG_BORLAND_Delphi` = 39L
+`DW_LANG_lo_user` = 32768L
+`DW_LANG_hi_user` = 65535L
+
+
+
+ `SourceLanguage`  = c(DW_LANG_C89 = 0L, DW_LANG_C = 1L, DW_LANG_Ada83 = 2L, DW_LANG_C_plus_plus = 3L, 
+DW_LANG_Cobol74 = 4L, DW_LANG_Cobol85 = 5L, DW_LANG_Fortran77 = 6L, 
+DW_LANG_Fortran90 = 7L, DW_LANG_Pascal83 = 8L, DW_LANG_Modula2 = 9L, 
+DW_LANG_Java = 10L, DW_LANG_C99 = 11L, DW_LANG_Ada95 = 12L, DW_LANG_Fortran95 = 13L, 
+DW_LANG_PLI = 14L, DW_LANG_ObjC = 15L, DW_LANG_ObjC_plus_plus = 16L, 
+DW_LANG_UPC = 17L, DW_LANG_D = 18L, DW_LANG_Python = 19L, DW_LANG_OpenCL = 20L, 
+DW_LANG_Go = 21L, DW_LANG_Modula3 = 22L, DW_LANG_Haskell = 23L, 
+DW_LANG_C_plus_plus_03 = 24L, DW_LANG_C_plus_plus_11 = 25L, DW_LANG_OCaml = 26L, 
+DW_LANG_Rust = 27L, DW_LANG_C11 = 28L, DW_LANG_Swift = 29L, DW_LANG_Julia = 30L, 
+DW_LANG_Dylan = 31L, DW_LANG_C_plus_plus_14 = 32L, DW_LANG_Fortran03 = 33L, 
+DW_LANG_Fortran08 = 34L, DW_LANG_RenderScript = 35L, DW_LANG_BLISS = 36L, 
+DW_LANG_Mips_Assembler = 37L, DW_LANG_GOOGLE_RenderScript = 38L, 
+DW_LANG_BORLAND_Delphi = 39L, DW_LANG_lo_user = 32768L, DW_LANG_hi_user = 65535L
+)
+
+
+##########################
+
 
 
 
