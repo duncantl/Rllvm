@@ -48,6 +48,12 @@
 getOrdering(x, ...)
 setOrdering(x, ...)
 }
+
+\arguments{
+  \item{x}{the \code{LoadInst} or \code{StoreInst} LLVM instruction}
+  \item{\dots}{arguments for methods}
+}
+
 \author{DTL}
 
 \seealso{

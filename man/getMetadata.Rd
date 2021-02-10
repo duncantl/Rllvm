@@ -9,6 +9,7 @@
 \alias{coerce,Metadata,character-method}
 
 \alias{getName,NamedMDNode-method}
+\alias{getMetadata,Module,character-method}
 
 
 \alias{Metadata-class}

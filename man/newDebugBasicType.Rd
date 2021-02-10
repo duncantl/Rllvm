@@ -1,4 +1,6 @@
 \name{newDebugBasicType}
+
+
 \alias{newDebugBasicType}
 \alias{newDebugCompileUnit}
 \alias{newDebugFunction}
@@ -10,35 +12,11 @@
 \alias{DIBuilder}
 
 \alias{DIBuilder-class}
-\alias{DICompileUnit-class}
 \alias{DISubroutineType-class}
-\alias{DIType-class}
 \alias{DISubprogram-class}
 
 \alias{finalizeDIBuilder}%XXX
 
-
-
-
-\alias{isLittleEndian,DIType-method}
-\alias{isLValueReference,DIType-method}
-\alias{isObjcClassComplete,DIType-method}
-\alias{isObjectPointer,DIType-method}
-\alias{isPrivate,DIType-method}
-\alias{isProtected,DIType-method}
-\alias{isPublic,DIType-method}
-\alias{isRValueReference,DIType-method}
-\alias{isStaticMember,DIType-method}
-\alias{isTypePassByReference,DIType-method}
-\alias{isTypePassByValue,DIType-method}
-\alias{isVector,DIType-method}
-\alias{isVirtual,DIType-method}
-\alias{isForwardDecl,DIType-method}
-\alias{isBigEndian,DIType-method}
-\alias{isBitField,DIType-method}
-\alias{isAppleBlockExtension,DIType-method}
-\alias{isArtificial,DIType-method}
-\alias{isAtomic,Instruction-method}
 
 
 

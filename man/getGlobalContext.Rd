@@ -1,5 +1,6 @@
 \name{getGlobalContext}
 \alias{getGlobalContext}
+\alias{LLVMContext-class}
 
 \alias{getContext,Constant-method}
 \alias{getContext,Type-method}
@@ -9,6 +10,7 @@
 
 \alias{coerce,Argument,LLVMContext-method} %XXX here?
 
+\alias{getContext}
 
 \title{Retrieve the default LLVM context}
 \description{
@@ -19,10 +21,15 @@
 }
 \usage{
 getGlobalContext()
+getContext(x, ...)
+}
+\arguments{
+\item{x}{an LLVM Value or Type object}
+\item{...}{additional arguments for methods}
 }
 
 \value{
-An object of class \code{\link{Context-class}}.
+An object of class \code{\link{LLVMContext-class}}.
 }
 \references{
   \url{http://llvm.org/docs/doxygen/html/classllvm_1_1LLVMContext.html}

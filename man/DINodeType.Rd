@@ -2,7 +2,26 @@
 
 \alias{DIType-class}
 \alias{DICompileUnit-class}
+
+% From llvm/DebugInfo
+
+\alias{DILocation-class}
 \alias{DIEnumerator-class}
+\alias{DIDerivedType-class}
+\alias{DIBasicType-class}
+\alias{DIGlobalVariableExpression-class}
+\alias{DIScope-class}
+\alias{DISubrange-class}
+\alias{DILexicalBlockBase-class}
+\alias{DILocalScope-class}
+\alias{DINode-class}
+\alias{DILexicalBlock-class}
+\alias{DICompositeType-class}
+\alias{DILexicalBlockFile-class}
+\alias{DIFile-class}
+\alias{GenericDINode-class}
+\alias{LoadedObjectInfo-class}
+
 
 
 \alias{getEmissionKind,DICompileUnit-method}
@@ -25,6 +44,10 @@
 \alias{isTypePassByValue,DIType-method}
 \alias{isVector,DIType-method}
 \alias{isVirtual,DIType-method}
+%\alias{getDirectory}
+%\alias{isLittleEndian}
+%\alias{isAppleBlockExtension}
+
 
 \alias{getName,DIEnumerator-method}
 \alias{getName,DINode-method}
@@ -84,6 +107,10 @@
 \alias{isBigEndian,DIType-method}
 
 
+\alias{isLittleEndian,DIType-method}
+\alias{isAppleBlockExtension,DIType-method}
+
+
 \alias{getBaseType,DICompositeType-method}
 \alias{getBaseType,DIDerivedType-method}
 
@@ -97,6 +124,10 @@
 
 \alias{isRValueReference,DIType-method}
 
+\alias{getBaseType,DIDerivedType-method}
+\alias{getBaseType,DICompositeType-method}
+
+
 \title{Debug Information Methods and Classes}
 \description{
  The DI classes and methods provide access to the debug information in
@@ -107,7 +138,6 @@
 getEmissionKind(x, ...)
 isOptimized(x, ...)
 isUnsigned(obj, ...)
-getDirectory(x, ...)
 isArtificial(x, ...)
 isBigEndian(x, ...)
 isBitField(x, ...)
@@ -125,6 +155,9 @@ isTypePassByValue(x, ...)
 isVector(x, ...)
 isVirtual(x, ...)
 }
-
+\arguments{
+  \item{x,obj}{the LLVM debug node or type object}
+  \item{...}{additiona arguments for methods}
+}
 
 \author{DTL}

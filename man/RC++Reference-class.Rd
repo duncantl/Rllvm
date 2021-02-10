@@ -15,7 +15,6 @@
 \alias{ExecutionEngine-class}
 \alias{GetElementPtrInst-class}
 \alias{Instruction-class}
-\alias{LLVMContext-class}
 \alias{ParameterList-class}
 \alias{PointerType-class}
 \alias{RC++Reference-class}
@@ -43,9 +42,6 @@
 \alias{BinaryOperator-class}
 
 \alias{SelectInst-class}
-
-\alias{setName}
-\alias{getName}
 
 
 

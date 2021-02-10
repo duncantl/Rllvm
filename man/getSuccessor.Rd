@@ -20,14 +20,18 @@
   get the condition for the branch,  or retrieve the different locations the Branch could follow.
 }
 \usage{
-getSuccessor(x, i = 1L)
+getSuccessor(x, ...)
 getNumSuccessors(x)
 getCondition(x)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{the \code{BranchInst} object}
-  \item{i}{an integer}
+  \item{x}{the \code{BasicBlock}, \code{BranchInst} object}
+  \item{...}{for a BasicBlock, \code{single} controls whether we call
+    the getSingleSuccessor method or the getUniqueSuccessor() method for
+    the block.
+    For a \code{BranchInst}, an integer specifying the index/position of
+    the successor to query (count starting at 1)}
 }
 \details{}
 \value{

@@ -45,7 +45,7 @@ Duncan Temple Lang
 
 InitializeNativeTarget()
 
-\dontrun{  % format not quite correct due to different versions
+# format not quite correct due to different versions
 ff = system.file("IR", "add.ll", package = "Rllvm")
 
  # Read directly from a file
@@ -76,7 +76,7 @@ entry:
 
  m = parseIR(ll, asText = TRUE)
  Optimize(m,)
- run(getModuleFunctions(m)$bar)
-}
+ .llvm(m$bar)
+ .llvm(getModuleFunctions(m)$bar)
 }
 \keyword{programming}

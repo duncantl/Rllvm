@@ -7,9 +7,6 @@
 \alias{getFilename,DILocation-method}
 \alias{getDirectory,DIType-method}
 
-\alias{getBaseType,DIDerivedType-method}
-\alias{getBaseType,DICompositeType-method}
-
 \alias{getSourceLanguage}  % for DICompileUnit
 \alias{getRuntimeVersion}  % for DICompileUnit
 \alias{getSDK}  % for DICompileUnit
@@ -31,10 +28,9 @@
 getLine(x, ...)
 getFilename(x, ...)
 getDirectory(x, ...)
-getName(obj, ...)
 }
 \arguments{
-  \item{x,obj}{the debugging information instruction or type}
+  \item{x}{the debugging information instruction or type}
   \item{\dots}{additional arguments for methods}
 }
 \value{

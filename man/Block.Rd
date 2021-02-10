@@ -30,7 +30,6 @@
 \alias{removeFromParent,BasicBlock-method}
 
 \alias{getPredecessor}
-\alias{getSuccessor}
 
 \alias{lapply}
 \alias{lapply,BasicBlock-method}
@@ -65,7 +64,6 @@
 \usage{
 Block(fun, id = character(), context = getGlobalContext(), n = 1)
 getPredecessor(x, single = TRUE)
-getSuccessor(x, single = TRUE)
 getLandingPadInst(block)
 }
 \arguments{

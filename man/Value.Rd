@@ -2,6 +2,11 @@
 \alias{Value-class}
 \alias{getType,Value-method}
 
+
+\alias{setName}
+\alias{getName}
+\alias{getType}
+
 \alias{[[,Value,ANY,ANY-method}
 \alias{coerce,Value,character-method}
 \alias{getName,Value-method}
@@ -18,7 +23,7 @@
 
 
 \alias{setUnnamedAddr} % GlobalValue
-
+\alias{getUnnamedAddr} % GlobalValue
 
 
 % User

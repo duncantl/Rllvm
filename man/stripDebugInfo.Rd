@@ -26,7 +26,7 @@ stripDebugInfo(x, ...)
 }
 \examples{
   irFile = system.file("IR/fib_debug.ir", package = "Rllvm")
-  m = stripDebugInfo(irFile)
+  m = parseIR(irFile)
   showModule(m)
   stripDebugInfo(m$fib)
   showModule(m)

@@ -164,6 +164,10 @@ debugSetLocation(builder, func, lineNo, colNo)
 \item{check}{a logical value that determines whether we check if the
   branch is to the same block, i.e., if we are creating a branch
   instruction to a block that is the same block.}
+\item{lineNo,colNo}{integers providing the line and column number to 
+  add as debugging information.}
+\item{func}{the \code{DISubprogram} object corresponding to the routine
+  for which we are adding the debugging information.}
 }
 
 %\value{}

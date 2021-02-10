@@ -147,8 +147,7 @@
 
 
 \alias{setUnwindDest}
-\alias{setUnnamedAddr} % GlobalValue
-\alias{getUnnamedAddr} % GlobalValue
+
 
 \alias{setNormalDest} % InvokeInst
 \alias{getNormalDest} % InvokeInst

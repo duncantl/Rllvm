@@ -2,7 +2,6 @@
 \alias{clone}
 \alias{eraseFromParent}
 \alias{getCalledFunction}
-\alias{getContext}
 \alias{getDataLayout}
 \alias{getDescription}
 \alias{getElementTypes}
@@ -10,7 +9,6 @@
 \alias{getNumElements}
 \alias{getParent}
 \alias{getReturnType}
-\alias{getType}
 \alias{hasMetadata}
 \alias{hasMetadataOtherThanDebugLoc}
 \alias{isArithmeticShift}
@@ -39,7 +37,6 @@
 clone(x, ...)
 eraseFromParent(x, delete = TRUE, ...)
 getCalledFunction(obj, ...)
-getContext(x, ...)
 getDataLayout(from, asRef = FALSE, ...)
 getDescription(x, ...)
 getElementTypes(x, ...)
@@ -47,7 +44,6 @@ getModule(obj, ...)
 getNumElements(x, ...)
 getParent(x, ...)
 getReturnType(obj, ...)
-getType(obj, ...)
 hasMetadata(x, ...)
 hasMetadataOtherThanDebugLoc(x, ...)
 isArithmeticShift(x, ...)

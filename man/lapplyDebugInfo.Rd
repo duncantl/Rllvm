@@ -23,9 +23,14 @@ getElements(x, ...)
   \item{\dots}{additional arguments. Currently ignored. Instead of
     passing values by this mechanism, create an anonymous function that
     includes these arguments in the call to the actual function}
+  \item{x}{the debug type object, i.e. one of the sub-classes of
+    \code{DIType}, specifically \code{DICompositeType} as these are the
+    ones that have elements.  If a \code{DIDerivedType} is passed,
+    \code{getElements} gets the base type and if that is a
+    \code{DICompositeType},  returns its elements.
+  }
 }
-\details{
-}
+%\details{}
 \value{
  A list
 }

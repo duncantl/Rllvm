@@ -7,7 +7,8 @@
   populates it with local variables that access the parameter values.
 }
 \usage{
-simpleFunction(.name, retType = VoidType, ..., .types = list(...), module = Module())
+simpleFunction(.name, retType = VoidType, ..., .types = list(...),
+                module = Module(), .createLocalVars = FALSE)
 }
 \arguments{
   \item{.name}{the name of the function/routione}
@@ -20,15 +21,13 @@ simpleFunction(.name, retType = VoidType, ..., .types = list(...), module = Modu
     and arrange to store the value of the parameter in that local
     variable. This is the general idiom \code{clang} uses to create code
     in the unoptimized form.
-   }
+  }
 }
 %\value{}
 \references{
   LLVM Documentation \url{http://llvm.org/docs/}
 }
-\author{
-DTL
-}
+\author{DTL}
 %\seealso{}
 %\examples{}
 \keyword{programming}

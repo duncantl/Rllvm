@@ -1,6 +1,5 @@
 \name{setMetadata}
 \alias{setMetadata}
-\alias{getMetadata}
 \alias{getMetadata,Module,missing-method}
 
 \alias{MDNode-class}
@@ -9,7 +8,7 @@
 
 \alias{setMetadata,NamedMDNode,ANY-method}
 \alias{setMetadata,Module,character-method}
-\alias{getMetadata,Module,character-method}
+
 
 \alias{[,MDNode,missing,ANY-method}
 \alias{[,MDNode,numeric,ANY-method}
@@ -27,27 +26,6 @@
 \alias{length,NamedMDNode-method}
 
 
-
-% From llvm/DebugInfo
-
-\alias{DILocation-class}
-\alias{DIEnumerator-class}
-\alias{DIDerivedType-class}
-\alias{DIBasicType-class}
-\alias{DIGlobalVariableExpression-class}
-\alias{DIScope-class}
-\alias{DISubrange-class}
-\alias{DILexicalBlockBase-class}
-\alias{DILocalScope-class}
-\alias{DINode-class}
-\alias{DILexicalBlock-class}
-\alias{DICompositeType-class}
-\alias{DILexicalBlockFile-class}
-\alias{DIFile-class}
-\alias{GenericDINode-class}
-\alias{LoadedObjectInfo-class}
-
-
 \title{Functions for working with LLVM metadata}
 \description{
   These functions allow us to set and get metadata
@@ -60,11 +38,10 @@
 }
 \usage{
 setMetadata(x, id, values, ...)
-getMetadata(module, id, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x,module}{ the \code{Module} object or NamedMDNode on which we
+  \item{x}{ the \code{Module} object or NamedMDNode on which we
     set or get the metadata}
   \item{id}{a string, the name/identifier of the metadata. This
     identifies which metadata field we want}

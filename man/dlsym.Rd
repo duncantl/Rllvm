@@ -46,7 +46,7 @@ This calls the UNIX \code{dlsym} routine, along with \code{dlopen} and
 \code{\link[base]{getNativeSymbolInfo}}
 }
 \examples{
-dlsym(Rf_protect)
+dlsym("Rf_protect")
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
