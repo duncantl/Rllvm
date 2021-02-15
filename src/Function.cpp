@@ -519,3 +519,61 @@ R_Function_getEntryBlock(SEXP r_func)
     llvm::Function *func = GET_REF(r_func, Function);
     return(R_createRef(&func->getEntryBlock(), "BasicBlock"));
 }
+
+
+
+
+#include <llvm/IR/Dominators.h>
+
+extern "C"
+SEXP
+R_DominatorTree(SEXP r_func)
+{
+    llvm::Function *func = GET_REF(r_func, Function);
+    llvm::DominatorTree *tree =  new llvm::DominatorTree(*func);
+    return(R_createRef(tree, "DominatorTree"));
+}
+
+
+extern "C"
+SEXP
+R_DominatorTree_dominates_instruction_block(SEXP r_tree, SEXP r_ins, SEXP r_block)
+{
+    llvm::DominatorTree *tree = GET_REF(r_tree, DominatorTree);
+    LDECL2(Instruction, ins);    
+    LDECL2(BasicBlock, block);
+    bool ans = tree->dominates(ins, block);
+    return(ScalarLogical(ans));
+}
+
+
+extern "C"
+SEXP
+R_DominatorTree_dominates_instruction_instruction(SEXP r_tree, SEXP r_ins1, SEXP r_ins2)
+{
+    llvm::DominatorTree *tree = GET_REF(r_tree, DominatorTree);
+    LDECL2(Instruction, ins1);
+    LDECL2(Instruction, ins2);    
+    bool ans = tree->dominates(ins1, ins2);
+    return(ScalarLogical(ans));
+}
+
+
+
+#if 0
+
+extern "C"
+SEXP
+R_DominatorTree_dominates_value_instruction(SEXP r_tree, SEXP r_val, SEXP r_ins)
+{
+    llvm::DominatorTree *tree = GET_REF(r_tree, DominatorTree);
+    LDECL2(Value, val);
+    LDECL2(Instruction, ins);    
+    bool ans = tree->dominates(val, ins);
+    return(ScalarLogical(ans));
+}
+
+#endif
+
+
+
