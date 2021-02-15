@@ -1,6 +1,4 @@
 if(FALSE) {
-setClass("CallingConv", contains = "EnumValue")
-
 CallingConvValues = structure(c(0L, 8L, 9L, 10L, 11L, 64L, 64L, 65L, 66L, 67L, 68L, 69L, 70L, 71L, 72L, 73L, 74L, 75L, 76L, 77L), .Names = c('C', 'Fast', 'Cold', 'GHC', 'HiPE', 'FirstTargetCC', 'X86_StdCall', 'X86_FastCall', 'ARM_APCS', 'ARM_AAPCS', 'ARM_AAPCS_VFP', 'MSP430_INTR', 'X86_ThisCall', 'PTX_Kernel', 'PTX_Device', 'MBLAZE_INTR', 'MBLAZE_SVOL', 'SPIR_FUNC', 'SPIR_KERNEL', 'Intel_OCL_BI'))
 
 `C` = GenericEnumValue('C', 0L, 'CallingConv')
@@ -23,8 +21,10 @@ CallingConvValues = structure(c(0L, 8L, 9L, 10L, 11L, 64L, 64L, 65L, 66L, 67L, 6
 `SPIR_FUNC` = GenericEnumValue('SPIR_FUNC', 75L, 'CallingConv')
 `SPIR_KERNEL` = GenericEnumValue('SPIR_KERNEL', 76L, 'CallingConv')
 `Intel_OCL_BI` = GenericEnumValue('Intel_OCL_BI', 77L, 'CallingConv')
-
- setAs("character", "CallingConv", function(from) asEnumValue(from, CallingConvValues, "CallingConv", prefix = NA) )
- setAs("integer", "CallingConv", function(from) asEnumValue(from, CallingConvValues, "CallingConv", prefix = NA) )
- setAs("numeric", "CallingConv", function(from) asEnumValue(from, CallingConvValues, "CallingConv", prefix = NA) )
 }
+
+setClass("CallingConv", contains = "EnumValue")
+setAs("character", "CallingConv", function(from) asEnumValue(from, CallingConvention, "CallingConv", prefix = NA) )
+setAs("integer", "CallingConv", function(from) asEnumValue(from, CallingConvention, "CallingConv", prefix = NA) )
+setAs("numeric", "CallingConv", function(from) asEnumValue(from, CallingConvention, "CallingConv", prefix = NA) )
+
