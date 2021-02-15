@@ -1,6 +1,9 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Attributes.h>
 
+#include <llvm/IR/Instructions.h>
+#include <llvm/IR/IntrinsicInst.h>
+
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/Orc/LLJIT.h>
 #include <llvm/IR/IRBuilder.h>
