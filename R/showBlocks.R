@@ -1,8 +1,22 @@
-getBlockGraph =    
-function(fun, cleanNames = function(x) x)
+setGeneric("getBlockGraph",
+            function(x, cleanNames = function(x) x, ...)    
+              standardGeneric("getBlockGraph"))
+
+
+
+setMethod("getBlockGraph", "Function",
+function(x, cleanNames = function(x) x, ...)
 {    
-   blocks = getBlocks(fun)
-   terms = lapply(blocks, getTerminator)
+    blocks = getBlocks(x)
+    getBlockGraph(blocks, cleanNames, ...)
+})
+
+
+tmp = function(x, cleanNames = function(x) x, ...)
+{
+    if(length(names(x)) == 0)
+        names(x) = sapply(x, getName)
+   terms = lapply(x, getTerminator)
    br = lapply(terms, function(t) sapply(getSuccessors(t), getName))
 
    edges = lapply(names(br),
@@ -12,8 +26,12 @@ function(fun, cleanNames = function(x) x)
                    })
    m = do.call(rbind, edges)
 
-  structure( cbind(cleanNames(m[ ,1]), cleanNames(m[ ,2])), class = "EdgeMatrix")
+   structure( cbind(cleanNames(m[ ,1]), cleanNames(m[ ,2])), class = "EdgeMatrix")
 }
+setMethod("getBlockGraph", "BasicBlockList", tmp)
+setMethod("getBlockGraph", "list", tmp)
+rm(tmp)
+
 
 setOldClass(c("EdgeMatrix", "matrix"))
 setClass("TikzEdges", contains = "character")
