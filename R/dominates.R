@@ -37,7 +37,13 @@ setMethod("dominates", c("DominatorTree", "BasicBlock", "Instruction"),
 
 
 DominatorTree =
-function(x, ...)
+function(fun, ...)
 {
-   .Call("R_DominatorTree", as(x, "Function"))
+   .Call("R_DominatorTree", as(fun, "Function"))
+}
+
+PostDominatorTree =
+function(fun, ...)
+{
+   .Call("R_PostDominatorTree", as(fun, "Function"))
 }

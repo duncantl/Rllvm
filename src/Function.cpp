@@ -577,3 +577,13 @@ R_DominatorTree_dominates_value_instruction(SEXP r_tree, SEXP r_val, SEXP r_ins)
 
 
 
+#include <llvm/Analysis/PostDominators.h>
+extern "C"
+SEXP
+R_PostDominatorTree(SEXP r_func)
+{
+    llvm::Function *func = GET_REF(r_func, Function);
+    llvm::PostDominatorTree *tree =  new llvm::PostDominatorTree(*func);
+    return(R_createRef(tree, "PostDominatorTree"));
+}
+
