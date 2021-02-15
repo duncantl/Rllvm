@@ -46,6 +46,15 @@ setMethod('isSafeToSpeculativelyExecute', 'Instruction',
 
 
 
+isNativeNull =
+function(x)
+{
+    if(is(x, "RC++Reference"))
+        x = x@ref
+
+    identical(new("externalptr"), x)
+}
+
 insertBefore =
 function(inst, to)
 {
