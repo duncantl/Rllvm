@@ -120,7 +120,7 @@ function(.x, ..., .args = list(...), .ee = ExecutionEngine(as(.x, "Module")), .a
 
   params = getParameters(.x)
   if(length(.args) != length(params)) {
-      if(!isVaArg(.x))
+      if(!isVarArg(.x))
          stop(sprintf("incorrect number of  arguments provided in call to .llvm() for %s: %d provided, %d expected",
                       getName(.x), length(.args),  length(params)))
       else if(length(.args) < length(params)) {
