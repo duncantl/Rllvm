@@ -4,9 +4,15 @@
 \alias{dominates,DominatorTree,Instruction,BasicBlock-method}
 \alias{dominates,Instruction,BasicBlock-method}
 \alias{dominates,Instruction,Instruction-method}
+\alias{dominates,BasicBlock,BasicBlock,ANY-method}
+\alias{dominates,BasicBlock,Instruction,ANY-method}
+\alias{dominates,DominatorTree,BasicBlock,BasicBlock-method}
+\alias{dominates,DominatorTree,BasicBlock,Instruction-method}
+\alias{dominates,Instruction,BasicBlock,ANY-method}
+\alias{dominates,Instruction,Instruction,ANY-method}
 
-\title{Determine whether an Instruction dominates another Instruction or
-  BasicBlock}
+  
+\title{Determine whether an Instruction dominates another Instruction or  BasicBlock}
 \description{
   These methods determine dominance in the sense of
   whether an instruction will always be evaluated
@@ -26,7 +32,7 @@ dominates(x, y, z, ...)
   \item{x,y,z}{one can either specify the Instruction and the
   Instruction and BasicBlock, or pass the DominatorTree as the first
   argument and then the Instruction and Instruction/BasicBlock.}
-  \item{\dots}{arguments for methods}
+  \item{\dots}{arguments for methods. Currently ignored for the DominatorTree functions}
 }
 
 \author{DTL}

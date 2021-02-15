@@ -50,6 +50,7 @@
 \alias{findCalledFunctions}
 
 \alias{copyFunction}
+\alias{ls,ANY-method}
 
 \title{Create an LLVM module for one or more functions and variables}
 \description{

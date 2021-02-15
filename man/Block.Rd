@@ -33,6 +33,7 @@
 
 \alias{lapply}
 \alias{lapply,BasicBlock-method}
+\alias{lapply,ANY-method}
 
 \alias{coerce,BasicBlock,Function-method}
 \alias{coerce,BasicBlock,Module-method}

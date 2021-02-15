@@ -25,7 +25,8 @@
 \alias{createNot,Value,ANY,BasicBlock,IRBuilder-method}
 \alias{createNot,Value,ANY,missing,IRBuilder-method}
 
-\alias{getCalledFunction,CallInst-method}
+%\alias{getCalledFunction,CallInst-method}
+\alias{getCalledFunction,CallBase-method}
 
 \alias{coerce,Instruction,LLVMContext-method}
 \alias{coerce,Instruction,Function-method}

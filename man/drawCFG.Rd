@@ -4,12 +4,15 @@
 \alias{EdgeMatrix-class}
 \alias{coerce,EdgeMatrix,TikzEdges-method}
 \alias{getBlockGraph}
-
+\alias{getBlockGraph,BasicBlockList-method}
+\alias{getBlockGraph,Function-method}
+\alias{getBlockGraph,list-method}
 
 \title{Visualize the Relationships between Blocks in a Function}
 \description{
 }
 \usage{
+getBlockGraph(x, cleanNames = function(x) x, ...)
 drawCFG(fun, blocks = getBlocks(fun), ids = names(blocks), x = 2, y = -seq(along = ids), text = ids, range = c(-1, 1))
 }
 
