@@ -18,7 +18,7 @@ setMethod("setMetadata",
           c("NamedMDNode"),
           function(x, id, values, context = getContext(x), ...) {
             if(!is.list(values))
-              values = list(values)
+               values = list(values)
             
             w = base::sapply(values, is, "Value")
             if(!all(w)) 
@@ -61,7 +61,7 @@ setMethod("makeMetadataValue",
 setMethod("makeMetadataValue",
           "character",
            function(value, context = getGlobalContext(), ...)
-            mdString(value, context))
+              mdString(value, context))
 
 
 setMethod("getOperands", "NamedMDNode",
