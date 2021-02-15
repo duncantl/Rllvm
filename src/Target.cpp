@@ -138,7 +138,9 @@ R_TargetMachine_getDataLayout(SEXP r_tm)
 }
 #endif
 
-#if 0
+
+
+#if 0  // was 0 so not compiled. Local object.
 extern "C"
 SEXP
 R_TargetMachine_createDataLayout(SEXP r_tm)
@@ -330,7 +332,7 @@ extern "C"
 SEXP
 R_getHostCPUName()
 {
-    std::string tri = llvm::sys::getDefaultTargetTriple();
+    std::string tri = llvm::sys::getDefaultTargetTriple(); // do we need this call???
     llvm::StringRef ref = llvm::sys::getHostCPUName();
     return(ScalarString(mkChar(ref.data())));
 }
@@ -353,6 +355,7 @@ R_getHostCPUFeatures()
             SET_STRING_ELT(names, num, mkChar(i->first().data()));
         }
         SET_NAMES(ans, names);
+        UNPROTECT(2);
         return(ans);
     } else
        return(R_NilValue);
