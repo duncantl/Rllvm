@@ -259,8 +259,8 @@ R_IRBuilder_SetLocation(SEXP r_builder, SEXP r_func, SEXP r_lineNo, SEXP r_colNo
     llvm::DISubprogram *SP;
     SP = GET_REF(r_func, DISubprogram);
 
-    int lineNo=asInteger(r_lineNo);
-    int colNo=asInteger(r_colNo);
+    int lineNo = asInteger(r_lineNo);
+    int colNo = asInteger(r_colNo);
 
     builder->SetCurrentDebugLocation(
 		  llvm::DebugLoc::get(lineNo, colNo, SP));
