@@ -113,6 +113,16 @@ ir = IRBuilder(f)
 ir$createReturn(ir$createConstant(3L))
 showModule(m)
 .llvm(f)
+
+
+
+f = system.file("IR/fib.ir", package = 'Rllvm')
+m = parseIR(f)
+a1 = getFuncAttributes(m$fib)
+a2 = getFuncAttributes(m$fib, FALSE)
+
+names(a2)
+names(a2)[a2]
 }
 \keyword{programming}
 
