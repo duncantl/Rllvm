@@ -79,3 +79,10 @@ setGeneric("getLoops", function(x, toplevel = FALSE, ...) standardGeneric("getLo
 setGeneric("getLoopBlocks", 
            function(x, ...)
               standardGeneric("getLoopBlocks"))
+
+
+setGeneric("contains", function(x, y, ...) standarGeneric("contains"))
+
+
+setGeneric("getHeader", function(x, ...) standarGeneric("getHeader"))
+setGeneric("numBlocks", function(x, ...) standarGeneric("numBlocks"))
