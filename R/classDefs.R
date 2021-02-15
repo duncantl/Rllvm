@@ -98,5 +98,20 @@ setClass("FunctionPassManager", contains = "PassManagerBase")
 setClass("ParameterList", representation(names = "character"), contains = "list")
 
 
+setClass("MemMoveInst", contains = "RC++Reference")
 
+
+setClass("DominatorTree", contains = "RC++Reference")
+setClass("LoopInfo", contains = "RC++Reference")
+setClass("Loop", contains = "RC++Reference")
+
+setClass("ScalarEvolutionWrapperPass", contains = "RC++Reference")
+setClass("ScalarEvolution", contains = "RC++Reference")
+
+setOldClass("BasicBlockList")
+
+setOldClass("LoopIncomingAndBackEdge")
+
+
+setClass("LoopBounds", contains = "RC++Reference")
 
