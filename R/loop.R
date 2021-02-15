@@ -95,11 +95,15 @@ function(loopInfo, block)
     .Call("R_LoopInfo_getLoopFor", as(loopInfo, "LoopInfo"), as(block, "BasicBlock"))
 }
 
-getLoopDepth =
-function(loopInfo, block)
-{
-    .Call("R_LoopInfo_getLoopDepth", as(loopInfo, "LoopInfo"), as(block, "BasicBlock"))
-}
+
+setGeneric("getLoopDepth",
+           function(loop, block = NULL, ...)
+              standardGeneric("getLoopDepth"))
+
+setMethod("getLoopDepth", "LoopInfo",
+          function(loop, block = NULL, ...)
+            .Call("R_LoopInfo_getLoopDepth", as(loop, "LoopInfo"), as(block, "BasicBlock")))
+
 
 isLoopHeader =
 function(loopInfo, block)
@@ -110,15 +114,15 @@ function(loopInfo, block)
 
 ###########
 setGeneric("getInductionVariable",
-           function(loop, se, ...)
+           function(loop, se = NULL, ...)
               standardGeneric("getInductionVariable"))
            
 setMethod("getInductionVariable", c("Loop", "ANY"),
-          function(loop, se, ...)
+          function(loop, se = NULL, ...)
           .Call("R_Loop_getInductionVariable", as(loop, "Loop"), as(se, "ScalarEvolution")))
 
 setMethod("getInductionVariable", c("Loop", "missing"),
-          function(loop, se, ...)
+          function(loop, se = NULL, ...)
              getCanonicalInductionVariable(loop))
 
 
@@ -188,12 +192,16 @@ function(loop)
 }
 
 
+if(FALSE)
 setMethod("getLoopBlocks", "Loop",
           function(x, ...) {
              getLoopBlocks(getIncomingAndBackEdge(x))
+         })
+
+setMethod("getLoopBlocks", "Loop",
+          function(x, ...) {
+             .Call("R_Loop_getBlocks", x)
           })
-
-
 
 # https://stackoverflow.com/questions/56439300/how-to-find-all-basic-blocks-appearing-between-two-specific-basic-blocks-in-llvm
 setMethod("getLoopBlocks", "LoopIncomingAndBackEdge",
@@ -205,6 +213,73 @@ setMethod("getLoopBlocks", "LoopIncomingAndBackEdge",
           })
 
 
+# Using latch, depth rather than getLatch, getDepth or even getLoopLatch
+latch = getLatch =
+function(loop)
+    .Call("R_Loop_getLoopLatch", as(loop, "Loop"))
+
+# XX need to make this generic as there will be other packages that have a depth 
+# But in all of LLVM that we analyze in TU/enums.R, only getLoopDepth has the phrase depth
+# check for lower
+#    unlist(sapply( k, function(x) grep("depth",  names(x@methods), ignore.case = TRUE, value = TRUE)))
+
+depth =
+function(loop)
+  .Call("R_Loop_getLoopDepth", as(loop, "Loop"))
+
+setMethod("getLoopDepth", "Loop",
+          function(loop, block = NULL, ...)
+              .Call("R_Loop_getLoopDepth", as(loop, "Loop")))
+
+setMethod("getParent", "Loop",
+          function(x, ...)
+             .Call("R_Loop_getParentLoop", x))
+
+#XXX need generic.
+setMethod("getHeader", "Loop",
+          function(x, ...)
+             .Call("R_Loop_getHeader", x))
+
+setMethod("contains", c("Loop", "Loop"),
+          function(x, y, ...)
+          .Call("R_Loop_contains_Loop", x, y))
+
+setMethod("contains", c("Loop", "BasicBlock"),
+          function(x, y, ...)
+          .Call("R_Loop_contains_BasicBlock", x, y))
+
+setMethod("contains", c("Loop", "Instruction"),
+          function(x, y, ...)
+           .Call("R_Loop_contains_Instruction", x, y))
+
+
+subLoops = getSubLoops =
+function(loop)
+   .Call("R_Loop_getSubLoops", as(loop, "Loop"))
+
+setMethod("numBlocks", "Loop",
+          function(x, ...)
+            .Call("R_Loop_getNumBlocks", x))
+
+isExiting = isLoopExiting =
+function(loop, block)    
+    .Call("R_Loop_isLoopExiting", as(x, "Loop"), as(block, "BasicBlock"))
+
+isLatch = isLoopLatch=
+function(loop, block)    
+    .Call("R_Loop_isLoopLatch", as(x, "Loop"), as(block, "BasicBlock"))
+
+numBackEdges = getNumBackEdges =
+function(loop)    
+    .Call("R_Loop_getNNumBackEdges", as(x, "Loop"))
+
+preHeader = getPreHeader =
+function(loop)    
+    .Call("R_Loop_getLoopPreheader", as(x, "Loop"))
+
+setMethod("getPredecessor", "Loop",
+          function(x, ...)    
+             .Call("R_Loop_getLoopPredecessor", x))
 
 
 ######################

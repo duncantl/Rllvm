@@ -193,6 +193,190 @@ R_Loop_getCanonicalInductionVariable(SEXP r_loop)
     return(ivar ? R_createRef2(ivar, "PHINode") : R_NilValue);
 }
 
+/// from LoopBase
+
+//√
+extern "C"
+SEXP
+R_Loop_getLoopDepth(SEXP r_loop)
+{
+    LDECL2(Loop, loop);
+    return(ScalarReal(loop->getLoopDepth()));
+}
+
+//√
+extern "C"
+SEXP
+R_Loop_getHeader(SEXP r_loop)
+{
+    LDECL2(Loop, loop);
+    return(R_createRef(loop->getHeader(), "BasicBlock"));
+}
+
+//√
+extern "C"
+SEXP
+R_Loop_getParentLoop(SEXP r_loop)
+{
+    LDECL2(Loop, loop);
+    return(loop->getParentLoop() ? R_createRef(loop->getParentLoop(), "Loop") : R_NilValue);
+}
+
+
+// √
+extern "C"
+SEXP
+R_Loop_contains_Loop(SEXP r_loop, SEXP r_loop2)
+{
+    LDECL2(Loop, loop);
+    LDECL2(Loop, loop2);    
+    return(ScalarLogical(loop->contains(loop2)));
+}
+
+// √
+extern "C"
+SEXP
+R_Loop_contains_BasicBlock(SEXP r_loop, SEXP r_block)
+{
+    LDECL2(Loop, loop);
+    LDECL2(BasicBlock, block);    
+    return(ScalarLogical(loop->contains(block)));
+}
+
+//√
+extern "C"
+SEXP
+R_Loop_contains_Instruction(SEXP r_loop, SEXP r_ins)
+{
+    LDECL2(Loop, loop);
+    LDECL2(Instruction, ins);    
+    return(ScalarLogical(loop->contains(ins)));
+}
+
+
+// √
+SEXP
+R_Loop_getSubLoops(SEXP r_loop)
+{
+    LDECL2(Loop, loop);
+    std::vector<llvm::Loop *> loops = loop->getSubLoops();
+    int n = loops.size();
+    SEXP ans;
+    PROTECT(ans = NEW_LIST(n));
+    for(int i = 0; i < n ; i++) {
+        SET_VECTOR_ELT(ans, i, R_createRef(loops[i], "Loop"));
+    }
+    UNPROTECT(1);
+    return(ans);
+}
+
+//√
+SEXP
+R_Loop_getBlocks(SEXP r_loop)
+{
+    LDECL2(Loop, loop);
+    std::vector<llvm::BasicBlock *> blocks = loop->getBlocksVector();
+    int n = blocks.size();
+    SEXP ans; 
+    PROTECT(ans = NEW_LIST(n));
+    for(int i = 0; i < n ; i++) {
+        SET_VECTOR_ELT(ans, i, R_createRef(blocks[i], "BasicBlock"));
+    }
+    UNPROTECT(1);
+    return(ans);
+}
+
+//√
+extern "C"
+SEXP
+R_Loop_getNumBlocks(SEXP r_loop)
+{
+    LDECL2(Loop, loop);
+    return(ScalarReal(loop->getNumBlocks()));
+}
+
+//√
+extern "C"
+SEXP
+R_Loop_isLoopExiting(SEXP r_loop, SEXP r_block)
+{
+    LDECL2(Loop, loop);
+    LDECL2(BasicBlock, block);
+    return(ScalarLogical(loop->isLoopExiting(block)));
+}
+
+//√
+extern "C"
+SEXP
+R_Loop_isLoopLatch(SEXP r_loop, SEXP r_block)
+{
+    LDECL2(Loop, loop);
+    LDECL2(BasicBlock, block);
+    return(ScalarLogical(loop->isLoopLatch(block)));
+}
+
+
+//√
+extern "C"
+SEXP
+R_Loop_getNumBackEdges(SEXP r_loop)
+{
+    LDECL2(Loop, loop);
+    return(ScalarReal(loop->getNumBackEdges()));
+}
+
+//√
+extern "C"
+SEXP
+R_Loop_getLoopPreheader(SEXP r_loop)
+{
+    LDECL2(Loop, loop);
+    llvm::BasicBlock *block = loop->getLoopPreheader();
+    return(block ? R_createRef(block, "BasicBlock") : R_NilValue);
+}
+
+//√
+extern "C"
+SEXP
+R_Loop_getLoopPredecessor(SEXP r_loop)
+{
+    LDECL2(Loop, loop);
+    llvm::BasicBlock *block = loop->getLoopPredecessor();
+    return(block ? R_createRef(block, "BasicBlock") : R_NilValue);
+}
+
+
+
+//√
+extern "C"
+SEXP
+R_Loop_getLoopLatch(SEXP r_loop)
+{
+    LDECL2(Loop, loop);
+    llvm::BasicBlock *block = loop->getLoopLatch();
+    return(block ? R_createRef(block, "BasicBlock") : R_NilValue);
+}
+
+
+/*
+  All the additional methods for LoopBase to access the exit,
+ getExitingBlocks, ? getExitingBlock,
+ getExitBlocks, ? getExitBlock
+ [done] hasDedicatedExits
+ getUniqueExitBlocks
+ getUniqueNonLatchExitBlocks
+ getUniqueExitBlock
+ getExitEdges
+ [done] getLoopPreheader
+ [done] getLoopPredecessor
+ [dpne] getLoopLatch
+ getLoopLatches
+ getInnerLoopsInPreorder
+ getLoopsInPreorder
+*/
+
+/// end of from LoopBase
+
 
 extern "C"
 SEXP
