@@ -1,4 +1,9 @@
 
+if(!is(`%in%`, "standardGeneric")) {
+    setGeneric("%in%", function(x, table) standardGeneric('%in%'))
+    setMethod("%in%", c("ANY", "ANY"), function(x, table)  base::`%in%`(x, table))
+}
+
 setMethod("%in%", c("character", "Module"),
           function(x, table)
              x %in% names(table))
@@ -145,13 +150,15 @@ setMethod("[[<-", c("Module", "character", "missing", value = "Type"),
              x
            })
 
+
+
 getGlobalEntries =
-function(mod, ids, varOnly = FALSE)
+function(mod, ids, varOnly = FALSE, private = TRUE)
 {
   if(varOnly)
     lapply(ids, getGlobalVariable, mod)
   else {
-    c(getModuleFunctions(mod), getGlobalVariables(mod))[ids]
+    c(getModuleFunctions(mod), getGlobalVariables(mod, private))[ids]
   }
 }
 
@@ -162,7 +169,8 @@ setMethod("[", c("Module", "character", "missing"),
 
 
 setMethod("[[", c("Module", "character", "missing"),
-           function(x, i, j, ..., varOnly = FALSE, value = !missing(ee), ee = as(x, "ExecutionEngine")) {
+          function(x, i, j, ..., varOnly = FALSE, value = !missing(ee), ee = as(x, "ExecutionEngine")) {
+
        ans = if(varOnly)
                getGlobalVariable(x, i)
              else {
@@ -344,7 +352,7 @@ function(ty)
 }
 
 copyFunction =
-function(fun, module = as(fun, "Module"), id = getName(fun), body = FALSE, moduleLevelChanges = FALSE, changeSEXPTypes = TRUE)
+function(fun, module = as(fun, "Module"), id = getName(fun), body = FALSE, moduleLevelChanges = body, changeSEXPTypes = TRUE)
 {
   if(missing(id) && identical(as(fun, "Module"), module)) 
       id = paste0(id, "clone")
@@ -381,10 +389,16 @@ setMethod("getType", c("Module"), # "character"),
           })
 
 
+
+if(TRUE) {
     # See Todo.xml to allow showing names of different types of objects in the module
     #  defined routines, non-constants, etc.
 if(!isGeneric("ls"))
   setGeneric("ls", function(name, ...) standardGeneric('ls'))
+
+setMethod("ls", "ANY",
+          function(name, ...)
+              base::ls(name, ...))
 
 setMethod("ls", "Module",
           # add variablesOnly or variables and functions
@@ -407,7 +421,6 @@ setMethod("ls", "Module",
 
             ans
         })
-
-
+}
 
 
