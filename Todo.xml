@@ -9,6 +9,10 @@
 <topic>
 <title>New</title>
 <items>
+
+  <item>
+    Classes definitions for MemSetInst, MemCpyInst computed from the class hierarchy.
+  </item>
   <item status="done">
     get the default data layout and target machine for the current machine.
     When read in a Module (parseIR or readBitcode), allow changing the data layout.
@@ -28,6 +32,11 @@ getDataLayout(a)
   <item>
     Get the load (and install) time way down. Looks like it is not the enums but probably the classes.
     Can we define them lazily.
+    <ol>
+      <li>Classes</li>
+      <li>size of .so</li>
+      <li>[done] number of symbols</li>
+    </ol>
   </item>
   <item>
     Instead of changing SEXP types in copyFunction(),
@@ -421,11 +430,14 @@ Version 7.0.1  - Value::dump() and Type::dump() symbols missing from the LLVM li
 <item>
 Is the subsetting for a BranchInst getting the target blocks in the wrong order?
 <r:code>    
-m3 =parseIR("AnalyzeCCode/rpart.ir")
-e = getTerminator(getBlocks(m3$rpart)[["for.body182"]], FALSE)   
+m3 = parseIR("AnalyzeCCode/rpart.ir")
+b = getBlocks(m3$rpart)
+e = getTerminator(b[["for.body182"]], FALSE)   
 e[[2]]
 e[[3]]
 </r:code>
+getSuccessors() gets them in the correct order.
+But getOperands() puts them in the other order! It appears to just be that way. Use getSuccessors().
 </item>
 
 
@@ -785,9 +797,13 @@ LinkageType , CodeGenOpt, {VoidType, etc.} in typeDefs.R
 </item>
 
 <item>
-See how to generate C++ from the IR, and also  PTX.
-
+  See how to generate PTX from the IR.
 http://llvm.org/docs/NVPTXUsage.html
+</item>
+<item status="done">
+  See how to generate C++ from the IR, and also  PTX.
+  <br/>
+  Cannot do this. 
 </item>
 
 
