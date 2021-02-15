@@ -13,7 +13,7 @@ setMethod("getParent", "Function",
   
 
 setMethod("getOperand", "User", # "Instruction",
-          function(instruction, index, class = getClassName(ans)) {
+          function(instruction, index, class = character()) {
             if(index < 1)
                stop("operand indices have to be positive integer values")
             
@@ -36,6 +36,7 @@ setMethod("length", "User",
 
 
 # Should this be Value or User rather than Instruction so we can include Constant and its subclasses.
+# See user.R for a very similar method.
 setMethod("[[", c("User", "numeric"),
            function(x, i, j, ...) 
              getOperand(x, i)
