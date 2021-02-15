@@ -626,7 +626,7 @@ function(builder, vec, value, idx, id = character())
     vec = as(vec, "Value")
     value = as(value, "Value")
     if(is(idx, "numeric"))
-        idx = makeConstant(ir, idx)
+        idx = makeConstant(builder, idx)
     else
         idx = as(idx, "Value")
     
@@ -639,7 +639,7 @@ function(builder, vec, idx, id = character())
 {
     vec = as(vec, "Value")
     if(is(idx, "numeric"))
-        idx = makeConstant(ir, idx)
+        idx = makeConstant(builder, idx)
     else
         idx = as(idx, "Value")
     
