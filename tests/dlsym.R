@@ -1,16 +1,25 @@
 library(Rllvm)
-dlsym("Rf_allocVector")
+a = dlsym("Rf_allocVector")
 
-try(dlsym("R_real", NULL)) # fails because not in executable
+stopifnot(!is.null(a) && !Rllvm:::isNativeNull(a)) 
+
+e = try(dlsym("R_real", NULL), silent = TRUE) # fails because not in executable
+stopifnot(is(e, 'try-error'))
+
+if(!file.exists("real.so"))
+    system("R CMD SHLIB real.c")
 
 if(file.exists("real.so")) {
 
-a = dlsym("R_real", "real.so")
+    a = dlsym("R_real", "real.so")
 
-dll = dyn.load("real.so")
+    stopifnot(!is.null(a))
 
-b = dlsym("R_real", dll[["handle"]])
+    dll = dyn.load("real.so")
 
+    b = dlsym("R_real", dll[["handle"]])
+
+    stopifnot(identical(a, b))
 }
 
 

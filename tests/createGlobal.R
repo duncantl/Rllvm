@@ -41,15 +41,19 @@ ir$createRet(v)
 #######
 
 .llvm(fun, .ee = ee)
-replicate(10, .llvm(fun, .ee = ee))
-# -99, ...., -90
+ans = replicate(10, .llvm(fun, .ee = ee))
+stopifnot(identical(ans, seq(-99, -90)))
 
-.llvm(getGV, .ee = ee)
+ans = .llvm(getGV, .ee = ee)
+stopifnot(identical(ans, -90L))
 
 #But the following now gives -101.  So is this the initializer value?
+#XXX
 getGlobalValue(getGlobalVariable(mod, "gv"), ee)
 
 # But calling fun w/o the ExecutionEngine means we create a new exec engine and so
 # reinitialize the global variable each time.
 .llvm(fun) # no ee
 .llvm(fun) # and no ee again gives -100
+
+#XXX add  stopifnot()

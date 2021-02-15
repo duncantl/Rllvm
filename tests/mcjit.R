@@ -1,6 +1,6 @@
 library(Rllvm)
 m = parseIR(system.file("IR", "fib.ll", package = "Rllvm"))
-ee = ExecutionEngine(m, Rllvm:::Aggressive)
+ee = ExecutionEngine(m) # , Rllvm:::Aggressive)
 finalizeEngine(ee)
 
 .llvm(m$fib, 10L, .ee = ee)

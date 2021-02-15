@@ -19,7 +19,10 @@ print(length(d))
 
 ty = arrayType(DoubleType, 10)
 m[["o"]] = ty
-#setInitializer(m[["i"]], createConstant(3.1415))
+
+
+#XXX
+# setInitializer(m[["dd"]], createConstant(3.1415))
 
 
 

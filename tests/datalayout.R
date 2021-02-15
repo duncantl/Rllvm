@@ -6,7 +6,7 @@ isLittleEndian(dl)
 
 getPointerSize(dl)
 
-try(getStackAlignment(dl))
+getStackAlignment(dl)
 
 getTypeAllocSize(dl, Int32Type)
 getTypeAllocSize(dl, DoubleType)
