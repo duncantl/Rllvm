@@ -9,10 +9,9 @@ setMethod("length", "User",
 
 
 setMethod("[[", "User",
-           function(x, i, ..., value = TRUE) {
+          function(x, i, ..., value = TRUE) {
                if(value) {
-                  ans = .Call("R_getOperand", x, as.integer(i - 1))
-                  as(ans, getClassName(ans))
+                  .Call("R_getOperand", x, as.integer(i - 1))
                } else
                   .Call("R_getOperandUse", x, as.integer(i - 1))               
       })
