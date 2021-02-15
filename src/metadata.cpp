@@ -44,27 +44,38 @@ R_NamedMDNode_getParent(SEXP r_namedNode)
 #endif
 
 
+// https://stackoverflow.com/questions/19743861/what-is-llvm-metadata
 
 extern "C"
 SEXP
 R_NamedMDNode_addOperand1(SEXP r_namedNode, SEXP r_vals, SEXP r_context)
 {
-NOT_FOR_VERSION4(
+
     llvm::NamedMDNode *namedNode = GET_REF(r_namedNode, NamedMDNode);
     if(!namedNode) {
         PROBLEM "NULL NamedMDNode pass to addOperand"
         ERROR;
     }
     int nels = Rf_length(r_vals);
+
+
+/*    
     std::vector<llvm::MD_TYPE *> args; // does this disappear and we lose the elements?
     for(int i = 0; i < nels; i++) 
             args.push_back(GET_REF(VECTOR_ELT(r_vals, i), MD_TYPE));
     llvm::ArrayRef<llvm::MD_TYPE *> vals = makeArrayRef(args);
+*/
+
+    std::vector<llvm::Metadata *> args; // does this disappear and we lose the elements?    
+    for(int i = 0; i < nels; i++) 
+            args.push_back(GET_REF(VECTOR_ELT(r_vals, i), Metadata));
+    llvm::ArrayRef<llvm::Metadata *> vals = makeArrayRef(args);        
+
     llvm::LLVMContext *context = GET_REF(r_context, LLVMContext);
     llvm::MDTuple *node = llvm::MDNode::get(*context, vals);
-
+    
     namedNode->addOperand(node);
-    )
+
     return(R_NilValue);
 }
 
@@ -75,17 +86,19 @@ extern "C"
 SEXP
 R_MDNode_get(SEXP r_context, SEXP r_vals)
 {
-#if (LLVM_VERSION >= 4) 
+
+#if 0 && (LLVM_VERSION >= 4) 
   PROBLEM "not working with LLVM4.0 yet"
      ERROR;
   return(R_NilValue);
 #else
+
     int nels = Rf_length(r_vals);
 #if 1
-    std::vector<llvm::MD_TYPE *> args; // does this disappear and we lose the elements?
+    std::vector<llvm::Metadata *> args; // does this disappear and we lose the elements?
     for(int i = 0; i < nels; i++) 
-        args.push_back(GET_REF(VECTOR_ELT(r_vals, i), MD_TYPE));
-    llvm::ArrayRef<llvm::MD_TYPE*> vals = makeArrayRef(args);
+        args.push_back(GET_REF(VECTOR_ELT(r_vals, i), Metadata));
+    llvm::ArrayRef<llvm::Metadata *> vals = makeArrayRef(args);
 #else
     llvm::Value *vals[nels];
     for(int i = 0 ; i < nels; i++) {
@@ -178,7 +191,7 @@ extern "C"
 SEXP
 R_MDNode_getOperands(SEXP r_node)
 {
-#if (LLVM_VERSION >= 4) 
+#if 0 && (LLVM_VERSION >= 4) 
   PROBLEM "not working with LLVM4.0 yet"
      ERROR;
   return(R_NilValue);
@@ -189,7 +202,7 @@ R_MDNode_getOperands(SEXP r_node)
     PROTECT(ans = NEW_LIST(numEls));
     PROTECT(names = NEW_CHARACTER(numEls));
     for(unsigned int i = 0; i < numEls; i++) {
-        llvm::MD_TYPE *el = node->getOperand(i);
+        llvm::Metadata *el = node->getOperand(i);
         SET_VECTOR_ELT(ans, i, R_createRef(el, "Metadata"));
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 6
         llvm::StringRef str;
@@ -204,6 +217,10 @@ R_MDNode_getOperands(SEXP r_node)
 }
 
 
+// https://stackoverflow.com/questions/41751672/llvm-how-to-traverse-module-metadata-to-find-a-value
+
+///  http://blog.llvm.org/2010/04/extensible-metadata-in-llvm-ir.html  - ??? out of date?
+
 
 extern "C"
 SEXP
@@ -214,4 +231,89 @@ R_Metadata_print(SEXP r_ref)
     llvm::MD_TYPE *metadata = GET_REF(r_ref, MD_TYPE);
     metadata->print(OS);
     return(ScalarString(mkChar( OS.str().c_str())));
+}
+
+
+extern "C"
+SEXP
+R_Metadata_getValue(SEXP r_ref)
+{
+    llvm::Metadata *md = GET_REF(r_ref, Metadata);
+    llvm::Value *val = (llvm::cast<llvm::ValueAsMetadata>(md))->getValue();
+    return(R_createRef2(val, "Value"));
+}
+
+
+extern "C"
+SEXP
+R_MDNode_getValue(SEXP r_ref)
+{
+    llvm::MDNode *md = GET_REF(r_ref, MDNode);
+    llvm::Value *val = (llvm::cast<llvm::ValueAsMetadata>(md->getOperand(0)))->getValue();
+    return(R_createRef2(val, "Value"));
+}
+
+
+
+SEXP
+MDNodeToRValueList(llvm::MDNode *MD)
+{
+    size_t n = MD->getNumOperands();
+    SEXP ans;
+    if(n == 1) {
+        llvm::Value *val = llvm::dyn_cast<llvm::Value>(llvm::MetadataAsValue::get(MD->getContext(), MD->getOperand(0)));
+        ans = R_createRef2(val, NULL); // XXX need to get the more specific class
+    } else {
+        PROTECT(ans = NEW_LIST(n));        
+        for(size_t i = 0; i < n; i++) {
+            llvm::Value *el = llvm::dyn_cast<llvm::Value>(llvm::MetadataAsValue::get(MD->getContext(), MD->getOperand(i)));
+            SET_VECTOR_ELT(ans, i, R_createRef2(el, NULL)); // XXX same as above
+        }
+        UNPROTECT(1);
+    }
+    return(ans);
+}
+
+
+SEXP
+NamedNDNode_getValue(llvm::NamedMDNode *md)
+{
+    SEXP ans = NEW_LIST(md->getNumOperands());
+    PROTECT(ans);
+    for (size_t i = 0, e = md->getNumOperands(); i != e; ++i) {
+        llvm::MDNode *MD = md->getOperand(i);
+        SEXP el = MDNodeToRValueList(MD);
+        SET_VECTOR_ELT(ans, i, el);
+    }
+    UNPROTECT(1);
+    return(ans);
+}
+
+
+extern "C"
+SEXP
+R_NamedMDNode_getValue(SEXP r_md)
+{
+    LDECL2(NamedMDNode, md);
+    return(NamedNDNode_getValue(md));
+}
+
+
+
+// from https://stackoverflow.com/questions/49355242/how-to-get-type-form-tbaa-metadata-node-mdnode-llvm-7-0
+/*
+ Given a module and the name of a NamedMDNode, get that NamedMDNode and then go through its operands
+ to get each corresponding MDNode item, and then traverse the tuple of operands of each of those to each underlying Value
+
+NamedMDNode = { tuple of MDNodes }
+MDNode = { tuple of things we can cast to Value }
+ */
+
+extern "C"
+SEXP
+R_metadata_eg(SEXP r_M, SEXP id)
+{
+    LDECL2(Module, M);
+    llvm::NamedMDNode *md = M->getNamedMetadata(CHAR(STRING_ELT(id, 0)));
+    return(NamedNDNode_getValue(md));
 }
