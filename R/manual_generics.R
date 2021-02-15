@@ -72,7 +72,7 @@ setGeneric("getMetadata",
            function(obj, id, ...)
               standardGeneric("getMetadata"))
 
-setGeneric("getPredecessors", function(x, ...) standardGeneric("getPredecessors"))
+setGeneric("getPredecessors", function(x, notSelf = FALSE, ...) standardGeneric("getPredecessors"))
 setGeneric("getSuccessors", function(x, ...) standardGeneric("getSuccessors"))
 setGeneric("getSuccessor", function(x, ...) standardGeneric("getSuccessor"))
 setGeneric("getPredecessor", function(x, ...) standardGeneric("getPredecessor"))
@@ -137,4 +137,9 @@ setGeneric("hasError", function(x, ...) standardGeneric("hasError"))
 
 
 setGeneric("addModule", function(engine, ...) standardGeneric("addModule"))
+
+
+
+setGeneric("lapply", function(X, FUN, ...) standardGeneric("lapply"))
+setMethod("lapply", "ANY", function(X, FUN, ...) base::lapply(X, FUN, ...))
 
