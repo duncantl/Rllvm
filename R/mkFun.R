@@ -47,9 +47,9 @@ function(func, .ee = ExecutionEngine(as(func, "Module")))
   .checkModule =
       function() {
           if(identical(func@ref, new("externalptr"))) { 
-             .mod <<- Rllvm::parseIR(.modString, asText = TRUE)
-             func <<- .mod[[ .funcName ]]
-             .ee <<- Rllvm::ExecutionEngine(.mod)
+             .module <<- Rllvm::parseIR(.modString, asText = TRUE)
+             func <<- .module[[ .funcName ]]
+             .ee <<- Rllvm::ExecutionEngine(.module)
           }
       }
   
