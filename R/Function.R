@@ -182,7 +182,9 @@ setAs("Function", "Module",
 getBlocks =
 function(fun)
 {  
- .Call("R_Function_getBasicBlockList", as(fun, "Function"))
+    ans = .Call("R_Function_getBasicBlockList", as(fun, "Function"))
+    class(ans) = "BasicBlockList"
+    ans
 }
 
 
@@ -204,7 +206,7 @@ setGeneric("getCalledFunction",
            function(obj, ...)
              standardGeneric("getCalledFunction"))
 
-setMethod("getCalledFunction", "CallInst",
+setMethod("getCalledFunction", "CallBase",
            function(obj, asFunction = FALSE, ...) {
                ans = .Call("R_CallInst_getCalledFunction", obj)
                if(is.null(ans) && !asFunction)
@@ -357,7 +359,7 @@ function(fun, conv)
 
 getCallingConv =
 function(fun)
-  as(.Call("R_Function_getCallingConv", as(fun, "Function")), "CallingConv")
+    as(.Call("R_Function_getCallingConv", as(fun, "Function")), "CallingConv")
 
 
 isVarArg =
