@@ -10,6 +10,9 @@ CC=$(CLANG)
 %.ll: %.c
 	$(CC) $(CFLAGS) $(OPT_LEVEL) -S -emit-llvm $< -o $@
 
+%.ll: %.cpp
+	$(CXX) $(CFLAGS) $(OPT_LEVEL) -S -emit-llvm $< -o $@
+
 %.ir: %.c
 	$(CC) $(CFLAGS) $(OPT_LEVEL) -S -emit-llvm $< -o $@	
 
