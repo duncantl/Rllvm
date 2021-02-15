@@ -216,7 +216,7 @@ R_Instruction_getOperand(SEXP r_inst, SEXP r_i)
         }
 
         el = inst->getOperand(i);
-        return(R_createRef(el, "Value"));
+        return(R_createRef2(el, "Value"));
 }
 
 
