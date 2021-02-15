@@ -29,7 +29,7 @@ R_getOperand(SEXP r_user, SEXP r_i)
             ERROR;
     }
     llvm::Value *v = u->getOperand(i);
-    return(R_createRef(v, "Value"));
+    return(R_createRef2(v, "Value"));
 }
 
 
