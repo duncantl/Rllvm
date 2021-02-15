@@ -21,7 +21,6 @@ Description: This package is an interface to some of the
     e.g. fusing loops, avoiding memory usage.
 License: GPL-2
 Depends: R (>= 2.7.0)
-NotDepends: 
 Imports: methods, Rffi
 RelatedPackages: RLLVMCompile, NativeCodeAnalysis, RCIndex
 URL: http://www.omegahat.net/Rllvm
@@ -100,3 +99,4 @@ Collate: llvmVersion.R
 	 dominates.R
 	 loop.R
 	 allPredecessors.R
+	 callGraph.R

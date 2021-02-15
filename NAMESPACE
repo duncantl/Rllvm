@@ -857,6 +857,11 @@ exportMethods(isUnsigned)
 export(getInductionVariable, getGuardBranch, isLoopInvariant, hasLoopInvariantOperands, isLoopSimplifyForm, isRotatedForm, isGuarded, isAnnotatedParallel, getBounds)
 export(getIncomingAndBackEdge)
 
+export(latch, depth, subLoops, numBlocks, isExiting, isLatch, numBackEdges, preHeader,
+       getHeader, contains)
+
+export(numBlocks)
+
 export(isCanonical)
 exportMethods(isCanonical)
 
@@ -874,6 +879,9 @@ exportMethods(getLoopBlocks)
 export(getLoopFor, getLoopDepth)
 
 
-
 export(dominates)
 exportMethods(dominates)
+
+
+
+export(mkCallsGraph)
