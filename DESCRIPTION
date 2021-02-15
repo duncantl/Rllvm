@@ -96,3 +96,7 @@ Collate: llvmVersion.R
 	 findCalledFunctions.R
 	 ModuleODSigs.R
 	 lljit.R
+	 asEnumValue.R
+	 dominates.R
+	 loop.R
+	 allPredecessors.R

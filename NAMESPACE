@@ -486,6 +486,7 @@ export(createPHI, createPhi)
 
 
 export(getBlockGraph)
+exportMethods(getBlockGraph)
 exportClass("TikzEdges")
 exportClass("EdgeMatrix")
 S3method(print, "TikzEdges")
@@ -813,8 +814,8 @@ if(TRUE) {
     # importFrom(RAutoGenRunTime, "|", "c", "&", EnumDef, GenericEnumValue)
 } else {
     import(RAutoGenRunTime)
- export("|", "c", "&")
- exportMethods("|", "c", "&")
+    export("|", "c", "&")
+    exportMethods("|", "c", "&")
 }
 
 # Do we want users or Rllvm to be able to use  these
@@ -835,6 +836,7 @@ export(getEntryBlock)
 
 export(lljit, jitLookup)
 
+
 export(ls)
 exportMethods(ls)
 
@@ -850,3 +852,28 @@ exportClasses(LLJIT, LazyLLJIT)
 export(isUnsigned)
 exportMethods(isUnsigned)
 
+
+# Loop related functions
+export(getInductionVariable, getGuardBranch, isLoopInvariant, hasLoopInvariantOperands, isLoopSimplifyForm, isRotatedForm, isGuarded, isAnnotatedParallel, getBounds)
+export(getIncomingAndBackEdge)
+
+export(isCanonical)
+exportMethods(isCanonical)
+
+exportMethods(getBounds)
+
+export(loopAnalysis)
+export(getLoopInfo)
+
+
+export(getLoops)
+exportMethods(getLoops)
+export(getLoopBlocks)
+exportMethods(getLoopBlocks)
+
+export(getLoopFor, getLoopDepth)
+
+
+
+export(dominates)
+exportMethods(dominates)
