@@ -249,16 +249,24 @@ function(x, single = TRUE, ...)
 
 setMethod("getPredecessors", "BasicBlock",
     # All predecessor blocks.
-function(x, ...)
+function(x, notSelf = FALSE, ...)
 {
-  .Call("R_BasicBlock_getPredecessors", as(x, "BasicBlock"))
+    ans = .Call("R_BasicBlock_getPredecessors", as(x, "BasicBlock"))
+    if(notSelf)
+        ans = ans[! sapply(ans, identical, x) ]
+    
+    ans
 })
+
+
+setMethod("getSuccessors", "ReturnInst", function(x, ...) NULL)
 
 setMethod("getSuccessors", "BasicBlock",
 function(x, ...)
 {
   .Call("R_BasicBlock_getSuccessors", as(x, "BasicBlock"))
 })
+
 
 
 setMethod("getSuccessor", "BasicBlock", 
