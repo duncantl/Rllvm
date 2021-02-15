@@ -55,7 +55,7 @@ setGeneric("getOperands",
              standardGeneric("getOperands"))
 
 setGeneric("getOperand",
-           function(instruction, index, class = getClassName(ans))
+           function(instruction, index, class = character())
              standardGeneric("getOperand"))
 
 
@@ -63,3 +63,19 @@ setGeneric("getOperand",
 setGeneric("isUnsigned",
            function(obj, ...)
               standardGeneric("isUnsigned"))
+
+
+
+setGeneric("isCanonical", function(x, y, ...) standardGeneric("isCanonical"))
+
+setGeneric("dominates",
+           function(x, y, z, ...) 
+               standardGeneric("dominates"))
+
+
+setGeneric("getLoops", function(x, toplevel = FALSE, ...) standardGeneric("getLoops"))
+
+
+setGeneric("getLoopBlocks", 
+           function(x, ...)
+              standardGeneric("getLoopBlocks"))
