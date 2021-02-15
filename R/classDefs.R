@@ -101,7 +101,10 @@ setClass("ParameterList", representation(names = "character"), contains = "list"
 setClass("MemMoveInst", contains = "RC++Reference")
 
 
+# Loop analysis
 setClass("DominatorTree", contains = "RC++Reference")
+setClass("PostDominatorTree", contains = "RC++Reference")
+
 setClass("LoopInfo", contains = "RC++Reference")
 setClass("Loop", contains = "RC++Reference")
 
@@ -115,3 +118,8 @@ setOldClass("LoopIncomingAndBackEdge")
 
 setClass("LoopBounds", contains = "RC++Reference")
 
+
+
+
+setClass("CallGraph", contains = "RC++Reference")
+setClass("CallGraphNode", contains = "RC++Reference")
