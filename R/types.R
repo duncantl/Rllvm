@@ -40,7 +40,11 @@ function(x, ...)
 }
 
 getIntSize = getIntegerBitWidth = 
-  function(x, ...) {
+function(x, ...) {
+
+     if(is(x, "Value"))
+        x = getType(x)
+        
      if(!isIntegerType(x))
         stop("must be an integer type to query the bit width")
 
@@ -174,7 +178,7 @@ setMethod("getElementType", "VECSXPType",
 
 
 setMethod("getElementType", "INTSXPType",
-          function(type, direct = TRUE, regular = ...) {
+          function(type, direct = TRUE, regular = FALSE, ...) {
               if(regular)
                   return(callNextMethod())
               Int32Type
