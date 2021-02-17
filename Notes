@@ -1,3 +1,9 @@
+http://blog.llvm.org/2013/07/using-mcjit-with-kaleidoscope-tutorial.html
+  memory manager and resolving symbols.
+  Should we implement one to connect to R's symbol lookup.
+
+
+
 Type equality - https://lowlevelbits.org/type-equality-in-llvm/
 
 
