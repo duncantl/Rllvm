@@ -109,6 +109,7 @@ R_CREATE_PASS(createStructurizeCFGPass)
 #ifdef HAVE_LOOP_SIMPLIFY_PASS
 R_CREATE_PASS(createLoopSimplifyPass)
 #endif
+R_CREATE_PASS(createLoopSimplifyCFGPass)
 
 R_CREATE_FUNPASS(createMemCpyOptPass)
 #if LLVM_VERSION < 4
