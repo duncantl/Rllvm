@@ -553,7 +553,6 @@ sapply(loops, function(ll)
 </para>
 
 <para>
-
   Consider
 
   x = .Machine$integer.max
@@ -564,10 +563,11 @@ sapply(loops, function(ll)
   library(bitops)
   vals = c(1, 5, 7, 8, 9, 15, 16, 23, 24, 29, 31, 32, 33)
   out = bitAnd(vals, x1)
-  
+  options(width = 150)
+  rbind(vals, out)
+  x2 = bitShiftL(x, 3)
+  rbind(vals, out, bitAnd(vals, x2))
 </para>
-
-  
 </invisible>
 
 
