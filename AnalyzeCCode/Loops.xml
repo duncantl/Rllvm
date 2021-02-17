@@ -493,7 +493,30 @@ for.body:                                         ; preds = %for.body, %for.body
 }
 ]]></ir:output>
 We can visualize the blocks in the <r:func>Function</r:func> in 
-
+<xref linkid="fig:loopBlockGraph"/>.
+<invisible>
+<r:code>
+png("../../AnalyzeCCode/loop02BlockGraph.png")
+g = getBlockGraph(m$loop, Rllvm:::cleanLoopNames)
+Rllvm:::plot.EdgeMatrix(g, layout = layout.reingold.tilford)
+dev.off()
+</r:code>
+</invisible>
+This shows two loops which we programmatically verify with
+<r:code>
+m = parseIR("loop.ir")
+runLoopPass(m)
+la = loopAnalysis(m$loop)
+loops = getLoops(la)
+sapply(loops, function(ll)
+                 sapply(getBlocks(ll, all = TRUE), getName))
+<r:output><![CDATA[
+     [,1]                     [,2]                     
+[1,] "for.body"               "for.body.epil"          
+[2,] "for.body.preheader.new" "for.body.epil.preheader"
+]]></r:output>
+</r:code>
+<fix>This doesn't show the exit blocks and it doesn't show the natural order.</fix>
 </para>
 
 <figure id='fig:loopBlockGraph'>

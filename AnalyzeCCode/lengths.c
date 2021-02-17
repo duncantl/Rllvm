@@ -13,6 +13,21 @@ two(SEXP x, SEXP y)
 }
 
 
+
+// This version accesses 2*i of y for each iteration so y must have length >= 2*length(x)
+SEXP
+twoStride(SEXP x, SEXP y)
+{
+    double ans = 0;
+    int n = Rf_length(x); // Rf_xlength(x)
+    
+    for(int i = 0; i < n; i++) {
+	ans += REAL(x)[i] + REAL(y)[2*i];
+    }
+    return(ScalarReal(ans));
+}
+
+
 SEXP
 foo(SEXP x, SEXP y)
 {
