@@ -88,6 +88,7 @@ getLoopBlocks(x, ...)
 \item{val}{a \code{\link{Value-class}} object from the LLVM IR code}
 \item{se,y}{a \code{ScalarEvolution} object.  See
   \code{\link{loopAnalysis}}.}
+\item{block}{a \code{\link{BasicBlock-class}} object}
 \item{\dots}{additional arguments for methods}
 }
 

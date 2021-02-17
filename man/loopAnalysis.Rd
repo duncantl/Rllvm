@@ -48,6 +48,7 @@ runLoopPass(mod, passes = list(.Call("R_createLoopSimplifyCFGPass")),
   \item{passes}{a list of \code{\link{Pass-class}} objects}
   \item{mgr}{the legacy \code{\link{PassManager-class}} used to run the
     loop passes.}
+  \item{\dots}{arguments for methods}
 }
 \value{
   A list with three elements

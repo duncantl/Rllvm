@@ -12,7 +12,7 @@
 \description{
 }
 \usage{
-getBlockGraph(x, cleanNames = function(x) x, ...)
+getBlockGraph(x, cleanNames = cleanLoopNames, ...)
 drawCFG(fun, blocks = getBlocks(fun), ids = names(blocks), x = 2, y = -seq(along = ids), text = ids, range = c(-1, 1))
 }
 
@@ -25,6 +25,9 @@ drawCFG(fun, blocks = getBlocks(fun), ids = names(blocks), x = 2, y = -seq(along
   \item{text}{the text to display for each block}
   \item{range}{a numeric vector of length 2 giving the extremes for the
     sub-blocks} %  XXX explain better
+  \item{cleaNames}{a function to compute the name of of the
+  \code{BasicBlock}. It is called with the name of the block, not the \code{BasicBlock}}
+  \item{\dots}{additional arguments for methods, currently ignored}
 }
 \details{
 }
