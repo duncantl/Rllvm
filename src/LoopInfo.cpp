@@ -14,6 +14,9 @@ R_LoopInfo(SEXP r_dtree)
 {
     LDECL2(DominatorTree, dtree);
     llvm::LoopInfo *info = new llvm::LoopInfo(*dtree);
+    if(!info)
+        return(R_NilValue);
+    info->analyze(*dtree);
     return(R_createRef(info, "LoopInfo"));
 }
 
@@ -255,6 +258,7 @@ R_Loop_contains_Instruction(SEXP r_loop, SEXP r_ins)
 
 
 // √
+extern "C"
 SEXP
 R_Loop_getSubLoops(SEXP r_loop)
 {
@@ -271,6 +275,7 @@ R_Loop_getSubLoops(SEXP r_loop)
 }
 
 //√
+extern "C"
 SEXP
 R_Loop_getBlocks(SEXP r_loop)
 {
@@ -430,7 +435,7 @@ R_Loop_getBounds_copy(SEXP r_loop, SEXP r_se)
         SET_VECTOR_ELT(ans, i, R_createRef2(&(b->getFinalIVValue()), ""));
         SET_STRING_ELT(names, i++, mkChar("finalValue"));
 
-        SET_VECTOR_ELT(ans, i, R_createRef2(b->getStepValue(), ""));
+        SET_VECTOR_ELT(ans, i, b->getStepValue() ? R_createRef2(b->getStepValue(), "") : R_NilValue);
         SET_STRING_ELT(names, i++, mkChar("stepValue"));
 
         SET_VECTOR_ELT(ans, i, R_createRef2(&(b->getStepInst()), ""));
