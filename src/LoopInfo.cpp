@@ -362,24 +362,98 @@ R_Loop_getLoopLatch(SEXP r_loop)
     return(block ? R_createRef(block, "BasicBlock") : R_NilValue);
 }
 
-
 /*
   All the additional methods for LoopBase to access the exit,
- getExitingBlocks, ? getExitingBlock,
- getExitBlocks, ? getExitBlock
+
  [done] hasDedicatedExits
- getUniqueExitBlocks
- getUniqueNonLatchExitBlocks
- getUniqueExitBlock
- getExitEdges
  [done] getLoopPreheader
  [done] getLoopPredecessor
- [dpne] getLoopLatch
+ [done] getLoopLatch
+
+Check:
+ getExitingBlocks, ? getExitingBlock,
+ getExitBlocks,    ? getExitBlock, ? getUniqueExitBlocks  ? getUniqueExitBlock
+ getUniqueNonLatchExitBlocks
  getLoopLatches
+
+
+ getExitEdges
+
+
+Do we need?
+
  getInnerLoopsInPreorder
  getLoopsInPreorder
 */
 
+#define GET_BLOCKS(method)               \
+extern "C" \
+SEXP \
+R_Loop_##method(SEXP r_loop) \
+{ \
+    LDECL2(Loop, loop); \
+    llvm::SmallVector<llvm::BasicBlock *, 2> vec; \
+    loop->method(vec); \
+    int len = vec.size(); \
+\
+    SEXP ans; \
+    PROTECT(ans = NEW_LIST(len)); \
+    for(int i = 0; i < len; i++) \
+        SET_VECTOR_ELT(ans, i, R_createRef(vec[i], "BasicBlock")); \
+                                                                   \
+    UNPROTECT(1);                                                  \
+    return(ans); \
+} 
+
+GET_BLOCKS(getExitBlocks)
+GET_BLOCKS(getExitingBlocks)
+GET_BLOCKS(getLoopLatches)
+GET_BLOCKS(getUniqueNonLatchExitBlocks)
+
+
+extern "C"
+SEXP 
+R_Loop_getExitEdges(SEXP r_loop) 
+{
+    LDECL2(Loop, loop);
+    llvm::SmallVector<llvm::LoopBase<llvm::BasicBlock, llvm::Loop>::Edge, 2> vec;
+    loop->getExitEdges(vec);
+    int len = vec.size();
+
+    SEXP ans;
+    PROTECT(ans = NEW_LIST(len));
+    for(int i = 0; i < len; i++) {
+        SEXP tmp = NEW_LIST(2);
+        SET_VECTOR_ELT(tmp, 0, R_createRef(vec[i].first, "BasicBlock"));
+        SET_VECTOR_ELT(tmp, 1, R_createRef(vec[i].second, "BasicBlock"));        
+        SET_VECTOR_ELT(ans, i, tmp);
+    }
+    
+    UNPROTECT(1);
+    return(ans);
+    
+}
+
+#if 0
+extern "C" 
+SEXP 
+R_getExitBlocks(SEXP r_loop) 
+{
+    LDECL2(Loop, loop);
+    llvm::SmallVector<llvm::BasicBlock *, 2> vec;
+    loop->getExitBlocks(vec);
+    int len = vec.size();
+
+    SEXP ans;
+    PROTECT(ans = NEW_LIST(len));
+    for(int i = 0; i < len; i++)
+        SET_VECTOR_ELT(ans, i, R_createRef(vec[i], "BasicBlock"));
+    
+    UNPROTECT(1);
+    return(ans);
+    
+}
+#endif
 /// end of from LoopBase
 
 

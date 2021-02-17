@@ -280,6 +280,25 @@ setMethod("getPredecessor", "Loop",
              .Call("R_Loop_getLoopPredecessor", x))
 
 
+
+
+getExitBlocks =
+function(loop)
+    .Call("R_Loop_getExitBlocks", as(loop, "Loop"))
+
+getExitingBlocks =
+function(loop)
+    .Call("R_Loop_getExitingBlocks", as(loop, "Loop"))
+
+getLatches =
+function(loop)
+    .Call("R_Loop_getLoopLatches", as(loop, "Loop"))
+
+getLatchExitBlocks =
+function(loop)
+    .Call("R_Loop_getUniqueNonLatchExitBlocks", as(loop, "Loop"))
+
+
 ######################
 
 setGeneric("getBounds", function(x, y, ...) standardGeneric("getBounds"))

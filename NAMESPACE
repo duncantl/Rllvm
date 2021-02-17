@@ -879,6 +879,8 @@ exportMethods(getLoopBlocks)
 export(getLoopFor, getLoopDepth)
 
 
+export(getExitBlocks, getExitingBlocks, getLatches, getLatchExitBlocks)
+
 export(dominates, postDominates)
 exportMethods(dominates)
 
@@ -891,3 +893,5 @@ export(DominatorTree, PostDominatorTree)
 
 
 export(runLoopPass)
+
+

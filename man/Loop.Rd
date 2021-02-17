@@ -44,6 +44,10 @@
 \alias{depth}
 
 
+\alias{getExitBlocks}
+\alias{getExitingBlocks}
+\alias{getLatches}
+\alias{getLatchExitBlocks}
 
 \title{Methods for \code{Loop} Objects}
 \description{
