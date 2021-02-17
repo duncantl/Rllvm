@@ -1,26 +1,35 @@
 findIVars =
-function(mod)
+function(mod, canonical = FALSE)
 {
-    browser()
     if(is.character(mod))
         mod = parseIR(mod)
 
     rdefs = getDefinedRoutines(mod, names = FALSE)
-    
-    rloops = lapply(rdefs, getLoops)
-    tt = sapply(rloops, length)
-    rloops = rloops[tt >  0]
-    rdefs = rdefs[tt > 0]
 
+    if(canonical) {
 
-   
-    rivars = mapply(function(f, loops) {
-        la = loopAnalysis(f)
-        lapply(loops, getInductionVariable, la$scalarEvolution)
-            # function(loop) .Call("R_Loop_getInductionVariable2", loop, dtree, f))
-    }, rdefs, rloops, SIMPLIFY = FALSE)
+       ans = lapply(rdefs, function(f) {
+                            loops = getLoops(f)
+                            iv = lapply(loops, getInductionVariable)
+                            w = !sapply(iv, is.null)
+                            list(inductonVars = iv[w], loops = loops[w], "function" = replicate(sum(w), f))
+                        })
+
+       ans2 = lapply(1:3,  function(i) unlist(lapply(ans, `[[`, i)))
+       names(ans2) = c("inductionVars", "loops", "functions")
+       ans2
+        
+    } else {
+        rloops = lapply(rdefs, function(f) {
+                                  la = loopAnalysis(f)
+                                  list(loops = getLoops(la), scalarEvolution = la$scalarEvolution)
+                              })
     
-    tt2 = sapply(rivars, function(x) sum(!sapply(x, is.null)))
-    w = tt2 > 0
-    list(inductionVars = rivars[w], loops = rloops[w], functions = rdefs[w])
+        rivars = lapply(rloops, function(x) {
+                                 lapply(x$loops, getInductionVariable, x$scalarEvolution)
+                             })
+
+        w = sapply(rivars, function(x) sum(!sapply(x, is.null))) > 0
+        list(inductionVars = rivars[w], loops = lapply(rloops[w], `[[`, 1), functions = rdefs[w])
+    }
 }
