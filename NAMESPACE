@@ -879,9 +879,15 @@ exportMethods(getLoopBlocks)
 export(getLoopFor, getLoopDepth)
 
 
-export(dominates)
+export(dominates, postDominates)
 exportMethods(dominates)
 
 
 
 export(mkCallsGraph)
+
+
+export(DominatorTree, PostDominatorTree)
+
+
+export(runLoopPass)
