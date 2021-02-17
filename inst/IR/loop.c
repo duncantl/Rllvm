@@ -55,16 +55,31 @@ void
 nestedLoop(double *x, double *y, int nx, int ny, int nels, int *ans)
 {
     double total = 0;
-    int curx = 0, cury = 0, curAns = 0; 
+    int curx = 0, cury = 0, curAns = 0;
+    
     for(int i = 0 ; i < nx; i++) {
 	for(int j = 0 ; j < ny; j++) {	
+
 	    double tmp = 0;
 	    for(int k =0; k < nels; k++) {
 		double d = (x[curx++] - y[cury++]);
 		tmp += d*d;
 	    }
+
 	    ans[curAns++] = tmp;
 	}
+    }
+}
 
+
+const double PI = 3.141592654;
+#include <math.h>
+
+void
+invariant(double *x, int len)
+{
+    for(int i = 0; i < len ; i++) {
+	double f = 2*PI;
+	x[i] = sin(f*x[i]);
     }
 }
