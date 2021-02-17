@@ -9,6 +9,10 @@
 \alias{coerce,LoopAnalysisElements,ScalarEvolution-method}
 \alias{DominatorTree}
 \alias{PostDominatorTree}
+\alias{DominatorTree-class}
+\alias{PostDominatorTree-class}
+
+\alias{ScalarEvolution-class}
 
 \alias{loopAnalysis}
 \alias{runLoopPass}
@@ -24,7 +28,7 @@
   Many of the functions that query individual characteristics of a loop
   only need the \code{\link{Loop-class}} itself.
   However, some other functions such as \code{\link{getBounds}} also require
-  an additional argument (a \code{\link{ScalarEvolution}} object)
+  an additional argument (a \code{\link{ScalarEvolution-class}} object)
   and the results change if that is created after the loops are obtained.
 
   Accordingly, it is useful to call \code{loopAnalysis} on a

@@ -26,6 +26,8 @@
 \alias{createStructurizeCFGPass}
 \alias{createTailCallEliminationPass}
 
+\alias{Pass-class}
+
 \title{Create LLVM Pass Instances}
 \description{
 These are functions for creating instances of pass managers to process

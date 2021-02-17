@@ -33,7 +33,6 @@
 \usage{
 newDebugBasicType(builder, name, size, align, dwarf_type)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{builder}{the DBuilder instance}
   \item{name}{}
@@ -57,7 +56,5 @@ DTL
 \examples{
 
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{programming}
 

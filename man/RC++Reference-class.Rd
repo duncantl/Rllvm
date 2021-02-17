@@ -6,6 +6,7 @@
 \alias{BasicBlock-class}
 \alias{BranchInst-class}
 \alias{CallInst-class}
+\alias{InvokeInst-class}
 \alias{CastInst-class}
 \alias{CompositeType-class}
 \alias{Constant-class}

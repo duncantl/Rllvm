@@ -10,8 +10,8 @@
 isZeroValue(x, ...)
 }
 \arguments{
-  \item{x}{}
-  \item{\dots}{}
+  \item{x}{the LLVM Value object}
+  \item{\dots}{arguments for methods}
 }
 
 \value{

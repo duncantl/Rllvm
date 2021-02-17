@@ -4,6 +4,7 @@
 \alias{functionPassManager}
 \alias{addPass}
 \alias{FunctionPassManager-class}
+\alias{PassManager-class}
 \alias{run,PassManager-method}
 \alias{addAnalysisPasses}
 \alias{addPassesToEmitFile}
