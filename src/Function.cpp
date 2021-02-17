@@ -559,7 +559,6 @@ R_DominatorTree_dominates_instruction_instruction(SEXP r_tree, SEXP r_ins1, SEXP
 }
 
 
-
 #if 0
 
 extern "C"
@@ -578,6 +577,7 @@ R_DominatorTree_dominates_value_instruction(SEXP r_tree, SEXP r_val, SEXP r_ins)
 
 
 #include <llvm/Analysis/PostDominators.h>
+
 extern "C"
 SEXP
 R_PostDominatorTree(SEXP r_func)
@@ -587,3 +587,25 @@ R_PostDominatorTree(SEXP r_func)
     return(R_createRef(tree, "PostDominatorTree"));
 }
 
+
+extern "C"
+SEXP
+R_PostDominatorTree_dominates_instruction_instruction(SEXP r_tree, SEXP r_ins1, SEXP r_ins2)
+{
+    llvm::PostDominatorTree *tree = GET_REF(r_tree, PostDominatorTree);
+    LDECL2(Instruction, ins1);
+    LDECL2(Instruction, ins2);    
+    bool ans = tree->dominates(ins1, ins2);
+    return(ScalarLogical(ans));
+}
+
+extern "C"
+SEXP
+R_PostDominatorTree_dominates_block_block(SEXP r_tree, SEXP r_block1, SEXP r_block2)
+{
+    llvm::PostDominatorTree *tree = GET_REF(r_tree, PostDominatorTree);
+    LDECL2(BasicBlock, block1);    
+    LDECL2(BasicBlock, block2);
+    bool ans = tree->dominates(block1, block2);
+    return(ScalarLogical(ans));
+}
