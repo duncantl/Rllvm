@@ -50,6 +50,8 @@
 \alias{getLatchExitBlocks}
 \alias{getExitEdges}
 
+\alias{isAuxInductionVariable}
+
 \title{Methods for \code{Loop} Objects}
 \description{
   Given a \code{Loop} object, these functions allow us to  query different
@@ -83,6 +85,7 @@ hasLoopInvariantOperands(loop, val)
 getInductionVariable(loop, se = NULL, ...)
 getBounds(x, y, ...)
 getLoopBlocks(x, ...)
+isAuxInductionVariable(loop, phi, se)
 }
 
 \arguments{
@@ -94,6 +97,7 @@ getLoopBlocks(x, ...)
 \item{se,y}{a \code{ScalarEvolution} object.  See
   \code{\link{loopAnalysis}}.}
 \item{block}{a \code{\link{BasicBlock-class}} object}
+\item{phi}{a \code{\link{PHINode-class}} object}
 \item{\dots}{additional arguments for methods}
 }
 

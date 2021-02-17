@@ -170,6 +170,20 @@ R_Loop_getInductionVariable(SEXP r_loop, SEXP r_se)
     return(ivar ? R_createRef2(ivar, "PHINode") : R_NilValue);
 }
 
+
+extern "C"
+SEXP
+R_Loop_isAuxiliaryInductionVariable(SEXP r_loop, SEXP r_phi, SEXP r_se)
+{
+    LDECL2(Loop, loop);
+    LDECL2(PHINode, phi);
+    LDECL2(ScalarEvolution, se);
+    return(ScalarLogical(loop->isAuxiliaryInductionVariable(*phi, *se)));
+}
+
+
+
+
 extern "C"
 SEXP
 R_Loop_getInductionVariable2(SEXP r_loop, SEXP r_dtree, SEXP r_func)

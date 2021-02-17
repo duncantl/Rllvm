@@ -881,6 +881,8 @@ export(getLoopFor, getLoopDepth)
 
 export(getExitBlocks, getExitingBlocks, getLatches, getLatchExitBlocks, getExitEdges)
 
+export(isAuxInductionVariable)
+
 export(dominates, postDominates)
 exportMethods(dominates)
 
