@@ -111,7 +111,7 @@ setClass("Loop", contains = "RC++Reference")
 setClass("ScalarEvolutionWrapperPass", contains = "RC++Reference")
 setClass("ScalarEvolution", contains = "RC++Reference")
 
-setOldClass("BasicBlockList")
+setOldClass(c("BasicBlockList", "list"))
 
 setOldClass("LoopIncomingAndBackEdge")
 
