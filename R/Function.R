@@ -179,13 +179,13 @@ setAs("Function", "Module",
        })
 
 
-getBlocks =
-function(fun)
-{  
-    ans = .Call("R_Function_getBasicBlockList", as(fun, "Function"))
-    class(ans) = "BasicBlockList"
-    ans
-}
+setMethod("getBlocks", "Function",
+          function(x, ...)
+          {  
+              ans = .Call("R_Function_getBasicBlockList", x)
+              class(ans) = "BasicBlockList"
+              ans
+          })
 
 
 
