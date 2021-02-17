@@ -24,6 +24,8 @@
 \alias{getFuncAttributes}
 
 \alias{getBlocks}
+\alias{getBlocks,Function-method}
+
 \alias{getModule,Function-method}
 
 \alias{coerce,Function,function-method}
