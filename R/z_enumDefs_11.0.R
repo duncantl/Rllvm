@@ -567,6 +567,18 @@ DW_LANG_BORLAND_Delphi = 39L, DW_LANG_lo_user = 32768L, DW_LANG_hi_user = 65535L
 
 ##########################
 
+`Increasing` = 0L
+`Decreasing` = 1L
+`Unknown` = 2L
+
+
+
+ `Direction`  = structure(0:2, .Names = c("Increasing", "Decreasing", "Unknown"
+))
+
+
+##########################
+
 
 
 

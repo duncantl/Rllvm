@@ -148,7 +148,7 @@ function(loop, val)
 
 setMethod("isCanonical",  "Loop",
           function(x, y, ...)
-             .Call("R_Loop_isCanonical", x, as(x, "ScalarEvolution")))
+             .Call("R_Loop_isCanonical", x, as(y, "ScalarEvolution")))
 
 
 hasLoopInvariantOperands = 
@@ -192,16 +192,14 @@ function(loop)
 }
 
 
-if(FALSE)
-setMethod("getLoopBlocks", "Loop",
-          function(x, ...) {
-             getLoopBlocks(getIncomingAndBackEdge(x))
-         })
-
-setMethod("getLoopBlocks", "Loop",
-          function(x, ...) {
-             .Call("R_Loop_getBlocks", x)
-          })
+tmp = function(x, all = FALSE, ...)  {
+    if(all)
+       return(getLoopBlocks(getIncomingAndBackEdge(x)))
+    .Call("R_Loop_getBlocks", x)
+}
+      
+setMethod("getLoopBlocks", "Loop", tmp)
+setMethod("getBlocks", "Loop", tmp)
 
 # https://stackoverflow.com/questions/56439300/how-to-find-all-basic-blocks-appearing-between-two-specific-basic-blocks-in-llvm
 setMethod("getLoopBlocks", "LoopIncomingAndBackEdge",
@@ -263,19 +261,19 @@ setMethod("numBlocks", "Loop",
 
 isExiting = isLoopExiting =
 function(loop, block)    
-    .Call("R_Loop_isLoopExiting", as(x, "Loop"), as(block, "BasicBlock"))
+    .Call("R_Loop_isLoopExiting", as(loop, "Loop"), as(block, "BasicBlock"))
 
 isLatch = isLoopLatch=
 function(loop, block)    
-    .Call("R_Loop_isLoopLatch", as(x, "Loop"), as(block, "BasicBlock"))
+    .Call("R_Loop_isLoopLatch", as(loop, "Loop"), as(block, "BasicBlock"))
 
 numBackEdges = getNumBackEdges =
 function(loop)    
-    .Call("R_Loop_getNNumBackEdges", as(x, "Loop"))
+    .Call("R_Loop_getNNumBackEdges", as(loop, "Loop"))
 
 preHeader = getPreHeader =
 function(loop)    
-    .Call("R_Loop_getLoopPreheader", as(x, "Loop"))
+    .Call("R_Loop_getLoopPreheader", as(loop, "Loop"))
 
 setMethod("getPredecessor", "Loop",
           function(x, ...)    
@@ -288,5 +286,24 @@ setGeneric("getBounds", function(x, y, ...) standardGeneric("getBounds"))
 
 setMethod("getBounds", c("Loop"),
           function(x, y, ...) {
-              .Call("R_Loop_getBounds_copy", x, as(y, "ScalarEvolution"))
+              ans = .Call("R_Loop_getBounds_copy", x, as(y, "ScalarEvolution"))
+
+              if(is.null(ans))
+                  return(ans)
+              
+              ans$predicate = asEnumValue(ans$predicate, Predicate, "integer")
+              ans$direction = asEnumValue(ans$direction, Direction, "integer")
+              
+              ans
           })
+
+
+################
+
+runLoopPass =
+function(mod, passes = list(.Call("R_createLoopSimplifyCFGPass")), mgr = passManager(mod))
+{    
+    lapply(passes, function(p) addPass(mgr, p))
+    run(mgr, mod)
+    invisible(m)
+}

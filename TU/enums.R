@@ -56,7 +56,7 @@ if(FALSE) {
  ids = c("UnaryOps", "BinOp", "BinaryOps", "CastOps", "AttrKind", "MetadataKind", 
      "TermOps", "LinkageTypes", "LLVMCodeGenOptLevel", "Predicate", "TailCallKind",
      "DIFlags",
-     "TypeID", "CallingConvention", "UnnamedAddr", "SourceLanguage")
+     "TypeID", "CallingConvention", "UnnamedAddr", "SourceLanguage", "Direction")
  #     "VisiblityTypes", "DLLStorageClassTypes"
  # 
  # ValueTy,  OtherOps, cmpResult

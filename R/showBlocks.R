@@ -40,6 +40,14 @@ setAs("EdgeMatrix", "TikzEdges",
        function(from)
            structure( sprintf('"%s" -> "%s"', from[,1], from[,2]), class = "TikzEdges"))
 
+plot.EdgeMatrix =
+function(x, y, ...)
+{
+    if(!require("igraph"))
+        stop("Need the igraph package to plot")
+    plot(graph.edgelist(x), ...)
+}
+
 print.TikzEdges =
 function(x, ...)
 {
