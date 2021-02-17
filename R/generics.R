@@ -70,7 +70,11 @@ setGeneric("isCanonical", function(x, y, ...) standardGeneric("isCanonical"))
 
 setGeneric("dominates",
            function(x, y, z, ...) 
-               standardGeneric("dominates"))
+           standardGeneric("dominates"))
+
+setGeneric("postDominates",
+           function(x, y, z, ...) 
+               standardGeneric("postDominates"))
 
 
 setGeneric("getLoops", function(x, toplevel = FALSE, ...) standardGeneric("getLoops"))
@@ -81,8 +85,12 @@ setGeneric("getLoopBlocks",
               standardGeneric("getLoopBlocks"))
 
 
-setGeneric("contains", function(x, y, ...) standarGeneric("contains"))
+setGeneric("contains", function(x, y, ...) standardGeneric("contains"))
 
 
 setGeneric("getHeader", function(x, ...) standarGeneric("getHeader"))
 setGeneric("numBlocks", function(x, ...) standarGeneric("numBlocks"))
+
+setGeneric("getBlocks", function(x, ...) standarGeneric("numBlocks"))
+
+
