@@ -1,13 +1,14 @@
 # RLLVM
 
 RLLVM is an R interface to [LLVM](http://llvm.org). This interface
-allows one to create compiled code from within R through LLVM's
+allows one to dynamically create and invoke compiled code from within R through LLVM's
 intermediate representation (IR), which LLVM can then extensively and
 efficiently optimize.
 
+The package also facilitates analyzing native code.
 
-For examples, see the
-[RLLVM page on Omegahat](http://www.omegahat.net/Rllvm/).
+For examples, see [explorations](explorations), [experiments](experiments) and [tests](tests) directories.
+
 
 
 The current repository builds against LLVM 11, 10, 9, ..., 3.5, 3.6, 3.7, and 3.8.
@@ -26,13 +27,18 @@ These packages are not on CRAN.
 
 Related packages are [Rffi](https://github.com/omegahat/Rffi), Rllvm (this one),
 [RLLVMCompile](https://github.com/duncantl/RLLVMCompile),
+[R2llvm](https://github.com/duncantl/RLLVMCompile),
 [RCUDA](https://github.com/duncantl/RCUDA),
 [RCIndex](https://github.com/omegahat/RClangSimple).
-
+[NativeCodeAnalysis](https://github.com/duncantl/NativeCodeAnalysis).
 
 
 ## Installation
 
+See [INSTALL.md](INSTALL.md)
+
+
+<!--
 On OSX, when working with binary versions of LLVM or versions built from source, 
 some of the dynamic libraries (dylib) may not correctly point to the libc++.1.dylib
 leading to a failure to load the Rllvm.so library.
@@ -41,7 +47,7 @@ To fix this, we use the command
 install_name_tool -change @rpath/libc++.1.dylib /usr/lib/libc++.1.dylib src/Rllvm.so
 ```
 to fix the `src/Rllvm.so`.
-
+-->
 
 ## URLs
 
