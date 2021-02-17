@@ -1,0 +1,600 @@
+<section
+	 xmlns:c="http://www.C.org"
+	 xmlns:ir="http://llvm.org/ir"
+	 xmlns:sh="http://www.shell.org">
+<title></title>
+
+<para>
+  <llvm/> has support for detecting and analyzing loops in  <ir/> code.
+  <llvm/> provides dominator trees and  tests for dominance of  instructions and blocks.
+  It also allows us to query loop guard branches, induction variables,
+  whether a Value is loop invariant, if  the loop has a guard, is in rotated or simplified form, or annotated as being
+  parallel. We can get the header/incoming block and the back-edge that returns the loop to the starting block
+  at each iteration.
+  In some cases, we can get information about the bounds of the loop.
+  These include initial and possibly final values, the upper bound variable,
+  the step/increment value and the step instruction, and whether
+  we are counting up or down.
+  We can get all of the blocks in the loop, i.e. between the header and back-edge.
+  For information about Loops in LLVM, see <ulink url="https://llvm.org/docs/LoopTerminology.html"/>  
+</para>
+
+
+<para>
+  From our initial exploration of <llvm/>'s LoopInfo classes,
+  we can get a lot of the information for arbitrary loops
+  using just the <r:class>Function</r:class>.
+  We compute a <r:class>DominatorTree</r:class> from the <r:class>Function</r:class>
+  and then a <r:class>LoopInfo</r:class> object for all loops in the <r:class>Function</r:class>.
+  For some loop information, we also need to explicitly compute a <r:class>ScalarEvolution</r:class> object
+  which is related to identifying variables that change linearly in each iteration of the loop.
+  We compute this from the <r:class>DominatorTree</r:class> and <r:class>LoopInfo</r:class>.
+  If we create these after querying the <r:class>Loop</r:class> objects,
+  we sometimes cannot get this extra bounds information.
+  Accordingly, while not always necessary, we recommend using
+  <r:func>loopAnalysis</r:func> to compute all three of these indirect objects
+  and then using those to query the <r:class>Loop</r:class> objects.
+</para>
+<para>
+  Furthermore, some of the information about loops is not available
+  if the <llvm/> <ir/> code has not been transformed to simplify the control-flow-graph (CFG)
+  and the loops it contains.
+</para>
+<para>
+Because of these issues, we currently recommend the following approach to analyzing loops:
+<r:code>
+m = parseIR("moduleFile.ir")
+runLoopPass(m)
+
+la = loopAnalysis(m$functionName) # change to the name of the actual Function.
+loops = getLoops(la)
+lapply(loops, getBounds, la)
+
+# Other aspects of each Loop doesn't necessarily need the ScalarEvolution.
+lapply(loops, depth)
+</r:code>
+While we could put these commands into a function, it is not necessarily ideal.
+The first two commands only needed to be done once as they apply to all
+<r:class>Function</r:class>s in the <r:class>Module</r:class>.
+We  want to avoid repeating the <r:func>runLoopPass</r:func> for each <r:class>Function</r:class> we want to
+analyze.
+The next three commands get the bound information for each loop, using the <r:class>ScalarEvolution</r:class>
+from the <r:func>loopAnalysis</r:func> result.
+Computing the <r:func>depth</r:func> does not require the <r:func>layoutAnalysis</r:func> information,
+much like most of the loop-related functions.
+</para>
+
+
+
+
+<para>
+<r:func>getLoops</r:func> is a generic function
+that can be called with a <r:class>Function</r:class>
+object and returns a list of all the separate  loops in the body.
+<r:code>
+m = parseIR("tests/loopO1.ir")
+la = loopAnalysis(m$twoLoops)
+loops = getLoops(la)
+</r:code>
+Each element returned by <r:func>getLoops</r:func> is of class <r:class>Loop</r:class>.
+See <ulink url="https://llvm.org/doxygen/classllvm_1_1Loop.html"/> for the <cpp/> API.
+</para>
+
+
+<para>
+For each <r:class>Loop</r:class>
+</para>
+
+
+<para>
+We can get the   
+<r:code>
+getLoopBlocks(loops[[1]])
+</r:code>
+  
+</para>
+
+
+
+
+<section>
+<title>Loop Analysis Case Study</title>
+<para>
+Consider the <c/> routine
+<c:code>
+SEXP
+two(SEXP x, SEXP y)
+{
+    double ans = 0;
+    int n = Rf_length(x); // Rf_xlength(x)
+    
+    for(int i = 0; i < n; i++) {
+	ans += REAL(x)[i] + REAL(y)[i];
+    }
+    return(ScalarReal(ans));
+}
+</c:code>
+This clearly contains a single loop.
+The name <c:func>two</c:func> refers to the fact that there are two arguments.
+The function iterates over the elements of both <c:arg>x</c:arg> and <c:arg>y</c:arg> as <r/> vectors
+and assumes they have the same length, or more precisely that the length of <c:arg>y</c:arg> is at least the same length
+as <c:arg>x</c:arg>.
+We want to programmatically verify that the extent of the loop is the length of <c:arg>x</c:arg>
+and that we do indeed access the elements of each of <c:arg>x</c:arg> and <c:arg>y</c:arg>
+using this (induction) variable <c:var>i</c:var>.
+</para>
+
+
+<para>
+The code is in inst/IR/lengths.c.
+We generate the <ir/> code for that file:
+<sh:code>
+clang -S -emit-llvm -o lengths.ir lengths.c -O1
+</sh:code>
+The  IR code for this routine ((possibly transformed by running the loop-simplification pass) is
+<r:code>
+getBlocks(m$two)
+<r:output><![CDATA[
+$entry
+[BasicBlock] %entry
+  %call = tail call i32 @Rf_length(%struct.SEXPREC.0* %x) #3
+  %cmp15 = icmp sgt i32 %call, 0
+  br i1 %cmp15, label %for.body.preheader, label %for.cond.cleanup
+
+$for.body.preheader
+[BasicBlock] %for.body.preheader
+  %wide.trip.count = zext i32 %call to i64
+  br label %for.body
+
+$for.cond.cleanup.loopexit
+[BasicBlock] %for.cond.cleanup.loopexit
+  %add5.lcssa = phi double [ %add5, %for.body ]
+  br label %for.cond.cleanup
+
+$for.cond.cleanup
+[BasicBlock] %for.cond.cleanup
+  %ans.0.lcssa = phi double [ 0.000000e+00, %entry ], [ %add5.lcssa, %for.cond.cleanup.loopexit ]
+  %call6 = tail call %struct.SEXPREC.0* @Rf_ScalarReal(double %ans.0.lcssa) #3
+  ret %struct.SEXPREC.0* %call6
+
+$for.body
+[BasicBlock] %for.body
+  %indvars.iv = phi i64 [ 0, %for.body.preheader ], [ %indvars.iv.next, %for.body ]
+  %ans.016 = phi double [ 0.000000e+00, %for.body.preheader ], [ %add5, %for.body ]
+  %call1 = tail call double* @REAL(%struct.SEXPREC.0* %x) #3
+  %arrayidx = getelementptr inbounds double, double* %call1, i64 %indvars.iv
+  %0 = load double, double* %arrayidx, align 8, !tbaa !3
+  %call2 = tail call double* @REAL(%struct.SEXPREC.0* %y) #3
+  %arrayidx4 = getelementptr inbounds double, double* %call2, i64 %indvars.iv
+  %1 = load double, double* %arrayidx4, align 8, !tbaa !3
+  %add = fadd double %0, %1
+  %add5 = fadd double %ans.016, %add
+  %indvars.iv.next = add nuw nsw i64 %indvars.iv, 1
+  %exitcond.not = icmp eq i64 %indvars.iv.next, %wide.trip.count
+  br i1 %exitcond.not, label %for.cond.cleanup.loopexit, label %for.body
+]]></r:output>
+</r:code>
+as shown in individual <r:class>BasicBlock</r:class> elements.
+</para>
+
+
+
+<para>
+We read the <ir/> code into our <r/> session:
+<r:code>
+m = parseIR("lengths.ir")
+</r:code>  
+Since we want to analyze loops, we will call <r:func>runLoopPass</r:func>
+to transform the <ir/> code
+<r:code>
+runLoopPass(m)
+</r:code>
+</para>
+<para>
+Next, we create our loop analysis elements and get the list of loops.
+<r:code>
+la = loopAnalysis(m$two)
+loop = getLoops(la)[[1]]
+</r:code>
+We (programmatically) verified that there is only one loop so we
+extract that rather than working with the list containing a single element.
+</para>
+<para>
+<r:code>
+b = getBounds(loop, la$scalar)
+<r:output><![CDATA[
+$direction
+Increasing 
+         0 
+
+$predicate
+ICMP_NE 
+     33 
+
+$initialValue
+[1] "i64 0"
+
+$finalValue
+[1] "  %wide.trip.count = zext i32 %call to i64"
+
+$stepValue
+[1] "i64 1"
+
+$stepInstruction
+[1] "  %indvars.iv.next = add nuw nsw i64 %indvars.iv, 1"
+]]></r:output>
+</r:code>
+From the <r:el>direction</r:el>, we can see this loop is increasing and goes
+from 0 (<r:expr>getValue(b$initialValue)</r:expr>) to the upper bound, which we have to determine from the rest of the code.
+The loop increments in single steps, i.e. <r:expr>getValue(b$stepValue)</r:expr>.
+The <r:el>predicate</r:el> element tells us what operation is used to compare the induction variable
+to the upper bound. In this case, 
+</para>
+
+
+<para>
+  The <r:el>finalValue</r:el> is an instruction
+  which sets the variable/named-register <c:var>wide.trip.count</c:var>
+  by casting the <r:class>Value</r:class> identified by <c:var>call</c:var> to a 64-bit integer.
+  The <c:var>call</c:var> <r:class>Value</r:class> is
+<r:code>
+v = b$finalValue[[1]]
+<r:output><![CDATA[
+[1] "  %call = tail call i32 @Rf_length(%struct.SEXPREC.0* %x) #3"
+]]></r:output>
+</r:code>
+From this, we can  verify it is a call and to <c:func>Rf_length</c:func>:
+<r:code>
+getName(getCalledFunction(b$finalValue[[1]]))
+<r:output><![CDATA[
+[1] "Rf_length"
+]]></r:output>
+</r:code>
+We can also verify that the argument in this call is the first parameter of the routine <c:func>two</c:func>:
+<r:code>
+identical(v[[1], getParameters(m$two)[[1]])
+</r:code>
+So the final iteration value is the length of <c:var>x</c:var>.
+</para>
+
+<para>
+  The next step in verifying the elements of x and y
+  that are used is to find the induction variable(s)
+  in the loop
+  and see how it is used.
+We get this with
+<r:code>
+iv = getInductionVariable(loop)
+<r:output><![CDATA[
+[1] "  %indvars.iv = phi i64 [ 0, %for.body.preheader ], [ %indvars.iv.next, %for.body ]"
+]]></r:output>
+</r:code>  
+One possible incoming value is 0 from the start of the loop which we saw from the initial value from the bounds.
+The other incoming value is <c:var>indvars.iv.next</c:var>.  This is the instruction that increments indvars.iv (the
+induction variable) in each iteration:
+<r:code>
+iv[[2]]  
+<r:output><![CDATA[
+[1] "  %indvars.iv.next = add nuw nsw i64 %indvars.iv, 1"
+]]></r:output>
+</r:code>
+We are interested in where the induction variable is used (excluding the incrementing of itself)
+<r:code>
+u = getAllUsers(iv)
+u = setdiff(u, list(iv[[2]]))
+<r:output><![CDATA[
+[[1]]
+[1] "  %arrayidx = getelementptr inbounds double, double* %call1, i64 %indvars.iv"
+
+[[2]]
+[1] "  %arrayidx4 = getelementptr inbounds double, double* %call2, i64 %indvars.iv"
+]]></r:output>
+</r:code>
+Both of these are GEP instructions, and use the same indexing.
+<r:code>
+lapply(u, `[[`, 1)
+<r:output><![CDATA[
+[[1]]
+[1] "  %call1 = tail call double* @REAL(%struct.SEXPREC.0* %x) #3"
+
+[[2]]
+[1] "  %call2 = tail call double* @REAL(%struct.SEXPREC.0* %y) #3"
+]]></r:output>
+</r:code>
+These are calls to access the <c:type>double *</c:type> values in <c:arg>x</c:arg> and <c:arg>y</c:arg>
+respectively.
+To verify these are the parameters:
+<r:code>
+mapply(function(g, p) identical(g[[1]][[1]], p), u, getParameters(m$two))
+</r:code>
+</para>
+
+<para>
+  So we have "verified" that the loop indexes by <c:arg>x</c:arg> and <c:arg>y</c:arg>
+  up to the length of <c:arg>x</c:arg>.
+  In this case, we can determine that <c:arg>x</c:arg> and <c:arg>y</c:arg> are
+  both <r:class>numeric</r:class> vectors with either the same length
+  or that <c:arg>y</c:arg> is longer than <c:arg>x</c:arg>.
+</para>
+
+
+<para>
+  Consider the routine <c:func>twoStride</c:func>.
+  This is essentially the same as <c:func>two</c:func>
+  but we index the <c:type>double *</c:type> values
+  from <c:arg>y</c:arg> by <c:expr>2*i</c:expr>,
+  not simply by <c:var>i</c:var>.
+  Since this is the only change, the loop information
+  <emdash>bounds and induction variable</emdash>
+  are the same.
+  So we need to see where that is used.
+</para>
+
+<invisible>
+<r:code>
+la = loopAnalysis(m$twoStride)
+loop = getLoops(la)[[1]]
+b = getBounds(loop, la$scalar)
+</r:code>
+</invisible>
+
+<para>
+We get the induction variable and find its uses (omitting where it is incremented):
+<r:code>
+iv = getInductionVariable(loops[[1]])
+u = setdiff(getAllUsers(iv), list(iv[[2]]))
+<r:output><![CDATA[
+[[1]]
+[1] "  %arrayidx = getelementptr inbounds double, double* %call1, i64 %indvars.iv"
+
+[[2]]
+[1] "  %1 = shl nuw nsw i64 %indvars.iv, 1"
+]]></r:output>
+</r:code>
+The first is as before in <c:func>two</c:func>, i.e. indexing <c:expr>REAL(x)[i]</c:expr>.
+The second element is different, as we might expect.
+It is a <r:class>BinaryOperator</r:class> and the operation is <ir:op>shl</ir:op> <emdash/> shift left.  The second
+operand is 1, so we are changing the value of the induction variable by shifting the bits 1 to the left, i.e.,
+multiplying by 2. This is our <c:expr>2*i</c:expr>.
+Where is this used:
+<r:code>
+getAllUsers(u[[2]])
+<r:output><![CDATA[
+[[1]]
+[1] "  %arrayidx4 = getelementptr inbounds double, double* %call2, i64 %1"
+]]></r:output>
+</r:code>
+This is similar to our call in <c:func>two</c:func> to access the elements of <c:arg>y</c:arg>.
+We have to "digest" the <ir:op>shl</ir:op> command and understand that the final value
+of the induction variable is <c:expr>Rf_length(x)</c:expr>,
+so the largest value of the index for <c:arg>y</c:arg> is twice that value.
+</para>
+
+</section>
+
+
+<section>
+<title>Optimization Level</title>
+
+<para>
+  Note that the information about loops that we get depends  significantly on the
+  optimization level we use to get the 
+
+<r:code>
+ans = sapply(0:3,
+         function(opt) {
+           system(paste0("clang -S -emit-llvm loop.c -o loop.ir -O", opt))
+           m = parseIR("loop.ir")
+           runLoopPass(m)
+           la = loopAnalysis(m$loop)
+           loops = getLoops(la)
+           lapply(loops, getBounds, la)
+        })
+</r:code>
+We  one loop for each of -O0 and -O1, and two loops for -O2 and -O3:
+<r:code>
+sapply(ans, length)
+</r:code>
+And for -O0, the bounds result is <r:null/>, but for the other optimization levels
+we get actual information:
+<r:code>
+lapply(ans, function(x) table(sapply(x, is.null)))
+</r:code>
+</para>
+
+
+<para>
+  Note that if we don't call <r:func>runLoopAnalysis</r:func>, we get <r:null/> values
+  for the bounds at each optimization level.
+</para>
+
+
+<para>
+  For -O2, we get two loops as the compiler generates the following <ir/> code
+<ir:output><![CDATA[
+define double @loop(double* nocapture readonly %x, i32 %len) local_unnamed_addr #0 {
+entry:
+  %cmp6 = icmp sgt i32 %len, 0
+  br i1 %cmp6, label %for.body.preheader, label %for.cond.cleanup
+
+for.body.preheader:                               ; preds = %entry
+  %wide.trip.count = zext i32 %len to i64
+  %0 = add nsw i64 %wide.trip.count, -1
+  %xtraiter = and i64 %wide.trip.count, 7
+  %1 = icmp ult i64 %0, 7
+  br i1 %1, label %for.cond.cleanup.loopexit.unr-lcssa, label %for.body.preheader.new
+
+for.body.preheader.new:                           ; preds = %for.body.preheader
+  %unroll_iter = and i64 %wide.trip.count, 4294967288
+  br label %for.body
+
+for.cond.cleanup.loopexit.unr-lcssa:              ; preds = %for.body, %for.body.preheader
+  %add.lcssa.ph = phi double [ undef, %for.body.preheader ], [ %add.7, %for.body ]
+  %indvars.iv.unr = phi i64 [ 0, %for.body.preheader ], [ %indvars.iv.next.7, %for.body ]
+  %total.07.unr = phi double [ 0.000000e+00, %for.body.preheader ], [ %add.7, %for.body ]
+  %lcmp.mod.not = icmp eq i64 %xtraiter, 0
+  br i1 %lcmp.mod.not, label %for.cond.cleanup, label %for.body.epil
+
+for.body.epil:                                    ; preds = %for.cond.cleanup.loopexit.unr-lcssa, %for.body.epil
+  %indvars.iv.epil = phi i64 [ %indvars.iv.next.epil, %for.body.epil ], [ %indvars.iv.unr, %for.cond.cleanup.loopexit.unr-lcssa ]
+  %total.07.epil = phi double [ %add.epil, %for.body.epil ], [ %total.07.unr, %for.cond.cleanup.loopexit.unr-lcssa ]
+  %epil.iter = phi i64 [ %epil.iter.sub, %for.body.epil ], [ %xtraiter, %for.cond.cleanup.loopexit.unr-lcssa ]
+  %arrayidx.epil = getelementptr inbounds double, double* %x, i64 %indvars.iv.epil
+  %2 = load double, double* %arrayidx.epil, align 8, !tbaa !3
+  %add.epil = fadd double %total.07.epil, %2
+  %indvars.iv.next.epil = add nuw nsw i64 %indvars.iv.epil, 1
+  %epil.iter.sub = add i64 %epil.iter, -1
+  %epil.iter.cmp.not = icmp eq i64 %epil.iter.sub, 0
+  br i1 %epil.iter.cmp.not, label %for.cond.cleanup, label %for.body.epil, !llvm.loop !7
+
+for.cond.cleanup:                                 ; preds = %for.cond.cleanup.loopexit.unr-lcssa, %for.body.epil, %entry
+  %total.0.lcssa = phi double [ 0.000000e+00, %entry ], [ %add.lcssa.ph, %for.cond.cleanup.loopexit.unr-lcssa ], [ %add.epil, %for.body.epil ]
+  ret double %total.0.lcssa
+
+for.body:                                         ; preds = %for.body, %for.body.preheader.new
+  %indvars.iv = phi i64 [ 0, %for.body.preheader.new ], [ %indvars.iv.next.7, %for.body ]
+  %total.07 = phi double [ 0.000000e+00, %for.body.preheader.new ], [ %add.7, %for.body ]
+  %niter = phi i64 [ %unroll_iter, %for.body.preheader.new ], [ %niter.nsub.7, %for.body ]
+  %arrayidx = getelementptr inbounds double, double* %x, i64 %indvars.iv
+  %3 = load double, double* %arrayidx, align 8, !tbaa !3
+  %add = fadd double %total.07, %3
+  %indvars.iv.next = or i64 %indvars.iv, 1
+  %arrayidx.1 = getelementptr inbounds double, double* %x, i64 %indvars.iv.next
+  %4 = load double, double* %arrayidx.1, align 8, !tbaa !3
+  %add.1 = fadd double %add, %4
+  %indvars.iv.next.1 = or i64 %indvars.iv, 2
+  %arrayidx.2 = getelementptr inbounds double, double* %x, i64 %indvars.iv.next.1
+  %5 = load double, double* %arrayidx.2, align 8, !tbaa !3
+  %add.2 = fadd double %add.1, %5
+  %indvars.iv.next.2 = or i64 %indvars.iv, 3
+  %arrayidx.3 = getelementptr inbounds double, double* %x, i64 %indvars.iv.next.2
+  %6 = load double, double* %arrayidx.3, align 8, !tbaa !3
+  %add.3 = fadd double %add.2, %6
+  %indvars.iv.next.3 = or i64 %indvars.iv, 4
+  %arrayidx.4 = getelementptr inbounds double, double* %x, i64 %indvars.iv.next.3
+  %7 = load double, double* %arrayidx.4, align 8, !tbaa !3
+  %add.4 = fadd double %add.3, %7
+  %indvars.iv.next.4 = or i64 %indvars.iv, 5
+  %arrayidx.5 = getelementptr inbounds double, double* %x, i64 %indvars.iv.next.4
+  %8 = load double, double* %arrayidx.5, align 8, !tbaa !3
+  %add.5 = fadd double %add.4, %8
+  %indvars.iv.next.5 = or i64 %indvars.iv, 6
+  %arrayidx.6 = getelementptr inbounds double, double* %x, i64 %indvars.iv.next.5
+  %9 = load double, double* %arrayidx.6, align 8, !tbaa !3
+  %add.6 = fadd double %add.5, %9
+  %indvars.iv.next.6 = or i64 %indvars.iv, 7
+  %arrayidx.7 = getelementptr inbounds double, double* %x, i64 %indvars.iv.next.6
+  %10 = load double, double* %arrayidx.7, align 8, !tbaa !3
+  %add.7 = fadd double %add.6, %10
+  %indvars.iv.next.7 = add nuw nsw i64 %indvars.iv, 8
+  %niter.nsub.7 = add i64 %niter, -8
+  %niter.ncmp.7 = icmp eq i64 %niter.nsub.7, 0
+  br i1 %niter.ncmp.7, label %for.cond.cleanup.loopexit.unr-lcssa, label %for.body
+}
+]]></ir:output>
+We can visualize the blocks in the <r:func>Function</r:func> in 
+
+</para>
+
+<figure id='fig:loopBlockGraph'>
+<title>BasicBlock Graph for <c:func>loop</c:func> with -O2 Optimization</title>
+<graphic fileref='loop02BlockGraph.png'/>
+<caption><para>
+  This illustrates that the single loop in the <c/> code has
+  been converted into two loops.
+  When <c:var>len</c:var> (the number of iterations) is 8 or greater,
+  the code uses the loop on the right and does 8 each iterations at a time
+  via an unrolled loop.
+  When it has completed all multiples of 8, it passes control back to the
+  preheader of the loop on the left.
+  If len is a multiple of 8, we are done and that branches to for.cond.cleanup.
+  However, if len is not a multiple of 8, there are still some (less than 8) iterations to perform
+  and the left loop processes these.
+  The number of remaining iterations is passed to the <ir:br>for.cond.cleanup.loopexit.unr-lcssa</ir:br>
+  branch via its PHI node using the <ir:var>indvars.iv.next.</ir:var>7 variable.
+</para>
+</caption>
+</figure>
+
+<invisible>
+
+<para>
+  See https://play.golang.org/.
+  4294967288 as an int64_t is represented in bits as
+     11111111111111111111111111111000
+     (although this is 32 bits!)
+
+                  Take 47 = 101111
+  11111111111111111111111111111000     
+  11111111111111111111111111101000     
+</para>
+
+<para>
+
+  Consider
+
+  x = .Machine$integer.max
+  # subtract 7 as that is the smallest amount up to 16
+  # so we wipe out the 3 last bits and set to 0.
+  # the 4th bit with all 1111 is 
+  x1 = x - 7   # 4 + 2 + 1  - the left most 3 bits
+  library(bitops)
+  vals = c(1, 5, 7, 8, 9, 15, 16, 23, 24, 29, 31, 32, 33)
+  out = bitAnd(vals, x1)
+  
+</para>
+
+  
+</invisible>
+
+
+</section>
+
+
+
+
+<section>
+<title>Pre-processing the <ir/> Code</title>
+
+
+<para>
+<r:function><![CDATA[
+bounds = 
+function(fun)
+{
+ la = loopAnalysis(fun)
+ loops = getLoops(la)
+ lapply(loops, getBounds, la$scalar)
+}
+]]></r:function>
+</para>
+
+
+<para>
+<r:code>
+m = parseIR("../inst/IR/loop.ir")
+pre = showModule(m, TRUE)
+b1 = bounds(m$loop)
+</r:code>
+<r:code>
+# mgr = getPassManager(m)
+mgr = passManager(m)
+loopPass = .Call("R_createLoopSimplifyCFGPass")
+addPass(mgr, loopPass)
+run(mgr, m)
+after = showModule(m, TRUE)
+b2 = bounds(m$loop)
+</r:code>
+</para>
+
+
+<para>
+<r:code>
+b3 = lapply(getModuleFunctions(m), bounds)
+</r:code>
+</para>
+
+</section>
+
+</section>
+
