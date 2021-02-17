@@ -10,19 +10,19 @@ For examples, see the
 [RLLVM page on Omegahat](http://www.omegahat.net/Rllvm/).
 
 
-The current repository builds against LLVM 3.5, 3.6, 3.7, and3.8.
+The current repository builds against LLVM 11, 10, 9, ..., 3.5, 3.6, 3.7, and 3.8.
 Importantly, recent versions of LLVM default to the MCJIT execution engine.
 This unfortunately has very limited ability to invoke routines compiled via Rllvm,
 i.e., using the .llvm() and run() functions.   Acccordingly, we have implemented a
-simple (but reasonably comprehensive) mechanism to invoke these routines.
+reasonably comprehensive mechanism to invoke these routines.
 We use the [Rffi](https://github.com/omegahat/Rffi) package to do this.
-We might shift to the [rdyncall](http://r-forge.r-project.org/R/?group_id=2086) package.
+
 
 So this package now requires the [Rffi](https://github.com/omegahat/Rffi) package.
 This comes with its own version of libffi, but will find a more up-to-date version
 if it is installed (see pkg-config). 
 
-These packages are not yet on CRAN.
+These packages are not on CRAN.
 
 Related packages are [Rffi](https://github.com/omegahat/Rffi), Rllvm (this one),
 [RLLVMCompile](https://github.com/duncantl/RLLVMCompile),
