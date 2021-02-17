@@ -47,3 +47,25 @@ function(fun, ...)
 {
    .Call("R_PostDominatorTree", as(fun, "Function"))
 }
+
+
+
+
+
+setMethod("dominates", c("PostDominatorTree", "Instruction", "Instruction"),
+           function(x, y, z, ...) 
+             .Call("R_PostDominatorTree_dominates_instruction_instruction", x, y, z))
+
+setMethod("dominates", c("PostDominatorTree", "BasicBlock", "BasicBlock"),
+           function(x, y, z, ...) 
+              .Call("R_PostDominatorTree_dominates_block_block", x, y, z))
+
+
+setMethod("postDominates", c("Instruction", "Instruction"),
+          function(x, y, z, ...)
+              dominates(PostDominatorTree(as(x, "Function")), x, y))
+
+
+setMethod("postDominates", c("BasicBlock", "BasicBlock"),
+          function(x, y, z, ...)
+              dominates(PostDominatorTree(as(x, "Function")), x, y))
