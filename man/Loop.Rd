@@ -48,6 +48,7 @@
 \alias{getExitingBlocks}
 \alias{getLatches}
 \alias{getLatchExitBlocks}
+\alias{getExitEdges}
 
 \title{Methods for \code{Loop} Objects}
 \description{

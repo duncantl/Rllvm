@@ -879,7 +879,7 @@ exportMethods(getLoopBlocks)
 export(getLoopFor, getLoopDepth)
 
 
-export(getExitBlocks, getExitingBlocks, getLatches, getLatchExitBlocks)
+export(getExitBlocks, getExitingBlocks, getLatches, getLatchExitBlocks, getExitEdges)
 
 export(dominates, postDominates)
 exportMethods(dominates)

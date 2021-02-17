@@ -298,6 +298,9 @@ getLatchExitBlocks =
 function(loop)
     .Call("R_Loop_getUniqueNonLatchExitBlocks", as(loop, "Loop"))
 
+getExitEdges =
+function(loop)
+    .Call("R_Loop_getExitEdges", as(loop, "Loop"))
 
 ######################
 
