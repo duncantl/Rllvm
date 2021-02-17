@@ -1,5 +1,6 @@
 \name{dominates}
 \alias{dominates}
+\alias{postDominates}
 \alias{dominates,DominatorTree,Instruction,Instruction-method}
 \alias{dominates,DominatorTree,Instruction,BasicBlock-method}
 \alias{dominates,Instruction,BasicBlock-method}
@@ -10,6 +11,10 @@
 \alias{dominates,DominatorTree,BasicBlock,Instruction-method}
 \alias{dominates,Instruction,BasicBlock,ANY-method}
 \alias{dominates,Instruction,Instruction,ANY-method}
+\alias{dominates,PostDominatorTree,BasicBlock,BasicBlock-method}
+\alias{dominates,PostDominatorTree,Instruction,Instruction-method}
+\alias{postDominates,BasicBlock,BasicBlock-method}
+\alias{postDominates,Instruction,Instruction-method}
 
   
 \title{Determine whether an Instruction dominates another Instruction or  BasicBlock}
@@ -27,10 +32,11 @@
 }
 \usage{
 dominates(x, y, z, ...)
+postDominates(x, y, ...)
 }
 \arguments{
   \item{x,y,z}{one can either specify the Instruction and the
-  Instruction and BasicBlock, or pass the DominatorTree as the first
+  Instruction and BasicBlock, or pass the (Post)DominatorTree as the first
   argument and then the Instruction and Instruction/BasicBlock.}
   \item{\dots}{arguments for methods. Currently ignored for the DominatorTree functions}
 }
