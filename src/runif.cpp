@@ -1,3 +1,5 @@
+#if 0
+
 #include <stdlib.h>
 
 extern "C"
@@ -7,3 +9,6 @@ runif()
     double val = (double) random();
     return(val/2147483647.);
 }
+#else
+static int noop = 0;
+#endif
