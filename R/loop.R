@@ -128,7 +128,7 @@ setMethod("getInductionVariable", c("Loop", "missing"),
 
 isAuxInductionVariable = isAuxiliaryInductionVariable =
 function(loop, phi, se)
-    .Call("R_Loop_isAuxiliaryInductionVariable", as(loop, "loop"), as(phi, "PHINode"), as(se, "ScalarEvolution"))
+    .Call("R_Loop_isAuxiliaryInductionVariable", as(loop, "Loop"), as(phi, "PHINode"), as(se, "ScalarEvolution"))
 
 
 getCanonicalInductionVariable =
