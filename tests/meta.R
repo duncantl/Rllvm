@@ -15,10 +15,12 @@ setMetadata(m, "str2", list("a string", "and another"))
 showModule(m)
 
 
+
 all.nmd = getMetadata(m)
 
 nmd = getMetadata(m, "str")
 # same as all.nmd[["str"]]
+getName(nmd)
 getValue(nmd)
 val = nmd[[1]][[1]]
 getValue(val)
@@ -45,7 +47,6 @@ nmd = getMetadata(m, "bar")
 getValue(nmd)
 getValue(nmd[[1]][[1]])
 #.Call("R_convertValueToR", nmd[[1]][[1]])
-
 
 
 nmd = getMetadata(m, "str2")
