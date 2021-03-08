@@ -1,6 +1,10 @@
 const char  * getLLVMClassName(const llvm::Value *obj)
 {
 	const char *ans = "Value";
+
+	if(!obj)
+	   return(NULL);
+
 	if(llvm::Constant::classof(obj))
 	   ans = "Constant";
 	if(llvm::Instruction::classof(obj))
