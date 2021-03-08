@@ -113,6 +113,8 @@ setGeneric("getInitializer", function(x, ...) standardGeneric("getInitializer"))
 setMethod("getInitializer", "GlobalVariable",
           function(x, ...) {
               ans = .Call("R_GlobalVariable_getInitializer", x)
+              if(identical(ans@ref, new("externalptr")))  # @ref is 0x0
+                  return(ans)
               as(ans, getClassName(ans))
           })
 
