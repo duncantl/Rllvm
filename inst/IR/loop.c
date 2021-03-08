@@ -83,3 +83,18 @@ invariant(double *x, int len)
 	x[i] = sin(f*x[i]);
     }
 }
+
+
+double
+loopMat(double *x, double *mat, int nx, int nrmat)
+{
+
+    int j;
+    double ans = 0;
+    for(int i = 0; i < nx; i++) {
+	j = i * nrmat;
+	ans +=  x[i] + mat[ j ];
+    }
+
+    return(ans);
+}
