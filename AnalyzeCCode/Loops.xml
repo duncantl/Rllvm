@@ -1,7 +1,8 @@
 <section
 	 xmlns:c="http://www.C.org"
 	 xmlns:ir="http://llvm.org/ir"
-	 xmlns:sh="http://www.shell.org">
+	 xmlns:sh="http://www.shell.org"
+	 xmlns:r="http://www.r-project.org">
 <title></title>
 
 <para>
@@ -101,7 +102,7 @@ getLoopBlocks(loops[[1]])
 <title>Loop Analysis Case Study</title>
 <para>
 Consider the <c/> routine
-<c:code>
+<c:code><![CDATA[
 SEXP
 two(SEXP x, SEXP y)
 {
@@ -113,7 +114,7 @@ two(SEXP x, SEXP y)
     }
     return(ScalarReal(ans));
 }
-</c:code>
+]]></c:code>
 This clearly contains a single loop.
 The name <c:func>two</c:func> refers to the fact that there are two arguments.
 The function iterates over the elements of both <c:arg>x</c:arg> and <c:arg>y</c:arg> as <r/> vectors
