@@ -390,8 +390,23 @@ R_Function_setAttributes(SEXP r_func, SEXP r_vals)
          func->addFnAttr( (AttrKind)  INTEGER(r_vals)[i]);
      }
      return(ScalarLogical(TRUE));
-
 }
+
+extern "C"
+SEXP
+R_Function_setAttributes_strings(SEXP r_func, SEXP r_vals, SEXP r_names)
+{
+     llvm::Function *func = GET_REF(r_func, Function);
+     for(int i = 0; i < Rf_length(r_vals); i++) {
+         llvm::StringRef name(CHAR(STRING_ELT(r_names, i)));
+         llvm::StringRef val(CHAR(STRING_ELT(r_vals, i)));         
+         func->addFnAttr( name, val);
+     }
+     return(ScalarLogical(TRUE));
+}
+
+
+
 
 extern "C"
 SEXP
