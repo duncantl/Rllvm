@@ -103,8 +103,12 @@ setMethod("setName", "Value",
               .Call("R_Value_setName", obj, as.character(name)))
 
 setMethod("getName", "Value",
-          function(obj, name)
-              .Call("R_Value_getName", obj))
+          function(obj, ...)
+             .Call("R_Value_getName", obj))
+
+setMethod("getName", "ConstantExpr",
+          function(obj, ...)
+              getName(getValue(obj)))
 
 
 getFunctionArgs =
@@ -187,6 +191,9 @@ setMethod("getBlocks", "Function",
               ans
           })
 
+setMethod("getBlocks", "ConstantExpr",
+          function(x, ...)
+            getBlocks(getValue(x), ...))
 
 
 setMethod("getReturnType",
@@ -271,6 +278,11 @@ setMethod("getContext", "Function",
                 .Call("R_Function_getContext", x))
 
 
+setAs("Argument", "Function",
+      function(from)
+         getParent(from))
+
+
 setParamAttributes =
     # context added for 3.9
 function(arg, values, context = getGlobalContext(), force = FALSE)
@@ -284,8 +296,27 @@ function(arg, values, context = getGlobalContext(), force = FALSE)
   .Call("R_Argument_setAttributes", arg, as.integer(values), as(context, "LLVMContext"))
 }
 
-  
+
 setFuncAttributes =
+function(func, ..., .attrs = list(...))
+{
+    names = names(.attrs)
+    isNum = sapply(.attrs, is, "numeric")
+
+    if(!all(isNum)) {
+        if(length(names) == 0 || any(names[!isNum] == ""))
+            stop("any character attribute needs a name")
+
+
+        vals = sapply(.attrs, function(x) as.character(x)[1])
+        .Call("R_Function_setAttributes_strings", func, vals, names[!isNum])
+    }
+
+    if(any(isNum)) 
+        setFuncAttributes_integer(func, .attrs = .attrs[isNum])
+}
+  
+setFuncAttributes_integer =
 function(func, ..., .attrs = list(...))
 {
    vals = matchFuncAttributes(unlist(.attrs))
