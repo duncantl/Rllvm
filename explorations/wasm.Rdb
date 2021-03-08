@@ -1,0 +1,90 @@
+<article
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:sh="http://www.shell.org"
+	 xmlns:c="http://www.C.org">
+  <authorInfo>
+    <firstname>Duncan</firstname>
+    <surname>Temple Lang</surname>
+  </authorInfo>
+
+<section>
+<title></title>
+
+<para>
+We can generate <ir/> code and then convert it to Web assembly (WASM) for use with <javascript/>.
+We generate the IR in the usual way in <r/> using an <r:class>IRBuilder</r:class>  and
+creating instructions within <r:class>BasicBlock</r:class>s inside <r:class>Function</r:class>s
+in a <r:class>Module</r:class>.
+To indicate that we want WASM code, we set the target for the <r:class>Module</r:class>
+to be <literal>wasm32</literal> or <literal>wasm64</literal>.
+We then write the <ir/> code to a file as <llvm/> bitcode.
+The next two steps to create the WASM code are 1) to compile the bitcode into assembler using
+<sh:cmd>llc</sh:cmd>,
+and b) to link the code into a WASM unit via <sh:cmd>wasm-ld</sh:cmd>, both shell commands.
+(We could do this in <r:pkg>Rllvm</r:pkg>, but it doesn't seem worthwhile yet.
+</para>
+<para>
+We start by creating the <ir/> code. We'll create a simple routine that takes a real-valued
+number and returns the value multiplied by 2.
+<r:code>
+library(Rllvm)
+fun = simpleFunction("foo", DoubleType, DoubleType)
+ir = fun$ir
+ir$createReturn( ir$binOp( FMul, ir$createConstant(2.0), fun$params[[1]]))
+</r:code>
+</para>
+<para>
+Next, we set the TargetTriple to indicate we are targetting  WASM
+<r:code>
+setTargetTriple(fun$module, "wasm32")
+</r:code>
+</para>
+<para>
+  While we can get <sh:cmd>wasm-ld</sh:cmd> to
+  export all the symbols in our <r:class>Module</r:class> to
+  make them available to the <javascript/> code,
+  we can avoid exporting all of them and  explicitly identify our
+  routine <c:func>foo</c:func> to be exported.
+  We do this by setting the wasm-export-name attribute on  this <r:class>Function</r:class>, e.g.,
+<r:code>
+setFuncAttributes(fun$fun, "wasm-export-name" = "foo")
+</r:code>
+Here we used the name foo, the same as it is in our <r:class>Module</r:class>.
+However, we can provide a different name and that is how the <js/> code would refer to our <r:class>Function</r:class>.
+</para>
+
+<para>
+It is always good  to verify the module:
+<r:code>
+verifyModule(fun$module)
+</r:code>
+There are no errors.
+So we now write the <ir/> code as bitcode:
+<r:code>
+writeBitcode(fun$module, "foo.bc")
+</r:code>  
+</para>
+
+<para>
+We call <sh:cmd>llc</sh:cmd>   with
+<sh:code>
+llc -filetype=obj foo.bc -o foo.o
+</sh:code>
+to create the .o file - the assembler code.
+Then we create the final wasm file with
+<sh:code>
+wasm-ld --no-entry -o foo.wasm foo.o
+</sh:code>
+The <sh:flag>no-entry</sh:flag> flag indicates that the linker should look for the _start routine (the equivalent
+of a main routine as the entry point in a stand-alone executable/application.)
+(See <ulink url="https://lld.llvm.org/WebAssembly.html"/> for the help page for wasm-ld.
+</para>
+
+
+<para>
+The  file <file>foo.wasm</file> can now be used in an HTML/JavaScript document. See test.html.
+</para>
+
+
+</section>
+</article>

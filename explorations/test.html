@@ -1,0 +1,27 @@
+<!DOCTYPE html> 
+<html>
+   <head>
+      <meta charset="UTF-8">
+   </head>
+   <body>
+   Look in the console for the result of the computation.
+       
+      <script>
+         var jfib;
+	 
+         fetch("fib.wasm").then(bytes => bytes.arrayBuffer()) 
+            .then(module => WebAssembly.instantiate(module, {})) 
+            .then(p => {
+	    	    jfib = p.instance.exports.fib;
+                    console.log(p); 
+	            console.log("fib(12) = " + jfib(12)); 
+
+		    document.body.innerHTML = "Result: fib(12) = " + jfib(12);
+	    }); 
+
+
+      </script> 
+
+
+   </body>
+</html>
