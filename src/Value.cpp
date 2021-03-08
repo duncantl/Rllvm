@@ -71,6 +71,9 @@ SEXP
 R_Value_dump(SEXP r_val)
 {
     llvm::Value *val = GET_REF(r_val, Value);
+    if(!val)
+        return(NEW_CHARACTER(0));
+    
     std::string str;
     llvm::raw_string_ostream out(str);
     val->print(out);
@@ -181,6 +184,9 @@ SEXP
 R_Value_print(SEXP r_value)
 {
     llvm::Value *val = GET_REF(r_value, Value);
+    if(!val)
+       return(NEW_CHARACTER(0));
+    
     std::string str;
     llvm::raw_string_ostream OS(str);
     val->print(OS);
