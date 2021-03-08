@@ -33,4 +33,32 @@ function(m, funs = getModuleFunctions(m))
     # nblocks = sapply(funs, function(f) length(getBlocks(f)))
     # funs = funs[nblocks > -1]
     ans = .Call("R_CallGraph_getFunCalls", g, funs)
+
+    class(ans) = c("CallsGraph", "list")
+    ans
 }
+
+
+plotModule =
+function(mod, graph = mkCallsGraph(mod), funNames = getDefinedRoutines(m))
+{
+    w = names(graph) %in% funNames
+    graph = graph[w]
+
+     # drop the routines that don't call anything.
+    gr2 = gr[ ! sapply(gr, identical, "") ]
+
+    gr3 = lapply(gr2, intersect, funNames)
+
+    tmp = mapply(function(fun, to)  {
+         to = unique(to)
+         cbind(rep(fun, length(to)), to)
+     }, names(gr3), gr3)
+
+    gmat = do.call(rbind, tmp)
+
+    gg = graph_from_edgelist(gmat)
+
+    plot(gg)
+}
+
