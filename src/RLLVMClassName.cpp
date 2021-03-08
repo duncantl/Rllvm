@@ -9,7 +9,8 @@ SEXP
 R_Value_getClassName(SEXP r_val)
 {
     llvm::Value * val = GET_REF(r_val, Value);
-    return(ScalarString(mkChar(getLLVMClassName(val))));
+    const char *name = getLLVMClassName(val);
+    return(ScalarString(name ? mkChar(name) : R_NaString));
 }
 
 #if 0
