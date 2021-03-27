@@ -31,6 +31,7 @@ Collate: llvmVersion.R
 	 oldClasses.R	 
          classDefs.R
 	 llvmValueClasses.R
+         classDefs2.R	 
 	 llvmTypeClasses.R
 	 llvmMDNodeClasses.R
 	 otherClasses.R
