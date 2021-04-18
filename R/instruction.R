@@ -132,3 +132,10 @@ setAs("Instruction", "Module",
       function(from) {
           as(getParent(from), "Module")
       })
+
+
+
+
+
+setMethod("lapply", "User", function(X, FUN, ...) lapply(getOperands(X), FUN, ...))
+setMethod("sapply", "User", function(X, FUN, ...) sapply(getOperands(X), FUN, ...))
