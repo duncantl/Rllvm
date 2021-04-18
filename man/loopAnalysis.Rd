@@ -53,16 +53,25 @@ runLoopPass(mod, passes = list(.Call("R_createLoopSimplifyCFGPass")),
 \value{
   A list with three elements
   \item{dominatorTree}{the \code{\link{DominatorTree-class}}}
-  \item{dominatorTree}{the \code{\link{DominatorTree-class}}}  
+  \item{loopInfo}{the \code{\link{LoopInfo-class}} object}
+  \item{scalarEvolution}{the \code{\link{ScalarEvolution-class}} object
+    that provides information about variables that are incremented in
+    the loop.}    
+  These elements are used in various functions that access information
+  about the loops.
 }
 \references{
 \url{https://llvm.org/docs/LoopTerminology.html}
 }
 \author{DTL}
 \seealso{
+  \code{\link{getBounds}} and other functions for querying
+  loop information.
 }
 
-%XXXX getBounds() gives NULL for loop.c$loop and same for distance.c$distance
+% getBounds() gives NULL for distance.c$distance if we use -O0 to
+% generate the IR.  But okay for -O1 or -O2.
+% okay now for loop.c$loop
 \examples{
 f = system.file("IR/lengths.ir", package = "Rllvm")
 m = parseIR(f)
