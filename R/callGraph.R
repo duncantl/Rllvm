@@ -45,10 +45,23 @@ function(mod, graph = mkCallsGraph(mod), funNames = getDefinedRoutines(m))
     w = names(graph) %in% funNames
     graph = graph[w]
 
+    gg = mkIGraph(graph)
+    
+    plot(gg)
+}
+
+
+mkIGraph =
+function(gr, funNames = character())
+{
      # drop the routines that don't call anything.
     gr2 = gr[ ! sapply(gr, identical, "") ]
 
-    gr3 = lapply(gr2, intersect, funNames)
+    
+    gr3 = if(length(funNames))
+              lapply(gr2, intersect, funNames)
+          else
+              gr2
 
     tmp = mapply(function(fun, to)  {
          to = unique(to)
@@ -57,8 +70,5 @@ function(mod, graph = mkCallsGraph(mod), funNames = getDefinedRoutines(m))
 
     gmat = do.call(rbind, tmp)
 
-    gg = graph_from_edgelist(gmat)
-
-    plot(gg)
+    graph_from_edgelist(gmat)
 }
-
