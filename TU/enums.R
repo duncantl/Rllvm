@@ -24,6 +24,9 @@ llvmDir = path.expand("~/LLVM/clang+llvm-10.0.0-x86_64-apple-darwin/include")
 version = c(11, 0)
 llvmDir = path.expand("~/local/include")  #  "~/LLVM/clang+llvm-11.0.0-x86_64-apple-darwin/include")
 
+version = c(12, 0)
+llvmDir = path.expand("~/local/include")  #  "~/LLVM/clang+llvm-11.0.0-x86_64-apple-darwin/include")
+
 sysdir = system("xcrun --show-sdk-path", intern = TRUE)
 sysdir = file.path(sysdir, "usr/include")
 llvmDir = c(llvmDir, sysdir)
@@ -56,9 +59,17 @@ if(FALSE) {
  ids = c("UnaryOps", "BinOp", "BinaryOps", "CastOps", "AttrKind", "MetadataKind", 
      "TermOps", "LinkageTypes", "LLVMCodeGenOptLevel", "Predicate", "TailCallKind",
      "DIFlags",
-     "TypeID", "CallingConvention", "UnnamedAddr", "SourceLanguage", "Direction")
- #     "VisiblityTypes", "DLLStorageClassTypes"
- # 
+     "TypeID", "CallingConvention", "UnnamedAddr", "SourceLanguage", "Direction",
+     "VisibilityTypes", "DLLStorageClassTypes",
+     "ThreadLocalMode", "VCallVisibility",
+     "LLVMRelocMode"
+     )
+ # "LLVMCodeGenFileType"
+ # OSType, EnvironmentType
+ # PassManagerType, PassKind
+ # "DebuggerKind"
+ # "JITDylibLookupFlags"
+ # "OrcErrorCode"
  # ValueTy,  OtherOps, cmpResult
  
  Rfilename = sprintf("../R/z_enumDefs_%d.%d.R", version[1], version[2])
@@ -66,7 +77,8 @@ if(FALSE) {
      stop("File ", Rfilename, " already exists")
  con = file(Rfilename, "w")
  sink(con)
- cat("if(all(llvmVersion() == c(", version[1], ", ", version[2], "))) {\n\n")
+ cat("if(llvmCheckVersion(c(", version[1], ", ", version[2], ")
+)) {\n\n")
  invisible(lapply(enums[ids], outputEnum))
  cat("\n\n\n}\n\n")
  sink()

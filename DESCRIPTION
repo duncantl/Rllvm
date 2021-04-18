@@ -57,6 +57,7 @@ Collate: llvmVersion.R
          getCondition.R
          passConstructors.R 
          showBlocks.R
+	 version.R
          z_enumDefs_3.4.R
          z_enumDefs_3.5.R
          z_enumDefs_3.6.R
@@ -70,8 +71,9 @@ Collate: llvmVersion.R
          z_enumDefs_8.0.R
 	 z_enumDefs_9.0.R
 	 z_enumDefs_10.0.R
-	 z_enumDefs_11.0.R	 	 	 
-	 types.R
+	 z_enumDefs_11.0.R
+	 z_enumDefs_12.0.R
+         types.R
 	 Function.R
          ascii.R
          user.R
@@ -101,3 +103,4 @@ Collate: llvmVersion.R
 	 loop.R
 	 allPredecessors.R
 	 callGraph.R
+         cfg.R
