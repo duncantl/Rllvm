@@ -31,10 +31,6 @@ setClass("LLJITSymbolAddress", contains = "RC++Reference")
 setClass("Value", contains = "RC++Reference")
 
 
-# Compute these from TU/enums.R and the class hierarchy.
-# These are intrinsics and under
-setClass("MemSetInst", contains = "RC++Reference")
-setClass("MemCpyInst", contains = "RC++Reference")
 
 setClass("DIBuilder", contains = "RC++Reference")
 
