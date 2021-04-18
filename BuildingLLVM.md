@@ -64,7 +64,7 @@ The build takes 32G  on my OSX machine
 ```
 cmake -G Ninja 
    -DLLVM_ENABLE_PROJECTS="clang;libcxx;libcxxabi;clang-tools-extra;lldb;compiler-rt" 
-   -DSYSTEM_ROOT="$(xcrun --show-sdk-path)"
+   -DDEFAULT_SYSROOT="$(xcrun --show-sdk-path)"
    -DCMAKE_BUILD_TYPE=RelWithDebInfo 
    -DCMAKE_INSTALL_PREFIX=$HOME/local ../llvm
 ```
