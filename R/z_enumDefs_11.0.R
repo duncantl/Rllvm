@@ -1,4 +1,4 @@
-if(all(llvmVersion() == c( 11 ,  0 ))) {
+if(llvmCheckVersion(c(11, 0))) {  # all(llvmVersion() == c( 11 ,  0 )))
 
 `UnaryOpsBegin` = 0L
 `FNeg` = 12L
