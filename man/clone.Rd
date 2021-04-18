@@ -82,7 +82,21 @@ set. Currently, there are only methods for\code{setDataLayout} for a  \code{Modu
   Duncan Temple Lang
 }
 
-%\seealso{}
+\note{
+\code{getReturnType} identifies the type of the return value in the
+\code{Function} definition/declaration. However, it may not correspond
+to what you might expect.
+\code{LLVM} may adapat a \code{C/C++} routine that returns a structure
+or a \code{C++} object directly (not by reference) to instead return
+void and add the address of
+such an object as the first parameter.
+This will have the \code{sret} attribute set on the corresponding
+parameter.  See \code{\link{hasStructRet}}.
+}
+
+\seealso{
+\code{\link{hasStructRet}}
+}
 \examples{
 dl = getDataLayoutString()
 m = Module()

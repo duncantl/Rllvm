@@ -897,3 +897,6 @@ export(DominatorTree, PostDominatorTree)
 export(runLoopPass)
 
 
+
+
+export(isGEPWithNoNotionalOverIndexing)
