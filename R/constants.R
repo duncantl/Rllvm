@@ -156,3 +156,16 @@ setMethod("[", c("ConstantAggregate", "missing"),
               ans
           })
 
+
+
+
+
+
+isGEPWithNoNotionalOverIndexing =
+function(x)
+{
+    if(!is(x, "ConstantExpr"))
+        stop("x must be a ConstantExpr")
+    
+    .Call("R_ConstantExpr_isGEPWithNoNotionalOverIndexing", x)
+}
