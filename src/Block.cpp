@@ -26,7 +26,8 @@ R_BasicBlock_getTerminator(SEXP r_block, SEXP r_genericClass)
     llvm::Instruction /*TerminatorInst  - llvm8.0*/ *ans = block->getTerminator();
     if(!ans)
        return(R_NilValue);
-    
+
+    //xxx with R_createRef2, we don't need this.
     const char *className = "TerminatorInst";
     if(!LOGICAL(r_genericClass)[0]) {
         if(llvm::ReturnInst::classof(ans))
