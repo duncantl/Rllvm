@@ -45,3 +45,5 @@ function(phi)
 {
   .Call("R_PHINode_blocks", as(phi, "PHINode"))
 }
+
+setMethod("getBlocks", "PHINode", function(x, ...)    .Call("R_PHINode_blocks", x))

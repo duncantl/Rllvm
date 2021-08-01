@@ -357,7 +357,12 @@ R_LLVM_ARG_HAS(ZExt)
 R_LLVM_ARG_HAS(Returned)
 R_LLVM_ARG_HAS(InAlloca)
 R_LLVM_ARG_HAS(NonNull)
+#if LLVM_VERSION < 12
+//XXXXX Fix properly From earlier LLVMs
 R_LLVM_ARG_HAS(PassPointeeByValue)
+#else
+R_LLVM_ARG_HAS(PassPointeeByValueCopy)
+#endif
 R_LLVM_ARG_HAS(InReg)
 R_LLVM_ARG_HAS(Preallocated)
 
@@ -623,4 +628,15 @@ R_PostDominatorTree_dominates_block_block(SEXP r_tree, SEXP r_block1, SEXP r_blo
     LDECL2(BasicBlock, block2);
     bool ans = tree->dominates(block1, block2);
     return(ScalarLogical(ans));
+}
+
+
+
+extern "C"
+SEXP
+R_Function_getGlobalIdentifier(SEXP r_func)
+{
+    llvm::Function *func = GET_REF(r_func, Function);
+    std::string str = func->getGlobalIdentifier();
+    return(ScalarString(mkChar(str.data() ? str.data() : "")));
 }

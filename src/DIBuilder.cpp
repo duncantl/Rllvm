@@ -173,9 +173,21 @@ R_DIBuilder_CreateLocalVariable(SEXP r_builder, SEXP r_ir_builder, SEXP r_sp, SE
 #endif
 
     llvm::Instruction *Call = builder->insertDeclare(
-        var, D, builder->createExpression(), llvm::DebugLoc::get(asInteger(r_lineNo), 0, SP), ir_builder->GetInsertBlock());
+        var, D, builder->createExpression(),
+#if LLVM_VERSION < 12        
+        llvm::DebugLoc::get(asInteger(r_lineNo), 0, SP)
+#else
+        NULL //llvm::DILocation::get(ir_builder->getContext(), asInteger(r_lineNo), 0, SP)   // get(asInteger(r_lineNo), 0, SP)
+#endif
+        , ir_builder->GetInsertBlock());
 
-    Call->setDebugLoc(llvm::DebugLoc::get(asInteger(r_lineNo), 0, SP));
+    Call->setDebugLoc(
+#if LLVM_VERSION < 12
+        llvm::DebugLoc::get(asInteger(r_lineNo), 0, SP)
+#else        
+        Call->getDebugLoc()->get(ir_builder->getContext(), asInteger(r_lineNo), 0, SP)
+#endif
+        );
 
     return(R_NilValue);
 } 
@@ -263,7 +275,12 @@ R_IRBuilder_SetLocation(SEXP r_builder, SEXP r_func, SEXP r_lineNo, SEXP r_colNo
     int colNo = asInteger(r_colNo);
 
     builder->SetCurrentDebugLocation(
-		  llvm::DebugLoc::get(lineNo, colNo, SP));
+#if LLVM_VERSION < 12        
+        llvm::DebugLoc::get(lineNo, colNo, SP)
+#else
+        llvm::DILocation::get(builder->getContext(), lineNo, colNo, SP)        
+#endif
+        );
 
     return(R_NilValue);
 } 

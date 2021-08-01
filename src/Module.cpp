@@ -371,21 +371,14 @@ R_Module_getFunctionList(SEXP r_module)
     int n, i = 0;
     SEXP rans, names;
 
-
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
-//    llvm::iplist<llvm::Function> &funclist = mod->getFunctionList();
     const llvm::Module::FunctionListType &funclist(mod->getFunctionList());
-#else
-    const llvm::Module::FunctionListType &funclist(mod->getFunctionList());
-#endif
 
     n = funclist.size();
 
     PROTECT(rans = NEW_LIST(n));
     PROTECT(names = NEW_CHARACTER(n));
 
-    for(/*llvm::iplist<const llvm::Function>::iterator*/
-    llvm::Module::FunctionListType::const_iterator it = funclist.begin(); it != funclist.end(); it++, i++)
+    for(llvm::Module::FunctionListType::const_iterator it = funclist.begin(); it != funclist.end(); it++, i++)
     {
         const llvm::Function *curfunc = &(*it);
         SET_STRING_ELT(names, i, mkChar(curfunc->getName().data()));
@@ -1111,7 +1104,12 @@ R_Module_getTypeByName(SEXP r_module, SEXP r_name)
 {
     LDECL2(Module, module);
     llvm::StringRef str(CHAR(STRING_ELT(r_name, 0)));
-    llvm::StructType *ty = module->getTypeByName(str);
+    llvm::StructType *ty = 
+#if LLVM_VERSION < 12        
+                   module->getTypeByName(str);
+#else
+                   llvm::StructType::getTypeByName(module->getContext(), str);    //https://gitlab.freedesktop.org/mesa/mesa/-/issues/3917
+#endif    
     return( ty ? R_createTypeRef(ty, "Type") : R_NilValue );
 }
 

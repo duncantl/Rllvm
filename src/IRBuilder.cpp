@@ -1450,7 +1450,13 @@ R_ModuleInit_getRawSEXPRECType(SEXP r_filename, SEXP r_typeName)
     tmp.release();
 
     llvm::StringRef str(CHAR(STRING_ELT(r_typeName, 0)));
-    llvm::StructType *ty = mod->getTypeByName(str);
+    llvm::StructType *ty =
+#if LLVM_VERSION < 12        
+                   mod->getTypeByName(str);
+#else
+             llvm::StructType::getTypeByName(mod->getContext(), str);  
+#endif
+    
     // free Module. Figure out best way to do so with smart pointers. Maybe not tmp.release ()
     return(R_MakeExternalPtr(ty, Rf_install("SEXPRECType"), R_NilValue));
 }
