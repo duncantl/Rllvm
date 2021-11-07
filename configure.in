@@ -86,6 +86,17 @@ dflt.LessPreciseFPMADOption = true;
    [echo "LessPreciseFPMADOption NOT available" ];)
 
 
+AC_COMPILE_IFELSE([
+AC_LANG_SOURCE(
+#include <llvm/IR/Attributes.h>
+void foo() {
+llvm::TargetOptions dflt;
+dflt.LessPreciseFPMADOption = true;
+}
+)], [echo "StackAlignmentOverride Option is available"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAS_STACK_ALINGMENT_OVERRIDE=1"], 
+   [echo "StackAlignmentOverride Option is NOT available" ];)
+
+
 
 
 LLVM_TARGETS="`${LLVM_CONFIG} --targets-built`"

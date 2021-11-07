@@ -2420,6 +2420,24 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <llvm/IR/Attributes.h>
+void foo() {
+llvm::TargetOptions dflt;
+dflt.LessPreciseFPMADOption = true;
+}
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  echo "StackAlignmentOverride Option is available"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAS_STACK_ALINGMENT_OVERRIDE=1"
+else
+  echo "StackAlignmentOverride Option is NOT available" ;
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+
 
 
 LLVM_TARGETS="`${LLVM_CONFIG} --targets-built`"
