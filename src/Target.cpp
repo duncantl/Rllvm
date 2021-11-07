@@ -75,7 +75,9 @@ R_Target_createTargetMachine(SEXP r_target, SEXP r_triple, SEXP r_cpu, SEXP r_fe
 #ifdef LLVM_HAS_DISABLETAILCALLS
         defaultOpts.DisableTailCalls = false;
 #endif
+#ifdef LLVM_HAS_STACK_ALINGMENT_OVERRIDE
         defaultOpts.StackAlignmentOverride = 32;
+#endif        
 #ifdef LLVM_HAS_REALIGNSTACK
         defaultOpts.RealignStack = true;
 #endif

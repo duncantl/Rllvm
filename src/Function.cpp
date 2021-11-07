@@ -522,7 +522,14 @@ R_CloneFunctionInto(SEXP r_func, SEXP r_to, SEXP r_moduleLevelChanges)
     map[from] = to;    
 #endif
     llvm::SmallVector<llvm::ReturnInst*, 8> returns;
-    llvm::CloneFunctionInto(to, func, map, LOGICAL(r_moduleLevelChanges)[0], returns);
+    int inModule = INTEGER(r_moduleLevelChanges)[0];
+    llvm::CloneFunctionInto(to, func, map,
+#if LLVM_VERSION > 12
+                            // Need to cast to an enum type in Transforms/Utils/Cloning.h
+                            // LocalChanges, GlobalChanges, DifferentModule, ClonedModule
+                            (llvm::CloneFunctionChangeType)
+#endif
+                            inModule, returns);
 
     // to->replaceAllUsesWith(func);
     

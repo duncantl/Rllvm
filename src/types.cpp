@@ -305,13 +305,22 @@ R_VectorType_get(SEXP r_elType, SEXP r_numEls)
     return(R_createTypeRef(ans, "VectorType"));
 }
 
+
+/*In LLVM 13, this is not present. There is a getElementCount() but that might be different. */
 extern "C"
 SEXP
 R_VectorType_getNumElements(SEXP r_elType)
 {
     llvm::VectorType *type = GET_REF(r_elType, VectorType);
-    return(ScalarReal(type->getNumElements()));
+#if LLVM_VERSION < 13
+    return(ScalarReal(type->getNumElements()));    
+#else    
+    llvm::ElementCount n = type->getElementCount();
+    // we don't know the number only if it is a scalar or a vector.
+    return(ScalarReal(n.isScalar() ? 1 : NA_REAL));        
+#endif    
 }
+
 
 
 extern "C"

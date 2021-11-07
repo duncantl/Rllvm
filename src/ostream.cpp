@@ -100,7 +100,7 @@ R_new_raw_fd_ostream(SEXP r_filename, SEXP r_flags)
     llvm::raw_fd_ostream *ans;
 
 #if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 5) || LLVM_VERSION >= 4
-    llvm::sys::fs::OpenFlags flags = llvm::sys::fs::OpenFlags::F_None;
+    llvm::sys::fs::OpenFlags flags = llvm::sys::fs::OpenFlags::OF_None;
     if(Rf_length(r_flags))
         flags = (llvm::sys::fs::OpenFlags) INTEGER(r_flags)[0];
 #if LLVM_VERSION >= 4

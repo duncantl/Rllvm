@@ -98,6 +98,11 @@ extern "C"
 SEXP
 R_CallInst_getParamAlignment(SEXP r_call, SEXP r_which)
 {
+#if LLVM_VERSION < 13    
     llvm::CallInst *call = GET_REF(r_call, CallInst);
     return(ScalarInteger(call->getParamAlignment(INTEGER(r_which)[0])));
+#else
+    PROBLEM "getParamAlignment() is not a method in CallInst class for LLVM >= version 13"
+        ERROR
+#endif    
 }
