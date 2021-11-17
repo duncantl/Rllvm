@@ -12,6 +12,9 @@ static int x;
 #define FUN_INDEX llvm::AttributeSet::FunctionIndex
 #endif
 
+
+// If  R_USE_NEW_ATTRIBUTE_MECHANISM is defined, the two SET_EL() definitions are not needed.
+
 #define SET_EL(val) \
     LOGICAL(ans)[i] = attr.hasAttribute(FUN_INDEX, llvm::Attribute::val); \
     SET_STRING_ELT(names, i++, mkChar(#val));
@@ -21,6 +24,9 @@ static int x;
     LOGICAL(ans)[i] = attr.hasAttribute(LLVM_ATTR_KIND(val));   \
     SET_STRING_ELT(names, i++, mkChar(#val));
 #endif
+
+
+
 
 
 
@@ -44,9 +50,26 @@ R_getFunctionAttributes_logical(
     n = 27;
 #endif
 
+#ifdef R_USE_NEW_ATTRIBUTE_MECHANISM
+    n = 0;
+#define GET_ATTR_NAMES    
+#undef ATTRIBUTE_ENUM
+#define ATTRIBUTE_ENUM(A, B) n++; 
+#include <llvm/IR/Attributes.inc>    
+#endif
+
     PROTECT(ans = NEW_LOGICAL(n));
     PROTECT(names = NEW_CHARACTER(n));
 
+
+#ifdef R_USE_NEW_ATTRIBUTE_MECHANISM
+#undef ATTRIBUTE_ENUM
+#define GET_ATTR_NAMES        
+#define ATTRIBUTE_ENUM(val, other) \
+    LOGICAL(ans)[i] = attr.hasAttribute(FUN_INDEX, llvm::Attribute::val); \
+    SET_STRING_ELT(names, i++, mkChar(#other));        
+#include <llvm/IR/Attributes.inc>
+#else
 #ifndef NEW_LLVM_ATTRIBUTES_SETUP
    SET_EL(   AddressSafety)         
 #endif
@@ -77,7 +100,8 @@ R_getFunctionAttributes_logical(
    SET_EL(   StructRet)             
    SET_EL(   UWTable)               
    SET_EL(   ZExt  )                 
-
+#endif
+       
     SET_NAMES(ans, names);
     UNPROTECT(2);
     return(ans);

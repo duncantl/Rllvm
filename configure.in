@@ -94,7 +94,34 @@ llvm::TargetOptions dflt;
 dflt.LessPreciseFPMADOption = true;
 }
 )], [echo "StackAlignmentOverride Option is available"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAS_STACK_ALINGMENT_OVERRIDE=1"], 
-   [echo "StackAlignmentOverride Option is NOT available" ];)
+    [echo "StackAlignmentOverride Option is NOT available" ];)
+
+
+# Now we check if the Attributes.inc file has an ATTRIBUTE_ENUM to define each attribute pair of name and label
+# If so, we will define R_USE_NEW_ATTRIBUTE_MECHANISM
+
+
+# compile and link attribMechanism
+$CXX $CXXFLAGS $LLVM_CFLAGS -o attribMechanism attribMechanism.cc
+
+# If this failed, skip the tests
+if test $? = 0 ; then 
+
+# Run the executable and see if the return value is > 0. If so, we have ATTRIB_ENUM() macros.
+./attribMechanism
+
+if test $? > 0 ; then
+   echo "Attributes.inc contains macrofied elements (i.e., ATTRIBUTE_ENUM) we can use in AttributeValues.cpp"
+   LLVM_CFLAGS="$LLVM_CFLAGS -DR_USE_NEW_ATTRIBUTE_MECHANISM=1"
+else
+   echo "Old Attributes.inc"
+fi   
+
+fi
+
+
+
+
 
 
 
