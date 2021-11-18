@@ -1,5 +1,6 @@
 #include <Rdefines.h>
 #include <Rmath.h>
+#include "Rllvm.h"
 
 #ifdef USE_LLVM_DLOPEN
 #include <llvm/Support/DynamicLibrary.h>
