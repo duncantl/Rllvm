@@ -280,7 +280,11 @@ setMethod("getContext", "Function",
 
 setAs("Argument", "Function",
       function(from)
-         getParent(from))
+        getParent(from))
+
+setAs("Argument", "Module",
+      function(from)
+         as(as(from, "Function"), "Module"))
 
 
 setParamAttributes =
@@ -437,3 +441,6 @@ function(call)
 }
 
 
+
+
+getName
