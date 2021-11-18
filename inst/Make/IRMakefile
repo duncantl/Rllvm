@@ -7,6 +7,7 @@
 # to get all the R-specific environment variables.
 
 -include $(R_HOME)/etc/Makeconf
+-include $(HOME)/.R/Makevars
 -include Makefile
 -include Makevars
 
@@ -82,8 +83,11 @@ $(RTOCFILE).rds:
 all.bc: $(filter-out memory.bc inspect.bc xxxpr.bc,$(BCFILES))
 	llvm-link $^ -o $@
 
-Rmain.bc: all.bc
-	cp all.bc Rmain.bc
+Rmain.bc: $(filter-out xxxpr.bc,$(BCFILES))
+	llvm-link $^ -o $@
+
+ir: $(IRFILES)
+	@echo "created the IR files"
 
 show:
 	@echo $(CFILES)
