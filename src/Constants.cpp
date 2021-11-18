@@ -63,10 +63,15 @@ R_Constant_getGetElementPtr( SEXP r_constant, SEXP r_index, SEXP r_inBounds) // 
     llvm::Constant *ans, *cons = GET_REF(r_constant, Constant);
     std::vector<llvm::Constant*> idx;
 
-//    llvm::LLVMContext *ctxt = GET_REF(r_context, LLVMContext);
+
+//    try {
     for(int i = 0; i < Rf_length(r_index); i++)
         idx.push_back(GET_REF(VECTOR_ELT(r_index, i), Constant));
-//       idx.push_back(llvm::ConstantInt::get(*ctxt, llvm::APInt(32, llvm::StringRef("0"), 10)));
+
+//   } catch(const std::exception &err) {
+//       PROBLEM "std::vector push_back error"
+//           ERROR;
+//   }
 
 #if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 6) || LLVM_VERSION >= 4
     ans = llvm::ConstantExpr::getGetElementPtr(NULL /*cons->getType()*/, cons, idx, LOGICAL(r_inBounds)[0]);
