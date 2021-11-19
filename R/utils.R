@@ -72,3 +72,39 @@ function(str, status = FALSE)
     }
     ans
 }
+
+
+
+
+#setGeneric("getDefinedRoutines",
+#           function(x
+
+getDefinedRoutines =
+    #
+    # In the module, find the Functions that have a body.
+    #
+function(file, module = parseIR(file), names = TRUE, dropInternal = TRUE)
+{
+    if(is(file, "Module") && missing(module))
+        module = file
+    
+    funs = getModuleFunctions(module)
+    if(length(funs) == 0)
+        return(list())
+    
+    w = sapply(funs, isDefinedRoutine)  # function(x) length(getBlocks(x))) > 0
+    if(dropInternal)
+        w = w & !grepl("\\.", names(funs))
+    if(names)
+        names(funs)[w]
+    else
+        funs[w]
+} 
+
+
+isDefinedRoutine =
+    #
+    # Check the element `fun` in the Module is a Function and has at least one BasicBlock.
+    #
+function(fun)
+    is(fun, "Function") && (length(getBlocks(fun)) > 0)

@@ -12,6 +12,7 @@ exportMethods(llvmDump)
 export(generatePTX)
 
 exportClasses(
+ 'RC++Reference',    
   AllocaInst,
   BasicBlock,
   BranchInst,
@@ -31,7 +32,6 @@ exportClasses(
   Module,
   ParameterList,
   PointerType,
-  'RC++Reference',
   ReturnInst,
   SExtInst,
   StoreInst,
@@ -900,3 +900,6 @@ export(runLoopPass)
 
 
 export(isGEPWithNoNotionalOverIndexing)
+
+
+export(getDefinedRoutines)
