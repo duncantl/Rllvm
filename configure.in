@@ -1,4 +1,5 @@
-AC_INIT(src/Rllvm.h)
+AC_INIT
+AC_CONFIG_SRCDIR([src/Rllvm.h])
 
 AC_ARG_WITH(llvm-config, [  --with-llvm-config            full path to executable for llvm-config], LLVM_CONFIG="${withval}")
 
@@ -122,6 +123,9 @@ fi
 
 
 
+AC_CHECK_HEADER([llvm/MC/TargetRegistry.h], LLVM_CFLAGS="$LLVM_CFLAGS -DTARGET_REGISTRY_IN_MC=1")
+
+
 
 
 
@@ -187,11 +191,8 @@ fi
 AC_SUBST(FFI_LIB)
 
 AC_DEFUN(CHECK_PASS, [
- AC_TRY_COMPILE([#include <llvm/Pass.h>
-                 #include <llvm/Transforms/Scalar.h>],
-               [llvm::$1()],
-	       [LLVM_CFLAGS="$LLVM_CFLAGS -D$2=1"; echo "Have $1"],
-	       [echo "No $1"])
+ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/Pass.h>
+                 #include <llvm/Transforms/Scalar.h>]], [[llvm::$1()]])],[LLVM_CFLAGS="$LLVM_CFLAGS -D$2=1"; echo "Have $1"],[echo "No $1"])
 ])
 
 CHECK_PASS(createInstructionCombiningPass, HAVE_INSTRUCTION_COMBINING_PASS)
@@ -206,10 +207,7 @@ CHECK_PASS(createInstructionSimplifierPass, HAVE_INSTRUCTION_SIMPLIFIER_PASS)
 #CXXFLAGS="$CXXFLAGS $LLVM_CFLAGS -DLLVM_VERSION=$LLVM_VERSION -DLLVM_MINOR_VERSION=$LLVM_MINOR_VERSION"
  dnl [#include "src/Rllvm.h"],
 AC_DEFUN(CHECK_INST, [
- AC_TRY_COMPILE([#include <llvm/IR/IntrinsicInst.h>],
-               [llvm::$1::classof((llvm::Value*)NULL)],
-	       [LLVM_CFLAGS="$LLVM_CFLAGS -D$2=1"; echo "Have class $1"],
-	       [echo "No class $1"])
+ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/IR/IntrinsicInst.h>]], [[llvm::$1::classof((llvm::Value*)NULL)]])],[LLVM_CFLAGS="$LLVM_CFLAGS -D$2=1"; echo "Have class $1"],[echo "No class $1"])
 ])
 
 #CHECK_INST(Constant, HAVE_Constant)
@@ -225,22 +223,18 @@ CHECK_INST(ElementUnorderedAtomicMemSetInst, HAVE_ElementUnorderedAtomicMemSetIn
 # For LLVM 10, need to use llvm::CGFT_ObjectFile rather than TargetMachine.
 # Need to test this first.
 
-AC_TRY_COMPILE([#include <llvm/Target/TargetMachine.h>
-               ],
-	       [
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/Target/TargetMachine.h>
+               ]], [[
 	         llvm::CodeGenFileType ty;
-	       ],
-	       [LLVM_CFLAGS="$LLVM_CFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1";
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1";
 	        CXXFLAGS="$CXXFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1"
-	       ],
-	       [echo "CodeGenFileType enum is defined in llvm::TargetMachine::CodeGenFileType"]
-	       )
+	       ],[echo "CodeGenFileType enum is defined in llvm::TargetMachine::CodeGenFileType"
+	       ])
 
-AC_TRY_COMPILE([#include <llvm/Target/TargetMachine.h>
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/Target/TargetMachine.h>
 	        #include <llvm/IR/LegacyPassManager.h>
 		#include <llvm/Support/raw_ostream.h>
-               ],
-               [llvm::TargetMachine *m;
+               ]], [[llvm::TargetMachine *m;
  	        llvm::legacy::PassManager mgr;
 		llvm::raw_pwrite_stream *out;
 	        m->addPassesToEmitFile(mgr, *out, NULL,
@@ -250,15 +244,16 @@ AC_TRY_COMPILE([#include <llvm/Target/TargetMachine.h>
 		llvm::TargetMachine::CGFT_ObjectFile		
 		#endif
 		);
-	       ],
-	       [LLVM_CFLAGS="$LLVM_CFLAGS -DADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG=1";
-	        echo "addPassesToEmitFile takes an extra stream argument"],
-	       [echo "No extra stream argument for addPassesToEmitFile"])
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG=1";
+	        echo "addPassesToEmitFile takes an extra stream argument"],[echo "No extra stream argument for addPassesToEmitFile"])
 
 
-AC_OUTPUT(src/Makevars)
-AC_OUTPUT(R/targets.R)
-AC_OUTPUT(R/llvmVersion.R)
+AC_CONFIG_FILES([src/Makevars])
+AC_OUTPUT
+AC_CONFIG_FILES([R/targets.R])
+AC_OUTPUT
+AC_CONFIG_FILES([R/llvmVersion.R])
+AC_OUTPUT
 chmod  -w R/targets.R
 
 echo "Creating rtypes.ir needed at load time"

@@ -1,5 +1,11 @@
 #include "Rllvm.h"
+
+#ifdef TARGET_REGISTRY_IN_MC
+#include <llvm/MC/TargetRegistry.h>
+#else
 #include <llvm/Support/TargetRegistry.h>
+#endif
+
 
 #if (LLVM_VERSION ==3 && LLVM_MINOR_VERSION >= 7) || LLVM_VERSION >= 4
 #include <llvm/Analysis/TargetLibraryInfo.h>
