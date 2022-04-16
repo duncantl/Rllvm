@@ -452,7 +452,7 @@ R_IRBuilder_CreateStore(SEXP r_builder, SEXP r_val, SEXP r_ptr, SEXP r_isVolatil
 
 extern "C"
 SEXP
-R_IRBuilder_CreateLoad(SEXP r_builder, SEXP r_val, SEXP r_isVolatile, SEXP r_id)
+R_IRBuilder_CreateLoad(SEXP r_builder, SEXP r_val, SEXP r_isVolatile, SEXP r_id, SEXP r_type)
 {
     if(r_val == R_NilValue) {
         PROBLEM  "NULL value for createLoad"
@@ -469,8 +469,15 @@ R_IRBuilder_CreateLoad(SEXP r_builder, SEXP r_val, SEXP r_isVolatile, SEXP r_id)
             ERROR;
     }
     llvm::LoadInst *ans;
-    ans = builder->CreateLoad(val, LOGICAL(r_isVolatile)[0]);
 
+#ifdef LLVM_LOAD_NEEDS_TYPE    
+    llvm::Type *ty;
+    ty = r_type == R_NilValue ? val->getType() : GET_TYPE(r_type);                
+    ans = builder->CreateLoad(ty, val, LOGICAL(r_isVolatile)[0]);
+#else
+    ans = builder->CreateLoad(val, LOGICAL(r_isVolatile)[0]);
+#endif
+    
     if(Rf_length(r_id))
         ans->setName(makeTwine(r_id));
 
@@ -480,7 +487,7 @@ R_IRBuilder_CreateLoad(SEXP r_builder, SEXP r_val, SEXP r_isVolatile, SEXP r_id)
 
 extern "C"
 SEXP
-R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id)
+R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id, SEXP r_type)
 {
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
@@ -511,7 +518,14 @@ R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id)
         try {	
 #endif
 #if 1
+
+#ifdef LLVM_LOAD_NEEDS_TYPE
+            llvm::Type *ty;
+            ty = r_type == R_NilValue ? val->getType() : GET_TYPE(r_type);                        
+            ans = builder->CreateGEP(ty, val, args);            
+#else            
             ans = builder->CreateGEP(val, args);
+#endif            
 #else
 	 fprintf(stderr, "Calling GetElementPtrInst::Create()\n");
          llvm::Instruction *inst = llvm::GetElementPtrInst::Create(val, args); // idxs
@@ -536,8 +550,15 @@ R_IRBuilder_CreateGEP(SEXP r_builder, SEXP r_val, SEXP r_idx, SEXP r_id)
 #ifdef USE_EXCEPTIONS
         try {	
 #endif
-            ans = builder->CreateGEP(val, idx);
 
+#ifdef LLVM_LOAD_NEEDS_TYPE    
+            llvm::Type *ty;
+            ty = r_type == R_NilValue ? val->getType() : GET_TYPE(r_type);            
+            ans = builder->CreateGEP(ty, val, idx);            
+#else
+            ans = builder->CreateGEP(val, idx);
+#endif
+            
 #ifdef USE_EXCEPTIONS
         }  catch(std::exception &e) {
             PROBLEM "failed to create GEP"
@@ -1081,15 +1102,24 @@ R_IRBuilder_CreateSwitch(SEXP r_builder, SEXP r_val, SEXP r_dest, SEXP numCases,
 
 extern "C"
 SEXP
-R_IRBuilder_CreatePtrDiff(SEXP r_builder, SEXP r_lhs, SEXP r_rhs, SEXP r_id)
+R_IRBuilder_CreatePtrDiff(SEXP r_builder, SEXP r_lhs, SEXP r_rhs, SEXP r_id, SEXP r_type)
 {
     llvm::IRBuilder<> *builder;
     builder = GET_REF(r_builder, IRBuilder<>);
     llvm::Value *lhs = GET_REF(r_lhs, Value);
     llvm::Value *rhs = GET_REF(r_rhs, Value);
 
-    llvm::Value *ret = builder->CreatePtrDiff(lhs, rhs); 
+    llvm::Value *ret;
 
+#ifdef LLVM_LOAD_NEEDS_TYPE    
+            llvm::Type *ty;
+            ty = r_type == R_NilValue ? lhs->getType() : GET_TYPE(r_type);
+            ret = builder->CreatePtrDiff(ty, lhs, rhs);             
+#else
+            ret = builder->CreatePtrDiff(lhs, rhs); 
+#endif
+
+    
     if(Rf_length(r_id)) 
         ret->setName(makeTwine(r_id));
    

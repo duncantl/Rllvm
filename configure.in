@@ -132,7 +132,7 @@ AC_LANG_SOURCE(
 void foo() {
   llvm::GlobalIndirectSymbol::classof;
 }
-)], [echo "Have GlobalIndirectSymbolClass"; LLVM_CFLAGS="-DLLVM_HAVE_GLOBAL_INDIRECT_SYMBOL=1"], 
+)], [echo "Have GlobalIndirectSymbolClass"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAVE_GLOBAL_INDIRECT_SYMBOL=1"], 
    [echo "No GlobalIndirectSymbol class in this version of LLVM"];)
 
 
@@ -143,7 +143,7 @@ void foo() {
   llvm::ConstantExpr *e;
   e->isGEPWithNoNotionalOverIndexing();
 }
-)], [echo "Have isGEPWithNoNotionalOverIndexing"; LLVM_CFLAGS="-DLLVM_CONSTANT_EXPR_HAS_isGEPWithNoNotionalOverIndexing=1"], 
+)], [echo "Have isGEPWithNoNotionalOverIndexing"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_CONSTANT_EXPR_HAS_isGEPWithNoNotionalOverIndexing=1"], 
    [echo "No ConstantExpr.isGEPWithNoNotionalOverIndexing() method in this version of LLVM"];)
 
 
@@ -155,7 +155,7 @@ void foo() {
  llvm::Attribute::AttrKind *v;
  e->addAttributeAtIndex(0, *v);
 }
-)], [echo "Have addAttributeAtIndex"; LLVM_CFLAGS="-DLLVM_CALLINST_USE_ADD_ATTRIBUTE_AT_INDEX=1"], 
+)], [echo "Have addAttributeAtIndex"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_CALLINST_USE_ADD_ATTRIBUTE_AT_INDEX=1 -DLLVM_USE_ADD_ATTRIBUTE_AT_INDEX=1"], 
    [echo "Using CallInst::addAttribute()"];)
 
 
@@ -166,7 +166,21 @@ void foo() {
  llvm::AttrBuilder();
 }
 )], [echo "AttrBuilder requires no arguments"],
-    [echo "AttrBuilder requires LLVMContext"; LLVM_CFLAGS="-DLLVM_ATTRBUILDER_NEEDS_CONTEXT=1"])
+    [echo "AttrBuilder requires LLVMContext"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_ATTRBUILDER_NEEDS_CONTEXT=1"])
+
+
+AC_COMPILE_IFELSE([
+AC_LANG_SOURCE(
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Instructions.h>
+void foo() {
+   llvm::IRBuilder<> *b;
+   llvm::Type *ty;
+   llvm::Value *val;
+   b->CreateLoad(ty, val, false);
+}
+)], [echo "CreateLoad() and CreateGEP() need the type"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_LOAD_NEEDS_TYPE=1"],
+    [echo "No type needed for CreateLoad() and CreateGEP()"])
 
 
 

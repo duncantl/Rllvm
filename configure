@@ -3008,7 +3008,7 @@ void foo() {
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"
 then :
-  echo "Have GlobalIndirectSymbolClass"; LLVM_CFLAGS="-DLLVM_HAVE_GLOBAL_INDIRECT_SYMBOL=1"
+  echo "Have GlobalIndirectSymbolClass"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAVE_GLOBAL_INDIRECT_SYMBOL=1"
 else $as_nop
   echo "No GlobalIndirectSymbol class in this version of LLVM";
 fi
@@ -3027,7 +3027,7 @@ void foo() {
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"
 then :
-  echo "Have isGEPWithNoNotionalOverIndexing"; LLVM_CFLAGS="-DLLVM_CONSTANT_EXPR_HAS_isGEPWithNoNotionalOverIndexing=1"
+  echo "Have isGEPWithNoNotionalOverIndexing"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_CONSTANT_EXPR_HAS_isGEPWithNoNotionalOverIndexing=1"
 else $as_nop
   echo "No ConstantExpr.isGEPWithNoNotionalOverIndexing() method in this version of LLVM";
 fi
@@ -3047,7 +3047,7 @@ void foo() {
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"
 then :
-  echo "Have addAttributeAtIndex"; LLVM_CFLAGS="-DLLVM_CALLINST_USE_ADD_ATTRIBUTE_AT_INDEX=1"
+  echo "Have addAttributeAtIndex"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_CALLINST_USE_ADD_ATTRIBUTE_AT_INDEX=1 -DLLVM_USE_ADD_ATTRIBUTE_AT_INDEX=1"
 else $as_nop
   echo "Using CallInst::addAttribute()";
 fi
@@ -3067,7 +3067,29 @@ if ac_fn_cxx_try_compile "$LINENO"
 then :
   echo "AttrBuilder requires no arguments"
 else $as_nop
-  echo "AttrBuilder requires LLVMContext"; LLVM_CFLAGS="-DLLVM_ATTRBUILDER_NEEDS_CONTEXT=1"
+  echo "AttrBuilder requires LLVMContext"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_ATTRBUILDER_NEEDS_CONTEXT=1"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Instructions.h>
+void foo() {
+   llvm::IRBuilder<> *b;
+   llvm::Type *ty;
+   llvm::Value *val;
+   b->CreateLoad(ty, val, false);
+}
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  echo "CreateLoad() and CreateGEP() need the type"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_LOAD_NEEDS_TYPE=1"
+else $as_nop
+  echo "No type needed for CreateLoad() and CreateGEP()"
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 

@@ -3,6 +3,8 @@ library(RCIndex)
 
 version = c(7, 0)
 llvmDir = sprintf("/Users/duncan/LLVM%d.%d/clang+llvm-%d.%d.0-macosx-apple-darwin/include", version[1], version[2], version[1], version[2])
+llvmDir = sprintf("/Users/duncan/LLVM/clang+llvm-%d.%d.0-macosx-apple-darwin/include", version[1], version[2])
+
 
 llvmDir = "/Users/duncan/LLVM3.6/clang+llvm-3.6.0-x86_64-apple-darwin/include"
 llvmDir = path.expand("~/LLVM3.4/clang+llvm-3.4.2-x86_64-apple-darwin10.9/include")
@@ -26,6 +28,12 @@ llvmDir = path.expand("~/local/include")  #  "~/LLVM/clang+llvm-11.0.0-x86_64-ap
 
 version = c(12, 0)
 llvmDir = path.expand("~/local/include")  #  "~/LLVM/clang+llvm-11.0.0-x86_64-apple-darwin/include")
+
+version = c(13, 0)
+llvmDir = path.expand("~/LLVM/clang+llvm-13.0.0-x86_64-apple-darwin/include")
+
+version = c(14, 0)
+llvmDir = path.expand("~/LLVM/clang+llvm-14.0.0-x86_64-apple-darwin/include") 
 
 sysdir = system("xcrun --show-sdk-path", intern = TRUE)
 sysdir = file.path(sysdir, "usr/include")
@@ -62,7 +70,9 @@ if(FALSE) {
      "TypeID", "CallingConvention", "UnnamedAddr", "SourceLanguage", "Direction",
      "VisibilityTypes", "DLLStorageClassTypes",
      "ThreadLocalMode", "VCallVisibility",
-     "LLVMRelocMode"
+     "LLVMRelocMode",
+     "ArchType", "SubArchType", "VendorType", "OSType", "EnvironmentType",
+     "ObjectFormatType" #, "D
      )
  # "LLVMCodeGenFileType"
  # OSType, EnvironmentType
@@ -77,8 +87,7 @@ if(FALSE) {
      stop("File ", Rfilename, " already exists")
  con = file(Rfilename, "w")
  sink(con)
- cat("if(llvmCheckVersion(c(", version[1], ", ", version[2], ")
-)) {\n\n")
+ cat("if(llvmCheckVersion(c(", version[1], ", ", version[2], "))) {\n\n")
  invisible(lapply(enums[ids], outputEnum))
  cat("\n\n\n}\n\n")
  sink()
