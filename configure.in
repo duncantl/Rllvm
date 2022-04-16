@@ -129,8 +129,9 @@ AC_CHECK_HEADER([llvm/MC/TargetRegistry.h], LLVM_CFLAGS="$LLVM_CFLAGS -DTARGET_R
 AC_COMPILE_IFELSE([
 AC_LANG_SOURCE(
 #include <llvm/IR/GlobalIndirectSymbol.h>
-llvm::GlobalIndirectSymbol::classof;
-
+void foo() {
+  llvm::GlobalIndirectSymbol::classof;
+}
 )], [echo "Have GlobalIndirectSymbolClass"; LLVM_CFLAGS="-DLLVM_HAVE_GLOBAL_INDIRECT_SYMBOL=1"], 
    [echo "No GlobalIndirectSymbol class in this version of LLVM"];)
 
@@ -138,12 +139,24 @@ llvm::GlobalIndirectSymbol::classof;
 AC_COMPILE_IFELSE([
 AC_LANG_SOURCE(
 #include <llvm/IR/Constants.h>
-llvm::ConstantExpr *e;
-e->isGEPWithNoNotionalOverIndexing();
-
+void foo() {
+  llvm::ConstantExpr *e;
+  e->isGEPWithNoNotionalOverIndexing();
+}
 )], [echo "Have isGEPWithNoNotionalOverIndexing"; LLVM_CFLAGS="-DLLVM_CONSTANT_EXPR_HAS_isGEPWithNoNotionalOverIndexing=1"], 
    [echo "No ConstantExpr.isGEPWithNoNotionalOverIndexing() method in this version of LLVM"];)
 
+
+AC_COMPILE_IFELSE([
+AC_LANG_SOURCE(
+#include <llvm/IR/Instructions.h>
+void foo() {
+ llvm::CallInst *e;
+ llvm::Attribute::AttrKind *v;
+ e->addAttributeAtIndex(0, *v);
+}
+)], [echo "Have addAttributeAtIndex"; LLVM_CFLAGS="-DLLVM_CALLINST_USE_ADD_ATTRIBUTE_AT_INDEX=1"], 
+   [echo "Using CallInst::addAttribute()"];)
 
 
 

@@ -3001,8 +3001,9 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 #include <llvm/IR/GlobalIndirectSymbol.h>
-llvm::GlobalIndirectSymbol::classof;
-
+void foo() {
+  llvm::GlobalIndirectSymbol::classof;
+}
 
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"
@@ -3018,9 +3019,10 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 #include <llvm/IR/Constants.h>
-llvm::ConstantExpr *e;
-e->isGEPWithNoNotionalOverIndexing();
-
+void foo() {
+  llvm::ConstantExpr *e;
+  e->isGEPWithNoNotionalOverIndexing();
+}
 
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"
@@ -3031,6 +3033,25 @@ else $as_nop
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <llvm/IR/Instructions.h>
+void foo() {
+ llvm::CallInst *e;
+ llvm::Attribute::AttrKind *v;
+ e->addAttributeAtIndex(0, *v);
+}
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  echo "Have addAttributeAtIndex"; LLVM_CFLAGS="-DLLVM_CALLINST_USE_ADD_ATTRIBUTE_AT_INDEX=1"
+else $as_nop
+  echo "Using CallInst::addAttribute()";
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
 
 

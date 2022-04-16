@@ -89,8 +89,12 @@ R_CallInst_addAttribute(SEXP r_call, SEXP r_which, SEXP r_attrVal)
 
     val = (llvm::Attribute::AttrKind) INTEGER(r_attrVal)[0];
 
-    call->addAttribute(INTEGER(r_which)[0], val);
-
+#ifdef LLVM_CALLINST_USE_ADD_ATTRIBUTE_AT_INDEX
+    call->addAttributeAtIndex(INTEGER(r_which)[0], val);
+#else
+    call->addAttribute(INTEGER(r_which)[0], val);    
+#endif
+    
     return(R_NilValue);
 }
 
