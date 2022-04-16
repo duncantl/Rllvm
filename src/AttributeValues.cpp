@@ -1,28 +1,41 @@
 #if 0
+
 static int x;
+
 #else
+
+
+#ifdef LLVM_USE_ADD_ATTRIBUTE_AT_INDEX
+#define LLVM_HAS_ATTR hasAttributeAtIndex
+#else
+#define LLVM_HAS_ATTR hasAttribute
+#endif
 
 #include "Rllvm.h"
 //#include <llvm/Attributes.h>
 #ifdef NEW_LLVM_ATTRIBUTES_SETUP
 #define LLVM_ATTR_KIND(val) llvm::Attribute::val
+
 #if LLVM_VERSION >= 5
 #define FUN_INDEX llvm::AttributeList::FunctionIndex
 #else
 #define FUN_INDEX llvm::AttributeSet::FunctionIndex
-#endif
+#endif   // VERSION >= 5
 
 
 // If  R_USE_NEW_ATTRIBUTE_MECHANISM is defined, the two SET_EL() definitions are not needed.
 
+
 #define SET_EL(val) \
-    LOGICAL(ans)[i] = attr.hasAttribute(FUN_INDEX, llvm::Attribute::val); \
+    LOGICAL(ans)[i] = attr.LLVM_HAS_ATTR(FUN_INDEX, llvm::Attribute::val); \
     SET_STRING_ELT(names, i++, mkChar(#val));
 #else
+
 #define LLVM_ATTR_KIND(val) llvm::Attributes::val
 #define SET_EL(val) \
-    LOGICAL(ans)[i] = attr.hasAttribute(LLVM_ATTR_KIND(val));   \
+    LOGICAL(ans)[i] = attr.LLVM_HAS_ATTR(LLVM_ATTR_KIND(val));   \
     SET_STRING_ELT(names, i++, mkChar(#val));
+
 #endif
 
 
@@ -66,7 +79,7 @@ R_getFunctionAttributes_logical(
 #undef ATTRIBUTE_ENUM
 #define GET_ATTR_NAMES        
 #define ATTRIBUTE_ENUM(val, other) \
-    LOGICAL(ans)[i] = attr.hasAttribute(FUN_INDEX, llvm::Attribute::val); \
+    LOGICAL(ans)[i] = attr.LLVM_HAS_ATTR(FUN_INDEX, llvm::Attribute::val); \
     SET_STRING_ELT(names, i++, mkChar(#other));        
 #include <llvm/IR/Attributes.inc>
 #else
