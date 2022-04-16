@@ -2103,6 +2103,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+
 # Check whether --with-llvm-config was given.
 if test ${with_llvm_config+y}
 then :
@@ -2995,6 +2996,22 @@ then :
 fi
 
 
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <llvm/IR/GlobalIndirectSymbol.h>
+llvm::GlobalIndirectSymbol::classof;
+
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  echo "Have GlobalIndirectSymbolClass"; LLVM_CFLAGS="-DLLVM_HAVE_GLOBAL_INDIRECT_SYMBOL=1"
+else $as_nop
+  echo "No GlobalIndirectSymbol class in this version of LLVM";
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
 
 

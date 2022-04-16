@@ -113,8 +113,10 @@ const char  * getLLVMClassName(const llvm::Value *obj)
 #endif	   
 	if(llvm::GlobalObject::classof(obj))
 	   ans = "GlobalObject";
+#ifdef LLVM_HAVE_GLOBAL_INDIRECT_SYMBOL	
 	if(llvm::GlobalIndirectSymbol::classof(obj))
 	   ans = "GlobalIndirectSymbol";
+#endif	
 	if(llvm::ConstantInt::classof(obj))
 	   ans = "ConstantInt";
 	if(llvm::ConstantFP::classof(obj))

@@ -126,6 +126,14 @@ fi
 AC_CHECK_HEADER([llvm/MC/TargetRegistry.h], LLVM_CFLAGS="$LLVM_CFLAGS -DTARGET_REGISTRY_IN_MC=1")
 
 
+AC_COMPILE_IFELSE([
+AC_LANG_SOURCE(
+#include <llvm/IR/GlobalIndirectSymbol.h>
+llvm::GlobalIndirectSymbol::classof;
+
+)], [echo "Have GlobalIndirectSymbolClass"; LLVM_CFLAGS="-DLLVM_HAVE_GLOBAL_INDIRECT_SYMBOL=1"], 
+   [echo "No GlobalIndirectSymbol class in this version of LLVM"];)
+
 
 
 

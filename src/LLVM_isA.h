@@ -4,7 +4,9 @@ LLVM_isA(GlobalVariable)
 LLVM_isA(GlobalAlias)
 LLVM_isA(GlobalIFunc)
 LLVM_isA(GlobalObject)
+#ifdef LLVM_HAVE_GLOBAL_INDIRECT_SYMBOL
 LLVM_isA(GlobalIndirectSymbol)
+#endif    
 LLVM_isA(ConstantDataArray)
 LLVM_isA(ConstantDataVector)
 LLVM_isA(ConstantInt)
