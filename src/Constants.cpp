@@ -192,6 +192,7 @@ R_ConstantPointerNull_get(SEXP r_pointerType)
 }
 
 
+#ifdef LLVM_CONSTANT_EXPR_HAS_isGEPWithNoNotionalOverIndexing
 extern "C"
 SEXP
 R_ConstantExpr_isGEPWithNoNotionalOverIndexing(SEXP r_this)
@@ -199,6 +200,8 @@ R_ConstantExpr_isGEPWithNoNotionalOverIndexing(SEXP r_this)
     llvm::ConstantExpr *val = GET_REF(r_this, ConstantExpr);
     return(ScalarLogical(val->isGEPWithNoNotionalOverIndexing()));
 }
+#endif
+
 
 extern "C"
 SEXP

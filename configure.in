@@ -135,6 +135,17 @@ llvm::GlobalIndirectSymbol::classof;
    [echo "No GlobalIndirectSymbol class in this version of LLVM"];)
 
 
+AC_COMPILE_IFELSE([
+AC_LANG_SOURCE(
+#include <llvm/IR/Constants.h>
+llvm::ConstantExpr *e;
+e->isGEPWithNoNotionalOverIndexing();
+
+)], [echo "Have isGEPWithNoNotionalOverIndexing"; LLVM_CFLAGS="-DLLVM_CONSTANT_EXPR_HAS_isGEPWithNoNotionalOverIndexing=1"], 
+   [echo "No ConstantExpr.isGEPWithNoNotionalOverIndexing() method in this version of LLVM"];)
+
+
+
 
 
 

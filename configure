@@ -3014,6 +3014,25 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
 
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <llvm/IR/Constants.h>
+llvm::ConstantExpr *e;
+e->isGEPWithNoNotionalOverIndexing();
+
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  echo "Have isGEPWithNoNotionalOverIndexing"; LLVM_CFLAGS="-DLLVM_CONSTANT_EXPR_HAS_isGEPWithNoNotionalOverIndexing=1"
+else $as_nop
+  echo "No ConstantExpr.isGEPWithNoNotionalOverIndexing() method in this version of LLVM";
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+
+
 
 
 
