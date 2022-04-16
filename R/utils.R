@@ -85,7 +85,7 @@ getDefinedRoutines =
     #
 function(file, module = parseIR(file), names = TRUE, dropInternal = TRUE)
 {
-    if(is(file, "Module") && missing(module))
+    if(!missing(file) && is(file, "Module") && missing(module))
         module = file
     
     funs = getModuleFunctions(module)
