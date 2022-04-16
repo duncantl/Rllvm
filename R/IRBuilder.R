@@ -216,14 +216,14 @@ function(builder, val, ptr, volatile = FALSE)
 }
 
 createLoad =
-function(builder, val, isVolatile = FALSE, id = character())
+function(builder, val, isVolatile = FALSE, id = character(), type = NULL)
 {
-  .Call("R_IRBuilder_CreateLoad", builder, val, as.logical(isVolatile), as.character(id))
+  .Call("R_IRBuilder_CreateLoad", builder, val, as.logical(isVolatile), as.character(id), type)
 }
 
 
 createGEP =
-function(builder, val, index, id = character())
+function(builder, val, index, id = character(), type = NULL)
 {
     if (isBasicType(index))
          index = as.list(index)
@@ -247,7 +247,7 @@ function(builder, val, index, id = character())
                    }
     })
 
-  .Call("R_IRBuilder_CreateGEP", builder, val, index, as.character(id))
+  .Call("R_IRBuilder_CreateGEP", builder, val, index, as.character(id), type)
 }
 
 setGeneric("isInBounds", function(x, ...) standardGeneric("isInBounds"))
@@ -380,9 +380,9 @@ function(builder, cond, true, false, id = character())
 }
 
 createPtrDiff  =
-function(builder, a, b, id = character())
+function(builder, a, b, id = character(), type = NULL)
 {
-  .Call("R_IRBuilder_CreatePtrDiff", builder, a, b, as.character(id))
+  .Call("R_IRBuilder_CreatePtrDiff", builder, a, b, as.character(id), type)
 }
 
 createSwitch  =
