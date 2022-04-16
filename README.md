@@ -1,5 +1,7 @@
 # RLLVM
 
+**Updated for LLVM 14**
+
 RLLVM is an R interface to [LLVM](http://llvm.org). This interface
 allows one to dynamically create and invoke compiled code from within R through LLVM's
 intermediate representation (IR), which LLVM can then extensively and
