@@ -238,7 +238,12 @@ SEXP
 R_Argument_setAttrs(llvm::Argument *arg, SEXP r_vals, llvm::LLVMContext *ctxt)
 {
         /* now have the parameter, so set the values. */
-  llvm::AttrBuilder builder;
+  llvm::AttrBuilder
+#ifdef LLVM_ATTRBUILDER_NEEDS_CONTEXT      
+      builder(*ctxt);
+#else
+      builder();
+#endif  
   for(unsigned i = 0 ; i < (unsigned) Rf_length(r_vals); i++)  
       builder.addAttribute( (AttrKind) INTEGER(r_vals)[i] );
 

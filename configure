@@ -3054,6 +3054,24 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
 
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <llvm/IR/Attributes.h>
+void foo() {
+ llvm::AttrBuilder();
+}
+
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  echo "AttrBuilder requires no arguments"
+else $as_nop
+  echo "AttrBuilder requires LLVMContext"; LLVM_CFLAGS="-DLLVM_ATTRBUILDER_NEEDS_CONTEXT=1"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+
 
 
 

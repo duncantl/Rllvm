@@ -159,6 +159,16 @@ void foo() {
    [echo "Using CallInst::addAttribute()"];)
 
 
+AC_COMPILE_IFELSE([
+AC_LANG_SOURCE(
+#include <llvm/IR/Attributes.h>
+void foo() {
+ llvm::AttrBuilder();
+}
+)], [echo "AttrBuilder requires no arguments"],
+    [echo "AttrBuilder requires LLVMContext"; LLVM_CFLAGS="-DLLVM_ATTRBUILDER_NEEDS_CONTEXT=1"])
+
+
 
 
 
