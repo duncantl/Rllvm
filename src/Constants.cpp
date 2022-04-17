@@ -58,7 +58,7 @@ R_createStringConstant(SEXP r_val, SEXP r_context, SEXP r_type)
 
 extern "C"
 SEXP
-R_Constant_getGetElementPtr( SEXP r_constant, SEXP r_index, SEXP r_inBounds) // , SEXP r_id)
+R_Constant_getGetElementPtr( SEXP r_constant, SEXP r_index, SEXP r_inBounds, SEXP r_type) // , SEXP r_id)
 {
     llvm::Constant *ans, *cons = GET_REF(r_constant, Constant);
     std::vector<llvm::Constant*> idx;
@@ -74,7 +74,11 @@ R_Constant_getGetElementPtr( SEXP r_constant, SEXP r_index, SEXP r_inBounds) // 
 //   }
 
 #if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION > 6) || LLVM_VERSION >= 4
-    ans = llvm::ConstantExpr::getGetElementPtr(NULL /*cons->getType()*/, cons, idx, LOGICAL(r_inBounds)[0]);
+    llvm::Type *ty = NULL;
+    if(r_type != R_NilValue)
+        ty = GET_TYPE(r_type);
+    
+    ans = llvm::ConstantExpr::getGetElementPtr(ty /*cons->getType()*/, cons, idx, LOGICAL(r_inBounds)[0]);
 #else
     ans = llvm::ConstantExpr::getGetElementPtr(cons, idx, LOGICAL(r_inBounds)[0]);
 #endif
