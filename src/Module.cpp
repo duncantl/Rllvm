@@ -431,6 +431,11 @@ R_Module_names(SEXP r_module, SEXP r_addFuncs, SEXP r_addGlobals)
 {
     llvm::Module *mod = GET_REF(r_module, Module);
 
+    if(!mod) {
+        return(R_NilValue);
+    }
+    
+    
     int n = 0, cur = 0;
     bool addGlobals = INTEGER(r_addGlobals)[0];
     bool addFuncs = INTEGER(r_addFuncs)[0];    
@@ -551,7 +556,10 @@ SEXP
 R_Module_getModuleIdentifier(SEXP r_module)
 {
     llvm::Module *module;
-    module = GET_REF(r_module, Module); 
+    module = GET_REF(r_module, Module);
+    if(!module)
+        return(ScalarString(R_NaString));
+    
     std::string str = module->getModuleIdentifier();
     return( ScalarString( str.data()  ? mkChar(str.data()) : R_NaString) ) ;	
 }
