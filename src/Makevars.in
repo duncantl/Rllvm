@@ -6,6 +6,8 @@ PKG_CPPFLAGS= -DLLVM_VERSION=@LLVM_VERSION@ -DLLVM_MINOR_VERSION=@LLVM_MINOR_VER
 PKG_CXXFLAGS= $(shell $(LLVM_CONFIG) --cxxflags | sed -e 's/-O[0-9]//g') 
 ALL_LIBS:= $(shell $(LLVM_CONFIG) --ldflags) $(ALL_LIBS)
 PKG_LIBS=$(shell $(LLVM_CONFIG) --ldflags --libs @LLVM_SYS_LIBS@)  @FFI_LIB@
+
+# /usr/lib
 # -lstdc++
 SHLIB_CXXLDFLAGS:=$(shell $(LLVM_CONFIG) --ldflags) $(SHLIB_CXXLDFLAGS)
 
