@@ -105,13 +105,15 @@ dflt.LessPreciseFPMADOption = true;
 # compile and link attribMechanism
 $CXX $CXXFLAGS $LLVM_CFLAGS -o attribMechanism attribMechanism.cc
 
+
+
 # If this failed, skip the tests
 if test $? = 0 ; then 
 
 # Run the executable and see if the return value is > 0. If so, we have ATTRIB_ENUM() macros.
 ./attribMechanism
 
-if test $? > 0 ; then
+if test $? -gt 0 ; then
    echo "Attributes.inc contains macrofied elements (i.e., ATTRIBUTE_ENUM) we can use in AttributeValues.cpp"
    LLVM_CFLAGS="$LLVM_CFLAGS -DR_USE_NEW_ATTRIBUTE_MECHANISM=1"
 else
@@ -121,9 +123,8 @@ fi
 fi
 
 
-
-
 AC_CHECK_HEADER([llvm/MC/TargetRegistry.h], LLVM_CFLAGS="$LLVM_CFLAGS -DTARGET_REGISTRY_IN_MC=1")
+
 
 
 AC_COMPILE_IFELSE([
