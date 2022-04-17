@@ -219,7 +219,7 @@ R_MDNode_getOperands(SEXP r_node)
 
 // https://stackoverflow.com/questions/41751672/llvm-how-to-traverse-module-metadata-to-find-a-value
 
-///  http://blog.llvm.org/2010/04/extensible-metadata-in-llvm-ir.html  - ??? out of date?
+//  http://blog.llvm.org/2010/04/extensible-metadata-in-llvm-ir.html  - ??? out of date?
 
 
 extern "C"
