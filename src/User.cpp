@@ -5,6 +5,9 @@ SEXP
 R_getNumOperands(SEXP r_user)
 {
     llvm::User *u = GET_REF(r_user, User)  ;
+    if(!u)
+        return(ScalarInteger(0));  // don't want this: NA_INTEGER
+    
     return(ScalarInteger(u->getNumOperands()));
 }
 
