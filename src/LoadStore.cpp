@@ -63,8 +63,23 @@ R_##type##_get##method(SEXP r_inst) \
     return(retType##_toR(ins->get##method ()));      \
 }
 
+
+#if LOADSTORE_USES_ALIGNMENT
 getValue(LoadInst, Alignment, unsigned)
 getValue(StoreInst, Alignment, unsigned)
+#else
+#define getAlign(type)      \
+extern "C" \
+SEXP \
+R_##type##_getAlignment(SEXP r_inst) \
+{ \
+    llvm::type *ins = GET_REF(r_inst, type); \
+    return(ScalarReal(ins->getAlign().value()));     \
+}
+
+getAlign(LoadInst)
+getAlign(StoreInst)
+#endif
 
 getValue(LoadInst, Ordering, AtomicOrdering)
 getValue(StoreInst, Ordering, AtomicOrdering)

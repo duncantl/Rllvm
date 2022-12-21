@@ -318,13 +318,13 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/ExecutionEngine/Orc/LLJIT.h>
 	       ],[echo "R_LLJIT_lookup not working yet for this version of LLVM"
 	       ])
 
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/ExecutionEngine/Orc/LLJIT.h>
-               ]], [[
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #if (LLVM_VERSION >=3 && LLVM_MINOR_VERSION >= 3) || LLVM_VERSION >= 4
 #include <llvm/IR/Intrinsics.h>
 #else
 #include <llvm/Intrinsics.h>
 #endif
+               ]], [[
 	const char *str = llvm::Intrinsic::getIntrinsicForGCCBuiltin("", "foo");
 	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DHAS_INTRINSIC_FOR_GCC_BUILTIN=1";
 	        CXXFLAGS="$CXXFLAGS -DHAS_INTRINSIC_FOR_GCC_BUILTIN=1"
@@ -332,6 +332,17 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/ExecutionEngine/Orc/LLJIT.h>
 	       ])
 
 
+
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/IR/Instructions.h>
+               ]], [[
+	       llvm::LoadInst i;
+	       i.getAlignment();
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLOADSTORE_USES_ALIGNMENT=1";
+	        CXXFLAGS="$CXXFLAGS -DLOADSTORE_USES_ALIGNMENT=1"
+	       ],[echo "R_LLJIT_lookup not working yet for this version of LLVM"
+	       ])
 
 
 
