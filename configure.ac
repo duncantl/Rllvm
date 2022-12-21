@@ -258,6 +258,7 @@ CHECK_PASS(createAggressiveDCEPass, HAVE_AGGRESSIVE_DCE_PASS)
 CHECK_PASS(createPromoteMemoryToRegisterPass, HAVE_PROMOTE_MEMORY_TO_REGISTER_PASS)
 CHECK_PASS(createLoopSimplifyPass, HAVE_LOOP_SIMPLIFY_PASS)
 CHECK_PASS(createInstructionSimplifierPass, HAVE_INSTRUCTION_SIMPLIFIER_PASS)
+CHECK_PASS(createLoopUnswitchPass, HAVE_LOOP_UNSWITCH_PASS)
 
 
 #TMP_CXXFLAGS=$CXXFLAGS
@@ -303,6 +304,36 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/Target/TargetMachine.h>
 		);
 	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG=1";
 	        echo "addPassesToEmitFile takes an extra stream argument"],[echo "No extra stream argument for addPassesToEmitFile"])
+
+
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/ExecutionEngine/Orc/LLJIT.h>
+               ]], [[
+	         llvm::CodeGenFileType ty;
+		 llvm::orc::LLJIT jit;
+		 auto sym = jit->lookup("foo");
+		 sym->getAdress();
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DEXECUTORADDR_HAS_GET_ADDRESS=1";
+	        CXXFLAGS="$CXXFLAGS -DEXECUTORADDR_HAS_GET_ADDRESS=1"
+	       ],[echo "R_LLJIT_lookup not working yet for this version of LLVM"
+	       ])
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/ExecutionEngine/Orc/LLJIT.h>
+               ]], [[
+#if (LLVM_VERSION >=3 && LLVM_MINOR_VERSION >= 3) || LLVM_VERSION >= 4
+#include <llvm/IR/Intrinsics.h>
+#else
+#include <llvm/Intrinsics.h>
+#endif
+	const char *str = llvm::Intrinsic::getIntrinsicForGCCBuiltin("", "foo");
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DHAS_INTRINSIC_FOR_GCC_BUILTIN=1";
+	        CXXFLAGS="$CXXFLAGS -DHAS_INTRINSIC_FOR_GCC_BUILTIN=1"
+	       ],[echo "intrinsicForGCCBuilting not in this version of LLVM"
+	       ])
+
+
+
+
 
 
 AC_CONFIG_FILES([src/Makevars])

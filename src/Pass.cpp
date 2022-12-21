@@ -128,7 +128,10 @@ R_CREATE_PASS(createPartiallyInlineLibCallsPass)
 
 
 
+#ifdef HAVE_LOOP_UNSWITCH_PASS
 R_CREATE_PASS(createLoopUnswitchPass)
+#endif
+
 R_CREATE_PASS(createLoopInstSimplifyPass)
 R_CREATE_PASS(createLoopUnrollPass)
 R_CREATE_PASS(createLoopRotatePass)

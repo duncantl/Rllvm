@@ -62,6 +62,7 @@ extern "C"
 SEXP
 R_LLJIT_lookup(SEXP r_jit, SEXP r_sym)
 {
+#if EXECUTORADDR_HAS_GET_ADDRESS    
     LDECL2(orc::LLJIT, jit);
 
     // llvm::StringRef ref(strdup(CHAR(STRING_ELT(r_sym, 0))));
@@ -75,6 +76,11 @@ R_LLJIT_lookup(SEXP r_jit, SEXP r_sym)
     void *ptr = (void *) sym->getAddress();
     
     return(R_createRef(ptr, "LLJITSymbolAddress"));
+#else
+    PROBLEM "R_LLJIT_lookup not working yet with this version of LLVM"
+        ERROR;
+    return(R_NilValue);
+#endif    
 }
 
 

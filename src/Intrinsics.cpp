@@ -9,10 +9,15 @@ extern "C"
 SEXP
 R_Intrinsic_getIntrinsicForGCCBuiltin(SEXP r_name, SEXP r_prefix)
 {
+#if HAS_INTRINSIC_FOR_GCC_BUILTIN     
     llvm::Intrinsic::ID id;
     const char *prefix = Rf_length(r_prefix) ? CHAR(STRING_ELT(r_prefix, 0)) : "";
     id = llvm::Intrinsic::getIntrinsicForGCCBuiltin(prefix, CHAR(STRING_ELT(r_name, 0)));
     return(ScalarInteger(id));
+#else
+    PROBLEM "getIntrinsicForGCCBuiltin not available for this version of LLVM"
+        ERROR;
+#endif    
 }
 
 extern "C"
