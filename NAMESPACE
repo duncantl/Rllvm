@@ -836,10 +836,10 @@ export(getEntryBlock)
 
 export(lljit, jitLookup)
 
-
-export(ls)
-exportMethods(ls)
-
+if(FALSE) {
+    export(ls)
+    exportMethods(ls)
+}
 
 
 export(getArguments, getArgs)
