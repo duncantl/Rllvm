@@ -36,7 +36,6 @@ typeof = Function("TYPEOF", Int32Type, list(SEXPType), module = m)
     
 if(TRUE) {    
 
-    ir$createCall(printValue, pr[[1]])    
     type = ir$createCall(typeof, pr[[1]])
     typeCond = ir$createICmp(ICMP_EQ, type, ir$createConstant(14L))
     
@@ -53,6 +52,7 @@ if(TRUE) {
     ir$createBranch(b4)
 
     ir$setInsertBlock(b3)
+#XXX   ir$createCall(printValue, pr[[1]])
     coerce = ir$createCall(coerceVector, pr[[1]], 14L)
     ir$createBranch(b4)    
     
@@ -76,12 +76,13 @@ if(TRUE) {
     ir$createReturn(phi)
 #print(getBlocks(rr$fun))    
 } else {
-    ir$createCall(printValue, pr[[1]])
-    ir$createCall(printValue, pr[[2]])
-    ir$createCall(printValue, pr[[3]])
-    ir$createCall(printValue, pr[[4]])
-    ir$createReturn(ir$createCall(ScalarInteger, 11))    
-#    ir$createReturn(pr[[1]])    
+#   ir$createCall(printValue, pr[[1]])
+#   ir$createCall(printValue, pr[[2]])
+#   ir$createCall(printValue, pr[[3]])
+#   ir$createCall(printValue, pr[[4]])
+    #   ir$createReturn(ir$createCall(ScalarInteger, 11))
+    
+   ir$createReturn(pr[[1]])    
 }
 
 # register the symbols for the R API routines we used.
@@ -103,7 +104,7 @@ cif = Rffi::CIF(SEXPType, replicate(4, SEXPType))
 ee = ExecutionEngine(m)
 x = seq(-1.5, 1.5, by = .1)
 
-print(getBlocks(rr$fun))  # R_v_dnorm
+#print(getBlocks(rr$fun))  # R_v_dnorm
 
 if(FALSE) {
 y = .llvm( rr$fun, x, length(x), 0, 1, .ffi = cif)
@@ -113,8 +114,16 @@ y = .Call(fptr, x, length(x), 0, 1)
 
 fptr = getPointerToFunction(rr$fun, ee)@ref
 sym = list(name = "R_v_dnorm", address = structure(fptr, class = "NativeSymbol"), dll = NULL)
-# y = .Call(sym, x, length(x), 0.1, 1.2)
 
+y = .Call(sym, x, length(x), 0.1, 1.2)
+
+z = c(-1L, 0L, 1L)
+z2 = .Call(sym, z, length(z), 0, 1)
+
+fun = function(x, mu, sd) { tmp = (x-mu)/sd; 1/(sd*2.506628)*exp(-.5*tmp*tmp)}
+
+stopifnot(identical(y, fun(x, .1, 1.2)))
+stopifnot(identical(z2, fun(z, 0, 1)))
 
 truth = c(0.136675077204378, 0.152207587833673, 0.16833225640452, 0.184876815843572, 
 0.201642292524936, 0.218406151494248, 0.234926588580926, 0.250947887623335, 
@@ -124,3 +133,5 @@ truth = c(0.136675077204378, 0.152207587833673, 0.16833225640452, 0.184876815843
 0.31448605753319, 0.304810338740607, 0.293387804447713, 0.280439049679568, 
 0.266206700434743, 0.250947887623335, 0.234926588580926, 0.218406151494248, 
 0.201642292524936, 0.184876815843572, 0.16833225640452)
+# stopifnot(identical(y, truth))
+
