@@ -2,6 +2,11 @@
 # Perhaps create the pseudo code in R and then "compile"
 # that.
 #
+# Do we need the local variables ?
+#
+# 1. mutated arguments and return value
+# 1. don't duplicate if read-only
+#
 
 if(FALSE) {
     library(Rllvm)
@@ -19,15 +24,35 @@ if(FALSE) {
 }
 
 
+if(FALSE) {
+    library(Rllvm)
+    source("mkCallProxy.R")
+    m = parseIR("explorations/proxyEg.ir")
+    proxy = mkCallProxy(m$foo)
+    b = getBlocks(proxy)
+
+    ee = ExecutionEngine(m)
+    fptr = getPointerToFunction(proxy, ee)@ref
+    sym = list(name = "", address = structure(fptr, class = "NativeSymbol"), dll = NULL)
+
+    #  x = seq(-1.5, 1.5, by = .1)
+    x = 1:10
+    y = seq_len(length(x)) + .5
+    z = .Call(sym, x, y, length(x))
+    stopifnot( identical(z,  sum(x*y)) )
+}
+
+
 mkCallProxy =
 function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
 {
     # For debugging
-    declareRRoutine(c("PrintValue", "ScalarInteger"), mod)
+    # declareRRoutine(c("PrintValue", "ScalarInteger"), mod)
     
     oparams = getParameters(fun)
 
     if(any(w <- is.na(names(oparams))))
+         # names(oparams)[w] = ... doesn't work.
         oparams@names[w] = paste0("arg", which(w))
     
     
@@ -72,13 +97,12 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
     # return value(s)
 
     if(hasReturn || any(mayChange)) {
-#        browser()
+
         if(!hasReturn && sum(mayChange) == 1) {
             # Do we need local variables for values we create via duplicate/coerceVector that we need to also return.
-#browser()            
             ret = ir$createLoad(ptrArgs[mayChange][[1]])                
         } else if(!any(mayChange)) {
-            ret = convertReturnValue(val, ir)
+            ret = convertReturnValue(val, ir, mod)
         } else {
             # both return value and some may change so create an R list()
             # and insert the return value and the values that may have changed.
@@ -154,7 +178,7 @@ function(p, oparam, startBlock, endBlock, paramName, mod, nprotect, fun = as(p, 
         inc = ir$binOp(BinaryOps["Add"], ir$createLoad(nprotect), makeConstant(ir, 1L))
         ir$createStore( inc,  nprotect )
 
-        ir$createCall(mod$Rf_PrintValue, ir$createLoad(var))
+        ## Debugging: ir$createCall(mod$Rf_PrintValue, ir$createLoad(var))
     }
 
 
@@ -195,6 +219,24 @@ SEXPTypes = c(DoubleTyID = 14L,  IntegerTyID = 13L)
 getSEXPType =
 function(type, tid = getTypeID(type))
    SEXPTypes[ names(tid) ]
+
+
+
+##############
+convertReturnValue =
+function(val, ir, mod)    
+{
+    ty = getType(val)
+    #    browser()
+#XXX    
+    if(!("Rf_ScalarReal" %in% names(mod)))
+        Function("Rf_ScalarReal", SEXPType, DoubleType, module = mod)
+            
+    ir$createCall(mod$Rf_ScalarReal, val)
+}
+
+
+
 
 ###############
 
