@@ -40,7 +40,6 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
     nfun = obj$fun
     params = obj$params
 
-    
     hasReturn = !sameType(getReturnType(fun), VoidType)
     isPtr = sapply(oparams, function(p) isPointerType(getType(p)))
     nptr = sum(isPtr) + hasReturn
@@ -49,7 +48,6 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
         declareRRoutine(c("protect", "unprotect"), mod)
         nprotect = ir$createLocalVariable(Int32Type, "nprotect")
         ir$createStore( 0L, nprotect)
-        # ir$createCall(mod$Rf_PrintValue, ir$createCall(mod$Rf_ScalarInteger, ir$createLoad(nprotect)))
     } else
         nprotect = NULL
 
@@ -58,7 +56,6 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
 
     ptrArgs = list()
     if(any(isPtr)) {
-        #        blocks = replicate( sum(isPtr) + 1L, Block(nfun))
         blocks = c(lapply(names(oparams)[isPtr], function(id) Block(nfun, id)), Block(nfun, "call"))
         ir$createBranch(blocks[[1]])
         
@@ -79,7 +76,7 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
         if(!hasReturn && sum(mayChange) == 1) {
             # Do we need local variables for values we create via duplicate/coerceVector that we need to also return.
 #browser()            
-#            ret = ir$createLoad(args[mayChange][[1]])
+            ret = ir$createLoad(ptrArgs[mayChange][[1]])                
         } else if(!any(mayChange)) {
             ret = convertReturnValue(val, ir)
         } else {
@@ -102,12 +99,10 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
         }
     }
     
-    if(!is.null(nprotect)) {
-        # ir$createCall(mod$Rf_PrintValue, ir$createCall(mod$Rf_ScalarInteger, ir$createLoad(nprotect)))        
+    if(!is.null(nprotect)) 
         ir$createCall(mod$Rf_unprotect, ir$createLoad(nprotect))
-    }
 
-    ret = ir$createLoad(ptrArgs[mayChange][[1]])    
+
     ir$createReturn(ret)
 
     nfun
