@@ -35,6 +35,9 @@ llvmDir = path.expand("~/LLVM/clang+llvm-13.0.0-x86_64-apple-darwin/include")
 version = c(14, 0)
 llvmDir = path.expand("~/LLVM/clang+llvm-14.0.0-x86_64-apple-darwin/include") 
 
+version = c(154, 0)
+llvmDir = "/Users/duncan/LLVM/local/include"
+
 sysdir = system("xcrun --show-sdk-path", intern = TRUE)
 sysdir = file.path(sysdir, "usr/include")
 llvmDir = c(llvmDir, sysdir)
@@ -45,6 +48,10 @@ stopifnot(all(file.exists(llvmDir)))
 
 tu = createTU("../TU/llvm.cpp", includes = llvmDir, args = c("-Wc++11-extensions", "-ferror-limit=10000"))
 
+# For LLVM 15
+# /Users/duncan/LLVM/local/include/llvm/ADT/DenseMapInfo.h:17:10: fatal error: 'cassert' file not found
+# but TU built
+
 options(nwarnings = 1000)
 enums = getEnums(tu)
 
@@ -53,7 +60,8 @@ names(w)
 
 # dput(enums$AttrKind@values)
 
-k = getCppClasses(tu, "include/llvm")
+if(FALSE)
+  k = getCppClasses(tu, "include/llvm")
 
 
 if(FALSE) {
