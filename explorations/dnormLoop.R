@@ -39,11 +39,32 @@ if(TRUE) {
     ir$createCall(printValue, pr[[1]])    
     type = ir$createCall(typeof, pr[[1]])
     typeCond = ir$createICmp(ICMP_EQ, type, ir$createConstant(14L))
-    # Does this call
-    xc = ir$createSelect(typeCond, ir$createCall(duplicate, pr[[1]]), ir$createCall(coerceVector, pr[[1]], 14L))
+    
+    # Does this evaluate both sides of the ternary regardless?
+    #    xc = ir$createSelect(typeCond, ir$createCall(duplicate, pr[[1]]), ir$createCall(coerceVector, pr[[1]], 14L))
+    b2 = Block(rr$fun, "dup")
+    b3 = Block(rr$fun, "coerce")
+    b4 = Block(rr$fun, "do")
+#print(getBlocks(rr$fun))
+    ir$createCondBranch(typeCond, b2, b3)
+    
+    ir$setInsertBlock(b2)
+    dup = ir$createCall(duplicate, pr[[1]])
+    ir$createBranch(b4)
+
+    ir$setInsertBlock(b3)
+    coerce = ir$createCall(coerceVector, pr[[1]], 14L)
+    ir$createBranch(b4)    
+    
+    ir$setInsertBlock(b4)
     # Not needed in this case.
     # ir$createCall(protect, xc)
-    x2 = ir$createCall(REAL, xc)
+    phi = ir$createPHI( SEXPType, 2L )
+
+    addIncoming(phi, dup, b2)
+    addIncoming(phi, coerce, b3)    
+    
+    x2 = ir$createCall(REAL, phi)
     len = ir$createCall(asInteger, pr[[2]])
 
     mu = ir$createCall(asReal, pr[[3]])
@@ -52,7 +73,8 @@ if(TRUE) {
     ir$createCall(m$v_dnorm, x2, len, mu, sd)
 
    # ir$createCall(unprotect, 1L)
-    ir$createReturn(xc)
+    ir$createReturn(phi)
+#print(getBlocks(rr$fun))    
 } else {
     ir$createCall(printValue, pr[[1]])
     ir$createCall(printValue, pr[[2]])
