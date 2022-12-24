@@ -31,7 +31,7 @@ Related packages are [Rffi](https://github.com/omegahat/Rffi), Rllvm (this one),
 [RLLVMCompile](https://github.com/duncantl/RLLVMCompile),
 [R2llvm](https://github.com/duncantl/RLLVMCompile),
 [RCUDA](https://github.com/duncantl/RCUDA),
-[RCIndex](https://github.com/omegahat/RClangSimple).
+[RCIndex](https://github.com/omegahat/RClangSimple),
 [NativeCodeAnalysis](https://github.com/duncantl/NativeCodeAnalysis).
 
 
