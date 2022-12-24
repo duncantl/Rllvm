@@ -86,10 +86,14 @@ function(val, context = getGlobalContext(), type = NULL)
 
 
 getGetElementPtr =
-function(cons, index = c(0L, 0L), inBounds = FALSE, ctx = getContext(cons))
+function(cons, index = c(0L, 0L), inBounds = FALSE, ctx = getContext(cons), type = NULL)
 {
-   index = lapply(index, function(x) if(!is(x, "Constant")) createConstant(val = x, context = ctx) else x)
-   .Call("R_Constant_getGetElementPtr", cons, index, as.logical(inBounds))
+    index = lapply(index, function(x) if(!is(x, "Constant")) createConstant(val = x, context = ctx) else x)
+
+    if(is.null(type))
+        type = getTargetType(cons, index)
+    
+   .Call("R_Constant_getGetElementPtr", cons, index, as.logical(inBounds), type)
 }
 
 
