@@ -24,16 +24,18 @@ if(llvmCheckVersion(c( 15 ,  0 ))) {
 `UMin` = 10L
 `FAdd` = 11L
 `FSub` = 12L
+`FMax` = 13L
+`FMin` = 14L
 `FIRST_BINOP` = 0L
-`LAST_BINOP` = 12L
-`BAD_BINOP` = 13L
+`LAST_BINOP` = 14L
+`BAD_BINOP` = 15L
 
 
 
  `BinOp`  = c(Xchg = 0L, Add = 1L, Sub = 2L, And = 3L, Nand = 4L, Or = 5L, 
 Xor = 6L, Max = 7L, Min = 8L, UMax = 9L, UMin = 10L, FAdd = 11L, 
-FSub = 12L, FIRST_BINOP = 0L, LAST_BINOP = 12L, BAD_BINOP = 13L
-)
+FSub = 12L, FMax = 13L, FMin = 14L, FIRST_BINOP = 0L, LAST_BINOP = 14L, 
+BAD_BINOP = 15L)
 
 
 ##########################
@@ -97,119 +99,127 @@ CastOpsEnd = 51L)
 
 `None` = 0L
 `FirstEnumAttr` = 1L
-`AlwaysInline` = 1L
-`ArgMemOnly` = 2L
-`Builtin` = 3L
-`Cold` = 4L
-`Convergent` = 5L
-`DisableSanitizerInstrumentation` = 6L
-`Hot` = 7L
-`ImmArg` = 8L
-`InReg` = 9L
-`InaccessibleMemOnly` = 10L
-`InaccessibleMemOrArgMemOnly` = 11L
-`InlineHint` = 12L
-`JumpTable` = 13L
-`MinSize` = 14L
-`MustProgress` = 15L
-`Naked` = 16L
-`Nest` = 17L
-`NoAlias` = 18L
-`NoBuiltin` = 19L
-`NoCallback` = 20L
-`NoCapture` = 21L
-`NoCfCheck` = 22L
-`NoDuplicate` = 23L
-`NoFree` = 24L
-`NoImplicitFloat` = 25L
-`NoInline` = 26L
-`NoMerge` = 27L
-`NoProfile` = 28L
-`NoRecurse` = 29L
-`NoRedZone` = 30L
-`NoReturn` = 31L
-`NoSanitizeCoverage` = 32L
-`NoSync` = 33L
-`NoUndef` = 34L
-`NoUnwind` = 35L
-`NonLazyBind` = 36L
-`NonNull` = 37L
-`NullPointerIsValid` = 38L
-`OptForFuzzing` = 39L
-`OptimizeForSize` = 40L
-`OptimizeNone` = 41L
-`ReadNone` = 42L
-`ReadOnly` = 43L
-`Returned` = 44L
-`ReturnsTwice` = 45L
-`SExt` = 46L
-`SafeStack` = 47L
-`SanitizeAddress` = 48L
-`SanitizeHWAddress` = 49L
-`SanitizeMemTag` = 50L
-`SanitizeMemory` = 51L
-`SanitizeThread` = 52L
-`ShadowCallStack` = 53L
-`Speculatable` = 54L
-`SpeculativeLoadHardening` = 55L
-`StackProtect` = 56L
-`StackProtectReq` = 57L
-`StackProtectStrong` = 58L
-`StrictFP` = 59L
-`SwiftAsync` = 60L
-`SwiftError` = 61L
-`SwiftSelf` = 62L
-`UWTable` = 63L
-`WillReturn` = 64L
-`WriteOnly` = 65L
-`ZExt` = 66L
-`LastEnumAttr` = 66L
-`FirstTypeAttr` = 67L
-`ByRef` = 67L
-`ByVal` = 68L
-`ElementType` = 69L
-`InAlloca` = 70L
-`Preallocated` = 71L
-`StructRet` = 72L
-`LastTypeAttr` = 72L
-`FirstIntAttr` = 73L
-`Alignment` = 73L
-`AllocSize` = 74L
-`Dereferenceable` = 75L
-`DereferenceableOrNull` = 76L
-`StackAlignment` = 77L
-`VScaleRange` = 78L
-`LastIntAttr` = 78L
-`EndAttrKinds` = 79L
-`EmptyKey` = 80L
-`TombstoneKey` = 81L
+`AllocAlign` = 1L
+`AllocatedPointer` = 2L
+`AlwaysInline` = 3L
+`ArgMemOnly` = 4L
+`Builtin` = 5L
+`Cold` = 6L
+`Convergent` = 7L
+`DisableSanitizerInstrumentation` = 8L
+`FnRetThunkExtern` = 9L
+`Hot` = 10L
+`ImmArg` = 11L
+`InReg` = 12L
+`InaccessibleMemOnly` = 13L
+`InaccessibleMemOrArgMemOnly` = 14L
+`InlineHint` = 15L
+`JumpTable` = 16L
+`MinSize` = 17L
+`MustProgress` = 18L
+`Naked` = 19L
+`Nest` = 20L
+`NoAlias` = 21L
+`NoBuiltin` = 22L
+`NoCallback` = 23L
+`NoCapture` = 24L
+`NoCfCheck` = 25L
+`NoDuplicate` = 26L
+`NoFree` = 27L
+`NoImplicitFloat` = 28L
+`NoInline` = 29L
+`NoMerge` = 30L
+`NoProfile` = 31L
+`NoRecurse` = 32L
+`NoRedZone` = 33L
+`NoReturn` = 34L
+`NoSanitizeBounds` = 35L
+`NoSanitizeCoverage` = 36L
+`NoSync` = 37L
+`NoUndef` = 38L
+`NoUnwind` = 39L
+`NonLazyBind` = 40L
+`NonNull` = 41L
+`NullPointerIsValid` = 42L
+`OptForFuzzing` = 43L
+`OptimizeForSize` = 44L
+`OptimizeNone` = 45L
+`PresplitCoroutine` = 46L
+`ReadNone` = 47L
+`ReadOnly` = 48L
+`Returned` = 49L
+`ReturnsTwice` = 50L
+`SExt` = 51L
+`SafeStack` = 52L
+`SanitizeAddress` = 53L
+`SanitizeHWAddress` = 54L
+`SanitizeMemTag` = 55L
+`SanitizeMemory` = 56L
+`SanitizeThread` = 57L
+`ShadowCallStack` = 58L
+`Speculatable` = 59L
+`SpeculativeLoadHardening` = 60L
+`StackProtect` = 61L
+`StackProtectReq` = 62L
+`StackProtectStrong` = 63L
+`StrictFP` = 64L
+`SwiftAsync` = 65L
+`SwiftError` = 66L
+`SwiftSelf` = 67L
+`WillReturn` = 68L
+`WriteOnly` = 69L
+`ZExt` = 70L
+`LastEnumAttr` = 70L
+`FirstTypeAttr` = 71L
+`ByRef` = 71L
+`ByVal` = 72L
+`ElementType` = 73L
+`InAlloca` = 74L
+`Preallocated` = 75L
+`StructRet` = 76L
+`LastTypeAttr` = 76L
+`FirstIntAttr` = 77L
+`Alignment` = 77L
+`AllocKind` = 78L
+`AllocSize` = 79L
+`Dereferenceable` = 80L
+`DereferenceableOrNull` = 81L
+`StackAlignment` = 82L
+`UWTable` = 83L
+`VScaleRange` = 84L
+`LastIntAttr` = 84L
+`EndAttrKinds` = 85L
+`EmptyKey` = 86L
+`TombstoneKey` = 87L
 
 
 
- `AttrKind`  = c(None = 0L, FirstEnumAttr = 1L, AlwaysInline = 1L, ArgMemOnly = 2L, 
-Builtin = 3L, Cold = 4L, Convergent = 5L, DisableSanitizerInstrumentation = 6L, 
-Hot = 7L, ImmArg = 8L, InReg = 9L, InaccessibleMemOnly = 10L, 
-InaccessibleMemOrArgMemOnly = 11L, InlineHint = 12L, JumpTable = 13L, 
-MinSize = 14L, MustProgress = 15L, Naked = 16L, Nest = 17L, NoAlias = 18L, 
-NoBuiltin = 19L, NoCallback = 20L, NoCapture = 21L, NoCfCheck = 22L, 
-NoDuplicate = 23L, NoFree = 24L, NoImplicitFloat = 25L, NoInline = 26L, 
-NoMerge = 27L, NoProfile = 28L, NoRecurse = 29L, NoRedZone = 30L, 
-NoReturn = 31L, NoSanitizeCoverage = 32L, NoSync = 33L, NoUndef = 34L, 
-NoUnwind = 35L, NonLazyBind = 36L, NonNull = 37L, NullPointerIsValid = 38L, 
-OptForFuzzing = 39L, OptimizeForSize = 40L, OptimizeNone = 41L, 
-ReadNone = 42L, ReadOnly = 43L, Returned = 44L, ReturnsTwice = 45L, 
-SExt = 46L, SafeStack = 47L, SanitizeAddress = 48L, SanitizeHWAddress = 49L, 
-SanitizeMemTag = 50L, SanitizeMemory = 51L, SanitizeThread = 52L, 
-ShadowCallStack = 53L, Speculatable = 54L, SpeculativeLoadHardening = 55L, 
-StackProtect = 56L, StackProtectReq = 57L, StackProtectStrong = 58L, 
-StrictFP = 59L, SwiftAsync = 60L, SwiftError = 61L, SwiftSelf = 62L, 
-UWTable = 63L, WillReturn = 64L, WriteOnly = 65L, ZExt = 66L, 
-LastEnumAttr = 66L, FirstTypeAttr = 67L, ByRef = 67L, ByVal = 68L, 
-ElementType = 69L, InAlloca = 70L, Preallocated = 71L, StructRet = 72L, 
-LastTypeAttr = 72L, FirstIntAttr = 73L, Alignment = 73L, AllocSize = 74L, 
-Dereferenceable = 75L, DereferenceableOrNull = 76L, StackAlignment = 77L, 
-VScaleRange = 78L, LastIntAttr = 78L, EndAttrKinds = 79L, EmptyKey = 80L, 
-TombstoneKey = 81L)
+ `AttrKind`  = c(None = 0L, FirstEnumAttr = 1L, AllocAlign = 1L, AllocatedPointer = 2L, 
+AlwaysInline = 3L, ArgMemOnly = 4L, Builtin = 5L, Cold = 6L, 
+Convergent = 7L, DisableSanitizerInstrumentation = 8L, FnRetThunkExtern = 9L, 
+Hot = 10L, ImmArg = 11L, InReg = 12L, InaccessibleMemOnly = 13L, 
+InaccessibleMemOrArgMemOnly = 14L, InlineHint = 15L, JumpTable = 16L, 
+MinSize = 17L, MustProgress = 18L, Naked = 19L, Nest = 20L, NoAlias = 21L, 
+NoBuiltin = 22L, NoCallback = 23L, NoCapture = 24L, NoCfCheck = 25L, 
+NoDuplicate = 26L, NoFree = 27L, NoImplicitFloat = 28L, NoInline = 29L, 
+NoMerge = 30L, NoProfile = 31L, NoRecurse = 32L, NoRedZone = 33L, 
+NoReturn = 34L, NoSanitizeBounds = 35L, NoSanitizeCoverage = 36L, 
+NoSync = 37L, NoUndef = 38L, NoUnwind = 39L, NonLazyBind = 40L, 
+NonNull = 41L, NullPointerIsValid = 42L, OptForFuzzing = 43L, 
+OptimizeForSize = 44L, OptimizeNone = 45L, PresplitCoroutine = 46L, 
+ReadNone = 47L, ReadOnly = 48L, Returned = 49L, ReturnsTwice = 50L, 
+SExt = 51L, SafeStack = 52L, SanitizeAddress = 53L, SanitizeHWAddress = 54L, 
+SanitizeMemTag = 55L, SanitizeMemory = 56L, SanitizeThread = 57L, 
+ShadowCallStack = 58L, Speculatable = 59L, SpeculativeLoadHardening = 60L, 
+StackProtect = 61L, StackProtectReq = 62L, StackProtectStrong = 63L, 
+StrictFP = 64L, SwiftAsync = 65L, SwiftError = 66L, SwiftSelf = 67L, 
+WillReturn = 68L, WriteOnly = 69L, ZExt = 70L, LastEnumAttr = 70L, 
+FirstTypeAttr = 71L, ByRef = 71L, ByVal = 72L, ElementType = 73L, 
+InAlloca = 74L, Preallocated = 75L, StructRet = 76L, LastTypeAttr = 76L, 
+FirstIntAttr = 77L, Alignment = 77L, AllocKind = 78L, AllocSize = 79L, 
+Dereferenceable = 80L, DereferenceableOrNull = 81L, StackAlignment = 82L, 
+UWTable = 83L, VScaleRange = 84L, LastIntAttr = 84L, EndAttrKinds = 85L, 
+EmptyKey = 86L, TombstoneKey = 87L)
 
 
 ##########################
@@ -252,7 +262,7 @@ TombstoneKey = 81L)
 
 
 
- `MetadataKind`  = structure(0:34, .Names = c("MDStringKind", "ConstantAsMetadataKind", 
+ `MetadataKind`  = structure(0:34, names = c("MDStringKind", "ConstantAsMetadataKind", 
 "LocalAsMetadataKind", "DistinctMDOperandPlaceholderKind", "MDTupleKind", 
 "DILocationKind", "DIExpressionKind", "DIGlobalVariableExpressionKind", 
 "GenericDINodeKind", "DISubrangeKind", "DIEnumeratorKind", "DIBasicTypeKind", 
@@ -284,7 +294,7 @@ TombstoneKey = 81L)
 
 
 
- `TermOps`  = structure(0:12, .Names = c("TermOpsBegin", "Ret", "Br", "Switch", 
+ `TermOps`  = structure(0:12, names = c("TermOpsBegin", "Ret", "Br", "Switch", 
 "IndirectBr", "Invoke", "Resume", "Unreachable", "CleanupRet", 
 "CatchRet", "CatchSwitch", "CallBr", "TermOpsEnd"))
 
@@ -305,7 +315,7 @@ TombstoneKey = 81L)
 
 
 
- `LinkageTypes`  = structure(0:10, .Names = c("ExternalLinkage", "AvailableExternallyLinkage", 
+ `LinkageTypes`  = structure(0:10, names = c("ExternalLinkage", "AvailableExternallyLinkage", 
 "LinkOnceAnyLinkage", "LinkOnceODRLinkage", "WeakAnyLinkage", 
 "WeakODRLinkage", "AppendingLinkage", "InternalLinkage", "PrivateLinkage", 
 "ExternalWeakLinkage", "CommonLinkage"))
@@ -320,7 +330,7 @@ TombstoneKey = 81L)
 
 
 
- `LLVMCodeGenOptLevel`  = structure(0:3, .Names = c("LLVMCodeGenLevelNone", "LLVMCodeGenLevelLess", 
+ `LLVMCodeGenOptLevel`  = structure(0:3, names = c("LLVMCodeGenLevelNone", "LLVMCodeGenLevelLess", 
 "LLVMCodeGenLevelDefault", "LLVMCodeGenLevelAggressive"))
 
 
@@ -464,14 +474,15 @@ FlagAccessibility = 3, FlagPtrToMemberRep = 23, LLVM_BITMASK_LARGEST_ENUMERATOR 
 `ArrayTyID` = 17L
 `FixedVectorTyID` = 18L
 `ScalableVectorTyID` = 19L
+`DXILPointerTyID` = 20L
 
 
 
- `TypeID`  = structure(0:19, .Names = c("HalfTyID", "BFloatTyID", "FloatTyID", 
+ `TypeID`  = structure(0:20, names = c("HalfTyID", "BFloatTyID", "FloatTyID", 
 "DoubleTyID", "X86_FP80TyID", "FP128TyID", "PPC_FP128TyID", "VoidTyID", 
 "LabelTyID", "MetadataTyID", "X86_MMXTyID", "X86_AMXTyID", "TokenTyID", 
 "IntegerTyID", "FunctionTyID", "PointerTyID", "StructTyID", "ArrayTyID", 
-"FixedVectorTyID", "ScalableVectorTyID"))
+"FixedVectorTyID", "ScalableVectorTyID", "DXILPointerTyID"))
 
 
 ##########################
@@ -528,7 +539,7 @@ DW_CC_lo_user = 64L, DW_CC_hi_user = 255L)
 
 
 
- `UnnamedAddr`  = structure(0:2, .Names = c("None", "Local", "Global"))
+ `UnnamedAddr`  = structure(0:2, names = c("None", "Local", "Global"))
 
 
 ##########################
@@ -602,7 +613,7 @@ DW_LANG_BORLAND_Delphi = 39L, DW_LANG_lo_user = 32768L, DW_LANG_hi_user = 65535L
 
 
 
- `Direction`  = structure(0:2, .Names = c("Increasing", "Decreasing", "Unknown"
+ `Direction`  = structure(0:2, names = c("Increasing", "Decreasing", "Unknown"
 ))
 
 
@@ -614,7 +625,7 @@ DW_LANG_BORLAND_Delphi = 39L, DW_LANG_lo_user = 32768L, DW_LANG_hi_user = 65535L
 
 
 
- `VisibilityTypes`  = structure(0:2, .Names = c("DefaultVisibility", "HiddenVisibility", 
+ `VisibilityTypes`  = structure(0:2, names = c("DefaultVisibility", "HiddenVisibility", 
 "ProtectedVisibility"))
 
 
@@ -626,7 +637,7 @@ DW_LANG_BORLAND_Delphi = 39L, DW_LANG_lo_user = 32768L, DW_LANG_hi_user = 65535L
 
 
 
- `DLLStorageClassTypes`  = structure(0:2, .Names = c("DefaultStorageClass", "DLLImportStorageClass", 
+ `DLLStorageClassTypes`  = structure(0:2, names = c("DefaultStorageClass", "DLLImportStorageClass", 
 "DLLExportStorageClass"))
 
 
@@ -640,7 +651,7 @@ DW_LANG_BORLAND_Delphi = 39L, DW_LANG_lo_user = 32768L, DW_LANG_hi_user = 65535L
 
 
 
- `ThreadLocalMode`  = structure(0:4, .Names = c("NotThreadLocal", "GeneralDynamicTLSModel", 
+ `ThreadLocalMode`  = structure(0:4, names = c("NotThreadLocal", "GeneralDynamicTLSModel", 
 "LocalDynamicTLSModel", "InitialExecTLSModel", "LocalExecTLSModel"
 ))
 
@@ -653,7 +664,7 @@ DW_LANG_BORLAND_Delphi = 39L, DW_LANG_lo_user = 32768L, DW_LANG_hi_user = 65535L
 
 
 
- `VCallVisibility`  = structure(0:2, .Names = c("VCallVisibilityPublic", "VCallVisibilityLinkageUnit", 
+ `VCallVisibility`  = structure(0:2, names = c("VCallVisibilityPublic", "VCallVisibilityLinkageUnit", 
 "VCallVisibilityTranslationUnit"))
 
 
@@ -669,7 +680,7 @@ DW_LANG_BORLAND_Delphi = 39L, DW_LANG_lo_user = 32768L, DW_LANG_hi_user = 65535L
 
 
 
- `LLVMRelocMode`  = structure(0:6, .Names = c("LLVMRelocDefault", "LLVMRelocStatic", 
+ `LLVMRelocMode`  = structure(0:6, names = c("LLVMRelocDefault", "LLVMRelocStatic", 
 "LLVMRelocPIC", "LLVMRelocDynamicNoPic", "LLVMRelocROPI", "LLVMRelocRWPI", 
 "LLVMRelocROPI_RWPI"))
 
@@ -687,68 +698,72 @@ DW_LANG_BORLAND_Delphi = 39L, DW_LANG_lo_user = 32768L, DW_LANG_hi_user = 65535L
 `bpfel` = 8L
 `bpfeb` = 9L
 `csky` = 10L
-`hexagon` = 11L
-`m68k` = 12L
-`mips` = 13L
-`mipsel` = 14L
-`mips64` = 15L
-`mips64el` = 16L
-`msp430` = 17L
-`ppc` = 18L
-`ppcle` = 19L
-`ppc64` = 20L
-`ppc64le` = 21L
-`r600` = 22L
-`amdgcn` = 23L
-`riscv32` = 24L
-`riscv64` = 25L
-`sparc` = 26L
-`sparcv9` = 27L
-`sparcel` = 28L
-`systemz` = 29L
-`tce` = 30L
-`tcele` = 31L
-`thumb` = 32L
-`thumbeb` = 33L
-`x86` = 34L
-`x86_64` = 35L
-`xcore` = 36L
-`nvptx` = 37L
-`nvptx64` = 38L
-`le32` = 39L
-`le64` = 40L
-`amdil` = 41L
-`amdil64` = 42L
-`hsail` = 43L
-`hsail64` = 44L
-`spir` = 45L
-`spir64` = 46L
-`spirv32` = 47L
-`spirv64` = 48L
-`kalimba` = 49L
-`shave` = 50L
-`lanai` = 51L
-`wasm32` = 52L
-`wasm64` = 53L
-`renderscript32` = 54L
-`renderscript64` = 55L
-`ve` = 56L
-`LastArchType` = 56L
+`dxil` = 11L
+`hexagon` = 12L
+`loongarch32` = 13L
+`loongarch64` = 14L
+`m68k` = 15L
+`mips` = 16L
+`mipsel` = 17L
+`mips64` = 18L
+`mips64el` = 19L
+`msp430` = 20L
+`ppc` = 21L
+`ppcle` = 22L
+`ppc64` = 23L
+`ppc64le` = 24L
+`r600` = 25L
+`amdgcn` = 26L
+`riscv32` = 27L
+`riscv64` = 28L
+`sparc` = 29L
+`sparcv9` = 30L
+`sparcel` = 31L
+`systemz` = 32L
+`tce` = 33L
+`tcele` = 34L
+`thumb` = 35L
+`thumbeb` = 36L
+`x86` = 37L
+`x86_64` = 38L
+`xcore` = 39L
+`nvptx` = 40L
+`nvptx64` = 41L
+`le32` = 42L
+`le64` = 43L
+`amdil` = 44L
+`amdil64` = 45L
+`hsail` = 46L
+`hsail64` = 47L
+`spir` = 48L
+`spir64` = 49L
+`spirv32` = 50L
+`spirv64` = 51L
+`kalimba` = 52L
+`shave` = 53L
+`lanai` = 54L
+`wasm32` = 55L
+`wasm64` = 56L
+`renderscript32` = 57L
+`renderscript64` = 58L
+`ve` = 59L
+`LastArchType` = 59L
 
 
 
  `ArchType`  = c(UnknownArch = 0L, arm = 1L, armeb = 2L, aarch64 = 3L, aarch64_be = 4L, 
 aarch64_32 = 5L, arc = 6L, avr = 7L, bpfel = 8L, bpfeb = 9L, 
-csky = 10L, hexagon = 11L, m68k = 12L, mips = 13L, mipsel = 14L, 
-mips64 = 15L, mips64el = 16L, msp430 = 17L, ppc = 18L, ppcle = 19L, 
-ppc64 = 20L, ppc64le = 21L, r600 = 22L, amdgcn = 23L, riscv32 = 24L, 
-riscv64 = 25L, sparc = 26L, sparcv9 = 27L, sparcel = 28L, systemz = 29L, 
-tce = 30L, tcele = 31L, thumb = 32L, thumbeb = 33L, x86 = 34L, 
-x86_64 = 35L, xcore = 36L, nvptx = 37L, nvptx64 = 38L, le32 = 39L, 
-le64 = 40L, amdil = 41L, amdil64 = 42L, hsail = 43L, hsail64 = 44L, 
-spir = 45L, spir64 = 46L, spirv32 = 47L, spirv64 = 48L, kalimba = 49L, 
-shave = 50L, lanai = 51L, wasm32 = 52L, wasm64 = 53L, renderscript32 = 54L, 
-renderscript64 = 55L, ve = 56L, LastArchType = 56L)
+csky = 10L, dxil = 11L, hexagon = 12L, loongarch32 = 13L, loongarch64 = 14L, 
+m68k = 15L, mips = 16L, mipsel = 17L, mips64 = 18L, mips64el = 19L, 
+msp430 = 20L, ppc = 21L, ppcle = 22L, ppc64 = 23L, ppc64le = 24L, 
+r600 = 25L, amdgcn = 26L, riscv32 = 27L, riscv64 = 28L, sparc = 29L, 
+sparcv9 = 30L, sparcel = 31L, systemz = 32L, tce = 33L, tcele = 34L, 
+thumb = 35L, thumbeb = 36L, x86 = 37L, x86_64 = 38L, xcore = 39L, 
+nvptx = 40L, nvptx64 = 41L, le32 = 42L, le64 = 43L, amdil = 44L, 
+amdil64 = 45L, hsail = 46L, hsail64 = 47L, spir = 48L, spir64 = 49L, 
+spirv32 = 50L, spirv64 = 51L, kalimba = 52L, shave = 53L, lanai = 54L, 
+wasm32 = 55L, wasm64 = 56L, renderscript32 = 57L, renderscript64 = 58L, 
+ve = 59L, LastArchType = 59L)
 
 
 ##########################
@@ -790,10 +805,16 @@ renderscript64 = 55L, ve = 56L, LastArchType = 56L)
 `KalimbaSubArch_v5` = 34L
 `MipsSubArch_r6` = 35L
 `PPCSubArch_spe` = 36L
+`SPIRVSubArch_v10` = 37L
+`SPIRVSubArch_v11` = 38L
+`SPIRVSubArch_v12` = 39L
+`SPIRVSubArch_v13` = 40L
+`SPIRVSubArch_v14` = 41L
+`SPIRVSubArch_v15` = 42L
 
 
 
- `SubArchType`  = structure(0:36, .Names = c("NoSubArch", "ARMSubArch_v9_3a", "ARMSubArch_v9_2a", 
+ `SubArchType`  = structure(0:42, names = c("NoSubArch", "ARMSubArch_v9_3a", "ARMSubArch_v9_2a", 
 "ARMSubArch_v9_1a", "ARMSubArch_v9", "ARMSubArch_v8_8a", "ARMSubArch_v8_7a", 
 "ARMSubArch_v8_6a", "ARMSubArch_v8_5a", "ARMSubArch_v8_4a", "ARMSubArch_v8_3a", 
 "ARMSubArch_v8_2a", "ARMSubArch_v8_1a", "ARMSubArch_v8", "ARMSubArch_v8r", 
@@ -802,8 +823,9 @@ renderscript64 = 55L, ve = 56L, LastArchType = 56L)
 "ARMSubArch_v7k", "ARMSubArch_v7ve", "ARMSubArch_v6", "ARMSubArch_v6m", 
 "ARMSubArch_v6k", "ARMSubArch_v6t2", "ARMSubArch_v5", "ARMSubArch_v5te", 
 "ARMSubArch_v4t", "AArch64SubArch_arm64e", "KalimbaSubArch_v3", 
-"KalimbaSubArch_v4", "KalimbaSubArch_v5", "MipsSubArch_r6", "PPCSubArch_spe"
-))
+"KalimbaSubArch_v4", "KalimbaSubArch_v5", "MipsSubArch_r6", "PPCSubArch_spe", 
+"SPIRVSubArch_v10", "SPIRVSubArch_v11", "SPIRVSubArch_v12", "SPIRVSubArch_v13", 
+"SPIRVSubArch_v14", "SPIRVSubArch_v15"))
 
 
 ##########################
@@ -861,17 +883,20 @@ OpenEmbedded = 14L, LastVendorType = 14L)
 `NVCL` = 23L
 `AMDHSA` = 24L
 `PS4` = 25L
-`ELFIAMCU` = 26L
-`TvOS` = 27L
-`WatchOS` = 28L
-`Mesa3D` = 29L
-`Contiki` = 30L
-`AMDPAL` = 31L
-`HermitCore` = 32L
-`Hurd` = 33L
-`WASI` = 34L
-`Emscripten` = 35L
-`LastOSType` = 35L
+`PS5` = 26L
+`ELFIAMCU` = 27L
+`TvOS` = 28L
+`WatchOS` = 29L
+`DriverKit` = 30L
+`Mesa3D` = 31L
+`Contiki` = 32L
+`AMDPAL` = 33L
+`HermitCore` = 34L
+`Hurd` = 35L
+`WASI` = 36L
+`Emscripten` = 37L
+`ShaderModel` = 38L
+`LastOSType` = 38L
 
 
 
@@ -880,9 +905,10 @@ FreeBSD = 5L, Fuchsia = 6L, IOS = 7L, KFreeBSD = 8L, Linux = 9L,
 Lv2 = 10L, MacOSX = 11L, NetBSD = 12L, OpenBSD = 13L, Solaris = 14L, 
 Win32 = 15L, ZOS = 16L, Haiku = 17L, Minix = 18L, RTEMS = 19L, 
 NaCl = 20L, AIX = 21L, CUDA = 22L, NVCL = 23L, AMDHSA = 24L, 
-PS4 = 25L, ELFIAMCU = 26L, TvOS = 27L, WatchOS = 28L, Mesa3D = 29L, 
-Contiki = 30L, AMDPAL = 31L, HermitCore = 32L, Hurd = 33L, WASI = 34L, 
-Emscripten = 35L, LastOSType = 35L)
+PS4 = 25L, PS5 = 26L, ELFIAMCU = 27L, TvOS = 28L, WatchOS = 29L, 
+DriverKit = 30L, Mesa3D = 31L, Contiki = 32L, AMDPAL = 33L, HermitCore = 34L, 
+Hurd = 35L, WASI = 36L, Emscripten = 37L, ShaderModel = 38L, 
+LastOSType = 38L)
 
 
 ##########################
@@ -909,7 +935,22 @@ Emscripten = 35L, LastOSType = 35L)
 `CoreCLR` = 19L
 `Simulator` = 20L
 `MacABI` = 21L
-`LastEnvironmentType` = 21L
+`Pixel` = 22L
+`Vertex` = 23L
+`Geometry` = 24L
+`Hull` = 25L
+`Domain` = 26L
+`Compute` = 27L
+`Library` = 28L
+`RayGeneration` = 29L
+`Intersection` = 30L
+`AnyHit` = 31L
+`ClosestHit` = 32L
+`Miss` = 33L
+`Callable` = 34L
+`Mesh` = 35L
+`Amplification` = 36L
+`LastEnvironmentType` = 36L
 
 
 
@@ -917,24 +958,29 @@ Emscripten = 35L, LastOSType = 35L)
 GNUEABI = 4L, GNUEABIHF = 5L, GNUX32 = 6L, GNUILP32 = 7L, CODE16 = 8L, 
 EABI = 9L, EABIHF = 10L, Android = 11L, Musl = 12L, MuslEABI = 13L, 
 MuslEABIHF = 14L, MuslX32 = 15L, MSVC = 16L, Itanium = 17L, Cygnus = 18L, 
-CoreCLR = 19L, Simulator = 20L, MacABI = 21L, LastEnvironmentType = 21L
-)
+CoreCLR = 19L, Simulator = 20L, MacABI = 21L, Pixel = 22L, Vertex = 23L, 
+Geometry = 24L, Hull = 25L, Domain = 26L, Compute = 27L, Library = 28L, 
+RayGeneration = 29L, Intersection = 30L, AnyHit = 31L, ClosestHit = 32L, 
+Miss = 33L, Callable = 34L, Mesh = 35L, Amplification = 36L, 
+LastEnvironmentType = 36L)
 
 
 ##########################
 
 `UnknownObjectFormat` = 0L
 `COFF` = 1L
-`ELF` = 2L
-`GOFF` = 3L
-`MachO` = 4L
-`Wasm` = 5L
-`XCOFF` = 6L
+`DXContainer` = 2L
+`ELF` = 3L
+`GOFF` = 4L
+`MachO` = 5L
+`SPIRV` = 6L
+`Wasm` = 7L
+`XCOFF` = 8L
 
 
 
- `ObjectFormatType`  = structure(0:6, .Names = c("UnknownObjectFormat", "COFF", "ELF", 
-"GOFF", "MachO", "Wasm", "XCOFF"))
+ `ObjectFormatType`  = structure(0:8, names = c("UnknownObjectFormat", "COFF", "DXContainer", 
+"ELF", "GOFF", "MachO", "SPIRV", "Wasm", "XCOFF"))
 
 
 ##########################
