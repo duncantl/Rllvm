@@ -58,7 +58,10 @@ convertRawPointerToR(void *p, const llvm::Type *type)
           passed down to here. 
         */
     /* The p here is wrong for a string pointer. */
-    const llvm::Type *elType = ((const llvm::PointerType*) type)->getElementType();
+#if 1 // POINTER_TYPE_HAS_GET_ELEMENT_TYPE            
+    const llvm::Type *elType;
+// ORIGINAL    elType = ((const llvm::PointerType*) type)->getElementType();
+    elType = type->getPointerElementType();
     llvm::Type::TypeID elID = elType->getTypeID();
     llvm::Type::TypeID ID = type->getTypeID();   
 //    fprintf(stderr, "ID = %d, elID = %d\n", ID, elID);
@@ -77,9 +80,12 @@ convertRawPointerToR(void *p, const llvm::Type *type)
             np++;
             for(i = 0 ; i < nels; i++)
                 REAL(ans)[i] = ((double *) p)[i];
-        } else if(elID == llvm::Type::PointerTyID && 
-                  ((const llvm::PointerType*) elType)->getElementType()->getTypeID() == llvm::Type::IntegerTyID) // XXX Should really check 1 byte integer.
-                                                                                                                 // llvm::Type::getInt8Ty()) 
+        } else if(elID == llvm::Type::PointerTyID &&
+                  (elType)->getPointerElementType()->getTypeID() == llvm::Type::IntegerTyID
+//                  ((const llvm::PointerType*) elType)->getElementType()->getTypeID() == llvm::Type::IntegerTyID
+                 )
+                      // XXX Should really check 1 byte integer.
+                      // llvm::Type::getInt8Ty()) 
         {
             const char **els = (const char **) p;
 
@@ -93,7 +99,7 @@ convertRawPointerToR(void *p, const llvm::Type *type)
         } else {
 
             PROBLEM "no code for convertRawPointerTo for type %d with pointers of type %d", elID,
-((const llvm::PointerType*) type)->getElementType()->getTypeID()
+((const llvm::PointerType*) type)->getPointerElementType()->getTypeID()
                 WARN;
         }
 
@@ -108,7 +114,12 @@ convertRawPointerToR(void *p, const llvm::Type *type)
            
        }
     }
-	
+#else
+
+    PROBLEM "currently no mechanism to pointer to LLVM pointer type" 
+        WARN;    
+    
+#endif    
     return(R_MakeExternalPtr(p, Rf_install("void*"), R_NilValue));
 }
 
@@ -178,6 +189,7 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
 
 // FIX - enhance to cover more situations.
     if(type->isPointerTy()) {
+#if POINTER_TYPE_HAS_GET_ELEMENT_TYPE        
       const llvm::Type *elType = ((const llvm::PointerType*) type)->getElementType();
        ty = elType->getTypeID();       
        bool ok = true;
@@ -249,8 +261,15 @@ convertRToGenericValue(llvm::GenericValue *rv, SEXP rval, const llvm::Type *type
             WARN;         
         }
         return(ok);
-     }
+#else
 
+        PROBLEM "currently no mechanism to convert R value (with typeof %d) to pointer type" , TYPEOF(rval)
+            ERROR;
+        return(false);
+#endif
+
+    }
+    
     ty = type->getTypeID();
     switch(ty) {
        case llvm::Type::IntegerTyID: {
@@ -401,7 +420,7 @@ R_internal_convertValueToR(llvm::Value *val)
 
         } else if(llvm::dyn_cast<llvm::ConstantExpr>(val)) {
             llvm::ConstantExpr *expr = llvm::dyn_cast<llvm::ConstantExpr>(val);
-            unsigned op = expr->getOpcode();
+            // unsigned op = expr->getOpcode();
             llvm::Value *val = expr->getOperand(0);
             return(R_internal_convertValueToR(val));
         } else if(llvm::dyn_cast<llvm::ConstantDataSequential>(val)) {
