@@ -42,6 +42,25 @@ if(FALSE) {
     stopifnot( identical(z,  sum(x*y)) )
 }
 
+if(FALSE) {
+    library(Rllvm)
+    source("mkCallProxy.R")
+    m = parseIR("explorations/proxyEg.ir")
+    proxy = mkCallProxy(m$bar)
+    b = getBlocks(proxy)
+
+    ee = ExecutionEngine(m)
+    fptr = getPointerToFunction(proxy, ee)@ref
+    sym = list(name = "", address = structure(fptr, class = "NativeSymbol"), dll = NULL)
+
+    #  x = seq(-1.5, 1.5, by = .1)
+    x = 1:10
+    y = seq_len(length(x)) + .5
+    z = .Call(sym, x, y, length(x))
+    stopifnot( identical(z[[1]],  sum(x*y)),
+               identical(x*y, z[[2]]))
+}
+
 
 mkCallProxy =
 function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
@@ -106,20 +125,25 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
         } else {
             # both return value and some may change so create an R list()
             # and insert the return value and the values that may have changed.
-            declareRRoutines(c("allocVector"), mod)
+            declareRRoutine(c("allocVector"), mod)
             if(!("SET_VECTOR_ELT" %in% names(mod)))
                 Function("SET_VECTOR_ELT", SEXPType, list(SEXPType, Int32Type, SEXPType), module = mod)
-                    
-            ret = ir$createCall(mod$Rf_allocVector, 19L, sum(mayChange) + 1L)
-            ir$createCall(mod$Rf_protect, ret)
+
+            ret = ir$createLocalVariable(SEXPType, "return")                    
+            retv = ir$createCall(mod$Rf_allocVector, 19L, sum(mayChange) + 1L)
+            ir$createStore(retv, ret)
+            ir$createCall(mod$Rf_protect, ir$createLoad(ret))
             inc = ir$binOp(BinaryOps["Add"], ir$createLoad(nprotect), makeConstant(ir, 1L))
             ir$createStore( inc,  nprotect )
             
-            rval = convertReturnValue(val)
-            ir$createCall(mod$SET_VECTOR_ELT, re, 0L, rval)
+            rval = convertReturnValue(val, ir, mod)
+            ir$createCall(mod$SET_VECTOR_ELT, ir$createLoad(ret), 0L, rval)
+
             mapply(function(a, i)
-                ir$createCall(mod$SET_VECTOR_ELT, re, i, ir$createLoad(a)),
-                args[mayChange], seq_len(sum(mayChange)))
+                ir$createCall(mod$SET_VECTOR_ELT, ir$createLoad(ret), i, ir$createLoad(a)),
+                ptrArgs[mayChange], seq_len(sum(mayChange)))
+
+            ret = ir$createLoad(ret)
         }
     }
     
@@ -227,13 +251,20 @@ convertReturnValue =
 function(val, ir, mod)    
 {
     ty = getType(val)
-    #    browser()
-#XXX    
-    if(!("Rf_ScalarReal" %in% names(mod)))
-        Function("Rf_ScalarReal", SEXPType, DoubleType, module = mod)
+
+    if(sameType(ty, DoubleType)) {
+        if(!("Rf_ScalarReal" %in% names(mod)))
+            Function("Rf_ScalarReal", SEXPType, DoubleType, module = mod)
             
-    ir$createCall(mod$Rf_ScalarReal, val)
+        ir$createCall(mod$Rf_ScalarReal, val)
+    } else if(sameType(ty, Int32Type)) {
+        if(!("Rf_scalarInteger" %in% names(mod)))
+            Function("Rf_ScalarInteger", SEXPType, Int32Type, module = mod)
+            
+        ir$createcall(mod$Rf_ScalarInteger, val)
+    }
 }
+
 
 
 
