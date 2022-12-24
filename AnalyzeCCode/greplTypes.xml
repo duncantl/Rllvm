@@ -1,6 +1,6 @@
 <section
     xmlns:c="http://www.C.org"
-    xmlns:ir="http://llvm.org/ir"
+    xmlns:ir="http://llvm.org/IR"
     xmlns:r="http://www.r-project.org"
     xmlns:sh="http://www.shell.org">
 <title>Determining the Types of the <r:func>grepl</r:func> Function</title>
