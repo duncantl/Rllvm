@@ -218,6 +218,9 @@ function(builder, val, ptr, volatile = FALSE)
 createLoad =
 function(builder, val, isVolatile = FALSE, id = character(), type = NULL)
 {
+    if(is.null(type))
+        type = getElementType(getType(val))
+    
   .Call("R_IRBuilder_CreateLoad", builder, val, as.logical(isVolatile), as.character(id), type)
 }
 
@@ -229,9 +232,8 @@ function(builder, val, index, id = character(), type = NULL)
          index = as.list(index)
     else if (!is.list(index))
         index = list(index)
-
-  index =
-    lapply(index, function(idx) {
+ 
+    index = lapply(index, function(idx) {
                    if (isBasicType(idx)) {
                        if(is.na(idx))
                            stop("index for GEP cannot be NA")
@@ -247,8 +249,32 @@ function(builder, val, index, id = character(), type = NULL)
                    }
     })
 
-  .Call("R_IRBuilder_CreateGEP", builder, val, index, as.character(id), type)
+    if(is.null(type)) 
+        type = getTargetType(getType(val), index)
+
+    
+    .Call("R_IRBuilder_CreateGEP", builder, val, index, as.character(id), type)
 }
+
+
+getTargetType =
+function(type, index)    
+{
+    if(is(type, "GlobalVariable"))
+        type = getType(type)
+
+    ty = type
+    for(i in index[-1]) {
+#        browser()
+        #XXX handle elements in struct 
+        ty = getElementType(type)        
+        pos = as(i, "integer")
+    }
+    ty
+}
+
+
+    
 
 setGeneric("isInBounds", function(x, ...) standardGeneric("isInBounds"))
 setMethod("isInBounds", "Value",
@@ -500,7 +526,8 @@ function(ir)
 
 
 parseIR =
-function(content, context = NULL, asText = is(content, "AsIs") || !file.exists(content))
+function(content, context = NULL, asText = is(content, "AsIs")) #  || !file.exists(content))
+                                                 # If file doesn't exist but we parse it as text in LLVM 15, we may crash
 {
     kall = sys.call()
     masText = missing(asText)
