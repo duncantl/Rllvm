@@ -56,27 +56,30 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
     
     args = vector("list", length(oparams))
 
+    ptrArgs = list()
     if(any(isPtr)) {
         #        blocks = replicate( sum(isPtr) + 1L, Block(nfun))
         blocks = c(lapply(names(oparams)[isPtr], function(id) Block(nfun, id)), Block(nfun, "call"))
         ir$createBranch(blocks[[1]])
         
-        args[isPtr] = mapply(processPointerArg, params[isPtr], oparams[isPtr], blocks[-length(blocks)], blocks[-1],
+        ptrArgs = mapply(processPointerArg, params[isPtr], oparams[isPtr], blocks[-length(blocks)], blocks[-1], names(oparams)[isPtr],
                              MoreArgs = list(mod = mod, nprotect = nprotect, fun = nfun, ir = ir))
+
+        args[isPtr] = mapply(coerceToPtr, ptrArgs, oparams[isPtr], MoreArgs = list(mod = mod, ir = ir))
     }
     args[!isPtr] = mapply(processArg, params[!isPtr], oparams[!isPtr], MoreArgs = list(mod = mod, ir = ir))
     
     
     val = ir$createCall( fun, .args = args)
-
     
     # return value(s)
 
     if(hasReturn || any(mayChange)) {
 #        browser()
         if(!hasReturn && sum(mayChange) == 1) {
-            # Do we need local variables for values we create via duplicate/coerceVector tht we need to also return.
-            ret = args[mayChange][[1]]
+            # Do we need local variables for values we create via duplicate/coerceVector that we need to also return.
+#browser()            
+#            ret = ir$createLoad(args[mayChange][[1]])
         } else if(!any(mayChange)) {
             ret = convertReturnValue(val, ir)
         } else {
@@ -94,7 +97,7 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
             rval = convertReturnValue(val)
             ir$createCall(mod$SET_VECTOR_ELT, re, 0L, rval)
             mapply(function(a, i)
-                ir$createCall(mod$SET_VECTOR_ELT, re, i, a),
+                ir$createCall(mod$SET_VECTOR_ELT, re, i, ir$createLoad(a)),
                 args[mayChange], seq_len(sum(mayChange)))
         }
     }
@@ -104,6 +107,7 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
         ir$createCall(mod$Rf_unprotect, ir$createLoad(nprotect))
     }
 
+    ret = ir$createLoad(ptrArgs[mayChange][[1]])    
     ir$createReturn(ret)
 
     nfun
@@ -111,7 +115,7 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
 
 
 processPointerArg =
-function(p, oparam, startBlock, endBlock, mod, nprotect, fun = as(p, "Function"), ir)
+function(p, oparam, startBlock, endBlock, paramName, mod, nprotect, fun = as(p, "Function"), ir)
 {
     funs = declareRRoutine(c("coerceVector", "duplicate", "typeof"), mod)
 
@@ -146,17 +150,22 @@ function(p, oparam, startBlock, endBlock, mod, nprotect, fun = as(p, "Function")
     addIncoming(phi, dup, b2)
     addIncoming(phi, coerce, b3)
 
+    var = ir$createLocalVariable(SEXPType, paste0(paramName, "_l"))
+    ir$createStore(phi, var)
+    
     if(!is.null(nprotect)) {
        # call protect and increment nprotect
-        ir$createCall(mod$Rf_protect, phi)
+        ir$createCall(mod$Rf_protect, var) # phi)
         inc = ir$binOp(BinaryOps["Add"], ir$createLoad(nprotect), makeConstant(ir, 1L))
         ir$createStore( inc,  nprotect )
 
-        ir$createCall(mod$Rf_PrintValue, phi)
+        ir$createCall(mod$Rf_PrintValue, ir$createLoad(var))
     }
-    
 
-    phi
+
+
+    var
+#    phi
 }
 
 processArg =
@@ -169,6 +178,21 @@ function(p, oparam, mod, ir, nprotect = NULL)
     fun = declareRRoutine(op, mod)
     ir$createCall( fun[[1]], p )
 }
+
+DataAccessorMap = c(IntegerTyID = "INTEGER", DoubleTyID = "REAL")
+coerceToPtr =
+function(val, p, mod, ir)
+{
+    tid = getTypeID(getElementType(getType(p)))
+    fun = DataAccessorMap[names(tid)]
+
+    switch(fun,
+           INTEGER = Function("INTEGER", pointerType(Int32Type), list(SEXPType), module = mod),
+           REAL = Function("REAL", pointerType(DoubleType), list(SEXPType), module = mod))
+           
+    ir$createCall( mod[[ fun ]] , ir$createLoad(val) )
+}
+
 
 ##########
 SEXPTypes = c(DoubleTyID = 14L,  IntegerTyID = 13L)
