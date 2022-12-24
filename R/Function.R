@@ -306,14 +306,37 @@ function(func, ..., .attrs = list(...))
 {
     names = names(.attrs)
     isNum = sapply(.attrs, is, "numeric")
-
+    
     if(!all(isNum)) {
-        if(length(names) == 0 || any(names[!isNum] == ""))
-            stop("any character attribute needs a name")
+        # For non-integer/numeric values, if they have no name
+        # map them to an integer. This allows "NoCapture", "NoUnwind", etc.
+        # Then put them back into the isNum and process only the name=value pairs
+        # after this within this if() block.
+        vals = .attrs[!isNum]
+        if(length(names(vals)) == 0)
+            w = rep(TRUE, length(vals))
+        else
+            w = names(vals) == ""
 
+        if(any(w)) {
+            tmp = matchFuncAttributes(vals[w])
+            if(any(is.na(tmp)))
+                stop("didn't recognize function attribute(s): ", vals[w][is.na(tmp)])
 
-        vals = sapply(.attrs, function(x) as.character(x)[1])
-        .Call("R_Function_setAttributes_strings", func, vals, names[!isNum])
+            vals = vals[!w]
+            .attrs[!isNum][w] = tmp
+            isNum[w] = TRUE
+        }
+                                
+        
+#        if(length(names) == 0 || any(names[!isNum] == ""))
+#            stop("any character attribute needs a name")
+            
+        if(length(vals)) {
+            vals = sapply(vals, function(x) as.character(x)[1])
+            .Call("R_Function_setAttributes_strings", func, vals, names[!isNum])
+        }
+
     }
 
     if(any(isNum)) 
