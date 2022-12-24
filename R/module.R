@@ -192,9 +192,10 @@ setMethod("$", c("Module"),
              getModuleFunctions(x)[[name]]  # global variables?
            })
 
-setAs("Function", "Module",
-      function(from)
-        getModule(from))
+# In Function.R
+#setAs("Function", "Module",
+#      function(from)
+#        getModule(from))
 
 
 
@@ -367,6 +368,7 @@ function(fun, module = as(fun, "Module"), id = getName(fun), body = FALSE, modul
   
   f2 = Function(id, retType, paramTypes, module = module)
   if(body && length(getBlocks(fun)))
+      # XXX  the moduleLevelChanges is an enum as of LLVM 13, not a logical value.
       .Call("R_CloneFunctionInto", fun, f2, as.logical(moduleLevelChanges))
   
   f2
@@ -390,7 +392,7 @@ setMethod("getType", c("Module"), # "character"),
 
 
 
-if(TRUE) {
+if(FALSE) {
     # See Todo.xml to allow showing names of different types of objects in the module
     #  defined routines, non-constants, etc.
 if(!isGeneric("ls"))
@@ -398,7 +400,15 @@ if(!isGeneric("ls"))
 
 setMethod("ls", "ANY",
           function(name, ...)
-              base::ls(name, ...))
+            base::ls(name, ...))
+
+setMethod("ls", "missing",
+          function(name, ...)  {
+              frames = sys.frames()
+              if(length(frames) == 1)  base::ls(globalenv())
+              else
+                  base::ls(frames[[length(frames) - 1L]])
+          })
 
 setMethod("ls", "Module",
           # add variablesOnly or variables and functions
