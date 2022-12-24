@@ -147,6 +147,9 @@ upgradeTypeClass =
     #
 function(obj)    
 {
+    if(is.null(obj))
+        return(NULL)
+    
     k = .Call("R_getLLVMTypeClassName", obj)
     if(k == "Type") {
          # didn't get a more specific type
