@@ -39,8 +39,12 @@ if(TRUE) {
     type = ir$createCall(typeof, pr[[1]])
     typeCond = ir$createICmp(ICMP_EQ, type, ir$createConstant(14L))
     
-    # Does this evaluate both sides of the ternary regardless?
-    #    xc = ir$createSelect(typeCond, ir$createCall(duplicate, pr[[1]]), ir$createCall(coerceVector, pr[[1]], 14L))
+    # Does the Select evaluate both sides of the ternary regardless? Appears to.
+    # 
+select = FALSE
+if(select)    
+    phi = xc = ir$createSelect(typeCond, ir$createCall(duplicate, pr[[1]]), ir$createCall(coerceVector, pr[[1]], 14L))
+else {    
     b2 = Block(rr$fun, "dup")
     b3 = Block(rr$fun, "coerce")
     b4 = Block(rr$fun, "do")
@@ -63,6 +67,7 @@ if(TRUE) {
 
     addIncoming(phi, dup, b2)
     addIncoming(phi, coerce, b3)    
+}
     
     x2 = ir$createCall(REAL, phi)
     len = ir$createCall(asInteger, pr[[2]])
@@ -107,9 +112,9 @@ x = seq(-1.5, 1.5, by = .1)
 #print(getBlocks(rr$fun))  # R_v_dnorm
 
 if(FALSE) {
-y = .llvm( rr$fun, x, length(x), 0, 1, .ffi = cif)
+    y = .llvm( rr$fun, x, length(x), 0, 1, .ffi = cif)
 
-y = .Call(fptr, x, length(x), 0, 1)
+    y = .Call(fptr, x, length(x), 0, 1)
 }
 
 fptr = getPointerToFunction(rr$fun, ee)@ref
