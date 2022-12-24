@@ -855,9 +855,13 @@ getLLVMGlobalContext()
 {
     if(!gcontext) {
        gcontext = new llvm::LLVMContext();
-       if(!gcontext)
+       
+       if(!gcontext) {
            PROBLEM "cannot create an LLVMContext"
            ERROR;
+       }
+
+       gcontext->setOpaquePointers(false);
     }
 
     return(*gcontext);
