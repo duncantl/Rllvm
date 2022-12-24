@@ -332,9 +332,14 @@ R_Type_getPointerElementType(SEXP r_type)
     llvm::Type::TypeID id = ty->getTypeID();
     if(id == llvm::Type::ArrayTyID) 
         ans = ty->getArrayElementType();
-    else if(id == llvm::Type::PointerTyID)
+    else if(id == llvm::Type::PointerTyID) {
+#if 1    // POINTER_TYPE_HAS_GET_ELEMENT_TYPE                   
         ans = ty->getPointerElementType();
-    else if(id == llvm::Type::ArrayTyID)
+#else
+        PROBLEM "no getPointerElementType() method in this version of LLVM"
+            ERROR;
+#endif        
+    } else if(id == llvm::Type::ArrayTyID)
         ans = ty->getArrayElementType();
     else {
         PROBLEM "can't get type of element of this type"
@@ -573,4 +578,17 @@ R_StructType_getTypeAtIndex(SEXP r_type, SEXP r_index)
     LDECL2(StructType, type);
     llvm::Type *elType = type->getTypeAtIndex(INTEGER(r_index)[0]);
     return(elType ? R_createTypeRef(elType, "Type") : R_NilValue);
+}
+
+
+
+
+extern "C"
+SEXP
+R_PointerType_hasSameElementTypeAs(SEXP r_type, SEXP r_other)
+{
+    llvm::PointerType *type = GET_REF(r_type, PointerType);
+    llvm::PointerType *other = GET_REF(r_other, PointerType);    
+    bool ans = type->hasSameElementTypeAs(other);
+    return(ScalarLogical(ans));
 }
