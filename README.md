@@ -3,16 +3,22 @@
 **Updated for LLVM 15**
 
 RLLVM is an R interface to [LLVM](http://llvm.org). This interface
-allows one to dynamically create and invoke compiled code from within R through LLVM's
-intermediate representation (IR), which LLVM can then extensively and
-efficiently optimize.
+allows one to 
 
-The package also facilitates analyzing native code.
++ dynamically create native machine code
++ invoke native/compiled code 
++ analyze native code from C/C++/FORTRAN code
+
+We generate native code via R commands and 
+intermediate representation (IR), which LLVM can then extensively and
+efficiently optimize and generate native code.
+
 
 For examples, see [explorations](explorations), [experiments](experiments) and [tests](tests) directories.
 
 
 The current repository builds against LLVM 15, 14, 13, 12, 11, 10, 9, ..., 3.5, 3.6, 3.7, and 3.8.
+
 Importantly, versions of LLVM default to the MCJIT execution engine.
 This unfortunately has very limited ability to invoke routines compiled via Rllvm,
 i.e., using the .llvm() and run() functions.   Acccordingly, we have implemented a
