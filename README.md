@@ -12,9 +12,8 @@ The package also facilitates analyzing native code.
 For examples, see [explorations](explorations), [experiments](experiments) and [tests](tests) directories.
 
 
-
-The current repository builds against LLVM 11, 10, 9, ..., 3.5, 3.6, 3.7, and 3.8.
-Importantly, recent versions of LLVM default to the MCJIT execution engine.
+The current repository builds against LLVM 15, 14, 13, 12, 11, 10, 9, ..., 3.5, 3.6, 3.7, and 3.8.
+Importantly, versions of LLVM default to the MCJIT execution engine.
 This unfortunately has very limited ability to invoke routines compiled via Rllvm,
 i.e., using the .llvm() and run() functions.   Acccordingly, we have implemented a
 reasonably comprehensive mechanism to invoke these routines.
@@ -29,7 +28,7 @@ These packages are not on CRAN.
 
 Related packages are [Rffi](https://github.com/omegahat/Rffi), Rllvm (this one),
 [RLLVMCompile](https://github.com/duncantl/RLLVMCompile),
-[R2llvm](https://github.com/duncantl/RLLVMCompile),
+[RLLVMCompile](https://github.com/duncantl/RLLVMCompile),
 [RCUDA](https://github.com/duncantl/RCUDA),
 [RCIndex](https://github.com/omegahat/RClangSimple),
 [NativeCodeAnalysis](https://github.com/duncantl/NativeCodeAnalysis).
@@ -39,8 +38,6 @@ Related packages are [Rffi](https://github.com/omegahat/Rffi), Rllvm (this one),
 
 See [INSTALL.md](INSTALL.md)
 
-
-<!--
 On OSX, when working with binary versions of LLVM or versions built from source, 
 some of the dynamic libraries (dylib) may not correctly point to the libc++.1.dylib
 leading to a failure to load the Rllvm.so library.
@@ -52,7 +49,8 @@ to fix the `src/Rllvm.so`.
 
 We can detect this either a) from the error message when R tries to load the package and its .so,
 or b) using `otool -L src/Rllvm.so`.
--->
+
+
 
 ## URLs
 
