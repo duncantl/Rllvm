@@ -4,7 +4,9 @@
 #
 # Do we need the local variables ?
 #
-# 1. mutated arguments and return value
+# 1. √ mutated arguments and return value
+#      bar
+#
 # 1. don't duplicate if read-only
 #
 
@@ -169,28 +171,38 @@ function(p, oparam, startBlock, endBlock, paramName, mod, nprotect, fun = as(p, 
     #XXX If not writing into oparam in the original routine, don't duplicate.
     ty = getElementType(getType(oparam))
     sexptype = getSEXPType(ty)
+    ro = onlyReadsMemory(oparam)
     
     type = ir$createCall(mod$TYPEOF, p)
     typeCond = ir$createICmp(ICMP_EQ, type, ir$createConstant(sexptype))
     
-    b2 = Block(fun, paste0(getName(startBlock, ".duplicate")))
+    if(ro)
+        b2 = endBlock
+    else
+        b2 = Block(fun, paste0(getName(startBlock, ".duplicate")))                
+
     b3 = Block(fun, paste0(getName(startBlock, ".coerceVector")))
     ir$createCondBranch(typeCond, b2, b3)
 
-    # Create the duplicate() block
-    ir$setInsertBlock(b2)
-    dup = ir$createCall(mod$Rf_duplicate, p)
-    ir$createBranch(endBlock)        
+    if(!ro) {
+        # Create the duplicate() block
+        ir$setInsertBlock(b2)
+        dup = ir$createCall(mod$Rf_duplicate, p)
+        ir$createBranch(endBlock)        
+    } else
+        dup = p
+    
 
     # Create the coerceVector block
     ir$setInsertBlock(b3)
     coerce = ir$createCall(mod$Rf_coerceVector, p, sexptype)
     ir$createBranch(endBlock)
 
+    
     # Add the PHI node to the endBlock
     ir$setInsertBlock(endBlock)
     phi = ir$createPHI( SEXPType, 2L )
-    addIncoming(phi, dup, b2)
+    addIncoming(phi, dup, if(!ro) b2 else startBlock)
     addIncoming(phi, coerce, b3)
 
     var = ir$createLocalVariable(SEXPType, paste0(paramName, "_l"))
