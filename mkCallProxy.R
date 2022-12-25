@@ -1,4 +1,10 @@
 #
+# This creates a proxy/wrapper routine in a given module so that we can call the original
+# routine in the module using .Call(). This allows us to avoid the .llvm() function and the
+# Rffi package. The computations mirror what is done in .llvmFunction() but are not done dynamically with reflection.
+#
+#
+#
 # Perhaps create the pseudo code in R and then "compile" that with RLLVMCompile?
 #
 #  bar = function(x, y, length(x))
@@ -13,13 +19,29 @@
 #     total = bar(INTEGER(x), REAL(y), INTEGER(length(x)))
 #     list(ScalarReal(total), y)
 #  }
+#
+# x is read-only, so no need to duplicate() it
+# y is written to by bar(), so need to duplicate it.
+#
+#
+#
 
-# Do we need the local variables ?
+# 1. Do we need the local variables ?
+#    No. Can get rid of the one for the list() (INTSXP = 19) at least and just return the Value where we create that.
+#     The optimizer removes it for us.
+#
+# 1. Only handles int * and double * for now.
+#
+# 1. Doesn't convert back to logicals yet, just integers.
+#
+# 1. when not duplicate'ing, don't need to PROTECT() the original argument
+#    + put the PROTECT() in the coerceVector block
 #
 # 1. √ mutated arguments and return value
-#      bar
+#      e.g., proxyEg.c::bar()
 #
 # 1. √ don't duplicate if read-only
+#      e.g., x parameter in proxyEg.c::bar()
 #
 
 if(FALSE) {
@@ -31,10 +53,12 @@ if(FALSE) {
 
     ee = ExecutionEngine(m)
     fptr = getPointerToFunction(proxy, ee)@ref
-    sym = list(name = "R_v_dnorm", address = structure(fptr, class = "NativeSymbol"), dll = NULL)
+    sym = list(name = "r_v_dnorm", address = structure(fptr, class = "NativeSymbol"), dll = NULL)
 
     x = seq(-1.5, 1.5, by = .1)
     y = .Call(sym, x, length(x), 0.1, 1.2)
+    fun = function(x, mu, sd) { tmp = (x-mu)/sd; 1/(sd*2.506628)*exp(-.5*tmp*tmp)}
+    stopifnot(identical(y, fun(x, .1, 1.2)))
 }
 
 
@@ -84,11 +108,14 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
     
     oparams = getParameters(fun)
 
+    # put names on the parameters so we can put names on the different blocks processing each argument.
     if(any(w <- is.na(names(oparams))))
          # names(oparams)[w] = ... doesn't work.
         oparams@names[w] = paste0("arg", which(w))
     
-    
+
+    # Which parameters might the original routine write into and modify and which we may potentially want these
+    # modifications as return values.
     mayChange = sapply(oparams, function(p) isPointerType(getType(p)) && !onlyReadsMemory(p))
 
     # Create the proxy function with as many parameters as in the original fun
@@ -103,13 +130,19 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
     nptr = sum(isPtr) + hasReturn
     
     if(nptr > 0) {
-        declareRRoutine(c("protect", "unprotect"), mod)
+        # Create a variable named nprotect which will hold the count of the number
+        # of R objects we create and need to PROTECT()
+        declareRRoutine(c("Rf_protect", "Rf_unprotect"), mod)
         nprotect = ir$createLocalVariable(Int32Type, "nprotect")
-        ir$createStore( 0L, nprotect)
+        ir$createStore( 0L, nprotect)  # initialize to 0
     } else
         nprotect = NULL
 
-    
+
+    # We'll have a list of arguments for the call to the original routine
+    # The arguments corresponding to parameters that are pointers need to be
+    # duplicated or coerced.
+    # The others (scalars) need to be unboxed from the SEXP.
     args = vector("list", length(oparams))
 
     ptrArgs = list()
@@ -122,12 +155,20 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
 
         args[isPtr] = mapply(coerceToPtr, ptrArgs, oparams[isPtr], MoreArgs = list(mod = mod, ir = ir))
     }
+
+    # The non pointer arguments.
     args[!isPtr] = mapply(processArg, params[!isPtr], oparams[!isPtr], MoreArgs = list(mod = mod, ir = ir))
     
-    
+
+    # Call the original routine.
     val = ir$createCall( fun, .args = args)
     
-    # return value(s)
+
+    # Package up the return value(s)
+    # If any pointer parameter may have been changed, include that.
+    # If there is a return value from the original routine, include that.
+    # If there is only one of these, return that directly.
+    # Otherwise, put them into a list.
 
     if(hasReturn || any(mayChange)) {
 
@@ -139,7 +180,7 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
         } else {
             # both return value and some may change so create an R list()
             # and insert the return value and the values that may have changed.
-            declareRRoutine(c("allocVector"), mod)
+            declareRRoutine(c("Rf_allocVector"), mod)
             if(!("SET_VECTOR_ELT" %in% names(mod)))
                 Function("SET_VECTOR_ELT", SEXPType, list(SEXPType, Int32Type, SEXPType), module = mod)
 
@@ -164,7 +205,6 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
     if(!is.null(nprotect)) 
         ir$createCall(mod$Rf_unprotect, ir$createLoad(nprotect))
 
-
     ir$createReturn(ret)
 
     nfun
@@ -174,7 +214,7 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
 processPointerArg =
 function(p, oparam, startBlock, endBlock, paramName, mod, nprotect, fun = as(p, "Function"), ir)
 {
-    funs = declareRRoutine(c("coerceVector", "duplicate", "typeof"), mod)
+    funs = declareRRoutine(c("Rf_coerceVector", "Rf_duplicate", "TYPEOF"), mod)
 
     ir$setInsertBlock(startBlock)        
 
@@ -229,10 +269,7 @@ function(p, oparam, startBlock, endBlock, paramName, mod, nprotect, fun = as(p, 
         ## Debugging: ir$createCall(mod$Rf_PrintValue, ir$createLoad(var))
     }
 
-
-
     var
-#    phi
 }
 
 processArg =
@@ -240,8 +277,8 @@ function(p, oparam, mod, ir, nprotect = NULL)
 {
     ty = getType(oparam)
     tid = names(getTypeID(ty))
-    op = c(IntegerTyID = "asInteger",
-           DoubleTyID = "asReal")[tid]
+    op = c(IntegerTyID = "Rf_asInteger",
+           DoubleTyID = "Rf_asReal")[tid]
     fun = declareRRoutine(op, mod)
     ir$createCall( fun[[1]], p )
 }
@@ -290,9 +327,6 @@ function(val, ir, mod)
 }
 
 
-
-
-
 ###############
 
 declareRRoutine =
@@ -300,34 +334,38 @@ function(ids, mod)
 {
     tmp = ids[ !(ids %in%  names(mod)) ]        
     mapply(function(id, info)  {
-             if(length(info) > 2)
-                 id = info[[3]]
-             else
-                 id = paste0("Rf_", id)
+             #if(length(info) > 2)
+             #    id = info[[3]]
+             #else
+             #    id = paste0("Rf_", id)
              
              Function(id, info[[1]], info[[2]], module = mod)
             }, tmp, RAPIRoutines[tmp])
 
 
-    mod[ paste0("Rf_", ids ) ]
+    mod[ ids ] # paste0("Rf_", ids ) 
 }
 
 
 RAPIRoutines = list(    
-  asInteger = list(Int32Type, list(SEXPType)),
-  asReal = list(DoubleType, list(SEXPType)),
-  coerceVector = list(SEXPType, list(SEXPType, Int32Type)),
+  Rf_asInteger = list(Int32Type, list(SEXPType)),
+  Rf_asReal = list(DoubleType, list(SEXPType)),
+  Rf_coerceVector = list(SEXPType, list(SEXPType, Int32Type)),
   REAL = list(pointerType(DoubleType), list(SEXPType)),
   INTEGER = list(pointerType(Int32Type), list(SEXPType)),
-  duplicate = list(SEXPType, list(SEXPType)),
-  protect = list(SEXPType, list(SEXPType)),
-  unprotect = list(VoidType, list(Int32Type)),
-  typeof = list(Int32Type, list(SEXPType), "TYPEOF"),
-  PrintValue = list(VoidType, list(SEXPType)),
-  allocVector = list(SEXPType, list(Int32Type, Int32Type)),
-  allocVector3 = list(SEXPType, list(Int32Type, Int32Type, pointerType(VoidType))),
-  ScalarInteger = list(SEXPType, list(Int32Type)),
-  ScalarLogical = list(SEXPType, list(Int32Type)),
-  ScalarReal = list(SEXPType, list(DoubleType))
+  Rf_duplicate = list(SEXPType, list(SEXPType)),
+  Rf_protect = list(SEXPType, list(SEXPType)),
+  Rf_unprotect = list(VoidType, list(Int32Type)),
+  TYPEOF = list(Int32Type, list(SEXPType), "TYPEOF"),
+  Rf_PrintValue = list(VoidType, list(SEXPType)),
+  Rf_allocVector = list(SEXPType, list(Int32Type, Int32Type)),
+  Rf_allocVector3 = list(SEXPType, list(Int32Type, Int32Type, pointerType(VoidType))),
+  Rf_ScalarInteger = list(SEXPType, list(Int32Type)),
+  Rf_ScalarLogical = list(SEXPType, list(Int32Type)),
+  Rf_ScalarReal = list(SEXPType, list(DoubleType))
 )
+
+
+# Generated in TU/rapi.R
+# source("RAPIRoutineTypes.R")
 
