@@ -1,13 +1,25 @@
 #
-# Perhaps create the pseudo code in R and then "compile"
-# that.
+# Perhaps create the pseudo code in R and then "compile" that with RLLVMCompile?
 #
+#  bar = function(x, y, length(x))
+#  {
+#     if(typeof(x) != INTSXP)
+#         x = coerceVector(x, INTSXP)
+#     if(typeof(y) != REALSXP)
+#         y = coerceVector(y, REALSXP)
+#     else
+#         y = duplicate(y)
+#  
+#     total = bar(INTEGER(x), REAL(y), INTEGER(length(x)))
+#     list(ScalarReal(total), y)
+#  }
+
 # Do we need the local variables ?
 #
 # 1. √ mutated arguments and return value
 #      bar
 #
-# 1. don't duplicate if read-only
+# 1. √ don't duplicate if read-only
 #
 
 if(FALSE) {
