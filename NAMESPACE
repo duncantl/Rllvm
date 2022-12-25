@@ -903,3 +903,8 @@ export(isGEPWithNoNotionalOverIndexing)
 
 
 export(getDefinedRoutines)
+
+
+export(setOpaquePointers)
+
+export(mkCallProxy)
