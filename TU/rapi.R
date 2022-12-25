@@ -15,7 +15,7 @@ function(r)
 
 sigs = lapply(routines, mkSigInfo)
 
-dsort(table(unlist(sigs)))
+tt = dsort(table(unlist(sigs)))
 
 RTypeMap = 
 c("SEXP" = "SEXPType",
@@ -36,8 +36,8 @@ c("SEXP" = "SEXPType",
   "const Rbyte *" = "pointerType(Int8Type)",
   "Rbyte *" = "pointerType(Int8Type)",  
   "Rbyte" = "Int8Type",   # 
-  "const Rcomplex *" = "pointerType()",
-  "Rcomplex *" = "pointerType()",  
+  "const Rcomplex *" = "pointerType(Int64Type)",
+  "Rcomplex *" = "pointerType(Int64Type)",  
   "Rcomplex" = NA,   # 16 bytes
   "R_hashtab_type" = NA, # 8 bytes
   "SEXP *" = "pointerType(SEXPType)",
@@ -46,27 +46,29 @@ c("SEXP" = "SEXPType",
   "DL_FUNC" = "pointerType(VoidType)",
   "SEXPTYPE" = "Int32Type",
   "const char **"= NA,
-  "SEXP (*)(void *)"= NA,
-  "R_inpstream_t"= NA,
-  "R_pstream_format_t"= NA,
-  "SEXP (*)(SEXP, SEXP)"= NA,
-  "R_CFinalizer_t"= NA,
-  "R_outpstream_t"= NA,
-  "SEXP (*)(SEXP, void *)"= NA,
-  "void (*)(void *)"= NA,
-  "R_pstream_data_t"= NA,
-  "int (*)(R_inpstream_t)"= NA,
-  "nchar_type"= NA,
-  "PROTECT_INDEX"= NA,
-  "PROTECT_INDEX *"= NA,
-  "R_allocator_t *"= NA,
-  "void (*)(R_inpstream_t, void *, int)"= NA,
-  "void (*)(R_outpstream_t, int)"= NA,
-  "void (*)(R_outpstream_t, void *, int)"= NA,
-  "void (*)(SEXP, SEXP, void *)"= NA,
-  "void (*)(void *, Rboolean)" = NA
+  "SEXP (*)(void *)"=  "pointerType(VoidType)",
+  "R_inpstream_t"= "pointerType(VoidType)",
+  "R_pstream_format_t"= "Int32Type", # enum
+  "SEXP (*)(SEXP, SEXP)"= "pointerType(VoidType)",
+  "R_CFinalizer_t"= "pointerType(VoidType)",
+  "R_outpstream_t"= "pointerType(VoidType)",
+  "SEXP (*)(SEXP, void *)"=  "pointerType(VoidType)",
+  "void (*)(void *)"= "pointerType(VoidType)",
+  "R_pstream_data_t"= "pointerType(VoidType)",
+  "int (*)(R_inpstream_t)"= "pointerType(VoidType)",
+  "nchar_type"= "Int32Type",  # enum
+  "PROTECT_INDEX" = "Int32Type",
+  "PROTECT_INDEX *" = "pointerType(Int32Type)",
+  "R_allocator_t *" = "pointerType(VoidType)",  
+  "void (*)(R_inpstream_t, void *, int)" = "pointerType(VoidType)", 
+  "void (*)(R_outpstream_t, int)" = "pointerType(VoidType)",
+  "void (*)(R_outpstream_t, void *, int)"= "pointerType(VoidType)",
+  "void (*)(SEXP, SEXP, void *)"= "pointerType(VoidType)",
+  "void (*)(void *, Rboolean)" = "pointerType(VoidType)"
  )
 
+if(length(other <- setdiff(names(tt), names(RTypeMap))) > 0)
+    print(other)
 
 mapType =
 function(x, map)
@@ -81,7 +83,6 @@ function(x, map = RTypeMap)
 
 sigs2 = lapply(sigs, mkSigInfo2)
 
-saveRDS(sigs2, "RAPIRoutineSignatures.rds")
 
 makeSym = function(x) {
     ans = lapply(x, function(x) lapply(x, as.name))
@@ -96,16 +97,21 @@ normalizeSpace =
 function(x)
     gsub(" +", " ", x)
 
+
+####
+# Output
+
 i = seq(along = sigs2)
-i = match(v, names(sigs2))
-cat("RAPIRoutines = list(",
+
+cat("getRAPIRoutineSignatures = function()\n list(",
     normalizeSpace( paste(mapply(function(id, v)
          sprintf("'%s' = %s", id, paste(deparse(v), collapse = "")) ,
          names(sigs3)[i], sigs3[i]), collapse = ",\n")),
     ")", sep = "\n\n",
-    file = "../RAPIRoutineTypes.R"
+    file = "../R/RAPIRoutineSignatures.R"
     )
 
+saveRDS(sigs2, "RAPIRoutineSignatures.rds")
 
 
 
