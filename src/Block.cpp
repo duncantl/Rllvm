@@ -251,7 +251,7 @@ SEXP
 R_BasicBlock_getPredecessors(SEXP r_block)
 {
     llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
-    llvm::BasicBlock *pre;
+
     int n = 0, i;
 #if 0    
     llvm::BasicBlock::iterator ib, ie;    
@@ -284,7 +284,7 @@ SEXP
 R_BasicBlock_getSuccessors(SEXP r_block)
 {
     llvm::BasicBlock *block = GET_REF(r_block, BasicBlock);
-    llvm::BasicBlock *pre;
+
     int n = 0, i;
     for(llvm::BasicBlock *pre : successors(block) ) {
         n ++;

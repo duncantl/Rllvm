@@ -523,7 +523,7 @@ R_CloneFunctionInto(SEXP r_func, SEXP r_to, SEXP r_moduleLevelChanges)
     setVVMap(func, to, map);
 #else
     llvm::Function::arg_iterator toa = to->arg_begin();
-    int n = 0;
+    // int n = 0;
     for (llvm::Function::const_arg_iterator J = from->arg_begin(); J != from->arg_end(); ++J) {
         map[&*J] = &*toa++;
     }

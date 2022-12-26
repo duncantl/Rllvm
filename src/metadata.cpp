@@ -147,8 +147,8 @@ R_NamedMDNode_getOperands(SEXP r_node)
     for(unsigned int i = 0; i < numEls; i++) {
         llvm::MDNode *el = node->getOperand(i);
         SET_VECTOR_ELT(ans, i, R_createRef(el, "MDNode"));
-        llvm::StringRef str;
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 6
+        llvm::StringRef str;
 //	llvm::NamedMDNode *tmp = dynamic_cast<llvm::NamedMDNode*>(el);
 	str = el->getName();
         SET_STRING_ELT(names, i, str.data() ? mkChar(str.data()) : R_NaString);

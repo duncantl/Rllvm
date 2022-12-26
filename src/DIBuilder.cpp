@@ -86,6 +86,7 @@ extern "C"
 SEXP
 R_new_DIBuilder_Function(SEXP r_dibuilder, SEXP r_cu, SEXP r_func, SEXP r_type, SEXP r_lineno)
 {
+
     llvm::DIBuilder *builder;
     builder = GET_REF(r_dibuilder, DIBuilder); 
 
@@ -98,10 +99,11 @@ R_new_DIBuilder_Function(SEXP r_dibuilder, SEXP r_cu, SEXP r_func, SEXP r_type, 
     llvm::DISubroutineType *type;
     type = GET_REF(r_type, DISubroutineType); 
 
-    int lineNo = asInteger(r_lineno);
 
     llvm::DISubprogram* SP = NULL;
+
 #if LLVM_VERSION < 8    
+    int lineNo = asInteger(r_lineno);    
     SP = builder->createFunction(
                                        Unit, func->getName(), llvm::StringRef(), Unit, lineNo,
                                        type, false /* internal linkage */,

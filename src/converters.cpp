@@ -481,10 +481,8 @@ R_internal_convertValueToR(llvm::Value *val)
             llvm::Type *type = tmp->getValueType();
             SEXP ans;   //   gives NULL.
             PROTECT(ans = convertNativeValuePtrToR(tmp, type));
-//            Rf_PrintValue(ans);
             UNPROTECT(1);
             return(ans);
-//            Rprintf("GlobalValue %p\n", tmp);
         } else if(llvm::dyn_cast<llvm::ConstantAggregateZero>(val)) {
             return(R_NilValue);
         }
