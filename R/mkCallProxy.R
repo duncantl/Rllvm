@@ -44,60 +44,6 @@
 #      e.g., x parameter in proxyEg.c::bar()
 #
 
-if(FALSE) {
-    library(Rllvm)
-    source("mkCallProxy.R")
-    m = parseIR("explorations/dnormLoop.ir")
-    proxy = mkCallProxy(m$v_dnorm)
-    b = getBlocks(proxy)
-
-    ee = ExecutionEngine(m)
-    fptr = getPointerToFunction(proxy, ee)@ref
-    sym = list(name = "r_v_dnorm", address = structure(fptr, class = "NativeSymbol"), dll = NULL)
-
-    x = seq(-1.5, 1.5, by = .1)
-    y = .Call(sym, x, length(x), 0.1, 1.2)
-    fun = function(x, mu, sd) { tmp = (x-mu)/sd; 1/(sd*2.506628)*exp(-.5*tmp*tmp)}
-    stopifnot(identical(y, fun(x, .1, 1.2)))
-}
-
-
-if(FALSE) {
-    library(Rllvm)
-    source("mkCallProxy.R")
-    m = parseIR("explorations/proxyEg.ir")
-    proxy = mkCallProxy(m$foo)
-    b = getBlocks(proxy)
-
-    ee = ExecutionEngine(m)
-    fptr = getPointerToFunction(proxy, ee)@ref
-    sym = list(name = "", address = structure(fptr, class = "NativeSymbol"), dll = NULL)
-
-    #  x = seq(-1.5, 1.5, by = .1)
-    x = 1:10
-    y = seq_len(length(x)) + .5
-    z = .Call(sym, x, y, length(x))
-    stopifnot( identical(z,  sum(x*y)) )
-}
-
-if(FALSE) {
-    library(Rllvm)
-    source("mkCallProxy.R")
-    m = parseIR("explorations/proxyEg.ir")
-    proxy = mkCallProxy(m$bar)
-    b = getBlocks(proxy)
-
-    ee = ExecutionEngine(m)
-    fptr = getPointerToFunction(proxy, ee)@ref
-    sym = list(name = "", address = structure(fptr, class = "NativeSymbol"), dll = NULL)
-
-    #  x = seq(-1.5, 1.5, by = .1)
-    x = 1:10
-    y = seq_len(length(x)) + .5
-    z = .Call(sym, x, y, length(x))
-    stopifnot( identical(z[[1]],  sum(x*y)),
-               identical(x*y, z[[2]]))
-}
 
 
 mkCallProxy =
@@ -211,6 +157,7 @@ function(fun, name = paste0("R_", getName(fun)), mod = as(fun, "Module"))
 }
 
 
+
 processPointerArg =
 function(p, oparam, startBlock, endBlock, paramName, mod, nprotect, fun = as(p, "Function"), ir)
 {
@@ -222,7 +169,7 @@ function(p, oparam, startBlock, endBlock, paramName, mod, nprotect, fun = as(p, 
     # and branch to duplicate or coerceVector()
     #XXX If not writing into oparam in the original routine, don't duplicate.
     ty = getElementType(getType(oparam))
-    sexptype = getSEXPType(ty)
+    sexptype = getSEXPTypeEnum(ty)
     ro = onlyReadsMemory(oparam)
     
     type = ir$createCall(mod$TYPEOF, p)
@@ -272,6 +219,8 @@ function(p, oparam, startBlock, endBlock, paramName, mod, nprotect, fun = as(p, 
     var
 }
 
+
+
 processArg =
 function(p, oparam, mod, ir, nprotect = NULL)        
 {
@@ -283,7 +232,9 @@ function(p, oparam, mod, ir, nprotect = NULL)
     ir$createCall( fun[[1]], p )
 }
 
+
 DataAccessorMap = c(IntegerTyID = "INTEGER", DoubleTyID = "REAL")
+
 coerceToPtr =
 function(val, p, mod, ir)
 {
@@ -298,16 +249,21 @@ function(val, p, mod, ir)
 }
 
 
-##########
-SEXPTypes = c(DoubleTyID = 14L,  IntegerTyID = 13L)
 
-getSEXPType =
+##########
+
+SEXPTypeMap = c(DoubleTyID = 14L,  IntegerTyID = 13L)
+
+getSEXPTypeEnum =
 function(type, tid = getTypeID(type))
-   SEXPTypes[ names(tid) ]
+   SEXPTypeMap[ names(tid) ]
+
+
 
 
 
 ##############
+
 convertReturnValue =
 function(val, ir, mod)    
 {
@@ -330,7 +286,7 @@ function(val, ir, mod)
 ###############
 
 declareRRoutine =
-function(ids, mod)
+function(ids, mod, routineSigs = getRAPIRoutineSignatures())
 {
     tmp = ids[ !(ids %in%  names(mod)) ]        
     mapply(function(id, info)  {
@@ -340,32 +296,36 @@ function(ids, mod)
              #    id = paste0("Rf_", id)
              
              Function(id, info[[1]], info[[2]], module = mod)
-            }, tmp, RAPIRoutines[tmp])
+            }, tmp, routineSigs[tmp])
 
 
     mod[ ids ] # paste0("Rf_", ids ) 
 }
 
+if(FALSE) {
 
-RAPIRoutines = list(    
-  Rf_asInteger = list(Int32Type, list(SEXPType)),
-  Rf_asReal = list(DoubleType, list(SEXPType)),
-  Rf_coerceVector = list(SEXPType, list(SEXPType, Int32Type)),
-  REAL = list(pointerType(DoubleType), list(SEXPType)),
-  INTEGER = list(pointerType(Int32Type), list(SEXPType)),
-  Rf_duplicate = list(SEXPType, list(SEXPType)),
-  Rf_protect = list(SEXPType, list(SEXPType)),
-  Rf_unprotect = list(VoidType, list(Int32Type)),
-  TYPEOF = list(Int32Type, list(SEXPType), "TYPEOF"),
-  Rf_PrintValue = list(VoidType, list(SEXPType)),
-  Rf_allocVector = list(SEXPType, list(Int32Type, Int32Type)),
-  Rf_allocVector3 = list(SEXPType, list(Int32Type, Int32Type, pointerType(VoidType))),
-  Rf_ScalarInteger = list(SEXPType, list(Int32Type)),
-  Rf_ScalarLogical = list(SEXPType, list(Int32Type)),
-  Rf_ScalarReal = list(SEXPType, list(DoubleType))
-)
+# if(FALSE) {
+#     # Generated in TU/rapi.R
+#     # source("RAPIRoutineTypes.R")
+#  RAPIRoutines = list(    
+#   Rf_asInteger = list(Int32Type, list(SEXPType)),
+#   Rf_asReal = list(DoubleType, list(SEXPType)),
+#   Rf_coerceVector = list(SEXPType, list(SEXPType, Int32Type)),
+#   REAL = list(pointerType(DoubleType), list(SEXPType)),
+#   INTEGER = list(pointerType(Int32Type), list(SEXPType)),
+#   Rf_duplicate = list(SEXPType, list(SEXPType)),
+#   Rf_protect = list(SEXPType, list(SEXPType)),
+#   Rf_unprotect = list(VoidType, list(Int32Type)),
+#   TYPEOF = list(Int32Type, list(SEXPType), "TYPEOF"),
+#   Rf_PrintValue = list(VoidType, list(SEXPType)),
+#   Rf_allocVector = list(SEXPType, list(Int32Type, Int32Type)),
+#   Rf_allocVector3 = list(SEXPType, list(Int32Type, Int32Type, pointerType(VoidType))),
+#   Rf_ScalarInteger = list(SEXPType, list(Int32Type)),
+#   Rf_ScalarLogical = list(SEXPType, list(Int32Type)),
+#   Rf_ScalarReal = list(SEXPType, list(DoubleType))
+#  )
+#}
 
 
-# Generated in TU/rapi.R
-# source("RAPIRoutineTypes.R")
 
+}
