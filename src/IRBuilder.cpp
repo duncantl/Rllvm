@@ -961,7 +961,7 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
 #endif
     }
 
-    context->setOpaquePointers(false);
+//    context->setOpaquePointers(false);
 
     std::string fn(CHAR(STRING_ELT(r_content, 0)));
 
