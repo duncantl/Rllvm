@@ -1,18 +1,23 @@
 library(Rllvm)
 irs = list.files("../src", pattern = "\\.ir$", full.names = TRUE)
 
+
+# See findClassesInRllvmSrc.R for more general code.
 findCalls =
-function(file)
+function(file, context = NULL)
 {
-    m = parseIR(file)
+    m = parseIR(file, context = context)
     ins = unlist(getInstructions(m))
     # The name of the R_createRef routine is mangled.
+    # See findClassesInRllvmSrc.R for code to do this more generally.
     w = sapply(ins, function(x) is(x, "CallInst") && is(f <- getCalledFunction(x), "Function") && grepl("R_createRef[^2]", getName(f)))
     ins[w]
 }
 
+context = getGlobalContext(TRUE)
+
 # If there is debug info,  we had 6 parseIR errors.
-calls = lapply(irs, function(f) try(findCalls(f)))
+calls = lapply(irs, function(f) try(findCalls(f, context = context)))
 names(calls) = gsub("\\.ir", "", basename(irs))
 
 err = sapply(calls, is, 'try-error')
@@ -51,7 +56,7 @@ function(call)
 
     ty = getType(ptr)
     while(is(ty, "PointerType"))
-        ty = getElementType(ty)
+        ty = getElementType(ty)   # Will fail with Opaque pointers - crash.
 
     gsub("\\.[0-9]+$", "", getName(ty))
 }

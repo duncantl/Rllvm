@@ -1,6 +1,12 @@
 # From getSubClasses.R
 
 # Get the nodes
+# tu comes from clang_new.R or mkTU()
+source("includeDirs.R")
+source("getBaseClasses.R")
+
+if(!exists("tu"))
+    tu = mkTU()
 bases = getBaseClasses(tu, "include/llvm", numClasses = 2000L)
 
 # ??? Do we want to do this?  Solves the 3 classes with ambiguities, but
@@ -9,6 +15,7 @@ bases = getBaseClasses(tu, "include/llvm", numClasses = 2000L)
 
 
 # Make a map of classes -> base class names
+# mkFlatClassMap() defined in getBaseClasses.R
 cmap = mkFlatClassMap(bases)
 
 library(Rllvm)

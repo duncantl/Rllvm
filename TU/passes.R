@@ -1,16 +1,35 @@
 library(RCIndex)
-passtu = createTU("passes.cc", includes = c("~/local/include",
-                                      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/usr/include/",
-                                      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/usr/include/c++/4.2.1/"),
-                args = c("-D__STDC_LIMIT_MACROS=1", "-D__STDC_CONSTANT_MACROS=1"))
+source("includeDirs.R")
+passtu = mkTU("passes.cc")
 
 top = as(passtu, "CXCursor")
 
+kinds = sapply(top, getCursorKind)
+names(kinds) = names(RCIndex::CXCursorKind)[ match(kinds, RCIndex::CXCursorKind) ]
+table(names(kinds))
+
+isLLVMNS = names(top) == "llvm" &  names(kinds) == "CXCursor_Namespace"
+top[isLLVMNS]
+
+rrs = lapply(top[isLLVMNS], getRoutines)
+
+# The following gives the same number of classes as
+# looping over 
+klasses = getCppClasses(passtu, "include/llvm")
+
+# klasses = lapply(top[isLLVMNS], getCppClasses)
+# lapply(klasses, names)
+
+
 #???? top[[4]] # llvm namespace for first include
+# getRoutines(passtu) returns 16, but
+# rr3 = lapply(top, getRoutines)
+# ggives 462 in total.
+
+if(FALSE) {
 
 rr = getRoutines(top[[4]])
 
-if(FALSE) {
 rr[[21]]@returnType
 getName(rr[[21]]@returnType)
 
@@ -29,7 +48,7 @@ function(r)
 }
 
 
-passes = lapply(children(top)[-(1:3)],
+passes = lapply(children(top)[ isLLVMNS)],
        function(cur) {
            rr = getRoutines(cur)
            if(length(rr) == 0)

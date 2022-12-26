@@ -17,11 +17,54 @@ rmPrefix = function(x) gsub("^llvm::", "", x)
 
 
 if(FALSE) {
-value = getSubclasses("llvm::Value", k)
-mdnode = getSubclasses("llvm::MDNode", k)
-ty = getSubclasses("llvm::Type", k)
+    library(NativeCodeAnalysis)
 
-cat(mkSetClass(mdnode), sep = "\n", file = "../R/llvmMDNodeClasses.R")
-cat(mkSetClass(ty), sep = "\n", file = "../R/llvmTypeClasses.R")
-cat(mkSetClass(value), sep = "\n", file = "../R/llvmValueClasses.R")
+    if(!exists("tu"))  {
+        source("includeDirs.R")
+        tu = mkTU()
+    }
+    
+    if(!exists("k"))
+        k = getCppClasses(tu, "include/llvm", numClasses = 1200)
+    
+    value = getSubclasses("llvm::Value", k)
+    mdnode = getSubclasses("llvm::MDNode", k)
+    ty = getSubclasses("llvm::Type", k)
+
+
+    cat(mkSetClass(mdnode), sep = "\n", file = "../R/llvmMDNodeClasses.R.new")
+    cat(mkSetClass(ty), sep = "\n", file = "../R/llvmTypeClasses.R.new")
+    cat(mkSetClass(value), sep = "\n", file = "../R/llvmValueClasses.R.new")
 }
+
+if(FALSE) {
+    orig = readSetClass("../R/llvmValueClasses.R")
+    new = readSetClass("../R/llvmValueClasses.R.new")
+    compareSets(new, orig)[c("inNew", "inOld")]
+}
+
+# For LLVM15.0, this is what we would remove from llvmValueClasses.R
+
+#           GlobalValue            DerivedUser           MemoryAccess 
+#"GlobalIndirectSymbol"         "MemoryAccess"       "MemoryUseOrDef" 
+#          MemoryAccess         MemoryUseOrDef         MemoryUseOrDef 
+#           "MemoryPhi"            "MemoryUse"            "MemoryDef" 
+
+readSetClass =
+function(f)
+{
+    e = parse(f)
+    classes = sapply(e[], function(x) x[[2]])
+    names(classes) = sapply(e[], function(x) x[[3]])
+    classes
+}
+
+compareSets =
+function(new, old)
+{
+    list(inNew = setdiff(new, old),
+         inOld = setdiff(old, new),
+         inBoth = intersect(new, old))
+}
+
+

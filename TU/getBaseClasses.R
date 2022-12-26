@@ -1,5 +1,9 @@
+library(RCIndex)
+
 if(FALSE) {
 
+    # tu comes from clang_new() or mkTU() in includeDirs.R
+    
     # takes 1.65 seconds for LLVM.
     bases = getBaseClasses(tu, "include/llvm", numClasses = 2000L)
 
@@ -10,9 +14,10 @@ if(FALSE) {
     # 0.013 seconds
     cmap = mkFlatClassMap(bases)
 
-    # Takes 1.67 seconds
+    # Takes 1.67 seconds. 1.059 now on the M1.
     system.time(mkClassDF(tu, "include/llvm", numClasses = 2000L))
     # 1.5 - 1.6 seconds if we already have the nodes.
+    # Where does ans come form.
     system.time(mkClassDF(nodes = ans))    
     # not adding the location information takes almost the same time 1.47 - 1.54 seconds.
     system.time(mkClassDF(nodes = ans, loc = FALSE))        
@@ -137,15 +142,18 @@ function(className, map)
     ans
 }
 
+
+# How does this relate to NativeCodenAnalysis' getSubclasses
+# Looks somewhat similar.
 getSubClasses =
 function(className, map, recursive = TRUE)
 {
-print(className)
+# print(className)
     i = names(map)[map == className]
     ans = structure(i, names = rep(className, length(i)))
     if(!recursive || length(ans) == 0)
         return(ans)
-browser()
+#browser()
     nx = sapply(ans, getSubClasses, map, recursive = TRUE)
     nx = nx[sapply(nx, length) > 0]
     ans = c(ans, nx)

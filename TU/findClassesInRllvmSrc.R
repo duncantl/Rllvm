@@ -91,7 +91,7 @@ ctxt = getGlobalContext(TRUE)
 cl = lapply(irs, getRLLVMClasses, context = ctxt)
 cl2 = unique(unlist(cl))
 
-# This suggests we can make extensive use of getLLVMCLassName() to get the more specific name.
+# This suggests we can make extensive use of getLLVMClassName() to get the more specific name.
 
 
 # What are the names of the classes in calls to R_createRef() which need to have a corresponding

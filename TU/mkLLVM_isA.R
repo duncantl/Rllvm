@@ -1,12 +1,16 @@
+# Assumes tu from clang_new or
+#
+source("includeDirs.R")
+tu = mkTU()
 
 # Getting the class hierarchy takes about 100 seconds.
-k = getCppClasses(tu, "include/llvm", numClasses = 1000)
+k = getCppClasses(tu, "include/llvm", numClasses = 1200)
 
 # getClassHierarchy in NativeCodeAnalysis
 #library(NativeCodeAnalysis)
 #source("../fun.R") # move this.
 
-h = NativeCodeAnalysis::getSublcasses("llvm::Value", k)
+h = NativeCodeAnalysis::getSubclasses("llvm::Value", k)
 h2 = unique(unlist(h))
 
 #  MemIntrinsicBase  is a templated class.

@@ -2,34 +2,11 @@ library(RCIndex)
 #
 #*** Change the next two lines of code.
 
-version = c(10, 0)
-inc = c("/usr/local/include", "/usr/local/include/llvm", "/Users/duncan/R-devel/src/include")
-inc = c(path.expand("~/LLVM/clang+llvm-10.0.0-x86_64-apple-darwin/include"), "/usr/local/include", "/usr/local/include/llvm", "/Users/duncan/R-devel/src/include")
+source("includeDirs.R")
+version = llvmVersion2()
 
+tu = mkTU("llvm.cpp")
 
-sysdir = system("xcrun --show-sdk-path", intern = TRUE)
-sysdir = file.path(sysdir, "usr/include")
-inc = c(inc, sysdir)
-
-#version = c(8, 0)
-#inc = path.expand(c("~/LLVM/clang+llvm-8.0.0-x86_64-apple-darwin/include", "/Users/duncan/R-devel/src/include"))
-
-
-#inc= "/Users/duncan/LLVM3.7/clang+llvm-3.7.0-x86_64-apple-darwin/include"
-
-# The name of the file C++ to read.
-f = "llvm.cpp"
-# "Compiler" arguments
-args = c("-xc++", "-DNDEBUG", "-D_GNU_SOURCE", "-D__STDC_CONSTANT_MACROS", "-D__STDC_FORMAT_MACROS", "-D__STDC_LIMIT_MACROS",
-    "-std=c++11", "-fvisibility-inlines-hidden", "-fno-exceptions", "-fno-rtti", "-fno-common", "-Woverloaded-virtual",
-         "-Wcast-qual",
-    paste0("-DLLVM_VERSION=", version[1]),
-    paste0("-DLLVM_MINOR_VERSION=", version[2]),
-    "-DNEW_LLVM_ATTRIBUTES_SETUP")
-
-
-# Parse the C++ code
-tu = createTU(f, args = args, includes = inc, verbose = TRUE)
 
 options(nwarnings = 10000)
 
@@ -64,6 +41,7 @@ names(defs) = dups
 # For classes, see exploreClasses.R
 
 
+# How is this different from utils.R
 if(getOption("writeEnums", FALSE)) {
  source("utils.R")
  ids = grep("(^__|::)", names(enums), invert = TRUE, value = TRUE) # remove llvm:: , std::, __lx
