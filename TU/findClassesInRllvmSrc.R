@@ -28,25 +28,23 @@ genLiteralValue =
     # class name is in the 1st and 2nd argument respectively.
     #
 function(argNum)
-  function(x) {
-#     if(is(x[[1]], "ConstantExpr") || is(x[[argNum]], "GlobalVariable"))
-#         getValue(x[[argNum]])
-#     else
+  function(x) 
           getComputedValue(x[[argNum]])
-  }
+
 
 
 getComputedValue =
-    # When the 
+    # When the
+    #
 function(val)    
 {
     if(is(val, "LoadInst"))
-        return(getComputedValue(val[[1]]))
+        return(getComputedValue(val[[1L]])) # 1 here is correct for LoadInst.
     else if(is(val, "AllocaInst")) {
         u = getAllUsers(val)
         w = sapply(u, is, "StoreInst")
         if(any(w)) {
-            f = genLiteralValue(1)
+            f = genLiteralValue(1L) # 1 is correct for StoreInst.
             return(sapply(u[w], f))
         }
     } else if(is(val, "PHINode")) {
@@ -54,15 +52,16 @@ function(val)
     } else if(is(val, "SelectInst")) {
         unlist(lapply(val[-1], getComputedValue))
     } else if(is(val, "ConstantPointerNull")) {
+         # what to return
         return("<NULL>")
     } else if(is(val, "CallInst")) {
         return(sprintf("<call to %s>", demangle(getName(getCalledFunction(val)))))
     } else if(is(val, "GlobalVariable")) {
         return(getValue(val))
+    } else if(is(val, "Argument")) {
+        return("<Argument>")
     } else
         print(class(val))
-
-    # ConstantPointerNull - what to return
 
     return(NA)
 }
