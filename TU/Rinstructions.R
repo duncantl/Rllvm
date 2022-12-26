@@ -1,8 +1,17 @@
 # Find all of the different types/classes of LLVM Instructions
 # used in the C code in R_HOME/src/main/*.c
+#
+# Create the .ir files by putting the 
+#
 
 library(Rllvm)
-ir = list.files("~/Rtrunk/build2/src/main", pattern = "\\.ir$", full = TRUE)
+mainDir = file.path(R.home(), "src/main")
+if(!file.exists(mainDir))
+    stop("need the path to the directory containing the IR code files")
+ir = list.files(mainDir, pattern = "\\.ir$", full = TRUE)
+if(length(ir) == 0)
+    stop("no IR files")
+
 fins = lapply(ir, function(f) getInstructions(parseIR(f)))
 tt = dsort(table(sapply(unlist(fins), class)))
 
