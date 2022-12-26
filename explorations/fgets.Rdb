@@ -59,7 +59,7 @@ Since it is an opaque and we only deal with pointers to it, the precise
 format is not important.
 <r:code thread="manual">
 #FILEType = pointerType(Int32Type) # an opaque struct type?
-FILEType = pointerType(structType(list(o=Int32Type))) # an opaque struct type?
+FILEType = pointerType(structType(list(o = Int32Type))) # an opaque struct type?
 stringType = pointerType(getIntegerType(8L, getContext(mod)))
 </r:code>
 Note that we can now use the variable <r:var>StringType</r:var> which is now in <omg:pkg>Rllvm</omg:pkg>.
