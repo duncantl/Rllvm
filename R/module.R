@@ -14,11 +14,24 @@ function(id = Sys.time(), context = NULL)
    .Call("R_new_Module", as.character(id), context)
 }
 
+setOpaquePointers =
+function(val = FALSE, ctxt = getGlobalContext())
+{
+    ans = .Call("R_setOpaquePointers", ctxt, as.logical(val))
+    if(val != ans)
+        warning("setOpaquePointers did not take effect for this context; probably set earlier and can only be set once")
+
+    !ans
+}
+
 
 getGlobalContext =
-function()
+function(new = FALSE)
 {
-  .Call("R_getGlobalContext")
+    if(new)
+        .Call("R_mkLLVMGlobalContext")
+    else
+        .Call("R_getGlobalContext")
 }
 
 verifyModule =

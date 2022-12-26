@@ -906,5 +906,6 @@ export(getDefinedRoutines)
 
 
 export(setOpaquePointers)
+export(getGlobalContext)
 
 export(mkCallProxy)

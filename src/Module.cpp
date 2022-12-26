@@ -866,6 +866,41 @@ getLLVMGlobalContext()
 
     return(*gcontext);
 }
+
+extern "C"
+SEXP
+R_mkLLVMGlobalContext()
+{
+    llvm::LLVMContext *ans = new llvm::LLVMContext();
+    return(R_createRef(ans, "LLVMContext"));    // add finalizer!!!
+}
+
+extern "C"
+SEXP
+R_setOpaquePointers(SEXP r_ctxt, SEXP val)
+{
+    llvm::LLVMContext *ctxt = GET_REF(r_ctxt, LLVMContext);    
+    if(!ctxt) {
+        PROBLEM "NULL value for LLVMContext"
+            ERROR;
+    }
+    ctxt->setOpaquePointers(LOGICAL(val)[0]);
+    
+    return(ScalarLogical(ctxt->supportsTypedPointers()));
+}
+
+extern "C"
+SEXP
+R_supportsTypedPointers(SEXP r_ctxt)
+{
+    llvm::LLVMContext *ctxt = GET_REF(r_ctxt, LLVMContext);    
+    if(!ctxt) {
+        PROBLEM "NULL value for LLVMContext"
+            ERROR;
+    }
+   
+    return(ScalarLogical(ctxt->supportsTypedPointers()));    
+}
 #endif
 
 
