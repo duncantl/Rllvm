@@ -4,9 +4,9 @@ m = parseIR("dnormLoop.ir")
 if(FALSE) {
     # Run but it doesn't copy x.
     x0 = x = seq(-1.5, 1.5, by = .1)
-    z = .llvm(m$v_dnorm, x, length(x), 0, 1, .duplicate = c(TRUE, FALSE, FALSE, FALSE))
+    z = .llvm(m$v_dnorm, x, length(x), 0, 1)
     
-    # will write directly into x0 and x which are the same.
+    # will still write directly into x0 and x which are the same.
     z = .llvm(m$v_dnorm, x, length(x), 0, 1, .duplicate = c(TRUE, FALSE, FALSE, FALSE))
 }
 
@@ -19,8 +19,10 @@ if(FALSE) {
 p = getParameters(m$v_dnorm)
 rr = simpleFunction( "R_v_dnorm", SEXPType, .types = replicate(length(p), SEXPType), module = m)
 pr = getParameters(rr$fun)
-
 ir = rr$ir
+
+
+# Declare R API routines
 asInteger = Function("Rf_asInteger", Int32Type, list(SEXPType), module = m)
 asReal = Function("Rf_asReal", DoubleType, list(SEXPType), module = m)
 coerceVector = Function("Rf_coerceVector", SEXPType, list(SEXPType, Int32Type), module = m)
@@ -41,33 +43,33 @@ if(TRUE) {
     
     # Does the Select evaluate both sides of the ternary regardless? Appears to.
     # 
-select = FALSE
-if(select)    
-    phi = xc = ir$createSelect(typeCond, ir$createCall(duplicate, pr[[1]]), ir$createCall(coerceVector, pr[[1]], 14L))
-else {    
-    b2 = Block(rr$fun, "dup")
-    b3 = Block(rr$fun, "coerce")
-    b4 = Block(rr$fun, "do")
+    select = FALSE
+    if(select)    
+        phi = xc = ir$createSelect(typeCond, ir$createCall(duplicate, pr[[1]]), ir$createCall(coerceVector, pr[[1]], 14L))
+    else {    
+        b2 = Block(rr$fun, "dup")
+        b3 = Block(rr$fun, "coerce")
+        b4 = Block(rr$fun, "do")
 #print(getBlocks(rr$fun))
-    ir$createCondBranch(typeCond, b2, b3)
+        ir$createCondBranch(typeCond, b2, b3)
     
-    ir$setInsertBlock(b2)
-    dup = ir$createCall(duplicate, pr[[1]])
-    ir$createBranch(b4)
+        ir$setInsertBlock(b2)
+        dup = ir$createCall(duplicate, pr[[1]])
+        ir$createBranch(b4)
 
-    ir$setInsertBlock(b3)
+        ir$setInsertBlock(b3)
 #XXX   ir$createCall(printValue, pr[[1]])
-    coerce = ir$createCall(coerceVector, pr[[1]], 14L)
-    ir$createBranch(b4)    
+        coerce = ir$createCall(coerceVector, pr[[1]], 14L)
+        ir$createBranch(b4)    
     
-    ir$setInsertBlock(b4)
+        ir$setInsertBlock(b4)
     # Not needed in this case.
     # ir$createCall(protect, xc)
-    phi = ir$createPHI( SEXPType, 2L )
+        phi = ir$createPHI( SEXPType, 2L )
 
-    addIncoming(phi, dup, b2)
-    addIncoming(phi, coerce, b3)    
-}
+        addIncoming(phi, dup, b2)
+        addIncoming(phi, coerce, b3)    
+    }
     
     x2 = ir$createCall(REAL, phi)
     len = ir$createCall(asInteger, pr[[2]])
@@ -77,34 +79,35 @@ else {
 
     ir$createCall(m$v_dnorm, x2, len, mu, sd)
 
-   # ir$createCall(unprotect, 1L)
+    # ir$createCall(unprotect, 1L)
     ir$createReturn(phi)
-#print(getBlocks(rr$fun))    
+
+    #print(getBlocks(rr$fun))    
 } else {
-#   ir$createCall(printValue, pr[[1]])
-#   ir$createCall(printValue, pr[[2]])
-#   ir$createCall(printValue, pr[[3]])
-#   ir$createCall(printValue, pr[[4]])
+    #   ir$createCall(printValue, pr[[1]])
+    #   ir$createCall(printValue, pr[[2]])
+    #   ir$createCall(printValue, pr[[3]])
+    #   ir$createCall(printValue, pr[[4]])
     #   ir$createReturn(ir$createCall(ScalarInteger, 11))
     
-   ir$createReturn(pr[[1]])    
+    ir$createReturn(pr[[1]])    
 }
 
-# register the symbols for the R API routines we used.
 
 #XXX Do we actually need these.
-# More than not needing them, them cause problems.
+# register the symbols for the R API routines we used.
+# More than not needing them, they cause problems.
+# DON'T DO THIS
 if(FALSE) {
-rtns = c("REAL", "Rf_duplicate", "Rf_asReal", "Rf_asInteger", "Rf_coerceVector", "Rf_allocVector", "Rf_allocVector3",
-         "Rf_unprotect", "Rf_protect",
-         "Rf_PrintValue")
-rptrs = lapply(rtns, function(sym) .Call("R_llvm_dlsym", sym, NULL))
-names(rptrs) = rtns
-llvmAddSymbol(.syms = rptrs)
+    rtns = c("REAL", "Rf_duplicate", "Rf_asReal", "Rf_asInteger", "Rf_coerceVector", "Rf_allocVector", "Rf_allocVector3",
+             "Rf_unprotect", "Rf_protect",
+             "Rf_PrintValue")
+    rptrs = lapply(rtns, function(sym) .Call("R_llvm_dlsym", sym, NULL))
+    names(rptrs) = rtns
+    llvmAddSymbol(.syms = rptrs)
 }
 
 
-cif = Rffi::CIF(SEXPType, replicate(4, SEXPType))
 
 ee = ExecutionEngine(m)
 x = seq(-1.5, 1.5, by = .1)
@@ -112,9 +115,9 @@ x = seq(-1.5, 1.5, by = .1)
 #print(getBlocks(rr$fun))  # R_v_dnorm
 
 if(FALSE) {
+    # Use the Rffi invocation
+    cif = Rffi::CIF(SEXPType, replicate(4, SEXPType))
     y = .llvm( rr$fun, x, length(x), 0, 1, .ffi = cif)
-
-    y = .Call(fptr, x, length(x), 0, 1)
 }
 
 fptr = getPointerToFunction(rr$fun, ee)@ref
