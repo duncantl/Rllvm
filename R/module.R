@@ -34,6 +34,8 @@ function(new = FALSE)
         .Call("R_getGlobalContext")
 }
 
+LLVMContext = function()         .Call("R_mkLLVMGlobalContext")
+
 verifyModule =
 function(module, error = TRUE)
 {    
