@@ -9,7 +9,11 @@
 <topic>
 <title>New</title>
 <items>
-
+<item>
+Opaque pointers.
+getElementType on a PointerType will fail.
+See TU/R_createRef.R for an example.
+</item>
   <item>
     Classes definitions for MemSetInst, MemCpyInst computed from the class hierarchy.
   </item>
