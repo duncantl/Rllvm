@@ -15,13 +15,9 @@
 # and all we have is the signature of routine2, but not its body.
 
 #
-#
+# Need to enable opaque pointers to test this approach. So we create a new LLVMContext().
 #
 
-#
-# Need to enable opaque pointers to test this approach, e.g.,
-#
-#
 if(FALSE) {
     library(Rllvm)
     ctxt = LLVMContext()
@@ -42,7 +38,6 @@ if(FALSE) {
     inferPointerElType(m2$foo6[[1]])
     inferPointerElType(m2$foo7[[1]])    
     inferPointerElType(m2$foo8[[1]])
-
 
 # TODO
 
@@ -73,19 +68,17 @@ function(fun)
     isRet = sapply(terms, is, "ReturnInst")
     
     ret = terms[[ which(isRet) ]]
-    if(length(ret) == 0)  # remove when sort out sameType()
-        return(NULL)
 
- browser()    
+# browser()    
     
-#   ret = ret[[1]]  # get the Value being returned.
+   ret = ret[[1]]  # get the Value being returned.
                     # Perhaps just pass the entire ret and have doit() work on that.
 
 
-#    if(is(ret, "LoadInst")) #XXX bad.
-#        ret = ret[[1]]
+    if(is(ret, "LoadInst")) #XXX bad.
+        ret = ret[[1]]
     
-    inferPointerElType(ret)
+    inferPointerElType(ret, .returnType = TRUE)
 }
 
 #
@@ -100,9 +93,9 @@ if(FALSE) {
 
 
 inferPointerElType =
-function(val)
+function(val, .returnType = FALSE)
 {
-    v = unlist(doit(val))
+    v = unlist(doit(val, .returnType = .returnType))
 
     # inferReturnPointerType(m2$doFoo2)
     # ends up return a Type (Struct Type) not a list.
@@ -120,29 +113,23 @@ function(val)
 
 doit =
     # When the
-function(val, prev = NULL)    
+function(val, prev = NULL, .returnType = FALSE)    
 {
     if(any(sapply(prev, identical, val)))
         return(NULL)
    
-
-    if(is(val, "LoadInst")) {
-#        browser()
-#        return(doit( val[[1]], c(val, prev)))
+print(class(val))
+    if(is(val, "LoadInst") || is(val, "AllocaInst") || is(val, "Argument")) {
         u = getAllUsers(val)
-        return(lapply(u, doit, c(val, prev) )) 
-    } else if(is(val, "AllocaInst")) {
-        u = getAllUsers(val)
-        return(sapply(u, doit, c(val, prev)))
+        return(lapply(u, doit, c(val, prev), .returnType = .returnType)) 
     } else if(is(val, "StoreInst")) {
-        return(lapply(val[], doit, c(val, prev)))        
-#        return(doit(val[[2]], c(val, prev)))
+        return(lapply(val[], doit, c(val, prev), .returnType = .returnType))        
     } else if(is(val, "PHINode")) {
-        return(unlist(lapply(val[], doit, c(val, prev))))
+        return(unlist(lapply(val[], doit, c(val, prev), .returnType = .returnType)))
     } else if(is(val, "SelectInst")) {
         # Is there any value to looking at the condition?
         # Can it tell us anything about the type, e.g., with a cast?
-        return(unlist(lapply(val[-1], doit, c(val, prev))))
+        return(unlist(lapply(val[-1], doit, c(val, prev), .returnType = .returnType)))
     } else if(is(val, "CallInst")) {
 
         #XXX need to know if we are looking at the return value of the function.
@@ -166,20 +153,27 @@ function(val, prev = NULL)
         # val[] <==> getOperands()
         #  [ - length(val) ]
         w = sapply(val[ - length(val) ], identical, prev[[1]])
+
+        if(!any(w)) {
+            if(.returnType)
+                return(inferReturnPointerType(fun))
+            else
+                stop("???")
+        }
+
+        if(sum(w) > 1) {
+            browser()
+        }
+        
         p = fun[[ which(w) ]]
         return(inferPointerElType(p))
     } else if(is(val, "GlobalVariable")) {
-        # Test
-        browser()
         return(list(getValueType(val)))
-    } else if(is(val, "Argument")) {
-        u = getAllUsers(val)
-        return(lapply(u, doit, c(val, prev)))
     } else if(is(val, "GetElementPtrInst")) {
         return(list(getSourceElementType(val)))
-    }  else if(is(val, "ReturnInst")) {
+    } else if(is(val, "ReturnInst")) {
         if(length(val) > 0)
-            return( doit(val[[1]], list(val) ))
+            return( doit(val[[1]], list(val) , .returnType = .returnType))
         else
             return(NULL)
     } else
@@ -203,7 +197,7 @@ function(fun, params = getParameters(fun))
 }
 
 
-if(TRUE) {
+if(FALSE) {
     w = sapply(c("foo", "bar", "foo2", "foo3"),
                function(id)
                    isIntegerType(  inferPointerElType(m2[[id]][[1]])[[1]]))
@@ -227,6 +221,10 @@ if(TRUE) {
     
 
     # doFoo - return type
-    #     inferReturnPointerType(m2$doFoo)
-    #     inferReturnPointerType(m2$foo2) 
+    stopifnot( is(inferReturnPointerType(m2$doFoo)[[1]], "StructType"),
+              getName(ty[[1]]) == "struct.Foo")
+#XX    stopifnot( isIntegerType( inferReturnPointerType(m2$foo2)[[1]] ))
+
+    funs = getDefinedRoutines(m2, names = FALSE)
+    rtys = lapply(funs, function(x) {print(getName(x)); inferReturnPointerType(x)})
 }
