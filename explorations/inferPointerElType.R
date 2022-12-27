@@ -60,8 +60,7 @@ inferReturnPointerType =
 function(fun)
 {
     ty = getReturnType(fun)
-    if(!is(ty, "PointerType") || getTypeId(ty) == Rllvm:::VoidTyID) # sameType(ty, VoidType)) #XXX not behaving correctly.
-                                                                    # sameType(getReturnType(m2$bar), VoidType) => FALSE
+    if(!is(ty, "PointerType") || isVoidType(ty)) # sameType(ty, VoidType)) doesn't work.
         return(NULL)
         
     if(getInstructionCount(fun) == 0) {
@@ -79,6 +78,7 @@ function(fun)
         return(NULL)
 
     ret = ret[[1]]  # get the Value being returned.
+                    # Perhaps just pass the entire ret and have doit() work on that.
 
 browser()    
     if(is(ret, "LoadInst")) #XXX bad.
