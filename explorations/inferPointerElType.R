@@ -38,7 +38,13 @@ if(FALSE) {
 
 
     ty = inferPointerElType(m2$doFoo2[[1]]) # finds the struct.
-    getName(ty[[1]])    
+    getName(ty[[1]])
+
+
+    inferPointerElType(m2$foo5[[1]])
+    inferPointerElType(m2$foo6[[1]])
+    inferPointerElType(m2$foo7[[1]])    
+    inferPointerElType(m2$foo8[[1]])    
 
 # TODO
     
@@ -49,12 +55,61 @@ if(FALSE) {
     inferPointerElType(getReturnType(m2$foo2)) 
 }
 
+
+inferReturnPointerType =
+function(fun)
+{
+    ty = getReturnType(fun)
+    if(!is(ty, "PointerType") || sameType(ty, VoidType)) #XXX not behaving correctly. sameType(getReturnType(m2$bar), VoidType) => FALSE
+        return(NULL)
+        
+    # getTerminators in NativeCodeAnalysis.  May want to bring this here.
+    #
+    if(getInstructionCount(fun) == 0) {
+        warning(sprintf("'%s' is not defined in this Module so cannot examine its body/instructions", getName(fun)))
+        return(NA)
+    }
+    
+    
+    terms = lapply(getBlocks(fun), getTerminator)
+    isRet = sapply(terms, is, "ReturnInst")
+    
+    ret = terms[[ which(isRet) ]]
+    if(length(ret) == 0)  # remove when sort out sameType()
+        return(NULL)
+
+    ret = ret[[1]]  # get the Value being returned.
+
+    if(is(ret, "LoadInst"))
+        ret = ret[[1]]
+    
+    inferPointerElType(ret)
+}
+
+#
+#
+#XXX
+#     inferReturnPointerType(m2$doFoo2)
+if(FALSE) {
+    m2 = parseIR("explorations/opaqueTests.ir", context = ctxt)
+    funs = getDefinedRoutines(m2, names = FALSE)
+    rtypes = lapply(funs, inferReturnPointerType)
+}
+
+
 inferPointerElType =
 function(val)
 {
     v = unlist(doit(val))
-    v = v[ !sapply(v, function(x) !isS4(x) && is.logical(x) && all(is.na(x))) ]
-    ans = unique(unlist(v))
+
+    # inferReturnPointerType(m2$doFoo2)
+    # ends up return a Type (Struct Type) not a list.
+    if(is.list(v)) {
+        v = v[ !sapply(v, function(x) !isS4(x) && is.logical(x) && all(is.na(x))) ]
+        ans = unique(unlist(v))
+    } else
+        ans = list(v)
+    
     if(length(ans) == 0)
         NA
     else
@@ -105,7 +160,8 @@ function(val, prev = NULL)
         p = fun[[ which(w) ]]
         return(inferPointerElType(p))
     } else if(is(val, "GlobalVariable")) {
-        # Test 
+        # Test
+        browser()
         return(getValueType(val))
     } else if(is(val, "Argument")) {
         u = getAllUsers(val)
