@@ -903,7 +903,7 @@ export(getDefinedRoutines)
 
 
 export(setOpaquePointers)
-export(getGlobalContext)
+export(getGlobalContext, LLVMContext)
 
 export(mkCallProxy)
 
