@@ -1,4 +1,8 @@
-#
+
+# Avoid llvmAddSymbol()
+
+Apparently, don't use llvmAddSymbol().
+
 
 # Generating a Wrapper Routine
 
