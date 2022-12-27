@@ -1,0 +1,102 @@
+# The goal here is infer the element type of a PointerType parameter
+# or return value. We need to do this when we only have opaque pointers
+# which will be the case in LLVM 17 and already the case by default for LLVM 15.
+# The inability to query element types for opaque pointers means we can't
+# perform complete reflection on existing IR code.  Since we didn't create that code ourselves,
+# we didn't get an opportunity to track the element types when it was created.
+# Importantly, this means we cannot call that code via FFI or generate a proxy routine.
+# Of course, we can compile that code but we still cannot determine what type of elements for the pointer arguments should be
+
+# So an initial approach is to examine where a pointer type argument is used and see if these uses indicate
+# the type.
+# A priori, this may be inadequate when we have opaque code, i.e., routine(ptr) passest ptr to routine2 in another Module
+# and all we have is the signature of routine2, but not its body.
+
+
+#
+# Need to enable opaque pointers to test this approach, e.g.,
+#
+#
+if(FALSE) {
+    library(Rllvm)
+    ctxt = getGlobalContext(new = TRUE)
+    m = parseIR("explorations/dnormLoop_opaqueptrs.ir", context = ctxt)
+    p = getParameters(m$v_dnorm)[[1]]
+    inferPointerElType(p)
+    
+    m2 = parseIR("explorations/opaqueTests.ir", context = ctxt)
+    p2 = getParameters(m2$foo)[[1]]
+
+    inferPointerElType(p2)
+    inferPointerElType(m2$bar[[1]])
+
+
+# TODO
+    inferPointerElType(m2$foo2[[1]])
+
+
+    inferPointerElType(getReturnType(m2$doFoo))
+
+    inferPointerElType(m2$doFoo2[[1]]) # finds the struct.
+}
+
+inferPointerElType =
+function(val)
+{
+    v = unlist(doit(val))
+    v = v[ !sapply(v, function(x) !isS4(x) && is.logical(x) && all(is.na(x))) ]
+    unique(unlist(v))
+}
+
+doit =
+    # When the
+function(val, prev = NULL)    
+{
+    if(any(sapply(prev, identical, val)))
+        return(NULL)
+    
+#print(class(val))        
+    if(is(val, "LoadInst")) {
+        u = getAllUsers(val)
+#  doit(val[[2L]], c(val, prev))
+        return(lapply(u, doit, c(val, prev) )) 
+    } else if(is(val, "AllocaInst")) {
+        u = getAllUsers(val)
+        # w = sapply(u, is, "StoreInst")
+        # if(any(w)) 
+            return(sapply(u, doit, c(val, prev)))
+    } else if(is(val, "StoreInst")) {
+        return(doit(val[[2]], c(val, prev)))
+    } else if(is(val, "PHINode")) {
+        return(unlist(lapply(val[], doit, c(val, prev))))
+    } else if(is(val, "SelectInst")) {
+        return(unlist(lapply(val[-1], doit, c(val, prev))))
+    } else if(is(val, "CallInst")) {
+        browser()
+    } else if(is(val, "GlobalVariable")) {
+        return(getValueType(val))
+    } else if(is(val, "Argument")) {
+        u = getAllUsers(val)
+        return(lapply(u, doit, c(val, prev)))
+    } else if(is(val, "GetElementPtrInst")) {
+        return(.Call("R_GetElementPtrInst_getSourceElementType", val))
+    }  else if(is(val, "ReturnInst")) {
+    } else
+        print(class(val))
+
+    return(NA)
+}
+
+
+
+inferParamTypes = 
+function(fun, params = getParameters(fun))
+{
+    types = lapply(params, getType)
+    w = sapply(types, isPointerType)
+    if(any(w))
+       types[w] = lapply(params[w], inferPointerElType)
+
+    attr(types, "isPointer") = w
+    types
+}
