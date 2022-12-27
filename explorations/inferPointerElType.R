@@ -118,7 +118,6 @@ function(val, prev = NULL, .returnType = FALSE)
     if(any(sapply(prev, identical, val)))
         return(NULL)
    
-print(class(val))
     if(is(val, "LoadInst") || is(val, "AllocaInst") || is(val, "Argument")) {
         u = getAllUsers(val)
         return(lapply(u, doit, c(val, prev), .returnType = .returnType)) 
@@ -197,7 +196,7 @@ function(fun, params = getParameters(fun))
 }
 
 
-if(FALSE) {
+if(exists("TEST") && TEST) {
     w = sapply(c("foo", "bar", "foo2", "foo3"),
                function(id)
                    isIntegerType(  inferPointerElType(m2[[id]][[1]])[[1]]))
@@ -223,7 +222,7 @@ if(FALSE) {
     # doFoo - return type
     stopifnot( is(inferReturnPointerType(m2$doFoo)[[1]], "StructType"),
               getName(ty[[1]]) == "struct.Foo")
-#XX    stopifnot( isIntegerType( inferReturnPointerType(m2$foo2)[[1]] ))
+    stopifnot( isIntegerType( inferReturnPointerType(m2$foo2)[[1]] ))
 
     funs = getDefinedRoutines(m2, names = FALSE)
     rtys = lapply(funs, function(x) {print(getName(x)); inferReturnPointerType(x)})
