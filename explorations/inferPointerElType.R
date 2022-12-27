@@ -41,15 +41,12 @@ if(FALSE) {
     getName(ty[[1]])    
 
 # TODO
-
-
     
     inferPointerElType(getReturnType(m2$doFoo))  # just PointerType.
     # need to look at the return Value and work backwords.
     # See NativeCodeAnalysis for similar approach for SEXP routines.
 
     inferPointerElType(getReturnType(m2$foo2)) 
-
 }
 
 inferPointerElType =
@@ -57,7 +54,11 @@ function(val)
 {
     v = unlist(doit(val))
     v = v[ !sapply(v, function(x) !isS4(x) && is.logical(x) && all(is.na(x))) ]
-    unique(unlist(v))
+    ans = unique(unlist(v))
+    if(length(ans) == 0)
+        NA
+    else
+        ans
 }
 
 doit =
@@ -88,10 +89,19 @@ function(val, prev = NULL)
         # parameter which will examine that routine.
         # If the routine is not in this module, then this really is an opaque
         # data type, at least from this CallInst.
-        fun = val[[length(val)]]
+        # fun = val[[length(val)]]
+        fun = getCalledFunction(val)
+        if(getInstructionCount(fun) == 0) {
+            warning(sprintf("'%s' is not defined in this Module so cannot examine its body/instructions", getName(fun)))
+            return(NA)
+        }
+        
+
         # ??? Check to see if the routine is defined in this module, i.e.,
         # has blocks and not just a declaration.
-        w = sapply(val[seq_len(length(val) - 1L)], identical, prev[[1]])
+        # val[] <==> getOperands()
+        #  [ - length(val) ]
+        w = sapply(val[ - length(val) ], identical, prev[[1]])
         p = fun[[ which(w) ]]
         return(inferPointerElType(p))
     } else if(is(val, "GlobalVariable")) {
