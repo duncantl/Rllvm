@@ -14,6 +14,9 @@ Version 0.12-0
 
 	* mkCallProxy() can generate a proxy routine that we can invoke via .Call() rather than .llvm().
 
+	* Cleanup and documentation of code in TU/ to generate code for Rllvm and to explore LLVM
+	  and Rllvm C++ and R code.
+
 Version 0.10-0
 
 	*  Compiles with LLVM 11.0
