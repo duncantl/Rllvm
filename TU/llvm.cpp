@@ -14,6 +14,24 @@
 
 #include <llvm/IR/Type.h>
 
+
+// newly added. May not want them all.
+#include <llvm/IR/DIBuilder.h>
+#include <llvm/IR/DataLayout.h>
+#include <llvm/IR/DataLayout.h>
+#include <llvm/IR/DebugInfo.h>
+
+#include <llvm/IR/MDBuilder.h>
+#include <llvm/IR/Mangler.h>
+
+
+#include <llvm/IR/Operator.h>
+
+#include <llvm/IR/DerivedUser.h>
+#include <llvm/IR/DerivedType.h>
+
+//---------
+
 // Probably want to omit soon.
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/PassManager.h>
