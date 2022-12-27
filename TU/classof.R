@@ -2,6 +2,42 @@
 # Rllvm:::coerceGenericInstruction using Op codes and a table.
 
 
+c("<8" = "TerminatorInst",
+  "<7" = c("Operator", "OverflowingBinaryOperator", "PossiblyExactOperator", "FPMathOperator", "DbInfoIntrinsic",
+           "ConstrainedFPIntrinsic",
+           "ElementUnorderedAtomicMemCpyInst",
+           "ElementUnorderedAtomicMemMoveInst",
+           "ElementUnorderedAtomicMemSetInst"
+           )
+
+
+if(FALSE) {
+    # Have to get the order correct.
+    source("getBaseClasses.R")
+    source("mkSetClass.R")    
+
+    value = getSubclasses("llvm::Value", k)
+    valueSubClassNames = rmPrefix( unname(unlist(value)) )
+
+if(FALSE) {    
+    # Just to check the order.
+    supClass = rmPrefix(sapply(k[valueSubClassNames], function(x) names(x@superClasses)))
+    i0 = match(supClass, valueSubClassNames)
+    all(is.na(i0) | seq(along = i0) < i0 )
+}
+    
+if(FALSE) { # unfinished     checking order.
+    df = mkClassDF(tu, "include/llvm", numClasses = 2000L, loc = FALSE)
+    i1 = match(valueSubClassNames, df$localName)
+    i2 = match(valueSubClassNames, rmPrefix(gsub("^class ", "", df$baseClass)))
+    tmp = data.frame(pos1 = i1, pos2 = i2, class = valueSubClassNames)
+}
+    
+    txt = genClassofClassName( valueSubClassNames  )
+    cat(txt, sep = "\n", file = "../src/llvm_classof_name.h")
+}
+
+
 genClassofClassName = 
 function(classes, varName = "obj")
 {
@@ -20,4 +56,26 @@ function(base = "Value", where = "package:Rllvm")
   def = getClassDef(base, where = where)
   subs = sapply(def@subclasses, slot, "subClass")
   c(subs, unlist(lapply(subs, getRValueClasses, where = where)))
+}
+
+
+if(FALSE) {
+    #
+    # The classes that are currently active in getLLVMClassName in RLLVMClassName.
+    # Some are manually #if'ed based on the version of LLVM, e.g, TerminatorInst is
+    # no longer a class in LLVM 8 and beyond.
+    #
+    
+    library(Rllvm)
+    
+    ctxt = getGlobalContext(TRUE)
+    m = parseIR("../src/RLLVMClassName.ir", context = ctxt)
+    fun = m[[ grep("getLLVMClassName", names(m), value = TRUE) ]]
+    ins = getInstructions(fun)
+    calls = ins[sapply(ins, function(x) is(x, "CallInst"))]
+
+    funNames = unname(sapply(calls, function(i) demangle(getName(getCalledFunction(i)))))
+
+    funNames = gsub("\\(.*", "", funNames)
+    classNames = gsub("llvm::([^:]+)::classof", "\\1", funNames)
 }
