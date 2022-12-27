@@ -30,29 +30,28 @@ if(FALSE) {
     inferPointerElType(p)
     
     m2 = parseIR("explorations/opaqueTests.ir", context = ctxt)
-#    p2 = getParameters(m2$foo)[[1]]
+    #    p2 = getParameters(m2$foo)[[1]]
 
-    inferPointerElType(m2$foo[[1]])   #
-    inferPointerElType(m2$bar[[1]])   # 
-    inferPointerElType(m2$foo2[[1]])  # Int    
-
-
-    ty = inferPointerElType(m2$doFoo2[[1]]) # finds the struct.
-    getName(ty[[1]])
-
-
+    # See tests below.
+    
+    inferPointerElType(m2$foo[[1]])   
+    inferPointerElType(m2$bar[[1]])    
+    inferPointerElType(m2$foo2[[1]])  
+    
     inferPointerElType(m2$foo5[[1]])
     inferPointerElType(m2$foo6[[1]])
     inferPointerElType(m2$foo7[[1]])    
-    inferPointerElType(m2$foo8[[1]])    
+    inferPointerElType(m2$foo8[[1]])
+
 
 # TODO
-    
-    inferPointerElType(getReturnType(m2$doFoo))  # just PointerType.
+
+    #XXX  no. Use inferReturnPointerType
+    inferReturnPointerType(m2$doFoo) 
     # need to look at the return Value and work backwords.
     # See NativeCodeAnalysis for similar approach for SEXP routines.
 
-    inferPointerElType(getReturnType(m2$foo2)) 
+    inferReturnPointerType(m2$foo2) 
 }
 
 
@@ -77,12 +76,14 @@ function(fun)
     if(length(ret) == 0)  # remove when sort out sameType()
         return(NULL)
 
-    ret = ret[[1]]  # get the Value being returned.
+ browser()    
+    
+#   ret = ret[[1]]  # get the Value being returned.
                     # Perhaps just pass the entire ret and have doit() work on that.
 
-browser()    
-    if(is(ret, "LoadInst")) #XXX bad.
-        ret = ret[[1]]
+
+#    if(is(ret, "LoadInst")) #XXX bad.
+#        ret = ret[[1]]
     
     inferPointerElType(ret)
 }
@@ -126,13 +127,16 @@ function(val, prev = NULL)
    
 
     if(is(val, "LoadInst")) {
+#        browser()
+#        return(doit( val[[1]], c(val, prev)))
         u = getAllUsers(val)
         return(lapply(u, doit, c(val, prev) )) 
     } else if(is(val, "AllocaInst")) {
         u = getAllUsers(val)
         return(sapply(u, doit, c(val, prev)))
     } else if(is(val, "StoreInst")) {
-        return(doit(val[[2]], c(val, prev)))
+        return(lapply(val[], doit, c(val, prev)))        
+#        return(doit(val[[2]], c(val, prev)))
     } else if(is(val, "PHINode")) {
         return(unlist(lapply(val[], doit, c(val, prev))))
     } else if(is(val, "SelectInst")) {
@@ -140,6 +144,9 @@ function(val, prev = NULL)
         # Can it tell us anything about the type, e.g., with a cast?
         return(unlist(lapply(val[-1], doit, c(val, prev))))
     } else if(is(val, "CallInst")) {
+
+        #XXX need to know if we are looking at the return value of the function.
+        
         # find which parameter val corresponds to in the call to the
         # routine and then call inferPointerElType() on that
         # parameter which will examine that routine.
@@ -147,14 +154,15 @@ function(val, prev = NULL)
         # data type, at least from this CallInst.
         # fun = val[[length(val)]]
         fun = getCalledFunction(val)
+
+        # ??? Check to see if the routine is defined in this module, i.e.,
+        # has blocks and not just a declaration.
         if(getInstructionCount(fun) == 0) {
             warning(sprintf("'%s' is not defined in this Module so cannot examine its body/instructions", getName(fun)))
             return(NA)
         }
         
 
-        # ??? Check to see if the routine is defined in this module, i.e.,
-        # has blocks and not just a declaration.
         # val[] <==> getOperands()
         #  [ - length(val) ]
         w = sapply(val[ - length(val) ], identical, prev[[1]])
@@ -170,6 +178,10 @@ function(val, prev = NULL)
     } else if(is(val, "GetElementPtrInst")) {
         return(list(getSourceElementType(val)))
     }  else if(is(val, "ReturnInst")) {
+        if(length(val) > 0)
+            return( doit(val[[1]], list(val) ))
+        else
+            return(NULL)
     } else
         print(class(val))
 
@@ -188,4 +200,33 @@ function(fun, params = getParameters(fun))
 
     attr(types, "isPointer") = w
     types
+}
+
+
+if(TRUE) {
+    w = sapply(c("foo", "bar", "foo2", "foo3"),
+               function(id)
+                   isIntegerType(  inferPointerElType(m2[[id]][[1]])[[1]]))
+    stopifnot(all(w))
+
+    stopifnot(isIntegerType(  inferPointerElType(m2$bar2[[2]])[[1]]))
+
+
+    w = sapply(paste0("foo", 5:8),
+               function(id)
+                   isDoubleType(  inferPointerElType(m2[[id]][[1]])[[1]]))
+    stopifnot(all(w))
+
+    ty = inferPointerElType(m2$doFoo2[[1]]) # finds the struct.
+    stopifnot(is(ty[[1]], "StructType"),
+              getName(ty[[1]]) == "struct.Foo")
+
+    stopifnot( is.na(inferPointerElType(m2$foo4[[1]])[[1]]) )    
+    
+    stopifnot(isDoubleType(  inferPointerElType(m2$foo9[[1]])[[1]]))    
+    
+
+    # doFoo - return type
+    #     inferReturnPointerType(m2$doFoo)
+    #     inferReturnPointerType(m2$foo2) 
 }
