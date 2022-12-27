@@ -24,7 +24,7 @@
 #
 if(FALSE) {
     library(Rllvm)
-    ctxt = getGlobalContext(new = TRUE)
+    ctxt = LLVMContext()
     m = parseIR("explorations/dnormLoop_opaqueptrs.ir", context = ctxt)
     p = getParameters(m$v_dnorm)[[1]]
     inferPointerElType(p)
@@ -60,17 +60,17 @@ inferReturnPointerType =
 function(fun)
 {
     ty = getReturnType(fun)
-    if(!is(ty, "PointerType") || sameType(ty, VoidType)) #XXX not behaving correctly. sameType(getReturnType(m2$bar), VoidType) => FALSE
+    if(!is(ty, "PointerType") || getTypeId(ty) == Rllvm:::VoidTyID) # sameType(ty, VoidType)) #XXX not behaving correctly.
+                                                                    # sameType(getReturnType(m2$bar), VoidType) => FALSE
         return(NULL)
         
-    # getTerminators in NativeCodeAnalysis.  May want to bring this here.
-    #
     if(getInstructionCount(fun) == 0) {
         warning(sprintf("'%s' is not defined in this Module so cannot examine its body/instructions", getName(fun)))
         return(NA)
     }
     
-    
+
+    # getTerminators in NativeCodeAnalysis.  May want to bring that into Rllvm.
     terms = lapply(getBlocks(fun), getTerminator)
     isRet = sapply(terms, is, "ReturnInst")
     
@@ -80,7 +80,8 @@ function(fun)
 
     ret = ret[[1]]  # get the Value being returned.
 
-    if(is(ret, "LoadInst"))
+browser()    
+    if(is(ret, "LoadInst")) #XXX bad.
         ret = ret[[1]]
     
     inferPointerElType(ret)
@@ -162,13 +163,12 @@ function(val, prev = NULL)
     } else if(is(val, "GlobalVariable")) {
         # Test
         browser()
-        return(getValueType(val))
+        return(list(getValueType(val)))
     } else if(is(val, "Argument")) {
         u = getAllUsers(val)
         return(lapply(u, doit, c(val, prev)))
     } else if(is(val, "GetElementPtrInst")) {
-        #XXX replace with call to getSourceElementType(val)
-        return(.Call("R_GetElementPtrInst_getSourceElementType", val))
+        return(list(getSourceElementType(val)))
     }  else if(is(val, "ReturnInst")) {
     } else
         print(class(val))
