@@ -3,7 +3,7 @@ Version 0.12-0
 	* Support for LLVM 15 (enums, compiles, etc.)
 
 	* getGlobalContext() has a new = FALSE parameter and allows one to create new LLVMContext
-	  instances
+	  instances.
 
 	* setOpaquePointers() is set by default to FALSE on the global context. However, one can
 	  create new LLVMContext instances which default to opaque and then use opaque pointers in
@@ -12,7 +12,7 @@ Version 0.12-0
 	* To generate IR code with typed pointers from C/C++ source code, add -Xclang
 	  -no-opaque-pointers to the call to clang -S -emit-llvm.  (https://llvm.org/docs/OpaquePointers.html)
 
-	* mkCallProxy() can generate a proxy routine that we can invoke via .Call() rather than .llvm()
+	* mkCallProxy() can generate a proxy routine that we can invoke via .Call() rather than .llvm().
 
 Version 0.10-0
 
