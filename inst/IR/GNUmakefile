@@ -47,3 +47,9 @@ fib.wasm: fib.c
 #llc -asm-verbose=false -o fib.s fib.bc
 #	wasm-ld --no-entry --export-all fqqfib.s
 #	s2wasm fib.s > fib.wast
+
+
+
+# Organize the includes better. /usr/local is for libintl on my machine.
+times.ir: $(R_HOME)/../src/main/times.c
+	$(CLANG) $(OPT_LEVEL) $(CFLAGS) -S -emit-llvm  $<  -o $@ -I$(R_HOME)/../src/include -DHAVE_CONFIG_H=1 -I$(R_HOME)/src/include -I/usr/local/include
