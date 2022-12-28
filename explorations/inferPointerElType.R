@@ -18,6 +18,19 @@
 # Need to enable opaque pointers to test this approach. So we create a new LLVMContext().
 #
 
+# To Fix
+#  + protect against routine A calls routine B and B calls A so could go into a loop.
+#  + if a value is passed as an argument in a call as more than one argument, it is possible
+#    that it may be used in different ways and give different inferred types. So we should analyze both.
+#    Can this actually happen?
+#
+#
+#
+
+# ERRORS: based on inferOpaqueTypes.R
+#Error in (function (cond)  : 
+#  error in evaluating the argument 'X' in selecting a method for function 'lapply': evaluation nested too deeply: infinite recursion / options(expressions=)?
+
 if(FALSE) {
     library(Rllvm)
     ctxt = LLVMContext()
@@ -50,8 +63,12 @@ if(FALSE) {
 }
 
 
+
 inferReturnPointerType =
-function(fun)
+    #
+    # Attempt to infer the element type when a routine returns a pointer as the return value.
+    #
+function(fun, .routines = NULL)
 {
     ty = getReturnType(fun)
     if(!is(ty, "PointerType") || isVoidType(ty)) # sameType(ty, VoidType)) doesn't work.
@@ -69,16 +86,15 @@ function(fun)
     
     ret = terms[[ which(isRet) ]]
 
-# browser()    
-    
-   ret = ret[[1]]  # get the Value being returned.
+   
+    ret = ret[[1]]  # get the Value being returned.
                     # Perhaps just pass the entire ret and have doit() work on that.
 
 
     if(is(ret, "LoadInst")) #XXX bad.
         ret = ret[[1]]
     
-    inferPointerElType(ret, .returnType = TRUE)
+    inferPointerElType(ret, .returnType = TRUE, .routines = .routines)
 }
 
 #
@@ -93,12 +109,23 @@ if(FALSE) {
 
 
 inferPointerElType =
-function(val, .returnType = FALSE)
+    #
+    # Attempt to infer the element type of a pointer type for a given Value object.
+    # This primary motivation is for val to be an Argument of a routine and we are trying
+    # to determine what the type of the elements are of the pointer.
+    # However, this should also work for other types of Value objects.
+    #
+function(val, .returnType = FALSE, .routines = NULL)
 {
-    v = unlist(doit(val, .returnType = .returnType))
+
+    if(is.null(val))
+        stop("NULL value passed to inferPointerElType. Expecting an Argument or Value generally.")
+    
+    v = unlist(doit(val, .returnType = .returnType, .routines = .routines))
 
     # inferReturnPointerType(m2$doFoo2)
     # ends up return a Type (Struct Type) not a list.
+
     if(is.list(v)) {
         v = v[ !sapply(v, function(x) !isS4(x) && is.logical(x) && all(is.na(x))) ]
         ans = unique(unlist(v))
@@ -112,23 +139,33 @@ function(val, .returnType = FALSE)
 }
 
 doit =
-    # When the
-function(val, prev = NULL, .returnType = FALSE)    
+    # This is the workhorse of inferPointerElType.
+    # It is a recursive function that follows the uses of and elements of
+    # a Value to find the point at which we can determine the type. This
+    # is possible with GEP instructions, GlobalVariables, AllocaInsts.
+    #
+function(val, prev = NULL, .returnType = FALSE, .routines = NULL)    
 {
     if(any(sapply(prev, identical, val)))
         return(NULL)
    
     if(is(val, "LoadInst") || is(val, "AllocaInst") || is(val, "Argument")) {
         u = getAllUsers(val)
-        return(lapply(u, doit, c(val, prev), .returnType = .returnType)) 
+        return(lapply(u, doit, c(val, prev), .returnType = .returnType, .routines = .routines)) 
     } else if(is(val, "StoreInst")) {
-        return(lapply(val[], doit, c(val, prev), .returnType = .returnType))        
+        return(lapply(val[], doit, c(val, prev), .returnType = .returnType, .routines = .routines))        
     } else if(is(val, "PHINode")) {
-        return(unlist(lapply(val[], doit, c(val, prev), .returnType = .returnType)))
+
+        # XX NEED to get the prev correct.
+        #??? End up with val and prev in subsequent call    CHECK
+        # [1] "  %call21 = tail call ptr @Rf_substituteList(ptr %call7, ptr %8), !dbg !206"
+        # [1] "  %h.2 = phi ptr [ %call11, %if.then10 ], [ %call21, %if.then19 ], [ %h.1, %if.end36 ], [ %6, %if.else12 ], !dbg !223"
+        
+        return(unlist(lapply(val[], doit, c(val, prev), .returnType = .returnType, .routines = .routines)))
     } else if(is(val, "SelectInst")) {
         # Is there any value to looking at the condition?
         # Can it tell us anything about the type, e.g., with a cast?
-        return(unlist(lapply(val[-1], doit, c(val, prev), .returnType = .returnType)))
+        return(unlist(lapply(val[-1], doit, c(val, prev), .returnType = .returnType, .routines = .routines)))
     } else if(is(val, "CallInst")) {
 
         #XXX need to know if we are looking at the return value of the function.
@@ -141,43 +178,116 @@ function(val, prev = NULL, .returnType = FALSE)
         # fun = val[[length(val)]]
         fun = getCalledFunction(val)
 
+        #XXXXXX May not be a Function, but could be a call/load, etc. to compute what routine to call.
+        # Need to handle this.
+
+        if(!is(fun, "Function")) {
+            return(NA)
+                #XXXXX enable    
+            browser()
+        }
+        
+        
         # ??? Check to see if the routine is defined in this module, i.e.,
         # has blocks and not just a declaration.
         if(getInstructionCount(fun) == 0) {
-            warning(sprintf("'%s' is not defined in this Module so cannot examine its body/instructions", getName(fun)))
-            return(NA)
+
+            if(length(.routines) &&
+               (id <- getName(getCalledFunction(val))) %in% names(.routines))  {
+                fun = .routines[[id]]
+                warning("found called routine ", getName(fun), "in other module ", getName(as(fun, "Module")))
+            } else {
+                #XXX enable
+                # warning(sprintf("'%s' is not defined in this Module so cannot examine its body/instructions", getName(fun)))
+                return(NA)
+            }
         }
-        
+
+        #XXX  Have to be careful that we don't have foo call bar and bar calls foo.
+        # This isn't specific to finding a routine in another module.        
 
         # val[] <==> getOperands()
-        #  [ - length(val) ]
         w = sapply(val[ - length(val) ], identical, prev[[1]])
 
         if(!any(w)) {
             if(.returnType)
-                return(inferReturnPointerType(fun))
-            else
-                stop("???")
+                return(inferReturnPointerType(fun, .routines = .routines))
+            else {
+                cat("???\n")
+                #XXXXXXXXXXX FIX
+                # val =
+                # "  %call26 = tail call fastcc ptr @make_wrapper(ptr %x, ptr %call.i), !dbg !174"
+                # prev[[1]] =
+                # "  %retval.0 = phi ptr [ %call4, %if.then ], [ %call26, %if.end21 ], [ %x, %entry ], !dbg !141"
+                #
+                # val: "  %call15 = tail call fastcc double @R_POW(double %x, double %conv14), !dbg !156"
+                # prev: "  %retval.0 = phi double [ %1, %if.then2 ], [ %call15, %if.then13 ], [ %x, %entry ], [ %xn.2, %for.end ], [ 1.000000e+00, %if.end3 ], !dbg !121"
+                #
+                #
+                #val:  [1] "  %call38 = call double @GEStrHeight(ptr %call28, i32 %enc2.0, ptr %gc, ptr %dd), !dbg !583"
+                #prev: [1] "  store double %call38, ptr %ascent, align 8, !dbg !585, !tbaa !508"
+                #
+                # val  "  %call222 = call double @GEStrWidth(ptr %str, i32 %enc.addr.0, ptr %gc, ptr %dd), !dbg !780"
+                # prev "  store double %call222, ptr %width, align 8, !dbg !781, !tbaa !508"
+                #
+                # val "  %call = tail call fastcc i32 @tlsearch(i32 %wc, ptr @table_toupper, i32 1410), !dbg !190"
+                # prev "  %cond = select i1 %cmp, i32 %call, i32 %wc, !dbg !192"
+                #
+                if(!is(prev[[1]], "PHINode") && !is(prev[[1]], "StoreInst")) browser()
+                #  stop("???")
+                return(NA) #XXXXXXXXXX FIX
+            }
+            
         }
 
         if(sum(w) > 1) {
-            browser()
+            # Can this happen?? Yes
+            # "  call fastcc void @R_AddGlobalCache(ptr %symbol, ptr %symbol), !dbg !276"
+            # See processing  "/Users/duncan/Rtrunk/build2/src/main/envir.ir"
+            # Run via explorations/inferOpaqueTypes.R
+            #browser()
+            warning("using the same value as multiple arguments in a call XXX")
+            # Can this be as simple as
+            # lapply(fun[which(w)], function(p) inferPointerElType, .routines = .routines)
+            # which would apply in both cases - sum(w) == 1 or > 1
         }
         
         p = fun[[ which(w) ]]
-        return(inferPointerElType(p))
+        return(inferPointerElType(p, .routines = .routines)) # don't include  .returnType here.
     } else if(is(val, "GlobalVariable")) {
         return(list(getValueType(val)))
     } else if(is(val, "GetElementPtrInst")) {
         return(list(getSourceElementType(val)))
     } else if(is(val, "ReturnInst")) {
         if(length(val) > 0)
-            return( doit(val[[1]], list(val) , .returnType = .returnType))
+            return( doit(val[[1]], list(val) , .returnType = .returnType, .routines = .routines))
         else
             return(NULL)
-    } else
-        print(class(val))
+    } else if(is(val, "CastInst") || is(val, "BinaryOperator") ||
+              is(val, "CmpInst") || is(val, "ExtractValueInst") ||
+              is(val, "UnaryInstruction") || # XXXX
+              is(val, "Constant")
+              ) {
+        #???? Include FreezeInst
+        # generalize to CastInst or UnaryInstruction
+        # The classes that are UnaryInstructions but not CastInsts are 
+        # c("UnaryOperator", "CastInst", "AllocaInst", "LoadInst", "VAArgInst", "ExtractValueInst", "FreezeInst")
+        return(getType(val))
+    } else if (is(val, "SwitchInst") || is(val, "ConstantPointerNull")) {
+        #XXX FIX
+        # SwitchInst
+        # ConstantPointerNull - lots of PHINode's with null and one return value. Return info about NULL | type.
+    } else {
+        #XXXXXXX FIX
+        # InsertElementInst   - ? getType(val[[3]])
+        #      "  %broadcast.splatinsert = insertelement <4 x i64> poison, i64 %i, i32 0, !dbg !181"
+        #      "  %.fca.0.insert = insertvalue %struct.Rcomplex.478 undef, double %x, 0, !dbg !163"
+        # MemMoveInst - doesn't print properly.
+        cat("XXXXXXXX ", class(val), "\n")
+#        browser()
+    }
 
+     # we don't know the type!
     return(NA)
 }
 
@@ -226,4 +336,9 @@ if(exists("TEST") && TEST) {
 
     funs = getDefinedRoutines(m2, names = FALSE)
     rtys = lapply(funs, function(x) {print(getName(x)); inferReturnPointerType(x)})
+
+    stopifnot( isIntegerType( inferPointerElType(m2$foo11[[1]]) ))    
 }
+
+
+
