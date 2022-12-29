@@ -592,3 +592,25 @@ R_PointerType_hasSameElementTypeAs(SEXP r_type, SEXP r_other)
     bool ans = type->hasSameElementTypeAs(other);
     return(ScalarLogical(ans));
 }
+
+
+
+extern "C"
+SEXP
+R_Value_getLoadStoreType(SEXP r_val)
+{
+    llvm::Value *val = GET_REF(r_val, Value);
+    llvm::Type *ty = getLoadStoreType(val);
+    return(ty ? R_createTypeRef(ty, "Type") : R_NilValue);
+}
+
+extern "C"
+SEXP
+R_AllocaInst_getAllocatedType(SEXP r_val)
+{
+    llvm::AllocaInst *val = GET_REF(r_val, AllocaInst);
+    llvm::Type *ty = val->getAllocatedType();
+    return(ty ? R_createTypeRef(ty, "Type") : R_NilValue);
+}
+
+
