@@ -134,3 +134,13 @@ function(x, val)
     x = as(x, "GlobalValue")
     .Call("R_GlobalValue_getUnnamedAddr", x)
 }
+
+
+getValueType =
+function(x)
+{
+    if(!is(x, "GlobalVariable"))
+        stop("Must be a GlobalVariable")
+    
+  .Call("R_GlobalValue_getValueType", x)
+}
