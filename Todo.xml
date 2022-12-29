@@ -9,10 +9,12 @@
 <topic>
 <title>New</title>
 <items>
-<item>
+<item status="done">
 Make certain all classes in llvm_class_of.h are exported
 so getLLVMClassName() can get the class and put the right class on an Instruction.
-See freeze.R
+See freeze.R.
+<br/>
+Issue was dependency of RLLVMClassName.o on llvm_classof_name.h. Fixed now.
 </item>
 <item>
  Deal with MemIntrinsicBase - in llvm/IR/IntrinsicInst.h in TU/classof.R
