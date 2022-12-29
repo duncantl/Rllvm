@@ -256,3 +256,14 @@ setMethod("getParameters", "FunctionType",
 setMethod("getReturnType", "FunctionType",
             function(obj, ...)
               upgradeTypeClass(.Call("R_FunctionType_getReturnType", obj)))
+
+
+
+getAllocatedType =
+function(x)
+{
+    if(!is(x, "AllocaInst"))
+        stop("getAllocatedType only for AllocaInst objects")
+
+    .Call("R_AllocaInst_getAllocatedType", x)
+}
