@@ -10,9 +10,13 @@ function(n)
 
 
 library(RLLVMCompile)
-library(compiler)
 
-fibc = cmpfun(fib)
+fib0 = fib
+fib = compiler::cmpfun(fib)
+# fibc = compiler::cmpfun(fib)
+# As Dirk pointed out, fibc needs to call fibc but will call the older fib.
+#
+
 fc = compileFunction(fib, Int32Type, Int32Type)
 print(showModule(fc))
 ee = ExecutionEngine(as(fc, "Module"), "Aggressive")
