@@ -36,7 +36,7 @@ R_createRef(const void *ptr, const char * const className, const char * tag)
 SEXP
 R_createRef2(const llvm::Value *ptr, const char *const className, const char *tag)
 {
-    return(R_createRef(ptr, ptr ? getLLVMClassName(ptr) : "Value", tag));
+    return(R_createRef(ptr, ptr ? getLLVMClassName(ptr) : className /* "Value" */, tag));
 }
 
 SEXP R_createTypeRef(const llvm::Type *ptr, const char * const className, const char *tagName)
