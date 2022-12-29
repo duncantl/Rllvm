@@ -79,7 +79,7 @@ function(str, status = FALSE)
 #setGeneric("getDefinedRoutines",
 #           function(x
 
-getDefinedRoutines =
+getDefinedRoutines = getDefinedFunctions =
     #
     # In the module, find the Functions that have a body.
     #
@@ -107,4 +107,4 @@ isDefinedRoutine =
     # Check the element `fun` in the Module is a Function and has at least one BasicBlock.
     #
 function(fun)
-    is(fun, "Function") && (length(getBlocks(fun)) > 0)
+    is(fun, "Function") && getInstructionCount(fun) > 0 # (length(getBlocks(fun)) > 0)
