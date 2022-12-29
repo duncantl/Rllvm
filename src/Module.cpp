@@ -182,6 +182,15 @@ R_Module_getInstructionCount(SEXP r_module)
     return(ScalarReal(module->getInstructionCount()));
 }
 
+extern "C"
+SEXP
+R_Function_getInstructionCount(SEXP r_fun)
+{
+    llvm::Function *fun = GET_REF(r_fun, Function);
+    return(ScalarReal(fun->getInstructionCount()));
+}
+
+
 
 #include <llvm/Support/VersionTuple.h>
 extern "C"

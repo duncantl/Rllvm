@@ -42,7 +42,8 @@ exportClasses(
   Value,
   BinaryOperator,
   SelectInst,
-  Use)
+ Use,
+ FreezeInst)
 
 
 
@@ -575,7 +576,10 @@ exportMethods(getInstructions)
 export(getLinkage)
 
 
-export(getSDKVersion, getInstructionCount)
+export(getSDKVersion)
+
+export(getInstructionCount)
+exportMethods(getInstructionCount)
 
 
 
@@ -899,7 +903,7 @@ export(runLoopPass)
 export(isGEPWithNoNotionalOverIndexing)
 
 
-export(getDefinedRoutines)
+export(getDefinedRoutines, getDefinedFunctions)
 
 
 export(setOpaquePointers)
@@ -907,4 +911,5 @@ export(getGlobalContext, LLVMContext)
 
 export(mkCallProxy)
 
-export(getSourceElementType)
+export(getSourceElementType, getAllocatedType)
+export(getValueType)

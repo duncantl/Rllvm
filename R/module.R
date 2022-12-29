@@ -311,11 +311,26 @@ setMethod("setDataLayout", "Module",
 
 
 
-getInstructionCount =
-function(module)
+# Since only 2 LLVM classes with this method
+# we could just define a function that tested for Module or Function
+# and called the relevant C wrapper or failed.
+setGeneric("getInstructionCount",
+           function(x, ...)
+               standardGeneric("getInstructionCount"))
+
+setMethod("getInstructionCount", "Module",
+function(x)
 {
-   .Call("R_Module_getInstructionCount", as(module, "Module"))
-}
+   .Call("R_Module_getInstructionCount", x)
+})
+
+setMethod("getInstructionCount", "Function",
+function(x)
+{
+   .Call("R_Function_getInstructionCount", x)
+})
+
+
 
 getSDKVersion =
 function(module)
