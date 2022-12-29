@@ -8,7 +8,7 @@ c("<8" = "TerminatorInst",
            "ElementUnorderedAtomicMemCpyInst",
            "ElementUnorderedAtomicMemMoveInst",
            "ElementUnorderedAtomicMemSetInst"
-           )
+           ))
 
 
 if(FALSE) {
@@ -32,7 +32,11 @@ if(FALSE) { # unfinished     checking order.
     i2 = match(valueSubClassNames, rmPrefix(gsub("^class ", "", df$baseClass)))
     tmp = data.frame(pos1 = i1, pos2 = i2, class = valueSubClassNames)
 }
-    
+
+    #XXX Deal with MemIntrinsicBase - in llvm/IR/IntrinsicInst.h
+#In file included from RLLVMClassName.cpp:6:
+#./llvm_classof_name.h:142:16: error: 'MemIntrinsicBase' is not a class, namespace, or enumeration
+#        else if(llvm::MemIntrinsicBase::classof(obj))    
     txt = genClassofClassName( valueSubClassNames  )
     cat(txt, sep = "\n", file = "../src/llvm_classof_name.h")
 }
@@ -41,9 +45,11 @@ if(FALSE) { # unfinished     checking order.
 genClassofClassName = 
 function(classes, varName = "obj")
 {
-  c("const char * getLLVMClassName(llvm::Value *obj)", "{",
+  c("const char * getLLVMClassName(llvm::Value const * obj)", "{",
     '\tconst char *ans = "Value";',
-    sprintf('\tif(llvm::%s::classof(obj))\n\t   ans = "%s";', classes, classes),
+    sprintf('\t%sif(llvm::%s::classof(obj))\n\t   ans = "%s";',
+            c("", rep("else ", length(classes) - 1L)),
+            classes, classes),
     "\n\treturn(ans);",
     "}")
 }
