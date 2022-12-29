@@ -105,6 +105,7 @@ foo8(double *x, int len)
 }
 
 double global[] = {1.0, 2.0};
+double *globalPtr = global;
 
 double *
 foo9(double *x, int len)
@@ -113,6 +114,44 @@ foo9(double *x, int len)
 	return(global);
     else
 	return(foo8(x, len));
+}
+
+double *
+foo10(double *x, int len)
+{
+    if(len == 0)
+	return(globalPtr);
+    else
+	return(foo8(x, len));
+}
+
+
+
+/*
+  Next two routines together demonstrate passing the same
+  argument twice to a routine, specifically x in foo11 is passed to barbar for a and b.
+ */
+int
+barbar(int *a, int *b, int len)
+{
+    int total = 0;
+    for(int i = 0; i < len ; i++) {
+	total += a[i] + b[i];
+    }
+    return(total);
+}
+
+int
+foo11(int *x, int len)
+{
+    return( barbar(x, x, len) );
+}
+
+int*
+foo12(int *x, int len)
+{
+    barbar(x, x, len);
+    return(x);
 }
 
 
