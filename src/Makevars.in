@@ -13,10 +13,10 @@ SHLIB_CXXLDFLAGS:=$(shell $(LLVM_CONFIG) --ldflags) $(SHLIB_CXXLDFLAGS)
 
 # -lLLVMSystem
 
-#Rllvm.$(DYLIB_EXT):
+Rllvm@SHLIB_EXT@:
+#Rllvm.so:
 
-#RLLVMClassName.o: llvm_classof_name.h
-#types.o:  llvm_type_classof_name.h
-
+RLLVMClassName.o: llvm_classof_name.h
+types.o:  llvm_type_classof_name.h
 
 
