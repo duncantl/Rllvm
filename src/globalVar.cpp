@@ -94,3 +94,12 @@ R_GlobalValue_getUnnamedAddr(SEXP r_val)
     int old = (int) val->getUnnamedAddr();
     return(ScalarInteger(old));
 }
+
+extern "C"
+SEXP
+R_GlobalValue_getValueType(SEXP r_val)
+{
+    llvm::GlobalValue *val = GET_REF(r_val, GlobalValue);
+    llvm::Type *type = val->getValueType();
+    return(R_createTypeRef(type, "Type"));        
+}
