@@ -23,13 +23,37 @@
 #  + if a value is passed as an argument in a call as more than one argument, it is possible
 #    that it may be used in different ways and give different inferred types. So we should analyze both.
 #    Can this actually happen?
-#
-#
+#     see memory.ir and warning below
+#  + Handle case in doit() for
+#      + √ InsertValueInst - coerce.ir.   Was processing a non-pointer type Argument.
+#      + √ InsertElementInst - duplicate.ir, engine.ir, unique.ir, util.ir, altrep.ir
+#      + MemMoveInst - connections.ir ...
+#          Doesn't print in usual way.
+#          Not a subclass of Instruction of Value - in R!
+#      + Instruction - gram.ir, subscript.ir -
+#          This is a FreezeInst
+#          Shouldn't see virtual/abstract Instruction. Sign of not getting correct class name for instruction instanct
 #
 
 # ERRORS: based on inferOpaqueTypes.R
-#Error in (function (cond)  : 
+#√ Error in (function (cond)  : 
 #  error in evaluating the argument 'X' in selecting a method for function 'lapply': evaluation nested too deeply: infinite recursion / options(expressions=)?
+
+
+# Remaining Warnings (when running on R_HOME/src/main/*.ir
+
+#using the same value as multiple arguments in a call to Rf_cons in /Users/duncan/Rtrunk/build2/src/main/memory.ir 
+#                                                                                                               17 
+
+#    skipping processing ... argument in call toallocFormalsList in /Users/duncan/Rtrunk/build2/src/main/memory.ir 
+#                                                                                                               20 
+#skipping processing ... argument in call toR_makeErrorCondition in /Users/duncan/Rtrunk/build2/src/main/errors.ir 
+#                                                                                                                3 
+#            skipping processing ... argument in call toRf_error in /Users/duncan/Rtrunk/build2/src/main/errors.ir 
+#                                                                                                                2 
+
+
+
 
 if(FALSE) {
     library(Rllvm)
@@ -90,6 +114,12 @@ function(fun, .routines = NULL, .prevRetRoutines = NULL)
     # getTerminators in NativeCodeAnalysis.  May want to bring that into Rllvm.
     terms = lapply(getBlocks(fun), getTerminator)
     isRet = sapply(terms, is, "ReturnInst")
+    if(!any(isRet)) {
+        # Probably an UnreachableInst
+        if(!any(sapply(terms, is, "UnreachableInst")))
+            stop("No return instruction for ", getName(fun), " in ", getName(as(fun, "Module")))
+        return(NULL)
+    }
     
     ret = terms[[ which(isRet) ]]
 
@@ -124,10 +154,12 @@ inferPointerElType =
     #
 function(val, .returnType = FALSE, .routines = NULL, .prevRoutines = NULL, .prevRetRoutines = NULL)
 {
-
     if(is.null(val))
         stop("NULL value passed to inferPointerElType. Expecting an Argument or Value generally.")
 
+    if(!isPointerType(getType(val)))
+        return(NULL)
+    
     if(is(val, "Argument")) {
         fn = as(val, "Function")
         if(isIn(fn, .prevRoutines))
@@ -288,7 +320,6 @@ function(val, prev = NULL, .returnType = FALSE, .routines = NULL, .prevRoutines 
                 #  stop("???")
                 return(NA) #XXXXXXXXXX FIX
             }
-            
         }
 
         if(sum(w) > 1) {
@@ -297,11 +328,22 @@ function(val, prev = NULL, .returnType = FALSE, .routines = NULL, .prevRoutines 
             # See processing  "/Users/duncan/Rtrunk/build2/src/main/envir.ir"
             # Run via explorations/inferOpaqueTypes.R
             #browser()
-            warning("using the same value as multiple arguments in a call XXX")
+#  Rf_cons in /Users/duncan/Rtrunk/build2/src/main/memory.ir
+            warning("using the same value as multiple arguments in a call to ", getName(fun), " in ", getName(as(fun, "Module")))
             # Can this be as simple as
             # lapply(fun[which(w)], function(p) inferPointerElType, .routines = .routines)
             # which would apply in both cases - sum(w) == 1 or > 1
         }
+
+        if(which(w)[1] > length(getParameters(fun))) {
+            if(! isVarArg(fun) )
+                stop("call with more arguments than parameters to", getName(fun), " in ", getName(as(fun, "Module")))
+            else {
+                warning("skipping processing ... argument in call to", getName(fun), " in ", getName(as(fun, "Module")))
+                return(NA)
+            }
+        }
+        
         
         p = fun[[ which(w) ]]
         return(inferPointerElType(p, .routines = .routines, .prevRoutines = .prevRoutines, .prevRetRoutines = .prevRetRoutines)) # don't include  .returnType here.
@@ -317,9 +359,10 @@ function(val, prev = NULL, .returnType = FALSE, .routines = NULL, .prevRoutines 
     } else if(is(val, "CastInst") || is(val, "BinaryOperator") ||
               is(val, "CmpInst") || is(val, "ExtractValueInst") ||
               is(val, "UnaryInstruction") || # XXXX
-              is(val, "Constant")
+              is(val, "Constant") || is(val, "FreezeInst")
               ) {
-        #???? Include FreezeInst
+        #
+        # ??? Consolidate to UnaryOperator ???
         # generalize to CastInst or UnaryInstruction
         # The classes that are UnaryInstructions but not CastInsts are 
         # c("UnaryOperator", "CastInst", "AllocaInst", "LoadInst", "VAArgInst", "ExtractValueInst", "FreezeInst")
@@ -328,6 +371,8 @@ function(val, prev = NULL, .returnType = FALSE, .routines = NULL, .prevRoutines 
         #XXX FIX
         # SwitchInst
         # ConstantPointerNull - lots of PHINode's with null and one return value. Return info about NULL | type.
+    } else if(is(val, "InsertElementInst")) {
+        return(getType(val[[2]]))
     } else {
         #XXXXXXX FIX
         # Instruction from gram.ir
@@ -338,7 +383,7 @@ function(val, prev = NULL, .returnType = FALSE, .routines = NULL, .prevRoutines 
         #      "  %.fca.0.insert = insertvalue %struct.Rcomplex.478 undef, double %x, 0, !dbg !163"
         # MemMoveInst - doesn't print properly.
         cat("XXXXXXXX ", class(val), "\n")
-#        browser()
+        browser()
     }
 
      # we don't know the type!
