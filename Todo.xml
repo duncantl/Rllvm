@@ -10,6 +10,26 @@
 <title>New</title>
 <items>
 <item>
+Make certain all classes in llvm_class_of.h are exported
+so getLLVMClassName() can get the class and put the right class on an Instruction.
+See freeze.R
+</item>
+<item>
+ Deal with MemIntrinsicBase - in llvm/IR/IntrinsicInst.h in TU/classof.R
+</item>
+<item>
+MemMoveInst and the base classes.
+See TU/.
+MemMoveInst - MemTransferInst - MemTransferBase<MemIntrinsic> which is a TemplateC++Class.
+But in RCIndex, MemTransferInst has an empty  superClasses slot.
+So have to fix this to get MemTransferBase.
+MemTransferBase super class is the template parameter BaseCL. So MemIntrinsic.
+MemIntrinsic's super class is MemIntrinsicBase<MemIntrinsic>.
+Circular use of MemIntrinsic.
+MemIntrinsicBase extends IntrinsicInst
+
+</item>
+<item>
 Opaque pointers.
 getElementType on a PointerType will fail.
 See TU/R_createRef.R for an example.
