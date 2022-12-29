@@ -25,14 +25,17 @@
 #    Can this actually happen?
 #     see memory.ir and warning below
 #  + Handle case in doit() for
-#      + √ InsertValueInst - coerce.ir.   Was processing a non-pointer type Argument.
-#      + √ InsertElementInst - duplicate.ir, engine.ir, unique.ir, util.ir, altrep.ir
-#      + MemMoveInst - connections.ir ...
+#      + MemMoveInst - character.ir, connections.ir ...
+#          Only seems to be 4 instances total.
 #          Doesn't print in usual way.
 #          Not a subclass of Instruction of Value - in R!
-#      + Instruction - gram.ir, subscript.ir -
+#      + SwitchInst - gram.ir  5 instances.
+#      + √ InsertValueInst - coerce.ir.   Was processing a non-pointer type Argument.
+#      + √ InsertElementInst - duplicate.ir, engine.ir, unique.ir, util.ir, altrep.ir
+#      + √ Instruction - gram.ir, subscript.ir -
 #          This is a FreezeInst
-#          Shouldn't see virtual/abstract Instruction. Sign of not getting correct class name for instruction instanct
+#          Shouldn't see virtual/abstract Instruction. Sign of not getting correct class name for instruction instant
+#          update of header file wasn't leading to recompiling RLLVMClassName.o and .so
 #
 
 # ERRORS: based on inferOpaqueTypes.R
@@ -92,7 +95,7 @@ inferReturnPointerType =
     #
     # Attempt to infer the element type when a routine returns a pointer as the return value.
     #
-function(fun, .routines = NULL, .prevRetRoutines = NULL)
+function(fun, .routines = NULL, .prevRetRoutines = NULL, verbose = FALSE)
 {
     if(sys.nframe() > 400) browser()
 
@@ -104,10 +107,15 @@ function(fun, .routines = NULL, .prevRetRoutines = NULL)
         return(NULL)
         
     if(getInstructionCount(fun) == 0) {
-        #XXX Check if it is in .routines.
-        
-        warning(sprintf("'%s' is not defined in this Module so cannot examine its body/instructions", getName(fun)))
-        return(NA)
+
+        # Check if it is in .routines.
+        if(length(.routines) && getName(fun) %in% names(.routines))
+            fun = .routines[[ getName(fun) ]]
+        else {
+            if(verbose)
+                warning(sprintf("'%s' is not defined in this Module so cannot examine its body/instructions", getName(fun)))
+            return(NA)
+        }
     }
     
 
@@ -206,7 +214,8 @@ function(val, prev = NULL, .returnType = FALSE, .routines = NULL, .prevRoutines 
         cur = prev[[1]]
 #        prev = prev[-1]
         for(i in seq_len(n)) {
-            ans[[i]] = doit(x[[i]], prev, .returnType = .returnType, .routines = .routines, .prevRoutines = .prevRoutines, .prevRetRoutines = .prevRetRoutines)
+            ans[[i]] = doit(x[[i]], prev, .returnType = .returnType, .routines = .routines,
+                            .prevRoutines = .prevRoutines, .prevRetRoutines = .prevRetRoutines)
             prev = c(cur, x[[i]], prev)            
         }
         ans
@@ -216,12 +225,14 @@ function(val, prev = NULL, .returnType = FALSE, .routines = NULL, .prevRoutines 
         return(NULL)
    
     if(is(val, "LoadInst") || is(val, "AllocaInst") || is(val, "Argument")) {
+
         u = getAllUsers(val)
         return(loop(u, c(val, prev)))
-      #  return(lapply(u, doit, c(val, prev), .returnType = .returnType, .routines = .routines)) 
+
     } else if(is(val, "StoreInst")) {
+        
         return(loop(val[], c(val, prev)))
-        # return(lapply(val[], doit, c(val, prev), .returnType = .returnType, .routines = .routines))        
+
     } else if(is(val, "PHINode")) {
 
         # XX NEED to get the prev correct.
@@ -230,27 +241,26 @@ function(val, prev = NULL, .returnType = FALSE, .routines = NULL, .prevRoutines 
         # [1] "  %h.2 = phi ptr [ %call11, %if.then10 ], [ %call21, %if.then19 ], [ %h.1, %if.end36 ], [ %6, %if.else12 ], !dbg !223"
 
         return(loop(val[], c(val, prev)))
-#        return(unlist(lapply(val[], doit, c(val, prev), .returnType = .returnType, .routines = .routines)))
+
     } else if(is(val, "SelectInst")) {
         # Is there any value to looking at the condition?
         # Can it tell us anything about the type, e.g., with a cast?
+        # What if uses the Value of interest? Well then we'll process it via a different path through these computations.
         return(loop(val[-1], c(val, prev)))
-#        return(unlist(lapply(val[-1], doit, c(val, prev), .returnType = .returnType, .routines = .routines)))
+
     } else if(is(val, "CallInst")) {
 
-        #XXX need to know if we are looking at the return value of the function.
+        #  Have to be careful that we don't have foo call bar and bar calls foo. That is what .prevRoutines is for.
         
-        # find which parameter val corresponds to in the call to the
-        # routine and then call inferPointerElType() on that
-        # parameter which will examine that routine.
-        # If the routine is not in this module, then this really is an opaque
-        # data type, at least from this CallInst.
-        # fun = val[[length(val)]]
+        # need to know if we are looking at the return value of the function. That is what .returnType is for.
+        
         fun = getCalledFunction(val)
 
 
         #XXXXXX May not be a Function, but could be a call/load, etc. to compute what routine to call.
-        # Need to handle this.
+        # Need to handle this?
+        # In theory, we could see if we can determine which routines it could possibly be and follow them.
+        # Not really worth the effort.
 
         if(!is(fun, "Function")) {
             return(NA)
@@ -259,8 +269,10 @@ function(val, prev = NULL, .returnType = FALSE, .routines = NULL, .prevRoutines 
         }
         
         
-        # ??? Check to see if the routine is defined in this module, i.e.,
+        # Check to see if the routine is defined in this module, i.e.,
         # has blocks and not just a declaration.
+        # If not and .routines is not empty, we'll look for the routine there, i.e., in another
+        # module.
         if(getInstructionCount(fun) == 0) {
 
             if(length(.routines) &&
@@ -268,75 +280,44 @@ function(val, prev = NULL, .returnType = FALSE, .routines = NULL, .prevRoutines 
                 fun = .routines[[id]]
                 warning("found called routine ", getName(fun), "in other module ", getName(as(fun, "Module")))
             } else {
-                #XXX enable
-                # warning(sprintf("'%s' is not defined in this Module so cannot examine its body/instructions", getName(fun)))
+                if(length(.routines))
+                    warning(sprintf("'%s' is not defined in this Module so cannot examine its body/instructions", getName(fun)))
                 return(NA)
             }
         }
 
-        #XXX  Have to be careful that we don't have foo call bar and bar calls foo.
-        # This isn't specific to finding a routine in another module.        
+
+        # find which parameter val corresponds to in the call to the
+        # routine and then call inferPointerElType() on that
+        # parameter which will examine that routine.
 
         # val[] <==> getOperands()
-        w = sapply(val[ - length(val) ], identical, prev[[1]])
+        # was val[ - length(val) ]
+        w = sapply( getArguments(val), identical, prev[[1]] )
 
-        if(!any(w)) {
-            if(TRUE) # was if(.returnType)
-                return(inferReturnPointerType(fun, .routines = .routines, .prevRetRoutines = .prevRetRoutines))
-            else {
-                cat("???", getName(fun), class(prev[[1]]), "\n")
-                recover()
-                #XXXXXXXXXXX FIX
-                # val =
-                # "  %call26 = tail call fastcc ptr @make_wrapper(ptr %x, ptr %call.i), !dbg !174"
-                # prev[[1]] =
-                # "  %retval.0 = phi ptr [ %call4, %if.then ], [ %call26, %if.end21 ], [ %x, %entry ], !dbg !141"
-                #
-                # val: "  %call15 = tail call fastcc double @R_POW(double %x, double %conv14), !dbg !156"
-                # prev: "  %retval.0 = phi double [ %1, %if.then2 ], [ %call15, %if.then13 ], [ %x, %entry ], [ %xn.2, %for.end ], [ 1.000000e+00, %if.end3 ], !dbg !121"
-                #
-                #
-                #val:  [1] "  %call38 = call double @GEStrHeight(ptr %call28, i32 %enc2.0, ptr %gc, ptr %dd), !dbg !583"
-                #prev: [1] "  store double %call38, ptr %ascent, align 8, !dbg !585, !tbaa !508"
-                #
-                # val  "  %call222 = call double @GEStrWidth(ptr %str, i32 %enc.addr.0, ptr %gc, ptr %dd), !dbg !780"
-                # prev "  store double %call222, ptr %width, align 8, !dbg !781, !tbaa !508"
-                #
-                # val "  %call = tail call fastcc i32 @tlsearch(i32 %wc, ptr @table_toupper, i32 1410), !dbg !190"
-                # prev "  %cond = select i1 %cmp, i32 %call, i32 %wc, !dbg !192"
-                #
-                #
-                #
-                # Now with loop() and correct prev ...
-                # From "/Users/duncan/Rtrunk/build2/src/main/altrep.ir"
-#                [1] "  %call4 = tail call %struct.SEXPREC.49* @ALTREP_SERIALIZED_CLASS(%struct.SEXPREC.49* %x), !dbg !326"
-#                [1] "  %call = tail call %struct.SEXPREC.49* @ALTREP_SERIALIZED_CLASS(%struct.SEXPREC.49* %x), !dbg !326"
-                if(!is(prev[[1]], "PHINode") && !is(prev[[1]], "StoreInst")) {
-                    print(val)
-                    print(prev[[1]])
-                    browser()
-                }
-                
-                #  stop("???")
-                return(NA) #XXXXXXXXXX FIX
-            }
-        }
+        if(!any(w)) 
+            return(inferReturnPointerType(fun, .routines = .routines, .prevRetRoutines = .prevRetRoutines))
 
+
+        
         if(sum(w) > 1) {
-            # Can this happen?? Yes
+            # Can this happen?? Yes!
             # "  call fastcc void @R_AddGlobalCache(ptr %symbol, ptr %symbol), !dbg !276"
             # See processing  "/Users/duncan/Rtrunk/build2/src/main/envir.ir"
             # Run via explorations/inferOpaqueTypes.R
+            #  Rf_cons in /Users/duncan/Rtrunk/build2/src/main/memory.ir
+
             #browser()
-#  Rf_cons in /Users/duncan/Rtrunk/build2/src/main/memory.ir
+
             warning("using the same value as multiple arguments in a call to ", getName(fun), " in ", getName(as(fun, "Module")))
-            # Can this be as simple as
-            # lapply(fun[which(w)], function(p) inferPointerElType, .routines = .routines)
+            # Can we solve this with 
+            #    lapply(fun[which(w)], function(p) inferPointerElType, .routines = .routines)
             # which would apply in both cases - sum(w) == 1 or > 1
         }
 
         if(which(w)[1] > length(getParameters(fun))) {
             if(! isVarArg(fun) )
+                # Really should never happen. Compiler generating the IR should have given an error.
                 stop("call with more arguments than parameters to", getName(fun), " in ", getName(as(fun, "Module")))
             else {
                 warning("skipping processing ... argument in call to", getName(fun), " in ", getName(as(fun, "Module")))
@@ -344,14 +325,20 @@ function(val, prev = NULL, .returnType = FALSE, .routines = NULL, .prevRoutines 
             }
         }
         
-        
         p = fun[[ which(w) ]]
-        return(inferPointerElType(p, .routines = .routines, .prevRoutines = .prevRoutines, .prevRetRoutines = .prevRetRoutines)) # don't include  .returnType here.
+
+         # don't include  .returnType in this call.
+        return(inferPointerElType(p, .routines = .routines, .prevRoutines = .prevRoutines, .prevRetRoutines = .prevRetRoutines))
     } else if(is(val, "GlobalVariable")) {
+        
         return(list(getValueType(val)))
+
     } else if(is(val, "GetElementPtrInst")) {
+
         return(list(getSourceElementType(val)))
+
     } else if(is(val, "ReturnInst")) {
+        
         if(length(val) > 0)
             return( doit(val[[1]], c(val, prev) , .returnType = .returnType, .routines = .routines, .prevRoutines = .prevRoutines, .prevRetRoutines = .prevRetRoutines))
         else
@@ -367,12 +354,23 @@ function(val, prev = NULL, .returnType = FALSE, .routines = NULL, .prevRoutines 
         # The classes that are UnaryInstructions but not CastInsts are 
         # c("UnaryOperator", "CastInst", "AllocaInst", "LoadInst", "VAArgInst", "ExtractValueInst", "FreezeInst")
         return(getType(val))
+
     } else if (is(val, "SwitchInst") || is(val, "ConstantPointerNull")) {
+
+        if(identical(val[[1]], prev[[1]]))
+            return(getType(val[[1]]))
+
+        
+        cat("doit(): handle ", class(val), "\n")
+        
         #XXX FIX
         # SwitchInst
         # ConstantPointerNull - lots of PHINode's with null and one return value. Return info about NULL | type.
+
     } else if(is(val, "InsertElementInst")) {
+        
         return(getType(val[[2]]))
+
     } else {
         #XXXXXXX FIX
         # Instruction from gram.ir
