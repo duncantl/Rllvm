@@ -1,0 +1,149 @@
+<article
+   xmlns:r="http://www.r-project.org"
+	 xmlns:c="http://www.C.org"
+	 xmlns:sh="http://www.shell.org"
+	 xmlns:ir="http://llvm.org/ir"
+	 xmlns:xi="http://www.w3.org/2003/XInclude">
+  <articleinfo>
+    <title>Nested Structures and Unions</title>
+    <author>
+    <firstname>Duncan</firstname>
+    <surname>Temple Lang</surname>
+    </author>
+  </articleinfo>
+<!--  <authorInfo>  </authorInfo> -->
+
+<section>
+<title>How a Compiler Represents a <c:keyword>union</c:keyword></title>
+
+<para>
+  We are interested in seeing how <llvm/> deals with structures and specifically
+  nested structures and unions.
+  We mimic the basic idea of <r/>'s <c:type>SEXPREC</c:type> which has a type
+  and a union. The type indicates which element in the union is actually  populated.
+  A compiler won't represent the union with a field for each possible element.
+  Instead, it allocates space that will allow any of them to be represented at a given time.
+  It will cast the union appropriately when accessing the pseudo-fields so that the union
+  object has the appropriate type, or is treated as such.
+  Essentially, the compiler will make the space for the union to be as large as the largest
+  element of the union.
+  It has to also manage alignment of the elements so they are accessed correctly. 
+</para>
+<para>
+Consider the code in <file>nestedStruct.c</file>:
+<c:code>
+<xi:include href="nestedStruct.c" parse="text"/>
+</c:code>
+We have three  structures - A, B, C - and
+a Container struct which has a type field to identify which field in the union
+is currently active/populated.
+Note that the statistics fields in B and C are not present by default.
+</para>
+<para>
+  We create the <ir/> code for this default case with
+<sh:code>
+make nestedStruct.ir
+</sh:code>
+<ir:code>
+%struct.Container = type { i32, %union.anon, i64 }
+%union.anon = type { %struct.A }
+</ir:code>
+</para>
+
+
+
+<para>
+  For <r/>'s <c:type>SEXPREC</c:type> structure which is defined (after macro expansions) as
+<c:code>
+typedef struct SEXPREC {
+    struct sxpinfo_struct sxpinfo; 
+    struct SEXPREC *attrib; 
+    struct SEXPREC *gengc_next_node;
+    struct SEXPREC *gengc_prev_node
+    union {
+	struct primsxp_struct primsxp;
+	struct symsxp_struct symsxp;
+	struct listsxp_struct listsxp;
+	struct envsxp_struct envsxp;
+	struct closxp_struct closxp;
+	struct promsxp_struct promsxp;
+    } u;
+} SEXPREC;
+</c:code>
+the <ir/> definition for the type is
+<c:code>
+%struct.SEXPREC = type { %struct.sxpinfo_struct, %struct.SEXPREC*, %struct.SEXPREC*, %struct.SEXPREC*, %union.anon }
+%struct.sxpinfo_struct = type { i64 }
+%union.anon = type { %struct.symsxp_struct }
+</c:code>
+So the union is represented by the symsxp structure.
+Coincidentally, all off the elements of the union are
+structures that contain three fields each of which has type
+<c:type>struct SEXPREC *</c:type>.
+So they are all identical structures, except for the names of the fields which the <ir/> discards.
+</para>
+</section>
+
+<section>
+<title>Finding Access to <c:el>carval</c:el> and <c:el>cdrval</c:el></title>
+
+<para>
+We want to find the different <r/> types which <r/> accesses the car and cdr values
+in the listsxp_struct.
+For all but two of the <r/> source files in <dir>src/main</dir>,
+the <c:type>SEXPREC</c:type> type is opaque and so the only access to these fields
+is via routines, specifically CAR and CDR.<fix>We need to verify this, i.e.,
+that this is not done in the header files, and also that
+there are no other routines.</fix>
+The two files memory.c and inspect.c do access the fields in the <c:type>SEXPREC</c:type>
+and the type is not opaque.
+</para>
+
+<para>
+  If we look at the <ir/> code in memory.ir, we see no reference
+  to the <c:type>listsxp_struct</c:type> (except in the debug information).
+  <clang/> has removed it as it is not necessary.
+  However, this means that we cannot find differentiate between accessing the first element
+  of a <c:type>listsxp_struct</c:type> and the first element of
+  a <c:type>symsxp_struct</c:type> or any of the other element types in the union of the <c:type>SEXPREC</c:type>.
+</para>
+
+
+
+<para>
+<r:code>
+  mem = parseIR("~/R-devel/build/src/main/memory.ir")
+</r:code>
+<r:code>
+memTypes = getTypes(mem)
+</r:code>
+
+<r:code>
+ins = unlist(getInstructions(mem))
+</r:code>  
+
+</para>
+</section>
+
+
+
+
+
+
+
+
+
+<section>
+<title></title>
+
+<para>
+<r:code>
+includeDirs = c("/Library//Developer/CommandLineTools/usr/lib/clang/11.0.3/include/", "/Users/duncan/R-devel/src/include", "/Users/duncan/R-devel/build/src/include", "/usr/local/include")    
+  tu2 = createTU("~/R-devel/src/main/memory.c",
+                 includeDirs,
+                 args = "-DHAVE_CONFIG_H")
+</r:code>
+</para>
+</section>
+
+</article>
