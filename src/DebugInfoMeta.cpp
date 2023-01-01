@@ -85,6 +85,12 @@ R_DIType_isObjcClassComplete(SEXP r_obj)
     return(ScalarLogical(obj->isObjcClassComplete()));
 }
 
+
+// Rf_isVector
+#ifdef isVector
+#undef isVector
+#endif
+
 extern "C"
 SEXP
 R_DIType_isVector(SEXP r_obj)

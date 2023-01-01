@@ -1,7 +1,9 @@
-const char * getLLVMClassName(llvm::Value const *obj)
+#include "Rllvm.h"
+#include <llvm/IR/Operator.h>
+#include <llvm/IR/IntrinsicInst.h>
+const char * getLLVMClassName(llvm::Value const * obj)
 {
 	const char *ans = "Value";
-	
 	if(llvm::Function::classof(obj))
 	   ans = "Function";
 	else if(llvm::GlobalVariable::classof(obj))
@@ -90,7 +92,7 @@ const char * getLLVMClassName(llvm::Value const *obj)
 	   ans = "VAArgInst";
 	else if(llvm::ExtractValueInst::classof(obj))
 	   ans = "ExtractValueInst";
-	else if(llvm::FreezeInst::classof(obj)) 
+	else if(llvm::FreezeInst::classof(obj))
 	   ans = "FreezeInst";
 	else if(llvm::ICmpInst::classof(obj))
 	   ans = "ICmpInst";
@@ -140,18 +142,12 @@ const char * getLLVMClassName(llvm::Value const *obj)
 	   ans = "MinMaxIntrinsic";
 	else if(llvm::BinaryOpIntrinsic::classof(obj))
 	   ans = "BinaryOpIntrinsic";
-#if 0	
-	else if(llvm::MemIntrinsicBase::classof(obj))
-	   ans = "MemIntrinsicBase";
-#endif	
 	else if(llvm::VAStartInst::classof(obj))
 	   ans = "VAStartInst";
 	else if(llvm::VAEndInst::classof(obj))
 	   ans = "VAEndInst";
 	else if(llvm::VACopyInst::classof(obj))
 	   ans = "VACopyInst";
-	else if(llvm::InstrProfInstBase::classof(obj))
-	   ans = "InstrProfInstBase";
 	else if(llvm::PseudoProbeInst::classof(obj))
 	   ans = "PseudoProbeInst";
 	else if(llvm::NoAliasScopeDeclInst::classof(obj))
@@ -236,8 +232,6 @@ const char * getLLVMClassName(llvm::Value const *obj)
 	   ans = "Instruction";
 	else if(llvm::Operator::classof(obj))
 	   ans = "Operator";
-	else if(llvm::DerivedUser::classof(obj))
-	   ans = "DerivedUser";
 	else if(llvm::Argument::classof(obj))
 	   ans = "Argument";
 	else if(llvm::User::classof(obj))
@@ -249,5 +243,3 @@ const char * getLLVMClassName(llvm::Value const *obj)
 
 	return(ans);
 }
-
-

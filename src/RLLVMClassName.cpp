@@ -3,7 +3,7 @@
 #include <llvm/IR/Operator.h>
 #include <llvm/IR/IntrinsicInst.h>
 
-#include "llvm_classof_name.h"
+
 /*
 If we need something more specific than getLLVMClassName() - WE WON'T.
 we can add a getLLVMInstructionClassName(llvm::Instruction *) routine
