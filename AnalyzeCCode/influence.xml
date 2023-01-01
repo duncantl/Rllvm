@@ -6,13 +6,11 @@
 	 xmlns:omg="http://www.omegahat.org">
 
 <p>
-  See the example in README.md, eg.R, eg2.R and eg3.R and the code in getType.R.
+See the example in README.md, eg.R, eg2.R and eg3.R and the code in getType.R.
 </p>
 
 <section>
 <title>Getting <r/> Type Information from <c/> Code</title>
-
-
 
 <para>
 Note the R source code has changed and influence() returns a list with 2 elements.
