@@ -48,7 +48,7 @@ function(r)
 }
 
 
-passes = lapply(children(top)[ isLLVMNS)],
+passes = lapply(children(top)[ isLLVMNS ],
        function(cur) {
            rr = getRoutines(cur)
            if(length(rr) == 0)
