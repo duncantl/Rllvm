@@ -1,3 +1,4 @@
+library(RCIndex)
 llvmIncludeDir =
 function()
 {
@@ -51,8 +52,8 @@ args = c("-xc++", "-DNDEBUG", "-D_GNU_SOURCE",
 
 mkTU =
 # "Compiler" arguments.  Taken from building cpp files in Rllvm.
-function(f = "llvm.cpp", inc = includeDirs(), args = CompilerArgs)
+function(f = "llvm.cpp", inc = includeDirs(), args = CompilerArgs, ...)
 {
-    RCIndex::createTU(f, args = args, includes = inc, verbose = TRUE)
+    RCIndex::createTU(f, args = args, includes = inc, verbose = TRUE, ...)
 }
 
