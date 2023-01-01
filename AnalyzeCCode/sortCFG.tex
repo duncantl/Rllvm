@@ -9,16 +9,16 @@
   start chain = going below,
   box/.style = {draw,rounded corners,%fill=white,  % blur shadow,
         on chain,align=center}]
- \node[box, sharp corners] (entry)  at (.5, -.2)  {\tiny Rf_checkArity() };
- \node[box] (if.then)  at (.5, -.5)  {\tiny Rf_error() };      
- \node[box, sharp corners] (if.end)  at (2.5, -1.25)  {\tiny CAR(args) == R_NilValue }; % 
- \node[box] (if.end7)  at (-.5, -1.5)  {\tiny Rf_isVectorAtomic(CAR(args)) };  
- \node[box, sharp corners] (if.then10)  at (.5, -2.25) {\tiny Rf_error() };
+ \node[box, sharp corners] (entry)  at (.5, -.2)  {\tiny Rf\_checkArity() };
+ \node[box] (if.then)  at (.5, -.5)  {\tiny Rf\_error() };      
+ \node[box, sharp corners] (if.end)  at (2.5, -1.25)  {\tiny CAR(args) == R\_NilValue }; % 
+ \node[box] (if.end7)  at (-.5, -1.5)  {\tiny Rf\_isVectorAtomic(CAR(args)) };  
+ \node[box, sharp corners] (if.then10)  at (.5, -2.25) {\tiny Rf\_error() };
  \node[box, sharp corners] (if.end12)  at (-1.82, -2.5)  {\tiny TYPEOF(CAR(args)) == 24 };      
- \node[box, sharp corners] (if.then16)  at (-1.82, -3.5)  {\tiny Rf_error() };
- \node[box, sharp corners] (if.end18)  at (-1.82, -4.5)  {\tiny Rf_duplicate() \\
+ \node[box, sharp corners] (if.then16)  at (-1.82, -3.5)  {\tiny Rf\_error() };
+ \node[box, sharp corners] (if.end18)  at (-1.82, -4.5)  {\tiny Rf\_duplicate() \\
                                                                 ... \\
-                                                              Rf_sortVector(); }; 
+                                                              Rf\_sortVector(); }; 
  \node[box, sharp corners] (cleanup)  at (-1.82, -5.5)  {\tiny return() };
  
  \begin{scope}[rounded corners,-latex]
