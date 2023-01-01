@@ -9,6 +9,12 @@
 <topic>
 <title>New</title>
 <items>
+
+<item>
+Check sameType() and the extra check added to see if R_PointerType_hasSameElementTypeAs gives
+the same results ALWAYS as the R code we have for ans = sameType(getElementType ....)
+</item>
+
 <item status="done">
 Make certain all classes in llvm_class_of.h are exported
 so getLLVMClassName() can get the class and put the right class on an Instruction.
