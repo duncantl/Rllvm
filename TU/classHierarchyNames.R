@@ -12,7 +12,7 @@ function(base, k, rmPrefix = TRUE)
     if(!grepl("^llvm::", base))
         base = paste0("llvm::", base)
         
-    ans = unique( unlist(getSubclasses(base, k, verbose = FALSE)) )
+    ans = unique( unlist(NativeCodeAnalysis::getSubclasses(base, k, verbose = FALSE)) )
     if(rmPrefix)
         rmPrefix(ans)
     else

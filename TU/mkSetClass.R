@@ -27,10 +27,9 @@ if(FALSE) {
     if(!exists("k"))
         k = getCppClasses(tu, "include/llvm", numClasses = 1200)
     
-    value = getSubclasses("llvm::Value", k)
-    mdnode = getSubclasses("llvm::MDNode", k)
-    ty = getSubclasses("llvm::Type", k)
-
+    value = NativeCodeAnalysis::getSubclasses("llvm::Value", k)
+    mdnode = NativeCodeAnalysis::getSubclasses("llvm::MDNode", k)
+    ty = NativeCodeAnalysis::getSubclasses("llvm::Type", k)
 
     cat(mkSetClass(mdnode), sep = "\n", file = "../R/llvmMDNodeClasses.R.new")
     cat(mkSetClass(ty), sep = "\n", file = "../R/llvmTypeClasses.R.new")

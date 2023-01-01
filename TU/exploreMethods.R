@@ -1,5 +1,5 @@
 if(FALSE) {
-    value = getSubclasses("llvm::Value", k)
+    value = NativeCodeAnalysis::getSubclasses("llvm::Value", k)
 }
 
 getMethodNames =
