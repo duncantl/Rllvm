@@ -1,7 +1,7 @@
 # Probably don't need this as it is done in the R function
 # Rllvm:::coerceGenericInstruction using Op codes and a table.
 
-
+# Some classes that were removed from LLVM at some version number.
 c("<8" = "TerminatorInst",
   "<7" = c("Operator", "OverflowingBinaryOperator", "PossiblyExactOperator", "FPMathOperator", "DbInfoIntrinsic",
            "ConstrainedFPIntrinsic",
@@ -12,13 +12,29 @@ c("<8" = "TerminatorInst",
 
 
 if(FALSE) {
-    # Have to get the order correct.
+    # Have to get the order of the classes correct so that we don't ask
+    #   Instruction::classof()
+    # and then
+    #   CallInst::classof()
+    # as a CallInst is an Instruction, one of its ancestor classes
+    #
+    source("includeDirs.R")
     source("getBaseClasses.R")
     source("mkSetClass.R")    
 
-    value = getSubclasses("llvm::Value", k)
-    valueSubClassNames = rmPrefix( unname(unlist(value)) )
+    #value = NativeCodeAnalysis::getSubclasses("llvm::Value", k)
+    #valueSubClassNames = rmPrefix( unname(unlist(value)) )
+    if(!exists("k")) {
+        tu = mkTU()
+        k = getCppClasses(tu, "include/llvm")
+    }
+    
+    valueSubClassNames = getSubClassNames("llvm::Value", k)
 
+    w = sapply(k[valueSubClassNames], function(x) "classof" %in% names(x@methods))
+    valueSubClassNames = valueSubClassNames[w]
+
+    
 if(FALSE) {    
     # Just to check the order.
     supClass = rmPrefix(sapply(k[valueSubClassNames], function(x) names(x@superClasses)))
@@ -38,7 +54,11 @@ if(FALSE) { # unfinished     checking order.
 #./llvm_classof_name.h:142:16: error: 'MemIntrinsicBase' is not a class, namespace, or enumeration
 #        else if(llvm::MemIntrinsicBase::classof(obj))    
     txt = genClassofClassName( valueSubClassNames  )
-    cat(txt, sep = "\n", file = "../src/llvm_classof_name.h")
+    cat('#include "Rllvm.h"',
+        "#include <llvm/IR/Operator.h>",
+        "#include <llvm/IR/IntrinsicInst.h>",
+        txt,
+        sep = "\n", file = "../src/llvm_classof_name.cpp")
 }
 
 
