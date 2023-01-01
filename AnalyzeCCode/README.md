@@ -1,5 +1,9 @@
 # AnalyzeCCode
 
+See [NativeCodeAnalysis](https://github.com/duncantl/NativeCodeAnalysis) for a package
+that incorporates some the ideas here.
+
+
 The purpose of this is to explore how we can use LLVM and Rllvm
 to analyze C/C++ code.
 
