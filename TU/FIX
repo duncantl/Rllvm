@@ -1,0 +1,9 @@
++ √ includeDirs.R:mkTU()
+  + Write a function to create the TU with all the arguments that are currently in clang_new.R
+  or else move these variables (inc, version, args) to a separate script that each script
+
++ Combine all the functions into a single file or make a package?
+  + or keep in a sub-directory  and have a script that sources() them all.
+  + or add some to CodeAnalysis or NativeCodeAnalysis
+  
+  

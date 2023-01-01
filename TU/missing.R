@@ -191,4 +191,4 @@ m1s = mapply(function(ty, fun) sprintf("setMethod('%s', '%s', function(x, ...) \
 i = expand.grid(c("LoadInst", "StoreInst"), setFuns, stringsAsFactors = FALSE)
 m2s = mapply(function(ty, fun) sprintf("setMethod('%s', '%s', function(x, ...) \n     .Call('R_%s_%s', x))", fun, ty, ty, fun), i[[1]], i[[2]])
 
-}
+# }
