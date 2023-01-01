@@ -28,7 +28,7 @@
 #include <llvm/IR/Operator.h>
 
 #include <llvm/IR/DerivedUser.h>
-#include <llvm/IR/DerivedType.h>
+#include <llvm/IR/DerivedTypes.h>
 
 //---------
 
