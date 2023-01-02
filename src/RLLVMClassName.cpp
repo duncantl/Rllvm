@@ -5,10 +5,10 @@
 
 
 /*
-If we need something more specific than getLLVMClassName() - WE WON'T.
+If we need something more specific than getLLVMValueClassName() - WE WON'T.
 we can add a getLLVMInstructionClassName(llvm::Instruction *) routine
 and have it do the same thing but just for subclasses of Instruction.
-Then in getLLVMClassName() first check if the Value is an Instruction and
+Then in getLLVMValueClassName() first check if the Value is an Instruction and
 if so call getLLVMInstructionClassName().
 Can have TU/classof.R create the getLLVMInstructionClassName() routine too.
  */
@@ -17,7 +17,7 @@ SEXP
 R_Value_getClassName(SEXP r_val)
 {
     llvm::Value * val = GET_REF(r_val, Value);
-    const char *name = getLLVMClassName(val);
+    const char *name = getLLVMValueClassName(val);
     return(ScalarString(name ? mkChar(name) : R_NaString));
 }
 

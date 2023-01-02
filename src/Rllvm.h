@@ -168,7 +168,7 @@ llvm::LLVMContext & getLLVMGlobalContext();
 
 
 
-const char * getLLVMClassName(const llvm::Value *obj);
+const char * getLLVMValueClassName(const llvm::Value *obj);
 const char  * getLLVMTypeClassName(const llvm::Type *obj);
 
 

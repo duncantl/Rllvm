@@ -1,7 +1,7 @@
 #include "Rllvm.h"
 #include <llvm/IR/Operator.h>
 #include <llvm/IR/IntrinsicInst.h>
-const char * getLLVMClassName(llvm::Value const * obj)
+const char * getLLVMValueClassName(llvm::Value const * obj)
 {
 	const char *ans = "Value";
 	if(llvm::Function::classof(obj))
