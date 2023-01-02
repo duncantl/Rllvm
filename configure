@@ -663,7 +663,6 @@ ac_includes_default="\
 ac_header_cxx_list=
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
-SHLIB_EXT
 FFI_LIB
 PKG_CONFIG
 LLVM_CFLAGS
@@ -3583,9 +3582,6 @@ else $as_nop
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
-
-
-SHLIB_EXT=`R CMD config SHLIB_EXT`
 
 
 

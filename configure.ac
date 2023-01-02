@@ -356,9 +356,11 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 	       ])
 
 
-
-SHLIB_EXT=`R CMD config SHLIB_EXT`
-AC_SUBST(SHLIB_EXT)
+dnl Was used to generate target for Rllvm.so in Makevars.in when we had .h files for
+dnl llvm_classof_name.h and llvm_type_classof_name.h
+dnl But these are 
+dnl SHLIB_EXT=`R CMD config SHLIB_EXT`
+dnl AC_SUBST(SHLIB_EXT)
 
 
 AC_CONFIG_FILES([src/Makevars])

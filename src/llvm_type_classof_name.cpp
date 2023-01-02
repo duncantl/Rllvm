@@ -1,6 +1,14 @@
+#include "Rllvm.h"
+
 /*
-source("fun.R")
-# How did we compute k? 
+  See TU/classof.R
+
+source("fun.R") - doesn't exist.
+# How did we compute k?
+# See includeDirs.R
+tu = mkTU()
+k = getCppClasses(tu, "include/llvm")
+
 o = getClassHierarchy("llvm::Type", k)
 # The following is not general enough.  Need to include the  name of an intermediate
 # class, e.g. VectorType which has sub-classes.

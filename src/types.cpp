@@ -500,7 +500,7 @@ R_StructType_elements(SEXP r_type)
 }
 
 
-#include "llvm_type_classof_name.h"
+// #include "llvm_type_classof_name.h"
 
 extern "C"
 SEXP
