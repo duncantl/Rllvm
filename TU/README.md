@@ -1,6 +1,6 @@
 # Questions
 
-+ ¿ Use enums.R or clang_new.R  to generate the z_enumDefs_<version>.R file in ../R/ ????
++ Use enums.R (rather than clang_new.R) to generate the z_enumDefs_<version>.R file in ../R/ 
 + ¿ Are the LLVM_isA() routines ever used from mkLLVM_isA.R?
 + llvmValueClasses.R  - How to deal with classes that are no longer in LLVM, i.e., conditionally
   present.
