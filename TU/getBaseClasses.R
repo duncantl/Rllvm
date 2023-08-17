@@ -35,14 +35,18 @@ if(FALSE) {
 getBaseClasses =
     # parse the TU and just get the filtered nodes.
     # Then get the fully-qualified namespace names for the nodes
-function(tu, ...)
+function(tu, nodes = getCppClasses(tu, nodesOnly = TRUE, ...), asNodes = TRUE, ...)
 {    
-    nodes = getCppClasses(tu, nodesOnly = TRUE, ...)
     #    localNames = names(nodes)
 
     fullNames = mapply(mkFullName, nodes, names(nodes))
     names(nodes) = fullNames
-    structure(lapply(nodes, cxfindBaseClass), class = "BaseClasses")
+    ans = structure(lapply(nodes, cxfindBaseClass), class = "BaseClasses")
+    names(ans) = rmPrefix(names(ans))
+    if(!asNodes) {
+        lapply(ans, function(x) rmPrefix(gsub("^class ", "", sapply(x, getName))))
+    } else
+        ans
 }
 
 
@@ -143,17 +147,17 @@ function(className, map)
 }
 
 
-# How does this relate to NativeCodenAnalysis' getSubclasses
-# Looks somewhat similar.
-getSubClasses =
+# How does this relate to NativeCodeAnalysis' getSubclasses. 
+# Looks somewhat similar in spirit but different inputs. Used in the code in if(FALSE) above.
+# Was called getSubclasses, but changed to C to be consistent with getBaseClasses defined above.
+getSubClasses = # getSubclasses =
 function(className, map, recursive = TRUE)
 {
-# print(className)
     i = names(map)[map == className]
     ans = structure(i, names = rep(className, length(i)))
     if(!recursive || length(ans) == 0)
         return(ans)
-#browser()
+
     nx = sapply(ans, getSubClasses, map, recursive = TRUE)
     nx = nx[sapply(nx, length) > 0]
     ans = c(ans, nx)
