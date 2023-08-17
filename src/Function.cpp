@@ -124,21 +124,32 @@ SEXP
 R_Function_getBasicBlockList(SEXP r_func)
 {
     llvm::Function *func = GET_REF(r_func, Function);
-    int n, i = 0;
+    int n = 0, i = 0;
     SEXP rans, names;
+
+#if (LLVM_VERSION >= 16)
+
+    for (llvm::Function::iterator b = func->begin(), be = func->end(); b != be; ++b)
+        n++;
+#else
 
 #if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
     llvm::iplist<llvm::BasicBlock> &blocks = func->getBasicBlockList();
-#else
+#else    
     llvm::Function::BasicBlockListType &blocks = func->getBasicBlockList();
 #endif
 
     n = blocks.size();
 
+#endif // llvm_version >= 16
+
+    
     PROTECT(rans = NEW_LIST(n));
     PROTECT(names = NEW_CHARACTER(n));
 #if 1
-#if LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
+#if (LLVM_VERSION >= 16)
+    for (llvm::Function::iterator it = func->begin(), be = func->end(); it != be; ++it)    
+#elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
     for(llvm::iplist<const llvm::BasicBlock>::const_iterator it = blocks.begin(); it != blocks.end(); it++, i++)
 #else
     for(llvm::Function::BasicBlockListType::const_iterator it = blocks.begin(); it != blocks.end(); it++, i++)
@@ -150,6 +161,7 @@ R_Function_getBasicBlockList(SEXP r_func)
         SET_VECTOR_ELT(rans, i, R_createRef(cur, "BasicBlock"));
     }
 #endif
+    
     SET_NAMES(rans, names);
 
     UNPROTECT(2);

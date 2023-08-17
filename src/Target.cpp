@@ -109,7 +109,10 @@ R_Target_createTargetMachine(SEXP r_target, SEXP r_triple, SEXP r_cpu, SEXP r_fe
 
     ans = tgt->createTargetMachine(triple, std::string(CHAR(STRING_ELT(r_cpu, 0))),
                                    std::string(CHAR(STRING_ELT(r_features, 0))), *opts
-#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 9) || LLVM_VERSION >= 4
+
+#if LLVM_VERSION >= 16
+                                   , std::optional<llvm::Reloc::Model>()   //XXX!!!! Fix
+#elif (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 9) || LLVM_VERSION >= 4 
                                    , llvm::Optional<llvm::Reloc::Model>()
 #endif
                                    );

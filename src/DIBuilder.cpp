@@ -223,7 +223,9 @@ R_DIBuilder_CreatePointerType(SEXP r_builder, SEXP r_type, SEXP r_name) {
     const char * name = CHAR(STRING_ELT(r_name, 0));
 
     llvm::DIType* ans = builder->createPointerType(baseType, sizeof(void*), 0,
-#if LLVM_VERSION >= 5                                                   
+#if LLVM_VERSION >= 16
+                                                   std::nullopt,
+#elif LLVM_VERSION >= 5                                                   
                                                    llvm::None,
 #endif                                                   
                                                    llvm::StringRef(name));

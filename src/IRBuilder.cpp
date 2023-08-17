@@ -595,6 +595,7 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
 #endif    
     
 
+#if 0    
     llvm::BasicBlock *block = builder->GetInsertBlock();
     
     if(Rf_length(r_size)) {
@@ -643,6 +644,7 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
 
     return(R_createRef2(ans, "AllocaInst"));
 
+#endif // #if 0
 }
 
 
@@ -1395,9 +1397,9 @@ extern "C"
 SEXP
 R_PHINode_blocks(SEXP r_phi)
 {
-    llvm::PHINode *phi = GET_REF(r_phi, PHINode);
-    llvm::iterator_range<llvm::PHINode::block_iterator> r = phi->blocks();
-    llvm::BasicBlock ** i;
+    llvm::PHINode * phi = GET_REF(r_phi, PHINode);
+    llvm::iterator_range<llvm::PHINode::const_block_iterator> r = phi->blocks(); // added const to block_iterator for LLVM16
+    llvm::BasicBlock * const * i;
     SEXP ans = R_NilValue;
     int n = 0, ctr;
     for(i = r.begin(); i != r.end(); i++)

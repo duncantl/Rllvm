@@ -503,9 +503,20 @@ SEXP
 R_Loop_getBounds_copy(SEXP r_loop, SEXP r_se)
 {
     LDECL2(Loop, loop);
-    LDECL2(ScalarEvolution, se);    
+    LDECL2(ScalarEvolution, se);
+#if LLVM_VERSION >= 16    
+    std::optional<llvm::Loop::LoopBounds> b = loop->getBounds(*se);
+#else    
     llvm::Optional<llvm::Loop::LoopBounds> b = loop->getBounds(*se);
-    if(b.hasValue()) {
+#endif
+    
+    if(
+#if LLVM_VERSION >= 16
+         b.has_value()
+#else         
+         b.hasValue()
+#endif         
+        ) {
         SEXP ans, names;
         int i = 0, nels = 6;
         
