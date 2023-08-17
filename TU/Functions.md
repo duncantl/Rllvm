@@ -16,9 +16,11 @@
 
 ## cxcursor.R
 
+Exploring the C++ classes that should have a superClasses entry but don't.
+Moving code to RCIndex to fix these C++Class objects to fill in the superClasses entry.
+See MemTransfer.md.
+
 ###  getSuperClass
-###  superClass2
-###  genCollectNodes
 
 ## exploreMethods.R
 
