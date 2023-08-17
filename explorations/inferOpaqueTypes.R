@@ -1,3 +1,7 @@
+# Add this to Rllvm?
+# Change name to inferPointerTypes
+# generic and methods for character, Module, Function, Argument, ReturnInst
+
 processFile = 
 function(f, mod = parseIR(f, ...), ..., verbose = TRUE)
 {
@@ -6,6 +10,7 @@ function(f, mod = parseIR(f, ...), ..., verbose = TRUE)
     funs = getDefinedRoutines(mod, names = FALSE)
     lapply(funs, function(f) processRoutine(f))
 }
+
 
 processRoutine =
 function(fun)
@@ -17,8 +22,7 @@ function(fun)
         ptypes = lapply(parms[w], function(p) inferPointerElType(p))
     
     list(parameters = ptypes,
-         returnType =  try(inferReturnPointerType(fun))
-         )
+         returnType =  try(inferReturnPointerType(fun)))
 }
 
 
@@ -49,3 +53,16 @@ if(FALSE) {
 
     which(sapply(ans[["/Users/duncan/Rtrunk/build2/src/main/objects.ir"]], hasError))
 }
+
+# Remaining warnings
+
+#            skipping processing ... argument in call toallocFormalsList in /Users/duncan/Rtrunk/build2/src/main/memory.ir 
+#                                                                                                                       20 
+#        skipping processing ... argument in call toR_makeErrorCondition in /Users/duncan/Rtrunk/build2/src/main/errors.ir 
+#                                                                                                                        1 
+#                    skipping processing ... argument in call toRf_error in /Users/duncan/Rtrunk/build2/src/main/errors.ir 
+#                                                                                                                        2 
+#using the same value as multiple arguments in a call to R_AddGlobalCache in /Users/duncan/Rtrunk/build2/src/main/envir.ir 
+#                                                                                                                        8 
+#        using the same value as multiple arguments in a call to Rf_cons in /Users/duncan/Rtrunk/build2/src/main/memory.ir 
+#                                                                                                                       17
