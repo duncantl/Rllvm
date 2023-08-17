@@ -148,7 +148,7 @@ R_Function_getBasicBlockList(SEXP r_func)
     PROTECT(names = NEW_CHARACTER(n));
 #if 1
 #if (LLVM_VERSION >= 16)
-    for (llvm::Function::iterator it = func->begin(), be = func->end(); it != be; ++it)    
+    for (llvm::Function::iterator it = func->begin(), be = func->end(); it != be; ++it, i++)    
 #elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
     for(llvm::iplist<const llvm::BasicBlock>::const_iterator it = blocks.begin(); it != blocks.end(); it++, i++)
 #else
