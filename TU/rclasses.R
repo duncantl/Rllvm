@@ -76,7 +76,7 @@ rem = setdiff(rem, top)
 ##########################
 # Using k2 - getCppClasses
 
-# ???  Where is getClassHierarchy or do we mean 
+# ???  Where is getClassHierarchy or do are we getting the hierarchy from the R class definitions, not RCIndex and the llvm.cpp header files?
 z = getClassHierarchy("llvm::Type", k)
 # Defined in mkSetClass.R
 mkSetClass(z)
