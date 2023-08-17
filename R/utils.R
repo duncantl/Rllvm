@@ -5,6 +5,13 @@ function(length)
 
 
 sameType =
+    #
+    # For speed, we may want to implement this in C++ code.
+    # Make certain we have a comprehensive set of unit tests to ensure two
+    # implementations give the same results.
+    #
+    # Some tests are in  verifyRTypes.R
+    #
 function(a, b)
 {
   if(identical(a, b))
@@ -17,12 +24,28 @@ function(a, b)
       identical(a@ref, b)
   else if(is(a, "StructType") && is(b, "StructType"))
       .Call("R_StructType_isLayoutIdentical", a, b)
-  else if(is(a, "PointerType") && is(b, "PointerType"))
+  else if(is(a, "PointerType") && is(b, "PointerType")) {
+      #XXXX  With opaque pointers or perhaps generally we can use
+      #    PointerType::hasSameElementTypeAs()
       # methods for the *SXPTypes for getElementType() mean these will differ
       # if we get to the point of treating them as PointerType. So
-      # that's why we do the 
-      sameType(getElementType(a, regular = TRUE), getElementType(b,  regular = TRUE))
-  else if(is(b, "Type") && is(a, "Type"))  # This has to be last or otherwise will match any Type instance.
+      # that's why we do the
+
+      ans = sameType(getElementType(a, regular = TRUE), getElementType(b,  regular = TRUE))
+
+      if(TRUE) {
+            # XXX This is just a test. When we confirm they give the same results
+          ans1 = .Call("R_PointerType_hasSameElementTypeAs", a, b)
+          if(ans1 != ans) stop("different answers in sameType() for pointer types")
+      }
+      
+      ans
+  } else if(class(a) == class(b)) {
+      if(isIntegerType(a))
+          getIntSize(a) == getIntSize(b)
+      else
+          FALSE
+  } else if(is(b, "Type") && is(a, "Type"))  # This has to be last or otherwise will match any Type instance.
       identical(a@ref, b@ref)    
   else
       FALSE
