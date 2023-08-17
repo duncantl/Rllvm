@@ -589,62 +589,8 @@ R_IRBuilder_createLocalVariable(SEXP r_builder, SEXP r_type, SEXP r_size, SEXP r
     llvm::Type *type = GET_TYPE(r_type);
     llvm::AllocaInst *ans;
 
-#if 1
     ans = builder->CreateAlloca(type, Rf_length(r_size) > 0 ? (llvm::Value*)GET_REF(r_size, Value) : NULL, makeTwine(r_id));
     return(R_createRef2(ans, "AllocaInst"));
-#endif    
-    
-
-#if 0    
-    llvm::BasicBlock *block = builder->GetInsertBlock();
-    
-    if(Rf_length(r_size)) {
-        llvm::Value *size = GET_REF(r_size, Value);
-        //XXX add 0 here for LLVM 5.0 and 2 lines below.  Autoconf.
-        ans = new llvm::AllocaInst(type,
-#if LLVM_VERSION >= 5                                           
-                                   0,
-#endif                                   
-                                   size, makeTwine(r_id)
-#if LLVM_VERSION >= 11
-                                   ,  block
-#endif                                   
-            );
-    } else
-        ans = new llvm::AllocaInst(type,
-#if LLVM_VERSION >= 5                                           
-                                   0,
-#endif                                   
-                                   makeTwine(r_id)
-#if LLVM_VERSION >= 11
-                                   , block
-#endif                                   
-            );            
-    
-    if(LOGICAL(r_beforeTerminator)[0]) {
-
-        /* TerminatorInst - removed in LLVM8.0 */
-        llvm::Instruction *inst = block->getTerminator();
-        if(inst) {
-            //XXX check 3.8
-#if (LLVM_VERSION == 3 && LLVM_MINOR_VERSION >= 5) || LLVM_VERSION >= 4
-            llvm::BasicBlock::InstListType &insList = block->getInstList();
-            insList.insert(insList.begin(), ans);
-#else
-            block->getInstList().insert(ans);
-#endif
-        } else
-            builder->Insert(ans);
-    } else    
-        ans = builder->Insert(ans);
-
-    // Isn't this already done in the new AllocaInst() ?
-    if(Rf_length(r_id))
-        ans->setName(makeTwine(r_id));
-
-    return(R_createRef2(ans, "AllocaInst"));
-
-#endif // #if 0
 }
 
 
