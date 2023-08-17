@@ -17,11 +17,14 @@ llvmDir = path.expand("~/LLVM/clang+llvm-14.0.0-x86_64-apple-darwin/include")
 llvmDir = "/Users/duncan/LLVM/local/include"
 }
 
+v = system("llvm-config --version", intern = TRUE)
+tmp = strsplit(v, "\\.")[[1]]
+version = as.integer(tmp[1:2])
 
 llvmDir = llvmIncludeDir()
 sysDir = sysIncludeDir()
 
-inc.dirs = c(llvmDir, sysdir)
+inc.dirs = c(llvmDir, sysDir)
 
 stopifnot(all(file.exists(llvmDir)))
 
@@ -30,7 +33,7 @@ stopifnot(all(file.exists(llvmDir)))
 tu = createTU("../TU/llvm.cpp", includes = inc.dirs, args = c("-xc++", "-Wc++11-extensions", "-ferror-limit=10000"))
 
 # Note:
-# For LLVM 15
+# For LLVM 15 and 16
 # /Users/duncan/LLVM/local/include/llvm/ADT/DenseMapInfo.h:17:10: fatal error: 'cassert' file not found
 # but TU built
 
@@ -39,6 +42,7 @@ enums = getEnums(tu)
 
 w = warnings()
 names(w)
+# 382 warnings for LLVM 16
 
 # dput(enums$AttrKind@values)
 
