@@ -6,7 +6,7 @@ getIntrinsicEnum =
 function(header = "/usr/local/include/llvm/Intrinsics.gen")
 {
   if(!file.exists(header))
-    stop("header file ", header, " doesn't exist")
+      stop("header file ", header, " doesn't exist")
   
   txt = readLines(header)
   i = grep("#ifdef GET_INTRINSIC_ENUM_VALUES", txt)
