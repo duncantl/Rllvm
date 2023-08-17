@@ -147,7 +147,8 @@ R_Function_getBasicBlockList(SEXP r_func)
     PROTECT(rans = NEW_LIST(n));
     PROTECT(names = NEW_CHARACTER(n));
 #if 1
-#if (LLVM_VERSION >= 16)
+#if (LLVM_VERSION >= 4)  // introduced for LLVM 16, but should work for all the way back.  Checked the header files for those versions and compiled
+                         // and tested for LLVM 15.
     for (llvm::Function::iterator it = func->begin(), be = func->end(); it != be; ++it, i++)    
 #elif LLVM_VERSION == 3 && LLVM_MINOR_VERSION < 8
     for(llvm::iplist<const llvm::BasicBlock>::const_iterator it = blocks.begin(); it != blocks.end(); it++, i++)
