@@ -62,21 +62,27 @@ if(FALSE) { # unfinished     checking order.
 }
 
 
-genClassofClassName = 
-function(classes, varName = "obj")
+genClassofClassName =
+    #
+    # generate the routine
+    #
+function(classes, varName = "obj", typeName = "Value",  routineName = sprintf("getLLVM%sClassName", typeName))
 {
-  c("const char * getLLVMClassName(llvm::Value const * obj)", "{",
-    '\tconst char *ans = "Value";',
-    sprintf('\t%sif(llvm::%s::classof(obj))\n\t   ans = "%s";',
-            c("", rep("else ", length(classes) - 1L)),
-            classes, classes),
-    "\n\treturn(ans);",
-    "}")
+    c(sprintf("const char * %s(llvm::%s const * obj)", routineName, typeName),
+      "{",
+      '\tconst char *ans = "Value";',
+      sprintf('\t%sif(llvm::%s::classof(obj))\n\t   ans = "%s";',
+              c("", rep("else ", length(classes) - 1L)),
+              classes, classes),
+      "\n\treturn(ans);",
+      "}")
 }
 
 
 
 getRValueClasses =
+    # Get the R class definitions that correspond to Value or one of the
+    # sub classes.
 function(base = "Value", where = "package:Rllvm")
 {
   def = getClassDef(base, where = where)
