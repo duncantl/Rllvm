@@ -27,4 +27,9 @@ R_FILES=$(wildcard *.R)
 runRTests:
 	@if test -e status.out ; then rm status.out ; fi
 	for file in $(R_FILES) ; do echo "$${file}" ; Rscript --vanilla run.r "$${file}"  2>1 > "$${file}.out" ; done
-	Rscript -e 'cat(setdiff(list.files(pattern = ".R$$"), gsub(" ok", "", readLines("status.out"))), sep = "\n")'
+	@$(MAKE) showFails
+
+
+showFails:
+	@echo "List of R scripts that raised an error"
+	@Rscript -e 'cat(setdiff(list.files(pattern = ".R$$"), gsub(" ok", "", readLines("status.out"))), sep = "\n")'
