@@ -526,7 +526,8 @@ function(ir)
 
 
 parseIR =
-function(content, context = NULL, asText = is(content, "AsIs")) #  || !file.exists(content))
+function(content, context = NULL, asText = is(content, "AsIs"),
+           opaquePointers = TRUE) #  || !file.exists(content))
                                                  # If file doesn't exist but we parse it as text in LLVM 15, we may crash
 {
     kall = sys.call()
@@ -545,7 +546,7 @@ function(content, context = NULL, asText = is(content, "AsIs")) #  || !file.exis
     # Note the parseIRError function below. It is called by the C code.
     # It has the correct information. However, it is called from a different level in the call stack.
     # Too bad!
-  .Call("R_llvm_ParseIRFile", content, as.logical(asText), context)
+  .Call("R_llvm_ParseIRFile", content, as.logical(asText), context, as.logical(opaquePointers))
 }
 
 parseIRError =
