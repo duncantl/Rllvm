@@ -20,4 +20,6 @@ showModule(mod)
 
 # WARNING: this line will abort R.
 # Now gives an error in LLVM 11.0 with a RelWithDebInfo build type.
-verifyModule(mod)
+#  (Release with Debug Info)
+err = tryCatch(verifyModule(mod), ModuleVerificationError = function(e) e)
+
