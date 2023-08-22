@@ -893,7 +893,7 @@ raiseError(llvm::SMDiagnostic err, SEXP inMemory, SEXP content)
 
 extern "C" 
 SEXP
-R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
+R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context, SEXP r_opaquePointers)
 {
     llvm::Module *mod;
     llvm::SMDiagnostic err;
@@ -909,7 +909,7 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context)
 #endif
     }
 
-//    context->setOpaquePointers(false);
+    context->setOpaquePointers(LOGICAL(r_opaquePointers)[0]);
 
     std::string fn(CHAR(STRING_ELT(r_content, 0)));
 
