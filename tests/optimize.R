@@ -1,5 +1,8 @@
 library(Rllvm)
 
+if(!file.exists("bob.ll"))
+    system("make bob.ll")
+
 m = parseIR("bob.ll")
 
 fun = m$foo
