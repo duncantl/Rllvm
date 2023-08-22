@@ -27,7 +27,7 @@ setInitializer(tmp, init)
 idx = createIntegerConstant(0L, ctx)
 
    # createLoad() ???
-p = .Call("R_Constant_getGetElementPtr", tmp, list(idx, idx), FALSE, ctx)
+p = getGetElementPtr(tmp, list(idx, idx), FALSE, ctx)
 # Equivalent ? getGetElementPtr(tmp, ctx = ctx)
 setInitializer(gvar, p)
 
