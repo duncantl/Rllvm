@@ -1,3 +1,9 @@
+# On OSX can get the architecture of a .o (.a, etc.) with lipo
+#   lipo -archs  cumsum.o
+# Determine current architecture (arm64)
+# Want to remove any files with architecture x86_64
+
+
 ifndef CLANG
  CLANG=clang
 endif
@@ -31,5 +37,11 @@ runRTests:
 
 
 showFails:
-	@echo "List of R scripts that raised an error"
+	@echo "**** List of R scripts that raised an error ****"
 	@Rscript -e 'cat(setdiff(list.files(pattern = ".R$$"), gsub(" ok", "", readLines("status.out"))), sep = "\n")'
+
+%.R.out: %.R
+	Rscript --vanilla run.r $< 2>1 > $(<).out
+
+
+include ../inst/IR/GNUmakefile
