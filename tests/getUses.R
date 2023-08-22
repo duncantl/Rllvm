@@ -1,7 +1,7 @@
 library(Rllvm)
 
 m = parseIR(system.file("IR", "fib.ll", package = "Rllvm"))
-b = getBlocks(m$fib1)
+b = getBlocks(m$fib)
 length(b)
 sapply(b, getName)
 
