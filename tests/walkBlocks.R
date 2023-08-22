@@ -2,23 +2,24 @@ library(Rllvm)
 
 if(TRUE) {
     
-library(RLLVMCompile)    
-fib1 =
-function(n)
-{
-  ans = 1L
-  if(n == 0L || n == 1L)
-     ans = n
-  else
-     ans = fib1(n - 1L) + fib1(n - 2L)
+    library(RLLVMCompile)    
+    fib1 =
+    function(n)
+    {
+        ans = 1L
+        if(n == 0L || n == 1L)
+            ans = n
+        else
+            ans = fib1(n - 1L) + fib1(n - 2L)
+        
+        return(ans)
+    }
 
-  return(ans)
-}
-
-fc = compileFunction(fib1, Int32Type, Int32Type)
+    fc = compileFunction(fib1, Int32Type, Int32Type)
 } else {
-  m = parseIR(system.file("IR", "fib.ll", package = "Rllvm"))
-  fc = m$fib
+
+    m = parseIR(system.file("IR", "fib.ll", package = "Rllvm"))
+    fc = m$fib
 }
 
 
