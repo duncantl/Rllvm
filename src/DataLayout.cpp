@@ -60,7 +60,13 @@ R_DataLayout_getABITypeAlignment(SEXP r_datalayout, SEXP r_type)
 {
     llvm::DataLayout *dl = GET_REF(r_datalayout, DataLayout);
     llvm::Type *type = GET_REF(r_type, Type);
+#ifdef LLVM_HAS_ALIGN
+    llvm::Align align = dl->getABITypeAlign(type);
+    //XXX abusing the value method which the LLVM llvm/Support/Alignment.h header says not to do!
+    return(ScalarReal( align.value()));
+#else
     return ( ScalarInteger( dl->getABITypeAlignment(type) ));
+#endif        
 }
 
 

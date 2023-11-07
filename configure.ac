@@ -387,6 +387,17 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 	       ],[echo "4 parameter interface for itaniumDemangle()"])
 
 
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/IR/DataLayout.h>
+               ]], [[
+	       llvm::Align a;
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAS_ALIGN=1";
+	        CXXFLAGS="$CXXFLAGS -DLOADSTORE_USES_ALIGNMENT=1";
+		echo "has llvm::Align"
+	       ],[echo "no llvm::Align"])
+
+
+
 dnl Was used to generate target for Rllvm.so in Makevars.in when we had .h files for
 dnl llvm_classof_name.h and llvm_type_classof_name.h
 dnl But these are 
