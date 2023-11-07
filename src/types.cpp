@@ -333,11 +333,12 @@ R_Type_getPointerElementType(SEXP r_type)
     if(id == llvm::Type::ArrayTyID) 
         ans = ty->getArrayElementType();
     else if(id == llvm::Type::PointerTyID) {
-#if 1    // POINTER_TYPE_HAS_GET_ELEMENT_TYPE                   
+#ifdef POINTER_TYPE_HAS_GET_ELEMENT_TYPE                   
         ans = ty->getPointerElementType();
 #else
-        PROBLEM "no getPointerElementType() method in this version of LLVM"
-            ERROR;
+        ans = ty->getNonOpaquePointerElementType();        
+//        PROBLEM "no getPointerElementType() method in this version of LLVM"
+//            ERROR;
 #endif        
     } else if(id == llvm::Type::ArrayTyID)
         ans = ty->getArrayElementType();
