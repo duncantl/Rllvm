@@ -100,8 +100,10 @@ const char * getLLVMValueClassName(llvm::Value const * obj)
 	   ans = "FCmpInst";
 	else if(llvm::DbgDeclareInst::classof(obj))
 	   ans = "DbgDeclareInst";
+#ifdef LLVM_HAVE_DBGADDRINTRINSIC
 	else if(llvm::DbgAddrIntrinsic::classof(obj))
 	   ans = "DbgAddrIntrinsic";
+#endif        
 	else if(llvm::DbgValueInst::classof(obj))
 	   ans = "DbgValueInst";
 	else if(llvm::DbgVariableIntrinsic::classof(obj))

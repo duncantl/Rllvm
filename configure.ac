@@ -136,6 +136,17 @@ void foo() {
 )], [echo "Have GlobalIndirectSymbolClass"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAVE_GLOBAL_INDIRECT_SYMBOL=1"], 
    [echo "No GlobalIndirectSymbol class in this version of LLVM"];)
 
+AC_COMPILE_IFELSE([
+AC_LANG_SOURCE(
+#include <llvm/IR/IntrinsicInst.h>
+void foo() {
+  llvm::DbgAddrIntrinsic::classof;
+}
+)], [echo "Have DbgAddrIntrinsic"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAVE_DBGADDRINTRINSIC=1"], 
+   [echo "No DbgAddrIntrinsic class in this version of LLVM"];)
+
+
+
 
 AC_COMPILE_IFELSE([
 AC_LANG_SOURCE(
@@ -259,6 +270,15 @@ CHECK_PASS(createPromoteMemoryToRegisterPass, HAVE_PROMOTE_MEMORY_TO_REGISTER_PA
 CHECK_PASS(createLoopSimplifyPass, HAVE_LOOP_SIMPLIFY_PASS)
 CHECK_PASS(createInstructionSimplifierPass, HAVE_INSTRUCTION_SIMPLIFIER_PASS)
 CHECK_PASS(createLoopUnswitchPass, HAVE_LOOP_UNSWITCH_PASS)
+CHECK_PASS(createDeadStoreEliminationPass, HAVE_DEAD_STORE_ELIMINATION_PASS)
+CHECK_PASS(createIndVarSimplifyPass, HAVE_IND_VAR_SIMPLIFY_PASS)
+CHECK_PASS(createJumpThreadingPass, HAVE_JUMP_THREADING_PASS)
+CHECK_PASS(createLoopIdiomPass, HAVE_LOOP_IDIOM_PASS)
+CHECK_PASS(createCorrelatedValuePropagationPass, HAVE_CORRELATED_VALUE_PROPAGATION_PASS)
+
+CHECK_PASS(createMemCpyOptPass, HAVE_MEM_CPY_OPT_PASS)
+CHECK_PASS(createLoopDeletionPass, HAVE_LOOP_DELETION_PASS)
+CHECK_PASS(createPostOrderFunctionAttrsLegacyPass, HAVE_POST_ORDER_FUNCTION_ATTRS_LEGACY_PASS)
 
 
 #TMP_CXXFLAGS=$CXXFLAGS
@@ -351,9 +371,86 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 	       llvm::PointerType ty;
 	       ty.getElementType();
 	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DPOINTER_TYPE_HAS_GET_ELEMENT_TYPE=1";
-	        CXXFLAGS="$CXXFLAGS -DLOADSTORE_USES_ALIGNMENT=1"
 	       ],[echo "llvm::PointerType has no getElementType() method in this version of LLVM"
 	       ])
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/IR/Types.h>
+               ]], [[
+	       llvm::Type ty;
+	       ty.getPointerElementType();
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_TYPE_HAS_GET_POINTER_ELEMENT_TYPE=1";
+	       ],[echo "llvm::Type has no getPointerElementType() method in this version of LLVM"
+	       ])
+
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/Demangle/Demangle.h>
+               ]], [[
+	       std::string in;
+	       llvm::itaniumDemangle(in);
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DRLLVM_DIRECT_ITANIUMDEMANGLE=1";
+	        CXXFLAGS="$CXXFLAGS -DLOADSTORE_USES_ALIGNMENT=1";
+		echo "simple interface for itaniumDemangle()"
+	       ],[echo "4 parameter interface for itaniumDemangle()"])
+
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/IR/DataLayout.h>
+               ]], [[
+	       llvm::Align a;
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAS_ALIGN=1";
+	        CXXFLAGS="$CXXFLAGS -DLOADSTORE_USES_ALIGNMENT=1";
+		echo "has llvm::Align"
+	       ],[echo "no llvm::Align"])
+
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/TargetParser/Triple.h>
+               ]], [[
+	       llvm::Triple a;
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+	        CXXFLAGS="$CXXFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+		echo "Triple.h in llvm/TargetParser/"
+	       ],[echo "Triple.h in llvm/ADT/"])
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/TargetParser/Host.h>
+               ]], [[
+	       llvm::sys::getProcessTriple(); // getHostCPUName();
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+	        CXXFLAGS="$CXXFLAGS -DLLVM_HOST_H_IN_TARGET_PARSER=1";
+		echo "Host.h in llvm/TargetParser/"
+	       ],[echo "Host.h in llvm/Support/"])	       
+
+
+
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/IR/Module.h>
+               ]], [[
+	       llvm::Module *m;
+	       m->getGlobalList();
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAS_GET_GLOBAL_LIST=1";
+	        CXXFLAGS="$CXXFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+		echo "llvm::Module has getGlobalList()"
+	       ],[echo "no getGlobalList() in llvm::Module"])
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/IR/Module.h>
+               ]], [[
+	       llvm::Module *m;
+	       m->getNamedMDList();
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAS_GET_NAMED_MD_LIST=1";
+	        CXXFLAGS="$CXXFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+		echo "llvm::Module has getNamedMDList()"
+	       ],[echo "no getNamedMDList() in llvm::Module"])
+
+
+
+dnl Check whether the C++ compiler supports
+dnl -Xclang -no-opaque-pointers
+
 
 
 dnl Was used to generate target for Rllvm.so in Makevars.in when we had .h files for

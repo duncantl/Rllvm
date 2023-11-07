@@ -21,12 +21,48 @@ We are continuing with the C++ interface so we have more fine-grained control.
    + make -f MyMake
    + Run the R code in Failed.R to see which  c/cpp  files failed to compile.
    + Fix!
-       + `R CMD COMPILE file.cpp` to see errors.
+       + `make -f MyMake file.o` or `R CMD COMPILE file.cpp` to see errors.
 + Re-install
 + Update the enums.
    + See TU/ (?)
 
 
+
+## Backward-compatible
+
+Often I will have to make changes that make the C++ code conditional
+on having a feature in the LLVM code. This can be done using LLVM version numbers,
+but is better done by explicitly detecting whether the feature is present or not in
+the configure.ac code and setting a preprocessor flag.
+
+We add a test to configure.ac to check if code compiles or not.
+If it does, we have the feature and we define `-DLLVM_HAS....`
+We also emit a message from the test in configure.ac to note that this version
+of LLVM has the feature or does not.
+
+
+When doing this, it is important to verify that this test works for the new version of LLVM and
+**also** previous versions.
+I keep several versions of LLVM installed in `~/LLVM/local_vXX` where XX is the version number.
+I run 
+```
+R CMD configure
+```
+to check with the newly installed version of LLVM.
+
+
+Then I run 
+```
+R CMD configure --with-llvm-config=/Users/duncan/LLVM/local_v16/bin/llvm-config
+```
+and check that the tests give the appropriate output.
+
+
+I check other versions of LLVM as necessary.
+
+To make certain the package still installs and works with both the new version of LLVM and 
+earlier versions of LLVM, I create a new shell and set the PATH variable to an earlier version of LLVM to make that the
+default and then R CMD INSTALL and test the code works.
 
 
 

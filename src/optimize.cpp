@@ -7,7 +7,11 @@
 #include <llvm/Target/TargetData.h>
 #endif
 #include <llvm/LinkAllPasses.h>
+
+#if LLVM_HAS_IPO_PASS_MANAGER_BUILDER_H
+// why did we ever need this?
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
+#endif
 
 #if 0
 extern "C"
@@ -22,15 +26,15 @@ SEXP
 R_getPassManager(SEXP r_module, SEXP r_ee, SEXP r_level)
 {
   llvm::Module *TheModule = GET_REF(r_module, Module);
-  llvm::ExecutionEngine *TheExecutionEngine = NULL;
 
   llvm::legacy::FunctionPassManager *mgr = new llvm::legacy::FunctionPassManager(TheModule);
 
   if(r_ee != R_NilValue) {
+#ifndef LLVM_VERSION_THREE_TWO      
+     llvm::ExecutionEngine *TheExecutionEngine = NULL;      
      TheExecutionEngine = GET_REF(r_ee, ExecutionEngine);
      // Set up the optimizer pipeline.  Start with registering info about how the
      // target lays out data structures.
-#ifndef LLVM_VERSION_THREE_TWO
      mgr->add(new llvm::TargetData(*TheExecutionEngine->getTargetData()));
 #endif
   }
