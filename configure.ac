@@ -356,6 +356,17 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 	       ])
 
 
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/Demangle/Demangle.h>
+               ]], [[
+	       std::string in;
+	       llvm::itaniumDemangle(in);
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DRLLVM_DIRECT_ITANIUMDEMANGLE=1";
+	        CXXFLAGS="$CXXFLAGS -DLOADSTORE_USES_ALIGNMENT=1";
+		echo "simple interface for itaniumDemangle()"
+	       ],[echo "4 parameter interface for itaniumDemangle()"])
+
+
 dnl Was used to generate target for Rllvm.so in Makevars.in when we had .h files for
 dnl llvm_classof_name.h and llvm_type_classof_name.h
 dnl But these are 
