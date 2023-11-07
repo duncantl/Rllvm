@@ -329,7 +329,12 @@ MAKE_InitializeAll(Disassemblers)
 
 
 
+#ifdef LLVM_HOST_H_IN_TARGER_PARSER
+#include <llvm/TargetParser/Host.h>
+#else
 #include <llvm/Support/Host.h>
+#endif
+
 extern "C"
 SEXP
 R_getDefaultTargetTriple()
@@ -343,7 +348,6 @@ extern "C"
 SEXP
 R_getHostCPUName()
 {
-    std::string tri = llvm::sys::getDefaultTargetTriple(); // do we need this call???
     llvm::StringRef ref = llvm::sys::getHostCPUName();
     return(ScalarString(mkChar(ref.data())));
 }

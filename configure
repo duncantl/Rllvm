@@ -3877,6 +3877,32 @@ else $as_nop
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+    #include <llvm/TargetParser/Host.h>
+
+int
+main (void)
+{
+
+	       llvm::sys::getProcessTriple(); // getHostCPUName();
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+	        CXXFLAGS="$CXXFLAGS -DLLVM_HOST_H_IN_TARGET_PARSER=1";
+		echo "Host.h in llvm/TargetParser/"
+
+else $as_nop
+  echo "Host.h in llvm/Support/"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
 
 
 

@@ -414,6 +414,15 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 		echo "Triple.h in llvm/TargetParser/"
 	       ],[echo "Triple.h in llvm/ADT/"])
 
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/TargetParser/Host.h>
+               ]], [[
+	       llvm::sys::getProcessTriple(); // getHostCPUName();
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+	        CXXFLAGS="$CXXFLAGS -DLLVM_HOST_H_IN_TARGET_PARSER=1";
+		echo "Host.h in llvm/TargetParser/"
+	       ],[echo "Host.h in llvm/Support/"])	       
+
 
 
 
