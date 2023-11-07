@@ -17,8 +17,10 @@ enums = getEnums(tu, fileFilter = "/llvm")
 ids = lapply(enums, function(x) names(x@values))
 tt = table(unlist(ids))
 sum(tt > 1)
+# Checking for the same name being used in different enums.
 # Only 17 from the 279 different enum sets containing 9894 individual elements.
 # 24 of 211 for LLVM 8.0
+# 88 for LLVM 17
 
 dups = names(tt)[tt > 1]
 
@@ -43,13 +45,13 @@ names(defs) = dups
 
 # How is this different from utils.R
 if(getOption("writeEnums", FALSE)) {
- source("utils.R")
- ids = grep("(^__|::)", names(enums), invert = TRUE, value = TRUE) # remove llvm:: , std::, __lx
- Rfilename = sprintf("../R/z_enumDefs_%d.%d.R", version[1], version[2])
- con = file(Rfilename, "w")
+ source("utils.r")
+ ids = grep("(^__|::)", names(enums), invert = true, value = true) # remove llvm:: , std::, __lx
+ rfilename = sprintf("../r/z_enumdefs_%d.%d.r", version[1], version[2])
+ con = file(rfilename, "w")
  sink(con)
- cat("if(all(llvmVersion() == c(", version[1], ", ", version[2], "))) {\n\n")
- invisible(lapply(enums[ids], outputEnum))
+ cat("if(all(llvmversion() == c(", version[1], ", ", version[2], "))) {\n\n")
+ invisible(lapply(enums[ids], outputenum))
  cat("\n\n\n}\n\n")
  sink()
 }
