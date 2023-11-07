@@ -7,7 +7,11 @@
 #include <llvm/Target/TargetData.h>
 #endif
 #include <llvm/LinkAllPasses.h>
+
+#if LLVM_HAS_IPO_PASS_MANAGER_BUILDER_H
+// why did we ever need this?
 #include <llvm/Transforms/IPO/PassManagerBuilder.h>
+#endif
 
 #if 0
 extern "C"
