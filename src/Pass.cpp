@@ -80,7 +80,10 @@ R_CREATE_FUNPASS(createAggressiveDCEPass)
 #endif
 
 R_CREATE_FUNPASS(createDeadCodeEliminationPass)
+
+#ifdef  HAVE_DEAD_STORE_ELIMINATION_PASS
 R_CREATE_FUNPASS(createDeadStoreEliminationPass)
+#endif
 
 #ifdef HAVE_INSTRUCTION_COMBINING_PASS
 R_CREATE_FUNPASS(createInstructionCombiningPass)
@@ -97,11 +100,19 @@ R_CREATE_PASS(createSROAPass)
 #if LLVM_VERSION ==3 && LLVM_MINOR_VERSION < 9
 R_CREATE_PASS(createScalarReplAggregatesPass)
 #endif
+
+#ifdef HAVE_IND_VAR_SIMPLIFY_PASS
 R_CREATE_PASS(createIndVarSimplifyPass)
+#endif
+
 R_CREATE_PASS(createLoopStrengthReducePass)
 R_CREATE_FUNPASS(createReassociatePass)
 R_CREATE_FUNPASS(createCFGSimplificationPass)
+
+#ifdef HAVE_JUMP_THREADING_PASS
 R_CREATE_FUNPASS(createJumpThreadingPass)
+#endif
+
 R_CREATE_FUNPASS(createTailCallEliminationPass)
 R_CREATE_FUNPASS(createFlattenCFGPass)
 
@@ -111,7 +122,11 @@ R_CREATE_PASS(createLoopSimplifyPass)
 #endif
 R_CREATE_PASS(createLoopSimplifyCFGPass)
 
+#ifdef HAVE_MEM_CPY_OPT_PASS
 R_CREATE_FUNPASS(createMemCpyOptPass)
+#endif
+
+
 #if LLVM_VERSION < 4
 R_CREATE_FUNPASS(createCodeGenPreparePass)
 #endif
@@ -122,8 +137,14 @@ R_CREATE_FUNPASS(createInstructionSimplifierPass)
 
 R_CREATE_FUNPASS(createSinkingPass)
 
+#ifdef HAVE_LOOP_DELETION_PASS
 R_CREATE_PASS(createLoopDeletionPass)
+#endif
+
+#ifdef HAVE_CORRELATED_VALUE_PROPAGATION_PASS
 R_CREATE_PASS(createCorrelatedValuePropagationPass)
+#endif
+
 R_CREATE_PASS(createPartiallyInlineLibCallsPass)
 
 
@@ -135,11 +156,17 @@ R_CREATE_PASS(createLoopUnswitchPass)
 R_CREATE_PASS(createLoopInstSimplifyPass)
 R_CREATE_PASS(createLoopUnrollPass)
 R_CREATE_PASS(createLoopRotatePass)
+
+
+#ifdef HAVE_LOOP_IDIOM_PASS
 R_CREATE_PASS(createLoopIdiomPass)
+#endif
 
 
 
 
+#ifdef HAVE_POST_ORDER_FUNCTION_ATTRS_LEGACY_PASS
 #include <llvm/Transforms/IPO/FunctionAttrs.h>
 
 R_CREATE_PASS(createPostOrderFunctionAttrsLegacyPass)
+#endif

@@ -3350,6 +3350,175 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
 
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <llvm/Pass.h>
+                 #include <llvm/Transforms/Scalar.h>
+int
+main (void)
+{
+llvm::createDeadStoreEliminationPass()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_DEAD_STORE_ELIMINATION_PASS=1"; echo "Have createDeadStoreEliminationPass"
+else $as_nop
+  echo "No createDeadStoreEliminationPass"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <llvm/Pass.h>
+                 #include <llvm/Transforms/Scalar.h>
+int
+main (void)
+{
+llvm::createIndVarSimplifyPass()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_IND_VAR_SIMPLIFY_PASS=1"; echo "Have createIndVarSimplifyPass"
+else $as_nop
+  echo "No createIndVarSimplifyPass"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <llvm/Pass.h>
+                 #include <llvm/Transforms/Scalar.h>
+int
+main (void)
+{
+llvm::createJumpThreadingPass()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_JUMP_THREADING_PASS=1"; echo "Have createJumpThreadingPass"
+else $as_nop
+  echo "No createJumpThreadingPass"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <llvm/Pass.h>
+                 #include <llvm/Transforms/Scalar.h>
+int
+main (void)
+{
+llvm::createLoopIdiomPass()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_LOOP_IDIOM_PASS=1"; echo "Have createLoopIdiomPass"
+else $as_nop
+  echo "No createLoopIdiomPass"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <llvm/Pass.h>
+                 #include <llvm/Transforms/Scalar.h>
+int
+main (void)
+{
+llvm::createCorrelatedValuePropagationPass()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_CORRELATED_VALUE_PROPAGATION_PASS=1"; echo "Have createCorrelatedValuePropagationPass"
+else $as_nop
+  echo "No createCorrelatedValuePropagationPass"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+
+
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <llvm/Pass.h>
+                 #include <llvm/Transforms/Scalar.h>
+int
+main (void)
+{
+llvm::createMemCpyOptPass()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_MEM_CPY_OPT_PASS=1"; echo "Have createMemCpyOptPass"
+else $as_nop
+  echo "No createMemCpyOptPass"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <llvm/Pass.h>
+                 #include <llvm/Transforms/Scalar.h>
+int
+main (void)
+{
+llvm::createLoopDeletionPass()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_LOOP_DELETION_PASS=1"; echo "Have createLoopDeletionPass"
+else $as_nop
+  echo "No createLoopDeletionPass"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+
+ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <llvm/Pass.h>
+                 #include <llvm/Transforms/Scalar.h>
+int
+main (void)
+{
+llvm::createPostOrderFunctionAttrsLegacyPass()
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_POST_ORDER_FUNCTION_ATTRS_LEGACY_PASS=1"; echo "Have createPostOrderFunctionAttrsLegacyPass"
+else $as_nop
+  echo "No createPostOrderFunctionAttrsLegacyPass"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+
 
 #TMP_CXXFLAGS=$CXXFLAGS
 #CXXFLAGS="$CXXFLAGS $LLVM_CFLAGS -DLLVM_VERSION=$LLVM_VERSION -DLLVM_MINOR_VERSION=$LLVM_MINOR_VERSION"
