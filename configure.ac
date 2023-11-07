@@ -448,6 +448,11 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 
 
 
+dnl Check whether the C++ compiler supports
+dnl -Xclang -no-opaque-pointers
+
+
+
 dnl Was used to generate target for Rllvm.so in Makevars.in when we had .h files for
 dnl llvm_classof_name.h and llvm_type_classof_name.h
 dnl But these are 
