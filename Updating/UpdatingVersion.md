@@ -58,6 +58,11 @@ R CMD configure --with-llvm-config=/Users/duncan/LLVM/local_v16/bin/llvm-config
 and check that the tests give the appropriate output.
 
 
+I check other versions of LLVM as necessary.
+
+To make certain the package still installs and works with both the new version of LLVM and 
+earlier versions of LLVM, I create a new shell and set the PATH variable to an earlier version of LLVM to make that the
+default and then R CMD INSTALL and test the code works.
 
 
 
