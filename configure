@@ -3855,6 +3855,63 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
 
 
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+    #include <llvm/IR/Module.h>
+
+int
+main (void)
+{
+
+	       llvm::Module *m;
+	       m->getGlobalList();
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAS_GET_GLOBAL_LIST=1";
+	        CXXFLAGS="$CXXFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+		echo "llvm::Module has getGlobalList()"
+
+else $as_nop
+  echo "no getGlobalList() in llvm::Module"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+    #include <llvm/IR/Module.h>
+
+int
+main (void)
+{
+
+	       llvm::Module *m;
+	       m->getNamedMDList();
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAS_GET_NAMED_MD_LIST=1";
+	        CXXFLAGS="$CXXFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+		echo "llvm::Module has getNamedMDList()"
+
+else $as_nop
+  echo "no getNamedMDList() in llvm::Module"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+
+
+
 
 ac_config_files="$ac_config_files src/Makevars"
 

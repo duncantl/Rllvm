@@ -407,18 +407,25 @@ R_Module_getGlobalList(SEXP r_module)
 {
     llvm::Module *mod = GET_REF(r_module, Module);
 
-    int n, i = 0;
+    int n = 0, i = 0;
     SEXP rans, names;
 
 //    llvm::iplist<llvm::GlobalVariable> &funclist = mod->getGlobalList();
-    llvm::Module::GlobalListType &funclist(mod->getGlobalList());
-    n = funclist.size();
-
+#ifdef LLVM_HAS_GET_GLOBAL_LIST           
+    llvm::Module::GlobalListType &list(mod->getGlobalList());
+    n = list.size();
+#else
+    n = mod->global_size();    
+#endif
+    
     PROTECT(rans = NEW_LIST(n));
     PROTECT(names = NEW_CHARACTER(n));
 
-    for(/*llvm::iplist<const llvm::GlobalVariable>::iterator*/
-    llvm::Module::GlobalListType::iterator it = funclist.begin(); it != funclist.end(); it++, i++)
+#ifdef LLVM_HAS_GET_GLOBAL_LIST               
+    for(llvm::Module::GlobalListType::iterator it = list.begin(); it != list.end(); it++, i++)
+#else
+    for(llvm::Module::GlobalListType::iterator it = mod->global_begin(); it != mod->global_end(); it++)
+#endif        
     {
         const llvm::GlobalVariable *curfunc = &(*it);
         SET_STRING_ELT(names, i, mkChar(curfunc->getName().data()));
@@ -444,16 +451,23 @@ R_Module_names(SEXP r_module, SEXP r_addFuncs, SEXP r_addGlobals)
         return(R_NilValue);
     }
     
-    
     int n = 0, cur = 0;
     bool addGlobals = INTEGER(r_addGlobals)[0];
     bool addFuncs = INTEGER(r_addFuncs)[0];    
 
-    llvm::Module::GlobalListType &globallist(mod->getGlobalList());
     const llvm::Module::FunctionListType &funclist(mod->getFunctionList());
 
+
+#ifdef LLVM_HAS_GET_GLOBAL_LIST       
+    llvm::Module::GlobalListType &globallist(mod->getGlobalList());
     if(addGlobals)
         n += globallist.size();
+#else
+    if(addGlobals)
+        n += mod->global_size();
+#endif
+
+
     if(addFuncs)
         n += funclist.size();    
 
@@ -461,11 +475,19 @@ R_Module_names(SEXP r_module, SEXP r_addFuncs, SEXP r_addGlobals)
     PROTECT(names = NEW_CHARACTER(n));
 
     if(addGlobals) {
+#ifdef LLVM_HAS_GET_GLOBAL_LIST               
         for(llvm::Module::GlobalListType::iterator it = globallist.begin(); it != globallist.end(); it++)
         {
             const llvm::GlobalVariable *curfunc = &(*it);
             SET_STRING_ELT(names, cur++, mkChar(curfunc->getName().data()));
         }
+#else
+        for(llvm::Module::GlobalListType::iterator it = mod->global_begin(); it != mod->global_end(); it++)
+        {
+            const llvm::GlobalVariable *curfunc = &(*it);
+            SET_STRING_ELT(names, cur++, mkChar(curfunc->getName().data()));
+        }
+#endif        
     }
 
     if(addFuncs) {
@@ -476,10 +498,9 @@ R_Module_names(SEXP r_module, SEXP r_addFuncs, SEXP r_addGlobals)
 
         }
     }
-
     
     UNPROTECT(1);
-
+    
     return(names);
 }
 
@@ -736,7 +757,11 @@ R_ParseBitcodeFile(SEXP r_input, SEXP r_context)
 
 
 
+#ifdef LLVM_TRIPLE_H_IN_TARGET_PARSER
+#include <llvm/TargetParser/Triple.h>
+#else
 #include <llvm/ADT/Triple.h>
+#endif
 
 extern "C"
 SEXP
@@ -766,10 +791,16 @@ SEXP
 R_Module_getNamedMDList(SEXP r_mod)
 {
   llvm::Module *mod = GET_REF(r_mod, Module);     
-  const llvm::Module::NamedMDListType &node = mod->getNamedMDList();
-  int n = node.size();
+  R_xlen_t n = 0;
   R_xlen_t i = 0;
 
+#ifdef LLVM_HAS_GET_NAMED_MD_LIST
+  const llvm::Module::NamedMDListType &node = mod->getNamedMDList();  
+  n = node.size();
+#else
+  n = mod->named_metadata_size();
+#endif  
+  
   if(n == 0)
       return(R_NilValue);
 
@@ -777,8 +808,12 @@ R_Module_getNamedMDList(SEXP r_mod)
   PROTECT(rans = NEW_LIST(n));
   PROTECT(names = NEW_CHARACTER(n));
 
-  for(/*llvm::iplist<const llvm::NamedMDNode>::iterator*/
-      llvm::Module::const_named_metadata_iterator it = node.begin(); it != node.end(); it++, i++) {
+#ifdef LLVM_HAS_GET_NAMED_MD_LIST
+  for(llvm::Module::const_named_metadata_iterator it = node.begin(); it != node.end(); it++, i++) 
+#else
+  for(llvm::Module::const_named_metadata_iterator it = mod->named_metadata_begin(); it != mod->named_metadata_end(); it++, i++)       
+#endif
+  {      
         const llvm::NamedMDNode *cur = &(*it);
         SET_STRING_ELT(names, i, mkChar(cur->getName().data()));
         SET_VECTOR_ELT(rans, i, R_createRef(cur, "NamedMDNode"));

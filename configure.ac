@@ -416,6 +416,29 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 
 
 
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/IR/Module.h>
+               ]], [[
+	       llvm::Module *m;
+	       m->getGlobalList();
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAS_GET_GLOBAL_LIST=1";
+	        CXXFLAGS="$CXXFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+		echo "llvm::Module has getGlobalList()"
+	       ],[echo "no getGlobalList() in llvm::Module"])
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/IR/Module.h>
+               ]], [[
+	       llvm::Module *m;
+	       m->getNamedMDList();
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAS_GET_NAMED_MD_LIST=1";
+	        CXXFLAGS="$CXXFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+		echo "llvm::Module has getNamedMDList()"
+	       ],[echo "no getNamedMDList() in llvm::Module"])
+
+
+
 dnl Was used to generate target for Rllvm.so in Makevars.in when we had .h files for
 dnl llvm_classof_name.h and llvm_type_classof_name.h
 dnl But these are 
