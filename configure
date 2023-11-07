@@ -3762,10 +3762,35 @@ _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"
 then :
   LLVM_CFLAGS="$LLVM_CFLAGS -DPOINTER_TYPE_HAS_GET_ELEMENT_TYPE=1";
-	        CXXFLAGS="$CXXFLAGS -DLOADSTORE_USES_ALIGNMENT=1"
 
 else $as_nop
   echo "llvm::PointerType has no getElementType() method in this version of LLVM"
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+    #include <llvm/IR/Types.h>
+
+int
+main (void)
+{
+
+	       llvm::Type ty;
+	       ty.getPointerElementType();
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_TYPE_HAS_GET_POINTER_ELEMENT_TYPE=1";
+
+else $as_nop
+  echo "llvm::Type has no getPointerElementType() method in this version of LLVM"
 
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
