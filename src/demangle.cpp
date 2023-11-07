@@ -16,8 +16,9 @@ R_itaniumDemangle(SEXP r_string, SEXP r_getStatus)
         
 #ifdef RLLVM_DIRECT_ITANIUMDEMANGLE
         std::string in( CHAR(STRING_ELT(r_string, i)) );
-        std::string tmp = llvm::itaniumDemangle(in);
-        SET_STRING_ELT(ans, i, tmp.c_str() ? mkChar(tmp.c_str()) : NA_STRING);        
+        //std::string tmp = llvm::itaniumDemangle(in, 1);
+        char * tmp = llvm::itaniumDemangle(in);        
+        SET_STRING_ELT(ans, i, tmp ? mkChar(tmp) : NA_STRING);        
 #else
         char tmp[10000];  //XX HARD CODED. Went past the limit once with 1000 and crashed. Could happen again.
         int status = 0;
