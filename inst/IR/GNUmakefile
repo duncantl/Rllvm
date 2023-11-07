@@ -28,6 +28,8 @@ CFLAGS=-I$(R_INCLUDE)
 endif
 
 
+OPAQUE_POINTERS=-Xclang -no-opaque-pointers
+
 %.ll: %.c
 	$(CLANG) $(OPT_LEVEL) $(INCLUDE_DIRS) $(CFLAGS) $(IR_FLAGS) -S -emit-llvm  $<  -o $@
 
@@ -42,7 +44,7 @@ add.ll: ../../experiments/add.c
 
 
 rtypes.ir: rtypes.c
-	$(CLANG)  $(OPT_LEVEL) $(INCLUDE_DIRS) $(CFLAGS) $(IR_FLAGS) -S -emit-llvm -Xclang -no-opaque-pointers -o $@ $< -I$(R_INCLUDE)
+	$(CLANG)  $(OPT_LEVEL) $(INCLUDE_DIRS) $(CFLAGS) $(IR_FLAGS) -S -emit-llvm $(OPAQUE_POINTERS) -o $@ $< -I$(R_INCLUDE)
 
 
 all: fib.ll add.ll distance.ll
