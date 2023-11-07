@@ -47,7 +47,9 @@ LLVM_isA(FreezeInst)
 LLVM_isA(ICmpInst)
 LLVM_isA(FCmpInst)
 LLVM_isA(DbgDeclareInst)
+#ifdef LLVM_HAVE_DBGADDRINTRINSIC
 LLVM_isA(DbgAddrIntrinsic)
+#endif
 LLVM_isA(DbgValueInst)
 LLVM_isA(DbgVariableIntrinsic)
 LLVM_isA(DbgLabelInst)

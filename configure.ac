@@ -136,6 +136,17 @@ void foo() {
 )], [echo "Have GlobalIndirectSymbolClass"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAVE_GLOBAL_INDIRECT_SYMBOL=1"], 
    [echo "No GlobalIndirectSymbol class in this version of LLVM"];)
 
+AC_COMPILE_IFELSE([
+AC_LANG_SOURCE(
+#include <llvm/IR/IntrinsicInst.h>
+void foo() {
+  llvm::DbgAddrIntrinsic::classof;
+}
+)], [echo "Have DbgAddrIntrinsic"; LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_HAVE_DBGADDRINTRINSIC=1"], 
+   [echo "No DbgAddrIntrinsic class in this version of LLVM"];)
+
+
+
 
 AC_COMPILE_IFELSE([
 AC_LANG_SOURCE(
