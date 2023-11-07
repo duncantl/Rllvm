@@ -371,8 +371,16 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 	       llvm::PointerType ty;
 	       ty.getElementType();
 	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DPOINTER_TYPE_HAS_GET_ELEMENT_TYPE=1";
-	        CXXFLAGS="$CXXFLAGS -DLOADSTORE_USES_ALIGNMENT=1"
 	       ],[echo "llvm::PointerType has no getElementType() method in this version of LLVM"
+	       ])
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/IR/Types.h>
+               ]], [[
+	       llvm::Type ty;
+	       ty.getPointerElementType();
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_TYPE_HAS_GET_POINTER_ELEMENT_TYPE=1";
+	       ],[echo "llvm::Type has no getPointerElementType() method in this version of LLVM"
 	       ])
 
 

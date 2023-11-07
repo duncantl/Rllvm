@@ -42,6 +42,12 @@ isSEXPType(const llvm::Type *ty)
 }
 
 
+#ifdef LLVM_TYPE_HAS_GET_POINTER_ELEMENT_TYPE
+#define PTR_EL_TYPE(ty) (ty)->getPointerElementType()
+#else
+#define PTR_EL_TYPE(ty) (ty)->getNonOpaquePointerElementType()
+#endif
+
 SEXP
 convertRawPointerToR(void *p, const llvm::Type *type)
 {
@@ -61,7 +67,8 @@ convertRawPointerToR(void *p, const llvm::Type *type)
 #if 1 // POINTER_TYPE_HAS_GET_ELEMENT_TYPE            
     const llvm::Type *elType;
 // ORIGINAL    elType = ((const llvm::PointerType*) type)->getElementType();
-    elType = type->getPointerElementType();
+    elType = PTR_EL_TYPE(type);
+    
     llvm::Type::TypeID elID = elType->getTypeID();
     llvm::Type::TypeID ID = type->getTypeID();   
 //    fprintf(stderr, "ID = %d, elID = %d\n", ID, elID);
@@ -81,7 +88,7 @@ convertRawPointerToR(void *p, const llvm::Type *type)
             for(i = 0 ; i < nels; i++)
                 REAL(ans)[i] = ((double *) p)[i];
         } else if(elID == llvm::Type::PointerTyID &&
-                  (elType)->getPointerElementType()->getTypeID() == llvm::Type::IntegerTyID
+                  PTR_EL_TYPE(elType)->getTypeID() == llvm::Type::IntegerTyID
 //                  ((const llvm::PointerType*) elType)->getElementType()->getTypeID() == llvm::Type::IntegerTyID
                  )
                       // XXX Should really check 1 byte integer.
@@ -99,7 +106,7 @@ convertRawPointerToR(void *p, const llvm::Type *type)
         } else {
 
             PROBLEM "no code for convertRawPointerTo for type %d with pointers of type %d", elID,
-((const llvm::PointerType*) type)->getPointerElementType()->getTypeID()
+                PTR_EL_TYPE( ((const llvm::PointerType*) type) ) ->getTypeID()
                 WARN;
         }
 
