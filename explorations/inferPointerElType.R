@@ -30,6 +30,7 @@
 #          Doesn't print in usual way.
 #          Not a subclass of Instruction of Value - in R!
 #      + SwitchInst - gram.ir  5 instances.
+#          + what about the handlers, not the condition.      
 #      + √ InsertValueInst - coerce.ir.   Was processing a non-pointer type Argument.
 #      + √ InsertElementInst - duplicate.ir, engine.ir, unique.ir, util.ir, altrep.ir
 #      + √ Instruction - gram.ir, subscript.ir -
