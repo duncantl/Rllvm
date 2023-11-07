@@ -397,6 +397,16 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 	       ],[echo "no llvm::Align"])
 
 
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <llvm/TargetParser/Triple.h>
+               ]], [[
+	       llvm::Triple a;
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+	        CXXFLAGS="$CXXFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+		echo "Triple.h in llvm/TargetParser/"
+	       ],[echo "Triple.h in llvm/ADT/"])
+
+
 
 dnl Was used to generate target for Rllvm.so in Makevars.in when we had .h files for
 dnl llvm_classof_name.h and llvm_type_classof_name.h

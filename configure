@@ -3826,6 +3826,33 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
 
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+    #include <llvm/TargetParser/Triple.h>
+
+int
+main (void)
+{
+
+	       llvm::Triple a;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+	        CXXFLAGS="$CXXFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+		echo "Triple.h in llvm/TargetParser/"
+
+else $as_nop
+  echo "Triple.h in llvm/ADT/"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+
 
 
 
