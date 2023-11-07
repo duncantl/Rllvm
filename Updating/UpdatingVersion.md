@@ -53,7 +53,7 @@ to check with the newly installed version of LLVM.
 
 Then I run 
 ```
-R CMD configure --with-llvm-config=/Users/duncan/LLVM/llvm_v16/bin/llvm-config
+R CMD configure --with-llvm-config=/Users/duncan/LLVM/local_v16/bin/llvm-config
 ```
 and check that the tests give the appropriate output.
 
