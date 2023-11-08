@@ -442,3 +442,19 @@ if(exists("TEST") && TEST) {
 
 
 
+inferRoutinePointerTypes =
+    #
+    # Process the entire routine.
+    # infer the element type of each pointer parameter and of the return type if it is a pointer type.
+    #
+function(fun)
+{
+    parms = getParameters(fun)
+    w = sapply(parms, function(p) isPointerType(getType(p)))
+    ptypes = list()
+    if(any(w))
+        ptypes = lapply(parms[w], function(p) inferPointerElType(p))
+    
+    list(parameters = ptypes,
+         returnType = try(inferReturnPointerType(fun)))
+}
