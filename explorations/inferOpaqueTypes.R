@@ -8,21 +8,7 @@ function(f, mod = parseIR(f, ...), ..., verbose = TRUE)
     if(verbose)
         print(f)
     funs = getDefinedRoutines(mod, names = FALSE)
-    lapply(funs, function(f) processRoutine(f))
-}
-
-
-processRoutine =
-function(fun)
-{
-    parms = getParameters(fun)
-    w = sapply(parms, function(p) isPointerType(getType(p)))
-    ptypes = list()
-    if(any(w))
-        ptypes = lapply(parms[w], function(p) inferPointerElType(p))
-    
-    list(parameters = ptypes,
-         returnType =  try(inferReturnPointerType(fun)))
+    lapply(funs, inferRoutinePointerTypes)
 }
 
 
