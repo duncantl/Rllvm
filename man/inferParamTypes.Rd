@@ -23,8 +23,7 @@ inferRoutinePointerTypes(fun)
   \item{fun}{the LLVM routine}
   \item{params}{the list of parameter objects}
   \item{.routines}{a list of other routine/LLVM Function objects that \code{fun} may call and which
-    we can analyze to infer the parameter and return types.
-  }
+    we can analyze to infer the parameter and return types.}
   \item{.prevRetRoutines}{}
   \item{verbose}{a logical value that controls whether diagnostic messages are displayed on the
     console while the function(s) perform the inference computations}
@@ -42,4 +41,4 @@ Duncan Temple Lang
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 \keyword{programming}
-concept{metaprogramming}
+\concept{metaprogramming}

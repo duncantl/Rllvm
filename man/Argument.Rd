@@ -24,7 +24,7 @@
   A parameter in an LLVM Function has class \code{Argument}.
   It can have several attributes.
 
-  We have methods to coerce from an Argument to an LLVM \code{Function} or \cpde{Module}.
+  We have methods to coerce from an Argument to an LLVM \code{Function} or \code{Module}.
 }
 
 \usage{
