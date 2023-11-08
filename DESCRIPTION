@@ -113,3 +113,4 @@ Collate: llvmVersion.R
 	 mkCallProxy.R
          RAPIRoutineSignatures.R
          gep.R
+         inferPointerElType.R
