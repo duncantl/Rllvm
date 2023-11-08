@@ -903,7 +903,7 @@ export(runLoopPass)
 export(isGEPWithNoNotionalOverIndexing)
 
 
-export(getDefinedRoutines, getDefinedFunctions)
+export(getDefinedRoutines) # , getDefinedFunctions)
 
 
 export(setOpaquePointers)
@@ -915,4 +915,6 @@ export(getSourceElementType, getAllocatedType)
 export(getValueType)
 
 
-export(inferReturnPointerType, inferPointerElType, inferParamTypes)
+export(inferReturnPointerType, inferParamTypes,
+       inferRoutinePointerTypes)
+# inferPointerElType,
