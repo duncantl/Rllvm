@@ -1,6 +1,6 @@
 Package: Rllvm
-Version: 0.13-0
-llvmVersion: <= 16.0
+Version: 0.14-0
+llvmVersion: <= 17.0
 Title: Interface to llvm for dynamically compiling native code.
 Author: Duncan Temple Lang, Vince Buffalo
 SystemRequirements: llvm (>= 2.7)
@@ -24,8 +24,7 @@ License: GPL-2
 Depends: R (>= 2.7.0)
 Imports: methods, Rffi
 RelatedPackages: RLLVMCompile, NativeCodeAnalysis, RCIndex
-URL: http://www.omegahat.net/Rllvm
-     https://github.com/duncantl/Rllvm
+URL: https://github.com/duncantl/Rllvm
 Note:  We hope to build on this to build a compiler for parts of the R language. See the RLLVMCompile package
        at https://github.com/duncantl/R2llvm/ and https://github.com/duncantl/RLLVMCompile/
 Collate: llvmVersion.R
