@@ -1,6 +1,7 @@
 # Questions
 
-+ ¿Use enums.R (rather than clang_new.R) to generate the z_enumDefs_<version>.R file in ../R/ 
++ Seems like clang_new.R is the current one.
+   ¿Use enums.R (rather than clang_new.R) to generate the z_enumDefs_<version>.R file in ../R/ 
   + is this still true?  clang_new.R has some cleaner code. Resolve the two.
 + ¿ Are the LLVM_isA() routines ever used from mkLLVM_isA.R?
 + llvmValueClasses.R  - How to deal with classes that are no longer in LLVM, i.e., conditionally
@@ -12,8 +13,9 @@
 ## Note
 
 There are 1156 C++ classes in the TU for LLVM 17 (as computed via clang_new.R and 
-`klasses = getCppClasses(tu, "/llvm/", numClasses = 2000)`.
-
+```
+klasses = getCppClasses(tu, "/llvm/", numClasses = 2000)
+```
 	
 # Overview
 

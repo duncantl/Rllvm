@@ -1,6 +1,4 @@
 library(RCIndex)
-#
-#*** Change the next two lines of code.
 
 source("includeDirs.R")
 version = llvmVersion2()
