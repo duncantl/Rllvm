@@ -913,3 +913,6 @@ export(mkCallProxy)
 
 export(getSourceElementType, getAllocatedType)
 export(getValueType)
+
+
+export(inferReturnPointerType, inferPointerElType, inferParamTypes)
