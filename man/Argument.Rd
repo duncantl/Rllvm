@@ -16,10 +16,15 @@
 \alias{noCapture}
 \alias{noAlias}
 
+\alias{coerce,Argument,Function-method}
+\alias{coerce,Argument,Module-method}
+
 \title{Parameters of LLVM Functions}
 \description{
   A parameter in an LLVM Function has class \code{Argument}.
   It can have several attributes.
+
+  We have methods to coerce from an Argument to an LLVM \code{Function} or \cpde{Module}.
 }
 
 \usage{

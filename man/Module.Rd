@@ -45,6 +45,9 @@
 \alias{getSDKVersion}
 
 \alias{getInstructionCount}
+\alias{getInstructionCount,Function-method}
+\alias{getInstructionCount,Module-method}
+
 \alias{getDebugCounts}
 
 \alias{findCalledFunctions}

@@ -43,6 +43,7 @@
 \alias{BinaryOperator-class}
 
 \alias{SelectInst-class}
+\alias{FreezeInst-class}
 
 
 
@@ -56,6 +57,8 @@
 \alias{show,Type-method}
 \alias{show,Value-method}
 
+
+\alias{coerce,Instruction,BasicBlock-method}
 
 
 \title{Class "RC++Reference"}

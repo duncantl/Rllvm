@@ -2,6 +2,8 @@
 \name{ConstantExpr}
 
 \alias{isGEPWithNoNotionalOverIndexing}
+
+
 \title{Constant Expression}
 \description{
 These are functions for working \code{\link{ConstantExpr-class}} objects.

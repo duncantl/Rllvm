@@ -25,6 +25,8 @@
 
 \alias{getBlocks}
 \alias{getBlocks,Function-method}
+\alias{getBlocks,ConstantExpr-method}
+\alias{getBlocks,PHINode-method}
 
 \alias{getModule,Function-method}
 

@@ -10,6 +10,7 @@
 \alias{[[,Value,ANY,ANY-method}
 \alias{coerce,Value,character-method}
 \alias{getName,Value-method}
+\alias{getName,ConstantExpr-method}
 \alias{getValueName} %XXX remove this.
 \alias{setName,Value-method}
 
@@ -30,6 +31,8 @@
 \alias{[,User,missing,ANY-method}
 \alias{[,User,numeric,ANY-method}
 \alias{[[,User,numeric,ANY-method}
+\alias{lapply,User-method}
+\alias{sapply,User-method}
 
 \alias{coerce,Value,ConstantStruct-method}
 

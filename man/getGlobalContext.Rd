@@ -11,17 +11,21 @@
 \alias{coerce,Argument,LLVMContext-method} %XXX here?
 
 \alias{getContext}
+\alias{LLVMContext}
 
 \title{Retrieve the default LLVM context}
 \description{
-  An LLVM context is used to manage data within the
-  LLVM engine. One typically has a single context
-  in a given thread when generating code.
-  This is not typically an issue in R.
+  An LLVM context is used to manage data within the LLVM engine.
+  One typically has a single context in a given thread when generating code.
+  This is not typically an issue in R and we can use a single LLVM context.
+  \code{LLVMContext} allows us to create a new context and pass
+  it as an argument to different functions to have them use it rather than the
+  global/default context.
 }
 \usage{
 getGlobalContext()
 getContext(x, ...)
+LLVMContext()
 }
 \arguments{
 \item{x}{an LLVM Value or Type object}
