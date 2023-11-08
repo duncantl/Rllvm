@@ -11,7 +11,7 @@
 
 # So an initial approach is to examine where a pointer type argument is used and see if these uses indicate
 # the type.
-# A priori, this may be inadequate when we have opaque code, i.e., routine(ptr) passest ptr to routine2 in another Module
+# A priori, this may be inadequate when we have opaque code, i.e., routine(ptr) passes ptr to routine2 in another Module
 # and all we have is the signature of routine2, but not its body.
 
 #
@@ -19,7 +19,7 @@
 #
 
 # To Fix
-#  + protect against routine A calls routine B and B calls A so could go into a loop.
+#  + protect against routine A calls routine B and B calls A so analysis could go into a loop.
 #  + if a value is passed as an argument in a call as more than one argument, it is possible
 #    that it may be used in different ways and give different inferred types. So we should analyze both.
 #    Can this actually happen?
@@ -65,7 +65,8 @@ if(FALSE) {
     m = parseIR("explorations/dnormLoop_opaqueptrs.ir", context = ctxt)
     p = getParameters(m$v_dnorm)[[1]]
     inferPointerElType(p)
-    
+
+    # C code is in explorations/OpaquePointers/
     m2 = parseIR("explorations/opaqueTests.ir", context = ctxt)
     #    p2 = getParameters(m2$foo)[[1]]
 
@@ -83,7 +84,8 @@ if(FALSE) {
 # TODO
 
     #XXX  no. Use inferReturnPointerType
-    inferReturnPointerType(m2$doFoo) 
+    inferReturnPointerType(m2$doFoo)
+    getName( inferReturnPointerType(m2$doFoo) [[1]])
     # need to look at the return Value and work backwords.
     # See NativeCodeAnalysis for similar approach for SEXP routines.
 
@@ -435,7 +437,7 @@ if(exists("TEST") && TEST) {
     funs = getDefinedRoutines(m2, names = FALSE)
     rtys = lapply(funs, function(x) {print(getName(x)); inferReturnPointerType(x)})
 
-    stopifnot( isIntegerType( inferPointerElType(m2$foo11[[1]]) ))    
+    stopifnot( isIntegerType( inferPointerElType(m2$foo11[[1]])[[1]] ))    
 }
 
 
