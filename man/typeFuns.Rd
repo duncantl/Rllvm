@@ -31,6 +31,10 @@
 \alias{getNULLPointer}
 \alias{functionType}
 
+\alias{getAllocatedType}
+\alias{getSourceElementType}
+\alias{getValueType}
+
 \alias{coerce,Type,character-method}
 
 
@@ -42,12 +46,17 @@
 \usage{
 arrayType(elType, num)
 getIntegerBitWidth(x, ...)
-
 functionType(returnType, argTypes, varArgs = FALSE)
+getAllocatedType(x)
+getSourceElementType(x)
+getValueType(x)
 }
 
 \arguments{
-  \item{x}{the type, an Integer type for \code{getIntegerBitWidth}.}
+  \item{x}{the type, an Integer type for \code{getIntegerBitWidth},
+    an \code{AllocaInst} for \code{getAllocatedType},
+    a \code{GetElementPtrInst} for \code{getSourceElementType} and
+     a \code{GlobalVariable} for \code{getValueType}.}
   \item{elType}{the type of the element}
   \item{num}{the number of elements in the array}
   \item{\dots}{additional parameters for methds}
