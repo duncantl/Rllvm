@@ -52,6 +52,11 @@ function(a, b)
 }
 
 
+# Not useful >= llvm 17 - always TRUE
+hasSameElementTypeAs =
+function(ty1, ty2)    
+   .Call("R_PointerType_hasSameElementTypeAs", ty1, ty2)    
+
 Exception =
 function(msg, class)
 {
@@ -102,7 +107,7 @@ function(str, status = FALSE)
 #setGeneric("getDefinedRoutines",
 #           function(x
 
-getDefinedRoutines = getDefinedFunctions =
+getDefinedRoutines = # getDefinedFunctions =
     #
     # In the module, find the Functions that have a body.
     #
