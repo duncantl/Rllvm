@@ -17,7 +17,11 @@ function(id = Sys.time(), context = NULL)
 setOpaquePointers =
 function(val = FALSE, ctxt = getGlobalContext())
 {
+    if(llvmVersion()["major"] >= 17)
+        warning("This doesn't have an effect in LLVM versions 17 and above")
+    
     ans = .Call("R_setOpaquePointers", ctxt, as.logical(val))
+
     if(val != ans)
         warning("setOpaquePointers did not take effect for this context; probably set earlier and can only be set once")
 
