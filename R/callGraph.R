@@ -51,7 +51,7 @@ function(mod, graph = mkCallsGraph(mod), funNames = getDefinedRoutines(m))
 }
 
 
-mkIGraph =
+mkCallGraphDataFrame =
 function(gr, funNames = character())
 {
      # drop the routines that don't call anything.
@@ -68,7 +68,12 @@ function(gr, funNames = character())
          cbind(rep(fun, length(to)), to)
      }, names(gr3), gr3)
 
-    gmat = do.call(rbind, tmp)
+    as.data.frame(do.call(rbind, tmp))
+}
 
-    graph_from_edgelist(gmat)
+mkIGraph =
+function(gr, funNames = character())
+{
+    gmat = mkCallGraphDataFrame(gr, funNames)
+    graph_from_data_frame(as.data.frame(gmat))
 }
