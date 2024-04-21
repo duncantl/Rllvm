@@ -118,7 +118,13 @@ R_create_ExecutionEngine(SEXP r_module, SEXP r_optLevel)
                                    module
 #endif
             ).setErrorStr(&errStr)
-             .setOptLevel((enum llvm::CodeGenOpt::Level) INTEGER(r_optLevel)[0])
+             .setOptLevel(
+#if HAVE_CODEGENOPTLEVEL
+                 (enum llvm::CodeGenOptLevel)
+#else
+                 (enum llvm::CodeGenOpt::Level)
+#endif                 
+                 INTEGER(r_optLevel)[0])
              .setEngineKind(llvm::EngineKind::JIT)
              .create();
 
