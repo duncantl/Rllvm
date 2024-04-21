@@ -310,25 +310,29 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/Target/TargetMachine.h>
                ]], [[
 	         llvm::CodeGenFileType ty;
 	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1";
-	        CXXFLAGS="$CXXFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1"
+   	             CXXFLAGS="$CXXFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1"
 	       ],[echo "CodeGenFileType enum is defined in llvm::TargetMachine::CodeGenFileType"
 	       ])
 
+
+dnl		llvm::CGFT_ObjectFile		
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/Target/TargetMachine.h>
 	        #include <llvm/IR/LegacyPassManager.h>
 		#include <llvm/Support/raw_ostream.h>
+		#include <llvm/Support/CodeGen.h>
                ]], [[llvm::TargetMachine *m;
  	        llvm::legacy::PassManager mgr;
 		llvm::raw_pwrite_stream *out;
 	        m->addPassesToEmitFile(mgr, *out, NULL,
 		#ifdef CODE_GEN_FILE_TYPE_IN_LLVM
-		llvm::CGFT_ObjectFile		
+		llvm::CodeGenFileType::ObjectFile
 		#else
 		llvm::TargetMachine::CGFT_ObjectFile		
 		#endif
 		);
 	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG=1";
-	        echo "addPassesToEmitFile takes an extra stream argument"],[echo "No extra stream argument for addPassesToEmitFile"])
+  	             echo "addPassesToEmitFile takes an extra stream argument"],
+		[echo "No extra stream argument for addPassesToEmitFile"])
 
 
 
@@ -423,7 +427,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <llvm/TargetParser/Host.h>
                ]], [[
 	       llvm::sys::getProcessTriple(); // getHostCPUName();
-	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1";
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DLLVM_TRIPLE_H_IN_TARGET_PARSER=1 -DLLVM_HOST_H_IN_TARGET_PARSER=1";
 	        CXXFLAGS="$CXXFLAGS -DLLVM_HOST_H_IN_TARGET_PARSER=1";
 		echo "Host.h in llvm/TargetParser/"
 	       ],[echo "Host.h in llvm/Support/"])	       
@@ -478,6 +482,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/Support/CodeGen.h>
    	             echo "Using llvm::CodeGenOptLevel enum"
 	       ],[echo "Using llvm::CodeGenOpt::Level enum"
 	       ])
+
 
 
 dnl Check whether the C++ compiler supports

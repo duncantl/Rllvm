@@ -203,6 +203,15 @@ R_TargetMachine_addAnalysisPasses(SEXP r_targetMachine, SEXP r_passManager)
 
 #if 1
 
+
+#ifdef CODE_GEN_FILE_TYPE_IN_LLVM
+#define CODE_GEN_FILE_TYPE_ENUM  llvm::CodeGenFileType
+#else
+#define CODE_GEN_FILE_TYPE_ENUM  llvm::TargetMachine::CodeGenFileType
+#endif
+
+
+
 extern "C"
 SEXP
 R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SEXP r_out, SEXP r_fileType)
@@ -216,7 +225,8 @@ R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SE
     // passManager is now a legacy::PassManager not a PassManagerBase
     bool ans = false;
 //XXX    
-    ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
+    ans = targetMachine->addPassesToEmitFile(*passManager, *out,
+                                             (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);
     /* ans is true if addPasses... failed */
     return(ScalarLogical(ans == true));
 #else
@@ -228,17 +238,11 @@ R_TargetMachine_addPassesToEmitFile(SEXP r_targetMachine, SEXP r_passManager, SE
 
     // passManager is now a legacy::PassManager not a PassManagerBase
     bool ans = false;
-
+    
 #if defined(ADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG) && ADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG
-    ans = targetMachine->addPassesToEmitFile(*passManager, *out, NULL,
-#ifdef CODE_GEN_FILE_TYPE_IN_LLVM
-                                             (llvm::CodeGenFileType)                                             
-#else                                             
-                                             (llvm::TargetMachine::CodeGenFileType)
-#endif
-                                               INTEGER(r_fileType)[0]);    
+    ans = targetMachine->addPassesToEmitFile(*passManager, *out, NULL, (CODE_GEN_FILE_TYPE_ENUM) INTEGER(r_fileType)[0]);    
 #else
-    ans = targetMachine->addPassesToEmitFile(*passManager, *out, (llvm::TargetMachine::CodeGenFileType) INTEGER(r_fileType)[0]);    
+    ans = targetMachine->addPassesToEmitFile(*passManager, *out, (CODE_GEN_FILE_TYPE_ENUM) INTEGER(r_fileType)[0]);  
 #endif    
 
     /* ans is true if addPasses... failed */
@@ -329,7 +333,7 @@ MAKE_InitializeAll(Disassemblers)
 
 
 
-#ifdef LLVM_HOST_H_IN_TARGER_PARSER
+#ifdef LLVM_HOST_H_IN_TARGET_PARSER
 #include <llvm/TargetParser/Host.h>
 #else
 #include <llvm/Support/Host.h>
