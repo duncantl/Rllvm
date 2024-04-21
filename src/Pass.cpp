@@ -93,7 +93,9 @@ R_CREATE_FUNPASS(createInstructionCombiningPass)
 R_CREATE_FUNPASS(createPromoteMemoryToRegisterPass)
 #endif
 
+#ifdef HAVE_DEMOTE_REGISTER_TO_MEMORY_PASS
 R_CREATE_FUNPASS(createDemoteRegisterToMemoryPass)
+#endif
 
 R_CREATE_PASS(createLICMPass)
 R_CREATE_PASS(createSROAPass)
@@ -120,7 +122,10 @@ R_CREATE_PASS(createStructurizeCFGPass)
 #ifdef HAVE_LOOP_SIMPLIFY_PASS
 R_CREATE_PASS(createLoopSimplifyPass)
 #endif
+
+#ifdef HAVE_LOOP_SIMPLIFY_CFG_PASS
 R_CREATE_PASS(createLoopSimplifyCFGPass)
+#endif
 
 #ifdef HAVE_MEM_CPY_OPT_PASS
 R_CREATE_FUNPASS(createMemCpyOptPass)
@@ -153,7 +158,10 @@ R_CREATE_PASS(createPartiallyInlineLibCallsPass)
 R_CREATE_PASS(createLoopUnswitchPass)
 #endif
 
+#ifdef HAVE_LOOP_INST_SIMPLIFY_PASS
 R_CREATE_PASS(createLoopInstSimplifyPass)
+#endif
+
 R_CREATE_PASS(createLoopUnrollPass)
 R_CREATE_PASS(createLoopRotatePass)
 
