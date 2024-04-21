@@ -484,6 +484,27 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/Support/CodeGen.h>
 	       ])
 
 
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/IR/Type.h>
+               ]], [[
+	          llvm::LLVMContext *ctx;
+                 llvm::Type::getFloatPtrTy(*ctx);
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_FLOAT_PTR_TYPE=1";
+   	             echo "Have getFloatPtrTy()"
+	       ],[echo "No getFloatPtrTy() available"
+	       ])
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/IR/DerivedTypes.h>
+               ]], [[
+                 llvm::PointerType *p;
+		 llvm::PointerType *ty;
+		 p->hasSameElementTypeAs(ty);
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_SAME_ELEMENT_TYPE_AS=1";
+   	             echo "Have hasSameElementTypeAs()"
+	       ],[echo "No hasSameElementTypeAs() available"
+	       ])
+
+
+
 
 dnl Check whether the C++ compiler supports
 dnl -Xclang -no-opaque-pointers

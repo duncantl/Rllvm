@@ -27,10 +27,17 @@ R_getTypeDefinitions()
         ty(Int16),
         ty(Int32),
         ty(Int64),
+#if HAVE_FLOAT_PTR_TYPE        
         ty(FloatPtr),
         ty(DoublePtr),
         ty(Int32Ptr),
         ty(Int8Ptr)
+#else
+        {NULL, "FloatPtr"},
+        {NULL, "Doubletr"},
+        {NULL, "Int32Ptr"},
+        {NULL, "Int8Ptr"},        
+#endif        
     };
 
     
@@ -588,10 +595,15 @@ extern "C"
 SEXP
 R_PointerType_hasSameElementTypeAs(SEXP r_type, SEXP r_other)
 {
+#if HAVE_SAME_ELEMENT_TYPE_AS    
     llvm::PointerType *type = GET_REF(r_type, PointerType);
     llvm::PointerType *other = GET_REF(r_other, PointerType);    
     bool ans = type->hasSameElementTypeAs(other);
     return(ScalarLogical(ans));
+#else
+    PROBLEM "hasSameElementTypeAs() not available for LLVM PointerType"
+        ERROR;
+#endif    
 }
 
 
