@@ -21,6 +21,31 @@ We can build LLVM and clang from source.
 The instructions are available at, for example,
   http://clang.llvm.org/get_started.html
 
+
+### Update
+tar xzf ~/Downloads/llvm-project-llvmorg-15.0.6.tar.gz
+
+From the top-level directory of the untarred archive
+
+```
+cmake -S llvm -B build -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$HOME/LLVM/local -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLLVM_ENABLE_PROJECTS="clang;lldb;lld;flang;clang-tools-extra" -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" -DLLDB_USE_SYSTEM_DEBUGSERVER=ON
+```
+
+Then compile from within the build/ directory:
+```
+cd build
+make -j 8
+```
+
++ Change the target directory (CMAKE_INSTALL_PREFIX) if we want to have multiple parallel installations,
+   e.g. local_v18
+
++ And then `make install`
+
+
+
+### Older Guidelines
+
 It is often useful to compile clang at the same time (to ensure the same version).
 For this, see below.
 
