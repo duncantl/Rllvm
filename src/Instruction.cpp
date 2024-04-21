@@ -39,7 +39,15 @@ Ins_is(isIntDivRem)
 Ins_is(isShift)
 Ins_is(isCast)
 Ins_is(isFuncletPad)
+
+#if HAVE_IS_EXCEPTIONAL_TERMINATOR
 Ins_is(isExceptionalTerminator)
+#endif
+
+#if HAVE_IS_SPECIAL_TERMINATOR
+Ins_is(isSpecialTerminator)
+#endif
+
 Ins_is(isLogicalShift)
 Ins_is(isArithmeticShift)
 Ins_is(isBitwiseLogicOp)

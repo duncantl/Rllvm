@@ -480,3 +480,21 @@ if test $? -ne 0 ; then
 fi
 
 echo "Compile & Link flags:  `${LLVM_CONFIG} --cxxflags --ldflags`"
+
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/IR/Instruction.h>
+               ]], [[
+	         llvm::Instruction *ins;
+		 ins->isExceptionalTerminator();
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_IS_EXCEPTIONAL_TERMINATOR=1";
+	       ],[echo "No isExceptionalTerminator() method in llvm::Instruction class"
+	       ])
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/IR/Instruction.h>
+               ]], [[
+	         llvm::Instruction *ins;
+		 ins->isSpecialTerminator();
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_IS_SPECIAL_TERMINATOR=1";
+	       ],[echo "No isSpecialTerminator() method in llvm::Instruction class"
+	       ])
+
