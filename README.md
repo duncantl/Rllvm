@@ -15,10 +15,12 @@ intermediate representation (IR), which LLVM can then extensively and
 efficiently optimize and generate native code.
 
 
-For examples, see [explorations](explorations), [experiments](experiments) and [tests](tests) directories.
+For examples, see 
++ [explorations](explorations), 
++ [experiments](experiments) and 
++ [tests](tests) directories.
 
-
-The current repository builds against LLVM 15, 14, 13, 12, 11, 10, 9, ..., 3.5, 3.6, 3.7, and 3.8.
+The current repository builds against LLVM 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, ..., 3.5, 3.6, 3.7, and 3.8.
 
 Importantly, versions of LLVM default to the MCJIT execution engine.
 This unfortunately has very limited ability to invoke routines compiled via Rllvm,
@@ -26,24 +28,32 @@ i.e., using the .llvm() and run() functions.   Acccordingly, we have implemented
 reasonably comprehensive mechanism to invoke these routines.
 We use the [Rffi](https://github.com/omegahat/Rffi) package to do this.
 
-
 So this package now requires the [Rffi](https://github.com/omegahat/Rffi) package.
 This comes with its own version of libffi, but will find a more up-to-date version
 if it is installed (see pkg-config). 
 
 These packages are not on CRAN.
 
-Related packages are [Rffi](https://github.com/omegahat/Rffi), Rllvm (this one),
-[RLLVMCompile](https://github.com/duncantl/RLLVMCompile),
-[RLLVMCompile](https://github.com/duncantl/RLLVMCompile),
-[RCUDA](https://github.com/duncantl/RCUDA),
-[RCIndex](https://github.com/omegahat/RClangSimple),
-[NativeCodeAnalysis](https://github.com/duncantl/NativeCodeAnalysis).
+Related packages are 
++ [Rffi](https://github.com/omegahat/Rffi), 
++ Rllvm (this one),
++ [RLLVMCompile](https://github.com/duncantl/RLLVMCompile),
++ [RLLVMCompile](https://github.com/duncantl/RLLVMCompile),
++ [RCUDA](https://github.com/duncantl/RCUDA),
++ [RCIndex](https://github.com/omegahat/RClangSimple),
++ [NativeCodeAnalysis](https://github.com/duncantl/NativeCodeAnalysis).
 
 
 ## Installation
 
-See [INSTALL.md](INSTALL.md)
+See [INSTALL.md](INSTALL.md).
+
+The usual package installation
+```
+R CMD INSTALL .
+```
+should work.
+
 
 On OSX, when working with binary versions of LLVM or versions built from source, 
 some of the dynamic libraries (dylib) may not correctly point to the libc++.1.dylib
