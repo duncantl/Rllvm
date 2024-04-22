@@ -21,9 +21,16 @@ all.nmd = getMetadata(m)
 nmd = getMetadata(m, "str")
 # same as all.nmd[["str"]]
 getName(nmd)
-getValue(nmd)
+
+stop()
+
+#!!!! Put backgetValue(nmd)
 val = nmd[[1]][[1]]
 getValue(val)
+# selectMethod("coerce", c("Metadata", "character"))
+#  calls
+#    .Call("R_Metadata_print", val)
+# That's the segfaul.
 #.Call("R_convertValueToR", val)
 
 .Call("R_Metadata_print", val)

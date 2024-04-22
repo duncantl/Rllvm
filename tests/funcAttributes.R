@@ -7,7 +7,7 @@ library(Rllvm)
 # Works with 3.3
 m = parseIR(system.file("IR", "add.ll", package = "Rllvm"))
 getFuncAttributes(m[["foo"]])
-setFuncAttributes(m[["foo"]],  "NoCapture")
+setFuncAttributes(m[["foo"]],  Rllvm:::NoCapture)
 getFuncAttributes(m[["foo"]])
 
 
@@ -22,7 +22,7 @@ getFuncAttributes(m[["foo"]])
 # Need to recreate via RLLVMCompile (or write the C code ourselves).
 m = parseIR(system.file("IR", "distance.ll", package = "Rllvm"))
 getFuncAttributes(m[["distance"]])
-setFuncAttributes(m[["distance"]], "NoUnwind")    # "Alignment", "NoCapture")
-showModule(m)
+setFuncAttributes(m[["distance"]], "NoUnwind", "Alignment", "NoCapture")
 getFuncAttributes(m[["distance"]])
+showModule(m)
 
