@@ -1,6 +1,6 @@
 # RLLVM
 
-**Updated for LLVM 16**
+**Updated for LLVM 18**
 + Not fully tested!
 
 RLLVM is an R interface to [LLVM](http://llvm.org). This interface
