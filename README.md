@@ -64,8 +64,12 @@ install_name_tool -change @rpath/libc++.1.dylib /usr/lib/libc++.1.dylib src/Rllv
 ```
 to fix the `src/Rllvm.so`.
 
-We can detect this either a) from the error message when R tries to load the package and its .so,
-or b) using `otool -L src/Rllvm.so`.
+We can detect this either 
++ a) from the error message when R tries to load the package and its .so, or 
++ b) using `otool -L src/Rllvm.so`.
+
+After correcting this, R CMD INSTALL should install the corrected .so without needing to recompile
+or relink.
 
 
 
