@@ -1,5 +1,7 @@
 # Exploring Opaque Pointers
 
+From the LLVM documentation:
+
 [https://llvm.org/docs/OpaquePointers.html](https://llvm.org/docs/OpaquePointers.html)
 
 +   For loads, use getType().
@@ -28,24 +30,111 @@ clang -O2 -S -emit-llvm -Xclang -no-opaque-pointers -o dnormLoop.ir dnormLoop.c 
 ## Exploring Opaque Pointers
 
 Create IR code from opaqueTests.c with opaque pointers.
-
 ```
 R CMD make -f ../inst/Make/IRMakefile  opaqueTests.ir
 ```
+or just
+```
+make
+```
 
+In versions 15 through 17 (maybe only up to v16) of LLVM, different LLVMContext objects
+could have different opaque and non-opaque pointer behavior.
+This is no longer the case in LLVM 18.
 
 ```r
-source("../inferPointerElType.R")
+# Was "../inferPointerElType.R" but that is now in Rllvm/R/
+#source("../inferOpaqueTypes.R")
 library(Rllvm)
 ctxt = getGlobalContext(TRUE)
-m = parseIR("dnormLoop.ir", context = ctxt)
+m = parseIR("../dnormLoop.ir", context = ctxt)
 p = getParameters(m$v_dnorm)[[1]]
+```
+
+```
+m = parseIR("opaqueTests.ir")
+ty = inferParamTypes(m$bar)
+
 ```
 
 
 
+### foo4
+
+Consider foo4.
+```
+m$foo4
+```
+```
+ptr foo4 ( ptr x )
+```
+With opaque pointers, we don't know this is is an `int *`.
+
+We can tell that the `x` is assigned to `z` and `z` is returned.
+So they have the same types.
+However, we don't know the type to which they point.
+getReturnType returns a generic/opaque pointer.
+
+`z` is passed in a call to `other()`. However, this is declared and not defined,
+so we can't see how other uses the parameter.
+
+In this situation, we cannot infer the type to which the value points *from the code*.
+We can, however, get more information from the debug information in the IR file since we generated
+it with -g.
+
+The IR for foo4 has `!dbg !80`.
+This is defined at the bottom of the file
+```
+!80 = distinct !DISubprogram(name: "foo4", scope: !3, file: !3, line: 46, type: !28, 
+                              scopeLine: 47, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, 
+							  unit: !2, retainedNodes: !31)
+```
+The type element here points to !28 which is
+```
+!28 = !DISubroutineType(types: !29)
+```
+`!29` shows
+```
+!29 = !{!30, !30}
+```
+and !30 is defined as 
+```
+!30 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !12, size: 64)
+```
+The definition for `!12` is
+```
+!12 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
+```
+Finaly, we have resolution.
+`!30` clearly identifies the pointer type. The baseType is also clearly an int of size 32.
 
 
+### foo11
+
+Similarly, for foo11, the debug information is in `!319`
+and the type in `!320`.
+This is 
+```
+!320 = !DISubroutineType(types: !321)
+```
+and `!321` is 
+```
+!321 = !{!12, !30, !12}
+```
+This indicates that 
++ the return type is int, 
++ the first parameter is int *, and
++ the second parameter is int.
+
+
+## Accessing the Debug Information via Rllvm.
+
+
+We can currently get the Module-level metadata with
+```
+i = getMetadata(m)
+```
+But how do we get the information for a Function?
 
 ## bison library
 
@@ -159,18 +248,20 @@ u = getAllUsers(p)
 ```
 
 
+```
 u2 = getAllUsers(u[[2]])[[1]]
+```
 
-This is the GEP.
-
+This is the GEP
+```
 .Call("R_GetElementPtrInst_getSourceElementType", u2)
+```
 
 
 
-
-
+```
 u[[1]][[1]]
-
+```
 So we now want to see where the target of that storage is used.
 
 
