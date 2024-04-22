@@ -43,4 +43,9 @@ twoModules[23]$
 syms.so
 llvmClasses_10.0.rds
 TU.old/.*
+src/IRMakefile
+IRMakefile-
+src/*.ir
+src/*.bc
+
 

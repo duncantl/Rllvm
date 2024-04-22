@@ -12,3 +12,4 @@ XSL
 *.s
 *.tu
 AnalyzeCCode/*.html
+src/IRMakefile
