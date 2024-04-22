@@ -9,6 +9,7 @@ tu = mkTU("llvm.cpp")
 options(nwarnings = 10000)
 
 # Get the enumerated constants but just from the directories with /llvm and /llvm-c
+# Takes 3 minutes for llvm 18.1
 enums = getEnums(tu, fileFilter = "/llvm") 
 
 
@@ -19,6 +20,7 @@ sum(tt > 1)
 # Only 17 from the 279 different enum sets containing 9894 individual elements.
 # 24 of 211 for LLVM 8.0
 # 88 for LLVM 17
+# 93 for LLVM 18.1
 
 dups = names(tt)[tt > 1]
 
@@ -43,13 +45,13 @@ names(defs) = dups
 
 # How is this different from utils.R
 if(getOption("writeEnums", FALSE)) {
- source("utils.r")
- ids = grep("(^__|::)", names(enums), invert = true, value = true) # remove llvm:: , std::, __lx
- rfilename = sprintf("../r/z_enumdefs_%d.%d.r", version[1], version[2])
+ source("utils.R")
+ ids = grep("(^__|::)", names(enums), invert = TRUE, value = TRUE) # remove llvm:: , std::, __lx
+ rfilename = sprintf("../R/z_enumDefs_%d.%d.R", version[1], version[2])
  con = file(rfilename, "w")
  sink(con)
- cat("if(all(llvmversion() == c(", version[1], ", ", version[2], "))) {\n\n")
- invisible(lapply(enums[ids], outputenum))
+ cat("if(all(llvmVersion() == c(", version[1], ", ", version[2], "))) {\n\n")
+ invisible(lapply(enums[ids], outputEnum))
  cat("\n\n\n}\n\n")
  sink()
 }
