@@ -77,7 +77,8 @@ Collate: llvmVersion.R
 	 z_enumDefs_14.0.R
 	 z_enumDefs_15.0.R
 	 z_enumDefs_16.0.R
-	 z_enumDefs_17.0.R	 	 	 	 	 
+	 z_enumDefs_17.0.R
+	 z_enumDefs_18.1.R	 	 	 	 	 	 
          types.R
 	 Function.R
          ascii.R
