@@ -4,6 +4,8 @@
 ## ExecEngine.cpp
 
 + 1 error
++ Fixed
+
 ```
 ExecEngine.cpp:121:51: error: no enum named 'Level' in namespace 'llvm::CodeGenOpt'
 ```
@@ -43,12 +45,16 @@ R_CREATE_PASS(createLoopSimplifyCFGPass)
 ```
 Pass.cpp:156:15: error: no member named 'createLoopInstSimplifyPass' in namespace 'llvm'
 R_CREATE_PASS(createLoopInstSimplifyPass)
-~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~o
+~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
 ```
 
 ## Target.cpp
 
 + 1 error
++ Fixed
++ Fix the test in configure.ac for addPassesToEmitFile.
++ Moved the code to do the cast to CodeGenFileType or ::FileType to 
+  define the name of the type and then use that.
 
 ```
 Target.cpp:241:88: error: no member named 'CodeGenFileType' in 'llvm::TargetMachine'
