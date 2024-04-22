@@ -1,6 +1,7 @@
 library(Rllvm)
 
 sameType(REALSXPType, INTSXPType)
+# Currently TRUE!
 
 #env = parseIR("~/R-4.1/build3/src/main/envir.ir")
 env = parseIR(system.file("IR", "times.ir", package = "Rllvm"))
