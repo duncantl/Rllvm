@@ -1,5 +1,5 @@
 nms = parseIR(system.file("IR/names.ir", package = "Rllvm"))
-ft = n[["R_FunTab"]]
+ft = nms[["R_FunTab"]]
 els = ft[[1]][]
 length(els)
 

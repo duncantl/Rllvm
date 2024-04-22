@@ -42,11 +42,23 @@ isSEXPType(const llvm::Type *ty)
 }
 
 
+const llvm::Type *
+raiseOpaquePointerError()
+{ 
+    PROBLEM "llvm has only opaque pointers" 
+        ERROR;
+    return(NULL);
+}
+
+
 #ifdef LLVM_TYPE_HAS_GET_POINTER_ELEMENT_TYPE
 #define PTR_EL_TYPE(ty) (ty)->getPointerElementType()
+#elif LLVM_VERSION < 17
+#define PTR_EL_TYPE (ty)->getNonOpaquePointerElementType()
 #else
-#define PTR_EL_TYPE(ty) (ty)->getNonOpaquePointerElementType()
+#define PTR_EL_TYPE(ty) raiseOpaquePointerError()
 #endif
+
 
 SEXP
 convertRawPointerToR(void *p, const llvm::Type *type)
@@ -71,12 +83,11 @@ convertRawPointerToR(void *p, const llvm::Type *type)
     
     llvm::Type::TypeID elID = elType->getTypeID();
     llvm::Type::TypeID ID = type->getTypeID();   
-//    fprintf(stderr, "ID = %d, elID = %d\n", ID, elID);
+
     if(ID == llvm::Type::ArrayTyID) {
         SEXP ans = R_NilValue;
         unsigned nels = type->getArrayNumElements(), i;
         int np = 0;
-//        fprintf(stderr, "# elements = %d\n", nels);
         if(elID == llvm::Type::IntegerTyID) {
             PROTECT(ans = NEW_INTEGER(nels));
             np++;
