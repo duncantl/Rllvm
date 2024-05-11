@@ -918,3 +918,8 @@ export(getValueType)
 export(inferReturnPointerType, inferParamTypes,
        inferRoutinePointerTypes)
 # inferPointerElType,
+
+
+
+
+export(getAllMetadata)

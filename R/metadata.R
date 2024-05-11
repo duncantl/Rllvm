@@ -133,3 +133,12 @@ setMethod("getParent", "NamedMDNode",
               .Call("R_NamedMDNode_getParent", x)
           })
 
+
+
+
+
+getAllMetadata =
+function(inst)    
+{
+    .Call("R_Instruction_getAllMetadata", inst) #  as(inst, "Instruction"))
+}
