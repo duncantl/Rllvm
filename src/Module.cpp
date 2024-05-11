@@ -905,7 +905,9 @@ getLLVMGlobalContext()
            ERROR;
        }
 
+#ifdef HAVE_SET_OPAQUE_POINTERS           
        gcontext->setOpaquePointers(false);
+#endif
     }
 
     return(*gcontext);
@@ -928,9 +930,14 @@ R_setOpaquePointers(SEXP r_ctxt, SEXP val)
         PROBLEM "NULL value for LLVMContext"
             ERROR;
     }
+#ifdef HAVE_SET_OPAQUE_POINTERS               
     ctxt->setOpaquePointers(LOGICAL(val)[0]);
-    
-    return(ScalarLogical(ctxt->supportsTypedPointers()));
+    return(ScalarLogical(ctxt->supportsTypedPointers()));    
+#else
+    PROBLEM "Opaque Pointers not supported in this version of LLVM"
+        WARN;
+#endif    
+
 }
 
 extern "C"

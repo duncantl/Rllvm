@@ -909,8 +909,10 @@ R_llvm_ParseIRFile(SEXP r_content, SEXP r_inMemory, SEXP r_context, SEXP r_opaqu
 #endif
     }
 
+#ifdef HAVE_SET_OPAQUE_POINTERS    
     context->setOpaquePointers(LOGICAL(r_opaquePointers)[0]);
-
+#endif
+    
     std::string fn(CHAR(STRING_ELT(r_content, 0)));
 
     if(LOGICAL(r_inMemory)[0])  {

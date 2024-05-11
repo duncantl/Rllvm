@@ -518,6 +518,19 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/IR/DerivedTypes.h>
 
 
 
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+               #include <llvm/IR/LLVMContext.h>
+               ]], [[
+	          llvm::LLVMContext *context;
+		  context->setOpaquePointers(1);
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DHAVE_SET_OPAQUE_POINTERS=1";
+   	             echo "Has setOpaquePointers()"
+	       ],[echo "No setOpaquePointers() method"
+	       ])
+
+
+
+
 
 dnl Check whether the C++ compiler supports
 dnl -Xclang -no-opaque-pointers
