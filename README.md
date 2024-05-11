@@ -38,9 +38,15 @@ Related packages are
 + [Rffi](https://github.com/omegahat/Rffi), 
 + Rllvm (this one),
 + [RLLVMCompile](https://github.com/duncantl/RLLVMCompile),
-+ [RCUDA](https://github.com/duncantl/RCUDA),
 + [RCIndex](https://github.com/omegahat/RClangSimple),
 + [NativeCodeAnalysis](https://github.com/duncantl/NativeCodeAnalysis).
+
+
+And exploration/proof-of-concept packages using this include:
++ [RCUDA](https://github.com/duncantl/RCUDA),
++ [RllvmSQLiteUDF](https://github.com/duncantl/RllvmSQLiteUDF)
++ [RllvmXPathUDF](https://github.com/duncantl/RllvmXPathUDF)
+
 
 
 ## Installation
@@ -76,5 +82,5 @@ or relink.
 
 + [LLVM Web site](https://llvm.org)
 + [LLVM Documentation](http://llvm.org/docs/)
-+ [Book on LLVM](http://www.aosabook.org/en/llvm.html)
++ [Book chapter on LLVM](http://www.aosabook.org/en/llvm.html)
 
