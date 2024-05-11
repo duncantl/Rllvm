@@ -131,10 +131,26 @@ This indicates that
 
 
 We can currently get the Module-level metadata with
+```{r}
+md = getMetadata(m)
+names(md)
 ```
-i = getMetadata(m)
 ```
+[1] "llvm.dbg.cu"       "llvm.module.flags" "llvm.ident"       
+```
+```{r}
+ops = getOperands(md$llvm.ident)
+```
+
+
 But how do we get the information for a Function?
+Perhaps??
+```
+mdf = getMetadata(m$foo11, "dbg")
+length(mdf)
+v = mdf[]
+```
+Each of these has class Metadata. Some have address 0x0.
 
 ## bison library
 
