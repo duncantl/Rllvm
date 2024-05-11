@@ -207,7 +207,7 @@ R_TargetMachine_addAnalysisPasses(SEXP r_targetMachine, SEXP r_passManager)
 #ifdef CODE_GEN_FILE_TYPE_IN_LLVM
 #define CODE_GEN_FILE_TYPE_ENUM  llvm::CodeGenFileType
 #else
-#define CODE_GEN_FILE_TYPE_ENUM  llvm::TargetMachine::CodeGenFileType
+#define CODE_GEN_FILE_TYPE_ENUM  llvm::CodeGenFileType /* llvm::TargetMachine::CodeGenFileType */
 #endif
 
 
