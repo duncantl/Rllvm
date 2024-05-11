@@ -5,6 +5,7 @@
 # or
 # R CMD make -f IRMakefile all
 # to get all the R-specific environment variables.
+#
 
 -include $(R_HOME)/etc/Makeconf
 -include $(HOME)/.R/Makevars
@@ -25,7 +26,6 @@ ifeq ($(OBJ_FILES),)
 OBJ_FILES=$(wildcard *.o)
 endif
 
-
 ifeq ($(OBJ_FILES),)
 OBJ_FILES=$(shell echo $(CFILES) | sed -re 's/(\.c|\.cpp|\.cc|\.C)( |$$)/.ir \2/g')
 endif
@@ -43,6 +43,11 @@ endif
 LLVM_CPPFLAGS=-DTESTING_WRITE_BARRIER
 ifndef LLVM_CFLAGS
   LLVM_CFLAGS=-mllvm -inline-threshold=0 -mllvm -inlinehint-threshold=10 -fno-discard-value-names
+endif
+
+
+ifndef FLANG
+FLANG=flang-new
 endif
 
 # For Rcpp, hijack the CXXPICFLAGS
@@ -68,6 +73,8 @@ RCPP_FLAGS=-I$(HOME)/Rpackages4/Rcpp/include
 %.ir: %.m
 	$(CC) -emit-llvm -S $(ALL_CPPFLAGS) $(LLVM_CPPFLAGS) $(ALL_CFLAGS) $(LLVM_CFLAGS) $(IR_FLAGS) -c $< -o $@
 
+%.ir: %.f
+	$(FLANG) -emit-llvm -S $(LLVM_CFLAGS) $(IR_FLAGS) -c $< -o $@
 
 $(RTOCFILE).rds:
 	Rscript -e "saveRDS(NativeCodeAnalysis::mkRoutineFileTOC('.'), "$@")'
