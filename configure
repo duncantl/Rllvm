@@ -3679,15 +3679,19 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 # For LLVM 10, need to use llvm::CGFT_ObjectFile rather than TargetMachine.
 # Need to test this first.
 
+
+
+CXXFLAGS="$CXXFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1"
+
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <llvm/Target/TargetMachine.h>
+#include <llvm/Support/CodeGen.h>
 
 int
 main (void)
 {
 
-	         llvm::CodeGenFileType ty;
+	         int x = (int) llvm::CodeGenFileType::CGFT_ObjectFile;
 
   ;
   return 0;
@@ -3695,14 +3699,16 @@ main (void)
 _ACEOF
 if ac_fn_cxx_try_compile "$LINENO"
 then :
-  LLVM_CFLAGS="$LLVM_CFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1";
-   	             CXXFLAGS="$CXXFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1"
+  LLVM_CFLAGS="$LLVM_CFLAGS -DCODE_GEN_FILE_TYPE_HAS_CGFT_PREFIX=1";
+   	             CXXFLAGS="$CXXFLAGS -DCODE_GEN_FILE_TYPE_HAS_CGFT_PREFIX=1";
+		     echo "CodeGenFileType uses a CGFT_ prefix"
 
 else $as_nop
-  echo "CodeGenFileType enum is defined in llvm::TargetMachine::CodeGenFileType"
+  echo "CodeGenFileType does not have CGFT_ prefix"
 
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
 
 
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -3719,10 +3725,10 @@ llvm::TargetMachine *m;
  	        llvm::legacy::PassManager mgr;
 		llvm::raw_pwrite_stream *out;
 	        m->addPassesToEmitFile(mgr, *out, NULL,
-		#ifdef CODE_GEN_FILE_TYPE_IN_LLVM
-		llvm::CodeGenFileType::ObjectFile
+		#ifdef CODE_GEN_FILE_TYPE_HAS_CGFT_PREFIX
+		llvm::CodeGenFileType::CGFT_ObjectFile
 		#else
-		llvm::TargetMachine::CGFT_ObjectFile
+                llvm::CodeGenFileType::ObjectFile
 		#endif
 		);
 

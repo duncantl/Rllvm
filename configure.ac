@@ -306,13 +306,26 @@ CHECK_INST(ElementUnorderedAtomicMemSetInst, HAVE_ElementUnorderedAtomicMemSetIn
 # For LLVM 10, need to use llvm::CGFT_ObjectFile rather than TargetMachine.
 # Need to test this first.
 
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/Target/TargetMachine.h>
+
+dnl AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/Support/CodeGen.h>
+dnl               ]], [[
+dnl	         llvm::CodeGenFileType ty;
+dnl	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1";
+dnl   	             CXXFLAGS="$CXXFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1"
+dnl	       ],[echo "CodeGenFileType enum is defined as a class, not a simple enum"
+dnl	       ])
+
+CXXFLAGS="$CXXFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1"
+
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/Support/CodeGen.h>
                ]], [[
-	         llvm::CodeGenFileType ty;
-	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1";
-   	             CXXFLAGS="$CXXFLAGS -DCODE_GEN_FILE_TYPE_IN_LLVM=1"
-	       ],[echo "CodeGenFileType enum is defined in llvm::TargetMachine::CodeGenFileType"
+	         int x = (int) llvm::CodeGenFileType::CGFT_ObjectFile;
+	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DCODE_GEN_FILE_TYPE_HAS_CGFT_PREFIX=1";
+   	             CXXFLAGS="$CXXFLAGS -DCODE_GEN_FILE_TYPE_HAS_CGFT_PREFIX=1";
+		     echo "CodeGenFileType uses a CGFT_ prefix"
+	       ],[echo "CodeGenFileType does not have CGFT_ prefix"
 	       ])
+
 
 
 dnl		llvm::CGFT_ObjectFile		
@@ -324,10 +337,10 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <llvm/Target/TargetMachine.h>
  	        llvm::legacy::PassManager mgr;
 		llvm::raw_pwrite_stream *out;
 	        m->addPassesToEmitFile(mgr, *out, NULL,
-		#ifdef CODE_GEN_FILE_TYPE_IN_LLVM
-		llvm::CodeGenFileType::ObjectFile
+		#ifdef CODE_GEN_FILE_TYPE_HAS_CGFT_PREFIX
+		llvm::CodeGenFileType::CGFT_ObjectFile
 		#else
-		llvm::TargetMachine::CGFT_ObjectFile		
+                llvm::CodeGenFileType::ObjectFile
 		#endif
 		);
 	       ]])],[LLVM_CFLAGS="$LLVM_CFLAGS -DADD_PASSES_TO_EMIT_FILE_HAS_EXTRA_ARG=1";
