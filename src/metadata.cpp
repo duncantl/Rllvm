@@ -229,6 +229,9 @@ R_Metadata_print(SEXP r_ref)
     std::string str;
     llvm::raw_string_ostream OS(str);
     llvm::MD_TYPE *metadata = GET_REF(r_ref, MD_TYPE);
+    if(!metadata)
+        return(R_NilValue);
+    
     metadata->print(OS);
     return(ScalarString(mkChar( OS.str().c_str())));
 }
@@ -264,7 +267,8 @@ MDNodeToRValueList(llvm::MDNode *MD)
         llvm::Value *val = llvm::dyn_cast<llvm::Value>(llvm::MetadataAsValue::get(MD->getContext(), MD->getOperand(0)));
         ans = R_createRef2(val, NULL); // XXX need to get the more specific class
     } else {
-        PROTECT(ans = NEW_LIST(n));        
+        
+        PROTECT(ans = NEW_LIST(n));
         for(size_t i = 0; i < n; i++) {
             llvm::Value *el = llvm::dyn_cast<llvm::Value>(llvm::MetadataAsValue::get(MD->getContext(), MD->getOperand(i)));
             SET_VECTOR_ELT(ans, i, R_createRef2(el, NULL)); // XXX same as above
@@ -316,4 +320,40 @@ R_metadata_eg(SEXP r_M, SEXP id)
     LDECL2(Module, M);
     llvm::NamedMDNode *md = M->getNamedMetadata(CHAR(STRING_ELT(id, 0)));
     return(NamedNDNode_getValue(md));
+}
+
+
+extern "C"
+SEXP
+R_Instruction_getAllMetadata(SEXP r_ins)
+{
+    llvm::Instruction *ins = GET_REF(r_ins, Instruction);
+
+    if(!ins)
+        return(R_NilValue);
+
+    /* https://github.com/jiten-thakkar/llvm-pass-skeleton/blob/metadata/metadata/ReadMetadata.cpp */
+
+    llvm::SmallVector<std::pair<unsigned, llvm::MDNode*>, 4> MDs;
+
+    ins->getAllMetadata(MDs);
+    size_t n = 0, i = 0;
+    for (auto &MD : MDs) n++;
+
+    SEXP r_ans, r_kinds;
+    PROTECT(r_ans = NEW_LIST(n));
+    PROTECT(r_kinds = NEW_NUMERIC(n));
+    for (auto &MD : MDs) {
+        REAL(r_kinds)[i] = MD.first;
+        SET_VECTOR_ELT(r_ans, i++, MDNodeToRValueList(MD.second));
+    }
+
+    Rf_setAttrib(r_ans, Rf_install("kind"), r_kinds);
+    
+    UNPROTECT(2);
+    return(r_ans);
+    
+    
+/*    for(auto I = inst_begin(*ins), E = inst_end(*ins); I != E; ++I)  */
+        
 }
