@@ -54,7 +54,7 @@ raiseOpaquePointerError()
 #ifdef LLVM_TYPE_HAS_GET_POINTER_ELEMENT_TYPE
 #define PTR_EL_TYPE(ty) (ty)->getPointerElementType()
 #elif LLVM_VERSION < 17
-#define PTR_EL_TYPE (ty)->getNonOpaquePointerElementType()
+#define PTR_EL_TYPE(ty) (ty)->getNonOpaquePointerElementType()
 #else
 #define PTR_EL_TYPE(ty) raiseOpaquePointerError()
 #endif
