@@ -1,3 +1,6 @@
+# 2nd approach in staticCodeAnalysis for finding calls of the form
+#  Rf_eval(*, R_GlobalEnv)
+#
 v2 = 
 function(mod)
 {
