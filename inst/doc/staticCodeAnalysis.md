@@ -125,9 +125,63 @@ info = data.frame(routine = sapply(k2, function(x) getName(as(x, "Function"))),
 
 
 
-## Issues
+## Alternative Approach
+
+
+Finding the instructions in which  R_GlobalEnv is used is the most direct approach.
+However, an alternative is to find all calls within a module and then check if
+ 
+ + it is a call to Rf_eval()
+ + the second argument is a Load instruction that loads R_GlobalEnv.
+
+We can use isEvalCall and usesGlobalEnv from above.
+
+The only difference is that we need to find all calls in the module.
+We can use getInstructions to get all the instructions by routine and then flatten this list. 
+```{r}
+i = getInstructions(m)
+i = unlist(i)
+w = sapply(i, isEvalCall)
+i2 = i[w]
+i2[ sapply(i2, usesGlobalEnv) ]
+```
+
+Combining these commands into a function, we have
+```{r}
+v2 = 
+function(mod)
+{
+    if(is.character(mod))
+        mod = parseIR(mod)
+
+    if(is.null(getGlobalVariable(mod, "R_GlobalEnv")))
+        return(NULL)
+
+    i = getInstructions(mod)
+    i = unlist(i)
+    w = sapply(i, isEvalCall)
+    i2 = i[w]
+    if(length(i2))
+        i2[ sapply(i2, usesGlobalEnv) ]
+    else
+        list()
+}
+```
+
+
+The getAllUsers2() approach is more efficient as we are finding only the uses of
+R_GlobalEnv and  using llvm's indexing to do that. Then we find their uses.  
+However, in this `v2` approach, we are processing all
+instructions in the module. So in the former case, we are processing a small subset of the instructions,
+and in the latter, all instructions. If the module does not have a global variable R_GlobalEnv, then
+we should not process any instructions as it is a complete waste of time.
+
+
+## Issues and a different approach.
 
 The Rllvm approach analyses the "compiled" code. This means that certain platform and operating system-specific
 flags were passed to the compiler and some parts of the code for other systems were omitted.
 If we want to statically analyze the code in a more general manner, we can work with the C source
 code directly.  The RCIndex package can help with this. See [](https://github.com/duncantl/RCIndex).
+By default, we will also specify the appropriate preprocessor (and compilation) flags. However, it
+does provide a mechanism by which we can preserve and find the #if and #ifdef elements.
