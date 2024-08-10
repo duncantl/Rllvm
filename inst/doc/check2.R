@@ -1,6 +1,10 @@
 # 2nd approach in staticCodeAnalysis for finding calls of the form
 #  Rf_eval(*, R_GlobalEnv)
 #
+# The first approach is much better - finding uses of R_GlobalEnv and then finding which
+# of these are calls to Rf_eval().
+#
+
 v2 = 
 function(mod)
 {
