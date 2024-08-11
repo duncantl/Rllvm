@@ -182,6 +182,19 @@ we should not process any instructions as it is a complete waste of time.
 The Rllvm approach analyses the "compiled" code. This means that certain platform and operating system-specific
 flags were passed to the compiler and some parts of the code for other systems were omitted.
 If we want to statically analyze the code in a more general manner, we can work with the C source
-code directly.  The RCIndex package can help with this. See [](https://github.com/duncantl/RCIndex).
-By default, we will also specify the appropriate preprocessor (and compilation) flags. However, it
-does provide a mechanism by which we can preserve and find the #if and #ifdef elements.
+code directly.  The RCIndex package can help with this. See the [RCIndex package](https://github.com/duncantl/RCIndex).
+<!-- By default, we will also specify the appropriate preprocessor (and compilation) flags. 
+ However, it
+does provide a mechanism by which we can preserve and find the `#if` and `#ifdef` elements. -->
+We have to mimic some of the computations that the compiler does for us, e.g.,
+finding the values of a given variable.
+
+
+Routines that are defined/declared as `static` may not be explicitly included in the LLVM-based
+analysis. For example, the routine `ParseBrowser()` is declared `static` and the compiler inlines
+the code from the routine into the single routine that calls it, `Rf_ReplIteration()`. 
+We find the call in `Rf_ReplIteration()`.
+If it is important to find the call within the `ParseBrowser()` routine, we can either
+
++ compile the IR code without optimization to avoid the inlining, or
++ use the RCIndex package to work with the source code.
