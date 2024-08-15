@@ -187,7 +187,7 @@ code directly.  The RCIndex package can help with this. See the [RCIndex package
  However, it
 does provide a mechanism by which we can preserve and find the `#if` and `#ifdef` elements. -->
 We have to mimic some of the computations that the compiler does for us, e.g.,
-finding the values of a given variable.
+finding the values separately assigned to a given variable used in a call.
 
 
 Routines that are defined/declared as `static` may not be explicitly included in the LLVM-based
